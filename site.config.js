@@ -14,17 +14,17 @@
  */
 var SITE_CONFIG = {
     // ── Domain Utama (Production) ──────────────────────────
-    PRIMARY_DOMAIN: 'solvin.digital',
+    PRIMARY_DOMAIN: 'akses.nextcuan.my.id',
 
     // ── Daftar Domain yang Diizinkan ───────────────────────
     ALLOWED_DOMAINS: [
-        'solvin.digital',
-        'www.solvin.digital'
+        'akses.nextcuan.my.id',
+        'www.akses.nextcuan.my.id'
     ],
 
     // ── Pattern Subdomain yang Diizinkan ───────────────────
     ALLOWED_SUBDOMAIN_SUFFIXES: [
-        '.solvin.digital'
+        '.akses.nextcuan.my.id'
     ],
 
     // ── Cloudflare Pages Preview ───────────────────────────

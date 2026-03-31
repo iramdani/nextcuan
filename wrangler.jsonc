@@ -15,7 +15,7 @@
     "nodejs_compat"
   ],
   "vars": {
-    "ALLOWED_ORIGINS": "https://solvin.digital,https://www.solvin.digital",
+    "ALLOWED_ORIGINS": "https://akses.nextcuan.my.id,https://www.akses.nextcuan.my.id",
     "APP_GAS_URL": "https://script.google.com/macros/s/AKfycbxvpwcjg4pwXiXFVrCZ2W_qtSaahMkbbowPqvNGPJKkhO4zpLFsP2MF8lkpMoZ37LHy/exec",
     "MOOTA_GAS_URL": "https://script.google.com/macros/s/AKfycbxvpwcjg4pwXiXFVrCZ2W_qtSaahMkbbowPqvNGPJKkhO4zpLFsP2MF8lkpMoZ37LHy/exec",
     "MOOTA_TOKEN": "l1GiARpI"
