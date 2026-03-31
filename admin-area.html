@@ -567,6 +567,7 @@
         /* Glass Utilities */
         .glass-panel { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.6); }
     </style>
+<script src='https://cdn.jsdelivr.net/npm/chart.js'></script>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased relative h-screen w-screen overflow-hidden">
 
@@ -754,6 +755,36 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- DATA SALES CHART SECTION START -->
+                    <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 mb-8 overflow-hidden fade-in-up">
+                        <div class="px-8 py-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-50/30 gap-4">
+                            <div>
+                                <h3 class="font-bold text-slate-700 text-lg flex items-center gap-2">
+                                    <i data-lucide="bar-chart-2" class="w-5 h-5 text-indigo-500"></i> Sales Overview
+                                </h3>
+                                <p class="text-xs text-slate-500 font-medium mt-1">Total pendapatan & transaksi berdasarkan periode waktu</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <select id="sales-chart-filter" onchange="renderSalesChart(this.value)" class="text-sm font-semibold text-slate-600 bg-white border border-slate-200 rounded-xl px-4 py-2 hover:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all cursor-pointer shadow-sm">
+                                    <option value="7">7 Hari Terakhir</option>
+                                    <option value="14">14 Hari Terakhir</option>
+                                    <option value="30">30 Hari Terakhir</option>
+                                    <option value="all">Sepanjang Waktu</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="p-6 md:p-8 relative">
+                            <div id="sales-chart-loader" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex items-center justify-center hidden">
+                                <div class="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+                            </div>
+                            <div class="w-full h-[300px] sm:h-[400px]">
+                                <canvas id="salesChartCanvas"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- DATA SALES CHART SECTION END -->
+
 
                     <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
                         <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/30">
@@ -2075,6 +2106,7 @@
             document.getElementById('admin-role-note').innerText = 'Master Control';
             renderClientFetchStats();
             lucide.createIcons();
+            fetchAndRenderSalesChartData();
         }
 
         async function init() {
@@ -2968,6 +3000,192 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             }; 
             await submitFormToGAS('form-cf', { action: 'update_settings', payload: p }, 'Kunci Cloudflare Disimpan!');
         };
+
+        
+        // --- REAL SALES CHART IMPLEMENTATION START ---
+        let adminSalesChartInstance = null;
+        let cachedAdminOrdersForChart = null;
+
+        async function fetchAndRenderSalesChartData(forceRefresh = false) {
+            const loader = document.getElementById('sales-chart-loader');
+            if(loader) loader.classList.remove('hidden');
+
+            try {
+                // Check cache first (Session Storage)
+                const CACHE_KEY = "admin_sales_chart_orders_v1";
+                if (!forceRefresh) {
+                    const cachedStr = sessionStorage.getItem(CACHE_KEY);
+                    if (cachedStr) {
+                        try {
+                            const parsedData = JSON.parse(cachedStr);
+                            if (parsedData && parsedData.data && Date.now() - parsedData.timestamp < 300000) { // 5 minutes cache
+                                cachedAdminOrdersForChart = parsedData.data;
+                                renderSalesChart(document.getElementById('sales-chart-filter').value);
+                                if(loader) loader.classList.add('hidden');
+                                return;
+                            }
+                        } catch(e) {}
+                    }
+                }
+
+                const endpoint = getApiEndpoint();
+                if(!endpoint) throw new Error('API endpoint tidak tersedia');
+
+                const res = await fetch(endpoint, { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(buildAdminAuthPayload({ action: 'get_admin_orders', page: 1, limit: 10000 })) 
+                });
+                const r = await readJsonSafe(res);
+                if(r.status === 'success' && Array.isArray(r.data)) {
+                    cachedAdminOrdersForChart = r.data;
+                    sessionStorage.setItem(CACHE_KEY, JSON.stringify({
+                        timestamp: Date.now(),
+                        data: r.data
+                    }));
+                    renderSalesChart(document.getElementById('sales-chart-filter').value);
+                }
+            } catch(e) {
+                console.error("Error fetching chart data:", e);
+            } finally {
+                if(loader) loader.classList.add('hidden');
+            }
+        }
+
+        function renderSalesChart(periodDays) {
+            const ctx = document.getElementById('salesChartCanvas');
+            if(!ctx || !cachedAdminOrdersForChart) return;
+
+            // Prepare Data Aggregation
+            const daysToLookBack = periodDays === 'all' ? 365 : parseInt(periodDays) || 7;
+            const now = new Date();
+            const dateMap = {};
+
+            // Initialize date map for the period (to ensure days with 0 sales have data points)
+            for(let i = daysToLookBack - 1; i >= 0; i--) {
+                const d = new Date(now);
+                d.setDate(d.getDate() - i);
+                const dateStr = d.toISOString().split('T')[0];
+                dateMap[dateStr] = { revenue: 0, count: 0 };
+            }
+
+            // Aggregate Orders (Assuming format: r[7] = Status, r[6] = Total Value, r[8] = Date)
+            // Wait, looking at the backend code: r[7] is Status ('Lunas'), r[6] is Total Value, r[8] is Date
+            // In get_admin_orders endpoint: r is returned as is
+            cachedAdminOrdersForChart.forEach(order => {
+                if(order[7] !== 'Lunas') return;
+                
+                let rawDate = order[8];
+                let dateObj = new Date(rawDate);
+                if(isNaN(dateObj.getTime())) return;
+                
+                let isoDate = dateObj.toISOString().split('T')[0];
+                let rev = parseFloat(order[6]) || 0;
+
+                if(dateMap[isoDate] !== undefined) {
+                    dateMap[isoDate].revenue += rev;
+                    dateMap[isoDate].count += 1;
+                } else if(periodDays === 'all') {
+                    // If 'all', dynamic sizing
+                    if(!dateMap[isoDate]) dateMap[isoDate] = { revenue: 0, count: 0 };
+                    dateMap[isoDate].revenue += rev;
+                    dateMap[isoDate].count += 1;
+                }
+            });
+
+            // Format Labels & Data Arrays
+            const sortedDates = Object.keys(dateMap).sort();
+            const labels = [];
+            const dataRev = [];
+            
+            sortedDates.forEach(dt => {
+                const dObj = new Date(dt);
+                // e.g. "25 Mar"
+                labels.push(dObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }));
+                dataRev.push(dateMap[dt].revenue);
+            });
+
+            if(adminSalesChartInstance) {
+                adminSalesChartInstance.destroy();
+            }
+
+            adminSalesChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Total Penjualan',
+                        data: dataRev,
+                        borderColor: '#4f46e5',
+                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#ffffff',
+                        pointBorderColor: '#4f46e5',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            titleFont: { family: "'Plus Jakarta Sans', sans-serif", size: 13 },
+                            bodyFont: { family: "'Plus Jakarta Sans', sans-serif", size: 14, weight: 'bold' },
+                            padding: 12,
+                            cornerRadius: 8,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) { label += ': '; }
+                                    if (context.parsed.y !== null) {
+                                        label += new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumSignificantDigits: 3 }).format(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false, drawBorder: false },
+                            ticks: { 
+                                font: { family: "'Plus Jakarta Sans', sans-serif", size: 12 }, 
+                                color: '#64748b',
+                                maxRotation: 45,
+                                autoSkip: true,
+                                maxTicksLimit: 12
+                            }
+                        },
+                        y: {
+                            grid: { color: '#f1f5f9', drawBorder: false, borderDash: [5, 5] },
+                            ticks: { 
+                                font: { family: "'Plus Jakarta Sans', sans-serif", size: 12 }, 
+                                color: '#64748b',
+                                callback: function(value) {
+                                    if(value >= 1000000) return 'Rp ' + (value/1000000).toFixed(1).replace(/.0$/, '') + 'jt';
+                                    if(value >= 1000) return 'Rp ' + (value/1000).toFixed(1).replace(/.0$/, '') + 'k';
+                                    return 'Rp ' + value;
+                                },
+                                maxTicksLimit: 6
+                            },
+                            beginAtZero: true
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index',
+                    },
+                }
+            });
+        }
+        // --- REAL SALES CHART IMPLEMENTATION END ---
 
         window.onload = () => { lucide.createIcons(); if(isAdminSessionActive()) init(); };
     </script>

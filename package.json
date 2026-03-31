@@ -1,7 +1,7 @@
 {
-  "name": "cepaticu3-installer",
+  "name": "nextcuan-installer",
   "private": true,
-  "description": "Distribution-ready installer package for CepatIcu3",
+  "description": "Distribution-ready installer package for NextCuan",
   "scripts": {
     "setup": "node setup.js",
     "validate": "node validate-config.js",
@@ -28,7 +28,12 @@
   },
   "jest": {
     "modulePathIgnorePatterns": [
-      "<rootDir>/installer/"
+      "<rootDir>/installer/",
+      "<rootDir>/apps-script-samples/"
+    ],
+    "testPathIgnorePatterns": [
+      "<rootDir>/installer/",
+      "<rootDir>/apps-script-samples/"
     ]
   }
 }
