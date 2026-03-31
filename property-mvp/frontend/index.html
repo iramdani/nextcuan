@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Properti Nusantara</title>
+  <meta name="description" content="Platform penjualan properti profesional untuk rumah, apartemen, ruko, tanah, dan villa di Indonesia." />
+  <link rel="preconnect" href="https://images.unsplash.com" />
+  <link rel="stylesheet" href="./assets/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="./index.html">
+        <img id="brandLogo" class="brand-logo" src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=120&q=80" alt="Logo" />
+        <div>
+          <p class="brand-overline">Marketplace Properti</p>
+          <h1 id="brandName">Properti Nusantara Prime</h1>
+        </div>
+      </a>
+      <nav class="top-nav">
+        <a href="#featured">Properti Unggulan</a>
+        <a href="#listings">Listing Terbaru</a>
+        <a href="./admin.html" class="btn btn-secondary">Admin</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <p class="tag">Pilihan Terbaik di Kota Favorit Anda</p>
+          <h2 id="heroTitle">Temukan Properti Ideal untuk Hunian dan Investasi</h2>
+          <p id="heroSubtitle">Listing terkurasi dengan informasi lengkap, transparan, dan siap survei.</p>
+          <a href="#listings" class="btn btn-primary">Lihat Semua Listing</a>
+        </div>
+        <aside class="hero-card">
+          <h3>Cari Properti Lebih Cepat</h3>
+          <form id="filterForm" class="filter-grid">
+            <label>
+              Lokasi
+              <select id="locationFilter">
+                <option value="">Semua Lokasi</option>
+              </select>
+            </label>
+            <label>
+              Tipe Properti
+              <select id="typeFilter">
+                <option value="">Semua Tipe</option>
+                <option value="rumah">Rumah</option>
+                <option value="apartemen">Apartemen</option>
+                <option value="ruko">Ruko</option>
+                <option value="tanah">Tanah</option>
+                <option value="villa">Villa</option>
+              </select>
+            </label>
+            <label>
+              Harga Minimum (IDR)
+              <input id="minPriceFilter" type="number" min="0" placeholder="Contoh: 500000000" />
+            </label>
+            <label>
+              Harga Maksimum (IDR)
+              <input id="maxPriceFilter" type="number" min="0" placeholder="Contoh: 3000000000" />
+            </label>
+            <button class="btn btn-primary" type="submit">Terapkan Filter</button>
+            <button id="resetFilterBtn" class="btn btn-ghost" type="button">Reset</button>
+          </form>
+        </aside>
+      </div>
+    </section>
+
+    <section id="featured" class="section">
+      <div class="container section-head">
+        <div>
+          <p class="section-label">Featured</p>
+          <h2>Properti Unggulan Minggu Ini</h2>
+        </div>
+      </div>
+      <div class="container">
+        <div id="featuredGrid" class="card-grid"></div>
+      </div>
+    </section>
+
+    <section id="listings" class="section section-soft">
+      <div class="container section-head">
+        <div>
+          <p class="section-label">Recent Listings</p>
+          <h2>Listing Terbaru</h2>
+        </div>
+        <p id="resultCount" class="muted">Memuat data...</p>
+      </div>
+      <div class="container">
+        <div id="listingGrid" class="card-grid"></div>
+        <div class="pagination-wrap">
+          <button id="prevPageBtn" class="btn btn-secondary" type="button">Sebelumnya</button>
+          <span id="pageIndicator">Halaman 1</span>
+          <button id="nextPageBtn" class="btn btn-secondary" type="button">Berikutnya</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <h3 id="footerBrand">Properti Nusantara Prime</h3>
+        <p id="footerAddress">Jl. Jend. Sudirman Kav. 52-53, Jakarta Selatan</p>
+      </div>
+      <div>
+        <h4>Hubungi Kami</h4>
+        <p id="footerPhone">+62 21 5098 8800</p>
+        <p id="footerEmail">hello@propertinusantara.id</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    window.APP_CONFIG = {
+      API_BASE_URL: '/api',
+      PAGE_SIZE: 6,
+      CURRENCY_LOCALE: 'id-ID'
+    };
+  </script>
+  <script type="module" src="./assets/app.js"></script>
+</body>
+</html>

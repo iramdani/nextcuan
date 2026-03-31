@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard | Properti Nusantara</title>
+  <meta name="description" content="Dashboard admin untuk kelola listing properti dan pengaturan branding." />
+  <link rel="stylesheet" href="./assets/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="./index.html">
+        <img class="brand-logo" src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=120&q=80" alt="Logo" />
+        <div>
+          <p class="brand-overline">Dashboard</p>
+          <h2>Admin Properti Nusantara Prime</h2>
+        </div>
+      </a>
+      <nav class="top-nav">
+        <a href="./index.html">Kembali ke Website</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="admin-shell">
+    <div class="container">
+      <section id="authPanel" class="panel" style="max-width:520px; margin-bottom:1rem;">
+        <h3>Autentikasi Admin</h3>
+        <p class="muted">Masukkan token admin untuk mengakses CRUD properti dan pengaturan situs.</p>
+        <form id="authForm" class="form-grid">
+          <label>
+            Admin Token
+            <input id="adminTokenInput" type="password" placeholder="Masukkan token admin" required />
+          </label>
+          <button class="btn btn-primary" type="submit">Masuk Dashboard</button>
+        </form>
+        <div id="authMessage" class="muted" style="margin-top:.7rem;"></div>
+      </section>
+
+      <section id="dashboardSection" class="hidden">
+        <div class="admin-toolbar">
+          <div>
+            <h3 style="margin:0;">Property Management</h3>
+            <p class="muted" style="margin:.25rem 0 0;">Kelola data listing dan branding dari satu dashboard.</p>
+          </div>
+          <button id="logoutBtn" class="btn btn-ghost" type="button">Logout</button>
+        </div>
+
+        <div class="admin-grid">
+          <section class="panel">
+            <h4 style="margin-top:0;">Form Properti</h4>
+            <form id="propertyForm" class="form-grid">
+              <input id="propertyId" type="hidden" />
+              <label>Judul Properti<input id="title" required /></label>
+              <label>Lokasi<input id="location" required /></label>
+              <label>Alamat Lengkap<textarea id="address" rows="2" required></textarea></label>
+              <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+                <label>Tipe
+                  <select id="property_type" required>
+                    <option value="rumah">Rumah</option>
+                    <option value="apartemen">Apartemen</option>
+                    <option value="ruko">Ruko</option>
+                    <option value="tanah">Tanah</option>
+                    <option value="villa">Villa</option>
+                  </select>
+                </label>
+                <label>Status
+                  <select id="status" required>
+                    <option value="available">Available</option>
+                    <option value="booking">Booking</option>
+                    <option value="sold">Sold</option>
+                  </select>
+                </label>
+              </div>
+              <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+                <label>Harga (IDR)<input id="price" type="number" min="0" required /></label>
+                <label>Land Size (m²)<input id="land_size" type="number" min="0" /></label>
+              </div>
+              <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+                <label>Building Size (m²)<input id="building_size" type="number" min="0" /></label>
+                <label>Kamar Tidur<input id="bedrooms" type="number" min="0" /></label>
+              </div>
+              <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+                <label>Kamar Mandi<input id="bathrooms" type="number" min="0" /></label>
+                <label>Featured
+                  <select id="featured">
+                    <option value="false">Tidak</option>
+                    <option value="true">Ya</option>
+                  </select>
+                </label>
+              </div>
+              <label>URL Gambar Utama<input id="image_url" type="url" required /></label>
+              <label>URL Galeri (pisahkan dengan |)<textarea id="gallery_urls" rows="2"></textarea></label>
+              <label>Deskripsi<textarea id="description" rows="4" required></textarea></label>
+              <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+                <label>Nama Kontak<input id="contact_name" required /></label>
+                <label>No. Kontak / WhatsApp<input id="contact_phone" required /></label>
+              </div>
+              <div class="inline-actions">
+                <button class="btn btn-primary" type="submit">Simpan Properti</button>
+                <button id="resetPropertyFormBtn" class="btn btn-secondary" type="button">Reset Form</button>
+              </div>
+            </form>
+            <div id="propertyMessage" class="muted" style="margin-top:.75rem;"></div>
+          </section>
+
+          <section class="panel">
+            <h4 style="margin-top:0;">Pengaturan Website</h4>
+            <form id="settingsForm" class="form-grid">
+              <label>Company Name<input id="company_name" required /></label>
+              <label>Logo URL<input id="logo_url" type="url" required /></label>
+              <label>Theme Color<input id="theme_color" type="text" placeholder="#0f766e" required /></label>
+              <label>WhatsApp Contact<input id="whatsapp_contact" required /></label>
+              <label>Phone Number<input id="phone_number" required /></label>
+              <label>Email<input id="email" type="email" required /></label>
+              <label>Office Address<textarea id="office_address" rows="2" required></textarea></label>
+              <label>Hero Title<input id="hero_title" required /></label>
+              <label>Hero Subtitle<textarea id="hero_subtitle" rows="2" required></textarea></label>
+              <button class="btn btn-primary" type="submit">Simpan Pengaturan</button>
+            </form>
+            <div id="settingsMessage" class="muted" style="margin-top:.75rem;"></div>
+          </section>
+        </div>
+
+        <section class="panel" style="margin-top:1rem;">
+          <h4 style="margin-top:0;">Daftar Properti</h4>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Judul</th>
+                  <th>Lokasi</th>
+                  <th>Tipe</th>
+                  <th>Status</th>
+                  <th>Harga</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="propertyTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    window.APP_CONFIG = {
+      API_BASE_URL: '/api',
+      PAGE_SIZE: 6,
+      CURRENCY_LOCALE: 'id-ID'
+    };
+  </script>
+  <script type="module" src="./assets/admin.js"></script>
+</body>
+</html>

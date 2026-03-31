@@ -1,0 +1,21 @@
+name = "zhostproperty"
+main = "worker.js"
+compatibility_date = "2026-03-29"
+
+routes = [
+  { pattern = "property.zhost.digital/api/*", zone_name = "zhost.digital" }
+]
+
+[vars]
+ALLOWED_ORIGIN = "https://property.zhost.digital"
+CACHE_TTL_SECONDS = "180"
+GAS_WEB_APP_URL = "https://script.google.com/macros/s/YOUR_SCRIPT_DEPLOYMENT_ID/exec"
+
+# Set secrets via CLI, do not commit plaintext:
+# wrangler secret put ADMIN_TOKEN
+# wrangler secret put GAS_ADMIN_TOKEN
+
+# Optional static asset binding if hosting frontend with Worker Assets:
+# [assets]
+# directory = "../../frontend"
+# binding = "ASSETS"

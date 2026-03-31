@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Detail Properti | Properti Nusantara</title>
+  <meta name="description" content="Detail lengkap listing properti, galeri, dan kontak agen profesional." />
+  <link rel="stylesheet" href="./assets/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="./index.html">
+        <img id="brandLogo" class="brand-logo" src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=120&q=80" alt="Logo" />
+        <div>
+          <p class="brand-overline">Detail Listing</p>
+          <h2 id="brandName">Properti Nusantara Prime</h2>
+        </div>
+      </a>
+      <nav class="top-nav">
+        <a href="./index.html#featured">Featured</a>
+        <a href="./index.html#listings">Listing</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="section">
+    <div class="container">
+      <div id="detailMessage" class="alert">Memuat detail properti...</div>
+      <div id="detailLayout" class="detail-layout hidden"></div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <h3 id="footerBrand">Properti Nusantara Prime</h3>
+        <p id="footerAddress">Jl. Jend. Sudirman Kav. 52-53, Jakarta Selatan</p>
+      </div>
+      <div>
+        <h4>Hubungi Kami</h4>
+        <p id="footerPhone">+62 21 5098 8800</p>
+        <p id="footerEmail">hello@propertinusantara.id</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    window.APP_CONFIG = {
+      API_BASE_URL: '/api',
+      PAGE_SIZE: 6,
+      CURRENCY_LOCALE: 'id-ID'
+    };
+  </script>
+  <script type="module" src="./assets/detail.js"></script>
+</body>
+</html>

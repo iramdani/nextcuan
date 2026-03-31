@@ -1,0 +1,8 @@
+node_modules/
+tests/
+scripts/
+*.log
+tmp-*.png
+.tmp-http.log
+.git/
+.github/
