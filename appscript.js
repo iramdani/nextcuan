@@ -1667,21 +1667,23 @@ function createOrder(d, cfg) {
 
        // 3. Email ke User
        const emailHtml = `
-       <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #334155; border: 1px solid #e2e8f0; border-radius: 10px;">
-          <h2 style="color: #10b981;">Akses Produk Gratis Dibuka! 🎁</h2>
-          <p>Halo <b>${d.nama}</b>,</p>
-          <p>Selamat! Anda telah berhasil mendapatkan akses ke produk <b>${d.nama_produk}</b> secara GRATIS.</p>
+       <div style="font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; color: #334155; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+          <h2 style="color: #017A6B; margin-top: 0;">Akses Produk Gratis Dibuka! 🎁</h2>
+          <p>Halo <b style="color: #000018;">${d.nama}</b>,</p>
+          <p>Selamat! Anda telah berhasil mendapatkan akses ke produk <b style="color: #000018;">${d.nama_produk}</b> secara GRATIS.</p>
           
-          <div style="text-align: center; margin: 30px 0;">
-              <a href="${accessUrl}" style="background-color: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Akses Materi Sekarang</a>
+          <div style="text-align: center; margin: 35px 0;">
+              <a href="${accessUrl}" style="background-color: #B6FF00; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">Akses Materi Sekarang</a>
           </div>
 
-          <h3 style="color: #0f172a;">🔐 Akun Member Area</h3>
-          <p><b>Link:</b> <a href="${loginUrl}">${loginUrl}</a><br>
-          <b>Email:</b> ${email}<br>
-          <b>Password:</b> <code>${pass}</code></p>
+          <div style="background-color: #f8fafc; border-left: 4px solid #017A6B; padding: 15px 20px; border-radius: 8px; margin: 25px 0;">
+              <h3 style="color: #000018; margin: 0 0 10px 0; font-size: 16px;">🔐 Akun Member Area</h3>
+              <p style="margin: 0; font-size: 14px;"><b>Link:</b> <a href="${loginUrl}" style="color: #017A6B; text-decoration: none;">${loginUrl}</a><br>
+              <b>Email:</b> ${email}<br>
+              <b>Password:</b> <code style="background-color: #e2e8f0; padding: 2px 6px; border-radius: 4px; color: #000018;">${pass}</code></p>
+          </div>
           
-          <p>Salam hangat,<br><b>Tim ${siteName}</b></p>
+          <p style="margin-bottom: 0;">Salam hangat,<br><b style="color: #000018;">Tim ${siteName}</b></p>
        </div>`;
        sendEmail(email, `Akses Gratis! Produk ${d.nama_produk}`, emailHtml, cfg);
 
@@ -1725,49 +1727,49 @@ Jika ada pertanyaan, silakan balas pesan ini. Terima kasih! 🙏`;
 
     // --> NOTIFIKASI PEMBELI (EMAIL) (template asli lu)
     const emailBuyerHtml = `
-    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #334155; border: 1px solid #e2e8f0; border-radius: 10px;">
-        <h2 style="color: #4f46e5; margin-bottom: 5px;">Menunggu Pembayaran Anda ⏳</h2>
-        <p style="font-size: 16px; margin-top: 0;">Halo <b>${d.nama}</b>,</p>
-        <p>Terima kasih atas pesanan Anda di <b>${siteName}</b>. Berikut adalah detail tagihan yang harus dibayarkan:</p>
+    <div style="font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; color: #334155; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+        <h2 style="color: #017A6B; margin-top: 0; margin-bottom: 5px;">Menunggu Pembayaran Anda ⏳</h2>
+        <p style="font-size: 16px; margin-top: 0;">Halo <b style="color: #000018;">${d.nama}</b>,</p>
+        <p>Terima kasih atas pesanan Anda di <b style="color: #000018;">${siteName}</b>. Berikut adalah detail tagihan yang harus dibayarkan:</p>
 
-        <div style="background-color: #f8fafc; padding: 15px 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #4f46e5;">
-            <p style="margin: 0 0 5px 0;"><b>Produk:</b> ${d.nama_produk}</p>
-            <p style="margin: 0 0 5px 0;"><b>Invoice:</b> #${inv}</p>
-            <p style="margin: 0; font-size: 20px; color: #0f172a;"><b>Total Tagihan: Rp ${Number(hargaTotalUnik).toLocaleString('id-ID')}</b></p>
+        <div style="background-color: #f8fafc; padding: 15px 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #017A6B;">
+            <p style="margin: 0 0 5px 0;"><b>Produk:</b> <span style="color: #000018;">${d.nama_produk}</span></p>
+            <p style="margin: 0 0 5px 0;"><b>Invoice:</b> <span style="color: #000018;">#${inv}</span></p>
+            <p style="margin: 0; font-size: 20px; color: #000018;"><b>Total Tagihan: Rp ${Number(hargaTotalUnik).toLocaleString('id-ID')}</b></p>
             <p style="margin: 5px 0 0 0; font-size: 12px; color: #ef4444; font-weight: bold;">*Wajib transfer TEPAT hingga 3 digit angka terakhir.</p>
         </div>
 
         <p>Silakan selesaikan pembayaran ke rekening berikut:</p>
 
-        <div style="background-color: #f1f5f9; padding: 15px 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
+        <div style="background-color: #f1f5f9; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; border: 1px solid #e2e8f0;">
             <p style="margin: 0 0 5px 0; color: #64748b; text-transform: uppercase; font-size: 12px; font-weight: bold;">Transfer Ke Bank ${bankName}</p>
-            <p style="margin: 0 0 5px 0; font-size: 22px; color: #4f46e5; font-family: monospace; font-weight: bold; letter-spacing: 2px;">${bankNorek}</p>
-            <p style="margin: 0; font-size: 14px;"><b>A.n:</b> ${bankOwner}</p>
+            <p style="margin: 0 0 5px 0; font-size: 24px; color: #017A6B; font-family: monospace; font-weight: bold; letter-spacing: 2px;">${bankNorek}</p>
+            <p style="margin: 0; font-size: 14px; color: #000018;"><b>A.n:</b> ${bankOwner}</p>
         </div>
 
-        <p>Setelah transfer, konfirmasi melalui WhatsApp Admin agar produk segera kami aktifkan.</p>
+        <p style="text-align: center;">Setelah transfer, konfirmasi melalui WhatsApp Admin agar produk segera kami aktifkan.</p>
 
         <hr style="border: none; border-top: 1px dashed #cbd5e1; margin: 30px 0;">
 
-        <h3 style="color: #0f172a; margin-bottom: 10px;">🔐 Detail Akun Member Anda</h3>
+        <h3 style="color: #000018; margin-bottom: 15px; font-size: 16px;">🔐 Detail Akun Member Anda</h3>
 
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px;">
             <tr>
-                <td style="padding: 10px; border-bottom: 1px solid #e2e8f0; width: 100px;"><b>Link Login</b></td>
-                <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;"><a href="${loginUrl}" style="color: #4f46e5; text-decoration: none;">${loginUrl}</a></td>
+                <td style="padding: 12px 10px; border-bottom: 1px solid #e2e8f0; width: 100px; color: #64748b;"><b>Link Login</b></td>
+                <td style="padding: 12px 10px; border-bottom: 1px solid #e2e8f0;"><a href="${loginUrl}" style="color: #017A6B; text-decoration: none; font-weight: bold;">${loginUrl}</a></td>
             </tr>
             <tr>
-                <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;"><b>Email</b></td>
-                <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">${email}</td>
+                <td style="padding: 12px 10px; border-bottom: 1px solid #e2e8f0; color: #64748b;"><b>Email</b></td>
+                <td style="padding: 12px 10px; border-bottom: 1px solid #e2e8f0; color: #000018;">${email}</td>
             </tr>
             <tr>
-                <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;"><b>Password</b></td>
-                <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;"><code style="background: #f1f5f9; padding: 3px 6px; border-radius: 4px;">${pass}</code></td>
+                <td style="padding: 12px 10px; border-bottom: 1px solid #e2e8f0; color: #64748b;"><b>Password</b></td>
+                <td style="padding: 12px 10px; border-bottom: 1px solid #e2e8f0;"><code style="background: #f1f5f9; padding: 4px 8px; border-radius: 4px; color: #000018; font-weight: bold;">${pass}</code></td>
             </tr>
         </table>
 
         <br>
-        <p>Salam hangat,<br><b>Tim ${siteName}</b></p>
+        <p style="margin-bottom: 0;">Salam hangat,<br><b style="color: #000018;">Tim ${siteName}</b></p>
     </div>
     `;
     sendEmail(email, `Menunggu Pembayaran: Pesanan #${inv} - ${siteName}`, emailBuyerHtml, cfg);
@@ -1845,21 +1847,21 @@ function updateOrderStatus(d, cfg) {
 
       // STEP 2: Send Email to customer
       const emailActivationHtml = `
-      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #334155; border: 1px solid #e2e8f0; border-radius: 10px;">
-          <div style="text-align: center; margin-bottom: 20px;">
-              <h1 style="color: #10b981; margin-bottom: 5px;">Akses Telah Dibuka! 🎉</h1>
+      <div style="font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; color: #334155; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+          <div style="text-align: center; margin-bottom: 25px;">
+              <h1 style="color: #017A6B; margin-top: 0; margin-bottom: 5px;">Akses Telah Dibuka! 🎉</h1>
           </div>
-          <p style="font-size: 16px;">Halo <b>${uName}</b>,</p>
-          <p>Terima kasih! Pembayaran Anda telah berhasil kami verifikasi. Akses penuh untuk produk <b>${pName}</b> sekarang sudah aktif dan dapat Anda gunakan.</p>
+          <p style="font-size: 16px;">Halo <b style="color: #000018;">${uName}</b>,</p>
+          <p>Terima kasih! Pembayaran Anda telah berhasil kami verifikasi. Akses penuh untuk produk <b style="color: #000018;">${pName}</b> sekarang sudah aktif dan dapat Anda gunakan.</p>
 
-          <div style="text-align: center; margin: 30px 0;">
-              <a href="${accessUrl}" style="background-color: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; display: inline-block;">Akses Materi Sekarang</a>
+          <div style="text-align: center; margin: 35px 0;">
+              <a href="${accessUrl}" style="background-color: #B6FF00; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; display: inline-block;">Akses Materi Sekarang</a>
           </div>
 
           <p>Sebagai alternatif, Anda selalu bisa menemukan semua produk yang Anda miliki dengan masuk ke Member Area menggunakan akun yang telah kami kirimkan sebelumnya.</p>
 
           <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 30px 0;">
-          <p style="font-size: 14px; color: #64748b; margin-bottom: 0;">Salam Sukses,<br><b>Tim ${siteName}</b></p>
+          <p style="font-size: 14px; color: #64748b; margin-bottom: 0;">Salam Sukses,<br><b style="color: #000018;">Tim ${siteName}</b></p>
       </div>
       `;
       Logger.log(traceId + " Sending Email to: " + uEmail);
@@ -3301,15 +3303,15 @@ function handleMootaWebhook(mutations, cfg) {
 
           // B) Email Customer
           const emailHtml = `
-            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
-                <h2 style="color: #10b981;">Pembayaran Berhasil! ✅</h2>
-                <p>Halo <b>${uName}</b>,</p>
-                <p>Pembayaran invoice <b>#${inv}</b> sebesar <b>Rp ${Number(nominalTransfer).toLocaleString('id-ID')}</b> telah diterima.</p>
-                <p>Silakan akses produk <b>${pName}</b> melalui tombol di bawah ini:</p>
-                <div style="text-align: center; margin: 30px 0;">
-                    <a href="${accessUrl}" style="background-color: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Akses Materi</a>
+            <div style="font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; color: #334155; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                <h2 style="color: #017A6B; margin-top: 0;">Pembayaran Berhasil! ✅</h2>
+                <p>Halo <b style="color: #000018;">${uName}</b>,</p>
+                <p>Pembayaran invoice <b style="color: #000018;">#${inv}</b> sebesar <b style="color: #000018;">Rp ${Number(nominalTransfer).toLocaleString('id-ID')}</b> telah diterima.</p>
+                <p>Silakan akses produk <b style="color: #000018;">${pName}</b> melalui tombol di bawah ini:</p>
+                <div style="text-align: center; margin: 35px 0;">
+                    <a href="${accessUrl}" style="background-color: #B6FF00; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; display: inline-block;">Akses Materi</a>
                 </div>
-                <p>Terima kasih,<br><b>Tim ${siteName}</b></p>
+                <p style="margin-bottom: 0;">Terima kasih,<br><b style="color: #000018;">Tim ${siteName}</b></p>
             </div>`;
           sendEmail(uEmail, `Pembayaran Sukses: #${inv} - ${siteName}`, emailHtml, cfg);
 
@@ -3394,15 +3396,23 @@ function forgotPassword(d) {
         s.getRange(rowIndex, 3).setValue(hashPassword_(tempPass));
 
         const body = `
-          <div style="font-family: sans-serif; padding: 20px;">
-            <h3>Halo ${nama},</h3>
-            <p>Anda meminta reset password akun.</p>
-            <p>Password sementara Anda adalah:</p>
-            <p><strong>Email:</strong> ${email}<br>
-            <strong>Password Sementara:</strong> ${tempPass}</p>
-            <p>Silakan login kembali lalu segera ganti password Anda.</p>
-            <br>
-            <p>Salam,<br>Tim ${siteName}</p>
+          <div style="font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; color: #334155; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+            <h2 style="color: #017A6B; margin-top: 0;">Reset Password Akun 🔐</h2>
+            <p>Halo <b style="color: #000018;">${nama}</b>,</p>
+            <p>Anda telah meminta reset password untuk akun Anda di <b style="color: #000018;">${siteName}</b>.</p>
+            
+            <div style="background-color: #f8fafc; border-left: 4px solid #017A6B; padding: 15px 20px; border-radius: 8px; margin: 25px 0;">
+                <p style="margin: 0 0 10px 0; font-size: 14px;"><b>Email Login:</b> <span style="color: #000018;">${email}</span></p>
+                <p style="margin: 0; font-size: 14px;"><b>Password Sementara:</b> <code style="background-color: #e2e8f0; padding: 4px 8px; border-radius: 4px; color: #000018; font-weight: bold; font-size: 16px;">${tempPass}</code></p>
+            </div>
+            
+            <p style="font-size: 14px; margin-bottom: 25px;">Silakan login dengan detail di atas, dan <b>segera ganti password Anda</b> di tab Profil Member Area untuk alasan keamanan.</p>
+            
+            <div style="text-align: center; margin: 35px 0;">
+                <a href="${siteUrl}/login.html" style="background-color: #B6FF00; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; display: inline-block;">Login Sekarang</a>
+            </div>
+
+            <p style="margin-bottom: 0;">Salam hangat,<br><b style="color: #000018;">Tim ${siteName}</b></p>
           </div>
         `;
         

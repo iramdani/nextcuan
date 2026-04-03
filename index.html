@@ -759,28 +759,28 @@
         </div>
     </section>
 
-    <footer class="bg-white border-t py-12 mt-20">
+    <footer class="glass-card border-t border-[rgba(255,255,255,0.05)] py-12 mt-20">
         <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
             <div>
-                <h3 class="text-xl font-black text-indigo-600 mb-4 dyn-site-name uppercase">KELAS JAGOAN</h3>
-                <p class="text-sm text-slate-500 dyn-site-tagline">Template, toolkit, dan sistem siap pakai untuk membantu proses jualan digital terasa lebih cepat dan tertata.</p>
+                <h3 class="text-xl font-black text-[#B6FF00] mb-4 dyn-site-name uppercase">KELAS JAGOAN</h3>
+                <p class="text-sm text-slate-400 dyn-site-tagline">Template, toolkit, dan sistem siap pakai untuk membantu proses jualan digital terasa lebih cepat dan tertata.</p>
             </div>
             <div>
-                <h4 class="font-bold mb-4 text-slate-800">Informasi</h4>
-                <ul class="text-sm text-slate-500 space-y-2">
-                    <li><a href="/p.html?s=tentang-kami" class="hover:text-indigo-600 transition-colors">Tentang Kami</a></li>
-                    <li><a href="/p.html?s=syarat-ketentuan" class="hover:text-indigo-600 transition-colors">Syarat & Ketentuan</a></li>
-                    <li><a href="/p.html?s=kebijakan-privasi" class="hover:text-indigo-600 transition-colors">Kebijakan Privasi</a></li>
+                <h4 class="font-bold mb-4 text-white">Informasi</h4>
+                <ul class="text-sm text-slate-400 space-y-2">
+                    <li><a href="/p.html?s=tentang-kami" class="hover:text-[#B6FF00] transition-colors">Tentang Kami</a></li>
+                    <li><a href="/p.html?s=syarat-ketentuan" class="hover:text-[#B6FF00] transition-colors">Syarat & Ketentuan</a></li>
+                    <li><a href="/p.html?s=kebijakan-privasi" class="hover:text-[#B6FF00] transition-colors">Kebijakan Privasi</a></li>
                 </ul>
             </div>
             <div>
-                <h4 class="font-bold mb-4 text-slate-800">Hubungi Kami</h4>
-                <p class="text-sm text-slate-500 mb-2">Email: <a id="dyn-email-link" href="#" class="text-indigo-600 hover:underline">...</a></p>
-                <p class="text-sm text-slate-500">WhatsApp: <a id="dyn-wa-link" href="#" class="text-indigo-600 hover:underline">...</a></p>
+                <h4 class="font-bold mb-4 text-white">Hubungi Kami</h4>
+                <p class="text-sm text-slate-400 mb-2">Email: <a id="dyn-email-link" href="#" class="text-[#017A6B] font-bold hover:underline">...</a></p>
+                <p class="text-sm text-slate-400">WhatsApp: <a id="dyn-wa-link" href="#" class="text-[#017A6B] font-bold hover:underline">...</a></p>
             </div>
         </div>
-        <div class="text-center text-xs text-slate-400 mt-12 pt-8 border-t">
-            &copy; 2026 <span class="dyn-site-name">Kelas Jagoan</span>. Hak cipta dilindungi.
+        <div class="text-center text-xs text-slate-500 mt-12 pt-8 border-t border-[rgba(255,255,255,0.05)]">
+            &copy; 2026 <span class="dyn-site-name text-slate-400 font-bold">Kelas Jagoan</span>. Hak cipta dilindungi.
         </div>
     </footer>
 
@@ -818,7 +818,7 @@
             
             // Safety check: Pastikan products adalah array valid
             if (!products || !Array.isArray(products) || products.length === 0) {
-                container.innerHTML = '<p class="text-slate-400 text-center col-span-full py-10 border border-dashed border-slate-200 bg-white rounded-[1.5rem] shadow-sm">Pilihan produk sedang diperbarui. Silakan cek lagi dalam beberapa saat.</p>';
+                container.innerHTML = '<p class="text-slate-400 text-center col-span-full py-10 border border-dashed border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.02)] rounded-[1.5rem] shadow-sm">Pilihan produk sedang diperbarui. Silakan cek lagi dalam beberapa saat.</p>';
                 if (window.CEPAT_SEO && typeof window.CEPAT_SEO.sync === 'function') {
                     window.CEPAT_SEO.sync({ products: [], reason: 'catalog-empty' });
                 }
