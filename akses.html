@@ -66,6 +66,8 @@
         })();
     </script>
     <title>Akses Materi - Cepat Digital</title>
+    <link rel="preload" as="style" href="assets/theme.css">
+    <link rel="stylesheet" href="assets/theme.css">
     <link rel="preload" as="style" href="tailwind.css?v=2026_1">
     <link rel="stylesheet" href="tailwind.css?v=2026_1">
     <script defer src="assets/vendor/lucide.min.js?v=0.577.0"></script>
@@ -76,25 +78,27 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen flex flex-col text-slate-900">
+<body class="bg-[#000018] min-h-screen flex flex-col text-white">
 
-    <header class="bg-white border-b border-slate-200 py-4 sticky top-0 z-50">
-        <div class="max-w-3xl mx-auto px-6 flex justify-between items-center">
-            <div class="text-xl font-black tracking-tighter flex items-center gap-2 text-indigo-600 uppercase">
-                <i data-lucide="layers" class="w-6 h-6"></i> <span class="dyn-site-name">CEPAT</span>
+    <header class="bg-[#000010]/80 backdrop-blur-md border-b border-[rgba(255,255,255,0.05)] py-4 sticky top-0 z-50">
+        <div class="max-w-3xl mx-auto px-6 flex justify-between items-center relative z-10">
+            <div class="text-xl font-black tracking-tighter flex items-center gap-2 text-white uppercase drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">
+                <i data-lucide="layers" class="w-6 h-6 text-[#B6FF00]"></i> <span class="dyn-site-name">CEPAT</span>
             </div>
             <div class="flex items-center gap-6">
-                <a href="dashboard.html" class="text-slate-500 text-[10px] font-bold uppercase tracking-widest hover:text-indigo-600 transition-colors">Dashboard</a>
-                <button onclick="logout()" class="text-slate-400 text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 hover:text-red-500 transition-colors">
+                <a href="dashboard.html" class="text-slate-400 text-[10px] font-bold uppercase tracking-widest hover:text-[#B6FF00] transition-colors drop-shadow-[0_0_5px_rgba(182,255,0,0)] hover:drop-shadow-[0_0_5px_rgba(182,255,0,0.5)]">Dashboard</a>
+                <button onclick="logout()" class="text-slate-400 text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 hover:text-[#ef4444] transition-colors">
                     Keluar <i data-lucide="log-out" class="w-4 h-4"></i>
                 </button>
             </div>
         </div>
     </header>
 
-    <main class="flex-1 max-w-3xl mx-auto px-6 w-full py-12 md:py-20 flex flex-col justify-center">
+    <main class="flex-1 max-w-3xl mx-auto px-6 w-full py-12 md:py-20 flex flex-col justify-center relative">
+        <div class="absolute -top-20 -left-20 w-72 h-72 bg-[#017A6B]/20 rounded-full blur-[100px] pointer-events-none"></div>
+        <div class="absolute top-40 -right-20 w-64 h-64 bg-[#B6FF00]/10 rounded-full blur-[100px] pointer-events-none"></div>
         
-        <div id="loading-state" class="flex flex-col items-center justify-center py-20">
+        <div id="loading-state" class="flex flex-col items-center justify-center py-20 relative z-10 w-full rounded-3xl border border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.02)] shadow-[0_0_20px_rgba(255,255,255,0.05)] backdrop-blur-md">
             <div class="relative flex items-center justify-center w-16 h-16 mb-4">
                 <div class="absolute inset-0 rounded-full border-4 border-slate-100"></div>
                 <div class="absolute inset-0 rounded-full border-4 border-indigo-500 border-t-transparent animate-spin"></div>
@@ -103,59 +107,66 @@
             </div>
         </div>
 
-        <div id="error-state" class="hidden text-center py-20 fade-in">
-            <div class="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
+        <div id="error-state" class="hidden text-center py-24 px-6 relative z-10 w-full rounded-3xl border border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.02)] shadow-[0_0_20px_rgba(255,255,255,0.05)] backdrop-blur-md fade-in">
+            <div class="w-20 h-20 bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.3)] shadow-[0_0_30px_rgba(239,68,68,0.2)] text-[#ef4444] rounded-2xl flex items-center justify-center mx-auto mb-8 relative">
+                <div class="absolute inset-0 bg-[#ef4444] rounded-2xl blur-xl opacity-20"></div>
                 <i data-lucide="lock" class="w-10 h-10"></i>
             </div>
-            <h2 class="text-3xl font-black text-slate-900 mb-4 tracking-tight">Akses Terkunci</h2>
-            <p id="error-msg" class="text-slate-500 mb-10 text-base max-w-md mx-auto">Anda belum memiliki akses ke produk ini atau tagihan Anda masih menunggu verifikasi.</p>
-            <a href="dashboard.html" class="inline-flex items-center gap-3 bg-slate-900 text-white px-8 py-4 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-indigo-600 transition-colors">
+            <h2 class="text-3xl font-black text-white mb-4 tracking-tight drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">Akses Terkunci</h2>
+            <p id="error-msg" class="text-slate-400 mb-10 text-base max-w-md mx-auto leading-relaxed">Anda belum memiliki akses ke produk ini atau tagihan Anda masih menunggu verifikasi.</p>
+            <a href="dashboard.html" class="inline-flex items-center gap-3 bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-white px-8 py-4 rounded-xl font-bold text-[11px] uppercase tracking-widest hover:bg-[rgba(255,255,255,0.1)] hover:border-[rgba(255,255,255,0.2)] hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] transition-all">
                 <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali ke Dashboard
             </a>
         </div>
 
-        <div id="access-content" class="hidden fade-in space-y-8 w-full">
+        <div id="access-content" class="hidden fade-in space-y-8 w-full relative z-10">
             
             <div class="text-center space-y-2 mb-10">
-                <p class="text-indigo-600 font-bold text-sm tracking-widest uppercase flex items-center justify-center gap-2">
+                <p class="text-[#B6FF00] font-bold text-sm tracking-widest uppercase flex items-center justify-center gap-2 drop-shadow-[0_0_5px_rgba(182,255,0,0.5)]">
                     <i data-lucide="sparkles" class="w-4 h-4"></i> Akses Premium Dibuka
                 </p>
-                <h1 class="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
-                    Halo, <span id="greeting-name" class="text-indigo-600">Member</span>! 👋
+                <h1 class="text-3xl md:text-5xl font-black text-white tracking-tight drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+                    Halo, <span id="greeting-name" class="text-[#B6FF00]">Member</span>! 👋
                 </h1>
-                <p class="text-slate-500 text-base md:text-lg">Terima kasih, berikut adalah akses materi yang Anda pesan.</p>
+                <p class="text-slate-400 text-base md:text-lg">Terima kasih, berikut adalah akses materi yang Anda pesan.</p>
             </div>
 
-            <div class="bg-white border border-slate-200 rounded-[2rem] p-8 md:p-12 shadow-xl shadow-slate-200/50 text-center relative overflow-hidden">
-                <div class="absolute top-0 right-0 p-8 opacity-5">
+            <div class="glass-card rounded-[2.5rem] p-8 md:p-14 shadow-[0_0_40px_rgba(0,0,0,0.5)] border border-[rgba(255,255,255,0.05)] text-center relative overflow-hidden backdrop-blur-xl">
+                <div class="absolute top-0 right-0 p-8 opacity-[0.03]">
                     <i data-lucide="box" class="w-64 h-64 -rotate-12 translate-x-10 -translate-y-10"></i>
                 </div>
 
-                <div class="relative z-10">
-                    <div class="inline-block px-4 py-2 bg-slate-50 border border-slate-100 text-slate-500 text-[10px] font-bold uppercase tracking-widest rounded-full mb-6">
+                <div class="relative z-10 flex flex-col items-center">
+                    <div class="inline-block px-5 py-2.5 bg-[rgba(182,255,0,0.1)] border border-[rgba(182,255,0,0.2)] text-[#B6FF00] shadow-[0_0_15px_rgba(182,255,0,0.1)] text-[10px] font-bold uppercase tracking-widest rounded-full mb-8">
                         Detail Produk
                     </div>
                     
-                    <h2 id="prod-title" class="text-2xl md:text-4xl font-black text-slate-900 mb-4 leading-tight">
+                    <h2 id="prod-title" class="text-2xl md:text-5xl font-black text-white mb-6 leading-tight drop-shadow-[0_0_10px_rgba(255,255,255,0.1)]">
                         Memuat Nama Produk...
                     </h2>
                     
-                    <p id="prod-desc" class="text-slate-500 text-sm md:text-base max-w-lg mx-auto mb-12 leading-relaxed">
+                    <p id="prod-desc" class="text-slate-300 text-sm md:text-lg max-w-xl mx-auto mb-14 leading-relaxed font-medium">
                         Deskripsi singkat produk akan muncul di sini.
                     </p>
 
-                    <a href="#" id="btn-access" target="_blank" class="inline-flex items-center justify-center gap-4 bg-indigo-600 text-white w-full md:w-auto px-12 py-6 rounded-2xl font-black text-sm uppercase tracking-[0.2em] shadow-lg shadow-indigo-200 hover:-translate-y-1 hover:shadow-2xl hover:bg-indigo-700 transition-all group">
+                    <a href="#" id="btn-access" target="_blank" class="w-full md:w-auto inline-flex items-center justify-center gap-4 bg-[#B6FF00] hover:bg-[#a3e600] text-black px-12 py-6 rounded-2xl font-black text-sm uppercase tracking-[0.2em] shadow-[0_0_30px_rgba(182,255,0,0.4)] hover:shadow-[0_0_40px_rgba(182,255,0,0.6)] hover:-translate-y-1 transition-all duration-300 group">
                         Akses Materi Sekarang 
                         <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-2 transition-transform"></i>
                     </a>
                 </div>
             </div>
 
-            <div class="text-center mt-8">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center justify-center gap-2">
-                    <i data-lucide="shield-check" class="w-4 h-4 text-emerald-500"></i>
-                    Lisensi Resmi Terdaftar Atas Email: <span id="display-email" class="text-slate-700"></span>
-                </p>
+            <div class="text-center mt-10">
+                <div class="inline-flex items-center justify-center gap-2.5 px-6 py-3 rounded-full bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.05)]">
+                    <div class="w-2 flex items-center justify-center relative">
+                        <div class="absolute inset-0 w-2 h-2 rounded-full bg-[#017A6B] animate-ping opacity-75"></div>
+                        <div class="relative w-2 h-2 rounded-full bg-[#B6FF00] z-10 shadow-[0_0_5px_rgba(182,255,0,0.5)]"></div>
+                    </div>
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                        Lisensi Terdaftar: <span id="display-email" class="text-white ml-1 font-mono"></span>
+                    </p>
+                </div>
+                <!-- removed errant tag -->
             </div>
 
         </div>

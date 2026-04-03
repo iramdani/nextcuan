@@ -616,6 +616,7 @@
     </script>
     <link rel="preload" as="style" href="tailwind.css?v=2026_1">
     <link rel="stylesheet" href="tailwind.css?v=2026_1">
+    <link rel="stylesheet" href="assets/theme.css?v=2026_1">
     <script defer src="assets/vendor/lucide.min.js?v=0.577.0"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -680,68 +681,80 @@
         }
     </style>
 </head>
-<body class="bg-[#f8f9fa] text-slate-800">
+<body class="antialiased">
 
-    <header class="bg-white/80 backdrop-blur-md border-b sticky top-0 z-50">
+    <header class="glass-navbar sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center gap-4">
            <div class="flex-1 flex items-center gap-3 min-w-0">
                 <img id="dyn-site-logo" src="" alt="" class="h-8 md:h-10 w-auto hidden select-none object-contain flex-shrink-0 transition-transform hover:scale-105" loading="lazy">
-                <i id="logo-fallback" data-lucide="layers" class="w-8 h-8 text-indigo-600 flex-shrink-0 transition-transform hover:rotate-12"></i>
-                <strong class="dyn-site-name text-lg md:text-2xl font-black text-indigo-600 tracking-tighter uppercase truncate block">KELAS JAGOAN</strong>
+                <i id="logo-fallback" data-lucide="cpu" class="w-8 h-8 text-[#B6FF00] flex-shrink-0 transition-transform hover:rotate-12 glow-primary"></i>
+                <strong class="dyn-site-name text-lg md:text-2xl font-black text-white tracking-tighter uppercase truncate block" style="text-shadow: 0 0 10px rgba(255,255,255,0.3);">NEXTCUAN</strong>
             </div>
-            <a href="login.html" class="flex-shrink-0 bg-indigo-600 text-white px-5 py-2.5 md:px-6 md:py-3 rounded-full font-bold text-xs md:text-sm shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:shadow-indigo-300 hover:-translate-y-0.5 transition-all flex items-center gap-2 group whitespace-nowrap">
+            <a href="login.html" class="btn-secondary whitespace-nowrap">
                 <span>Login</span>
                 <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
             </a>
         </div>
     </header>
 
-    <section class="max-w-7xl mx-auto px-6 py-20 text-center">
-        <div class="inline-block bg-indigo-50 text-indigo-600 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest mb-6 fade-in">Siap Pakai untuk Jualan Digital</div>
-        <h1 data-seo-title class="text-4xl md:text-6xl font-black tracking-tight mb-6 text-slate-900 fade-in delay-1">Bangun sistem jualan digital yang bisa langsung dipakai &mdash; tanpa pusing setup dari nol</h1>
-        <p data-seo-description class="text-xl md:text-2xl text-slate-500 max-w-4xl mx-auto mb-10 fade-in delay-2 font-medium">Berhenti buang waktu di setup teknis yang berantakan. Kelas Jagoan membantu Anda mulai jualan lebih cepat dengan template, toolkit, dan sistem yang sudah siap dipakai</p>
-        <a href="#katalog" class="inline-block bg-slate-900 text-white px-8 py-4 rounded-full font-bold text-lg shadow-xl shadow-slate-300 hover:scale-105 transition-all fade-in delay-3">Lihat Produk Siap Pakai</a>
+    <section class="max-w-7xl mx-auto px-6 py-20">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div class="text-left">
+                <div class="glass-badge mb-6 inline-block fade-in">AI Powered &bull; Digital Income</div>
+                <h1 data-seo-title class="text-4xl md:text-6xl font-black tracking-tight mb-6 text-white fade-in delay-1">Jangan Ketinggalan Era AI. <br><span class="text-gradient">Saatnya Hasilkan Cuan!</span></h1>
+                <p data-seo-description class="text-xl text-slate-300 mb-10 fade-in delay-2 font-medium">Teknologi AI sudah mengubah cara orang berbisnis. NextCuan hadir menyediakan tools AI powerful & siap pakai untuk menskalakan bisnis digitalmu secara otomatis.</p>
+                <div class="flex flex-wrap gap-4 fade-in delay-3">
+                    <a href="#katalog" class="btn-primary text-lg px-8 py-4">Mulai Sekarang <i data-lucide="zap" class="w-5 h-5"></i></a>
+                    <a href="#faq" class="btn-ghost text-lg px-8 py-4">Pelajari Lebih Lanjut</a>
+                </div>
+            </div>
+            <div class="fade-in delay-2 relative">
+                <div class="absolute inset-0 bg-[#B6FF00] opacity-20 blur-[100px] rounded-full"></div>
+                <img src="assets/robot.png" alt="NextCuan AI Robot Mascot" class="relative z-10 w-full max-w-lg mx-auto transform hover:scale-[1.02] transition-transform duration-500 drop-shadow-2xl">
+            </div>
+        </div>
     </section>
 
     <section class="max-w-4xl mx-auto px-6 pb-6 md:pb-10">
-        <div class="rounded-[1.75rem] border border-indigo-100 bg-white/95 px-6 py-6 md:px-8 md:py-7 text-center shadow-sm shadow-slate-200">
-            <p class="text-sm md:text-base leading-7 text-slate-600 font-medium">Anda tidak perlu langsung beli semuanya atau mengubah sistem sekaligus. Mulai dari yang paling ringan, lalu kembangkan sesuai kebutuhan</p>
+        <div class="glass-card px-8 py-8 text-center glow-primary">
+            <h3 class="text-xl font-bold text-white mb-2">Automate Workflow & Tasks</h3>
+            <p class="text-base leading-7 text-slate-300 font-medium">Bangun income produk digital dengan dukungan AI dan automation system dari NextCuan. Tanpa pengalaman teknis sebelumnya.</p>
         </div>
     </section>
 
     <section id="katalog" class="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-8 md:py-10 mb-20 scroll-mt-24">
         <div class="max-w-2xl mx-auto text-center mb-8 md:mb-10">
-            <div class="inline-flex items-center rounded-full border border-indigo-100 bg-white px-3 py-1 text-[10px] font-black uppercase tracking-[0.24em] text-indigo-600 shadow-sm shadow-slate-100">Pilih Sesuai Kebutuhan</div>
-            <h2 class="mt-4 text-2xl md:text-3xl font-black tracking-tight text-slate-900">Temukan produk yang bisa langsung dipakai, dipelajari, lalu diadaptasi ke bisnis Anda</h2>
-            <p class="mt-3 text-sm md:text-base text-slate-500">Setiap produk di Kelas Jagoan dirancang supaya tidak berhenti di teori. Anda bisa mulai dari toolkit gratis, lanjut ke ecourse praktis, lalu pilih sistem yang membantu operasional jualan digital terasa lebih ringan dan tertata</p>
+            <div class="glass-badge mb-4">Mulai Bisnismu</div>
+            <h2 class="mt-4 text-2xl md:text-3xl font-black tracking-tight text-white">Produk AI Siap Pakai</h2>
+            <p class="mt-3 text-sm md:text-base text-slate-400">Dari freelancer sampai pebisnis merasakan dampak AI untuk mempercepat alur kerja.</p>
         </div>
         
         <div id="public-products" class="catalog-grid">
-            <div id="katalog-loader" class="col-span-full text-center py-10 rounded-[1.5rem] border border-dashed border-slate-200 bg-white/90 shadow-sm">
-                <div class="animate-spin w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full mx-auto mb-4"></div>
-                <p class="text-slate-400 text-[11px] font-bold uppercase tracking-[0.22em] animate-pulse">Menyiapkan Produk Siap Pakai...</p>
+            <div id="katalog-loader" class="col-span-full text-center py-10 glass-card">
+                <div class="animate-spin w-8 h-8 border-4 border-[#B6FF00] border-t-transparent rounded-full mx-auto mb-4"></div>
+                <p class="text-slate-400 text-[11px] font-bold uppercase tracking-[0.22em] animate-pulse">Menyiapkan Produk...</p>
             </div>
         </div>
     </section>
 
     <section id="faq" class="max-w-5xl mx-auto px-6 pb-20">
         <div class="max-w-2xl mx-auto text-center mb-8 md:mb-10">
-            <div class="inline-flex items-center rounded-full border border-indigo-100 bg-white px-3 py-1 text-[10px] font-black uppercase tracking-[0.24em] text-indigo-600 shadow-sm shadow-slate-100">Mini FAQ</div>
-            <h2 class="mt-4 text-2xl md:text-3xl font-black tracking-tight text-slate-900">Pertanyaan singkat sebelum Anda mulai</h2>
+            <div class="glass-badge mb-4">Mini FAQ</div>
+            <h2 class="mt-4 text-2xl md:text-3xl font-black tracking-tight text-white">Tanya Jawab Seputar NextCuan</h2>
         </div>
 
         <div class="grid gap-4">
-            <article class="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200">
-                <h3 class="text-base md:text-lg font-bold text-slate-900">Apakah produk di Kelas Jagoan cocok untuk pemula?</h3>
-                <p class="mt-3 text-sm md:text-base leading-7 text-slate-600">Ya. Fokusnya membantu Anda mulai lebih cepat tanpa harus memahami sistem web yang rumit dari awal</p>
+            <article class="glass-card p-6">
+                <h3 class="text-base md:text-lg font-bold text-white">Apakah tools NextCuan cocok untuk pemula?</h3>
+                <p class="mt-3 text-sm md:text-base leading-7 text-slate-300">Ya. Fokusnya membantu Anda mulai lebih cepat tanpa harus memahami sistem AI yang rumit dari awal.</p>
             </article>
-            <article class="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200">
-                <h3 class="text-base md:text-lg font-bold text-slate-900">Apakah saya harus bisa coding?</h3>
-                <p class="mt-3 text-sm md:text-base leading-7 text-slate-600">Tidak. Produk dirancang untuk penggunaan praktis tanpa perlu membangun website sendiri</p>
+            <article class="glass-card p-6">
+                <h3 class="text-base md:text-lg font-bold text-white">Apakah saya harus bisa coding?</h3>
+                <p class="mt-3 text-sm md:text-base leading-7 text-slate-300">Tidak. Semua produk dirancang untuk penggunaan praktis langsung jalan.</p>
             </article>
-            <article class="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200">
-                <h3 class="text-base md:text-lg font-bold text-slate-900">Apakah produknya langsung bisa dipakai?</h3>
-                <p class="mt-3 text-sm md:text-base leading-7 text-slate-600">Ya, dengan panduan yang tersedia di masing-masing halaman produk</p>
+            <article class="glass-card p-6">
+                <h3 class="text-base md:text-lg font-bold text-white">Apakah automationnya legal dan aman?</h3>
+                <p class="mt-3 text-sm md:text-base leading-7 text-slate-300">Ya, sistem dibangun mengikuti standar teknologi terbaru melalui API platform resmi yang digunakan.</p>
             </article>
         </div>
     </section>
@@ -834,38 +847,37 @@
                 const checkoutUrl = `checkout.html?id=${p.id}${affParam}`;
 
                 return `
-                <article class="catalog-card p-3 md:p-4 flex flex-col h-full fade-in ${delayClass}">
-                    <a href="${detailUrl}" target="_blank" rel="noopener noreferrer" class="catalog-media block overflow-hidden rounded-[1.1rem] bg-slate-100 border border-slate-100">
+                <article class="glass-card hover:glow-primary p-3 md:p-4 flex flex-col h-full fade-in ${delayClass}">
+                    <a href="${detailUrl}" target="_blank" rel="noopener noreferrer" class="catalog-media block overflow-hidden rounded-[1.1rem]">
                         ${p.image_url
-                            ? `<img src="${p.image_url}" class="catalog-image w-full h-full object-cover" onerror="this.outerHTML='<div class=&quot;catalog-image flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 text-lg font-black text-slate-400&quot;>${fallbackLetter}</div>'" loading="lazy" decoding="async" alt="${safeTitle}">`
-                            : `<div class="catalog-image flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 text-lg font-black text-slate-400">${fallbackLetter}</div>`}
+                            ? `<img src="${p.image_url}" class="catalog-image w-full h-full object-cover" onerror="this.outerHTML='<div class=&quot;catalog-image flex h-full w-full items-center justify-center bg-[rgba(0,0,0,0.3)] text-lg font-black text-white&quot;>${fallbackLetter}</div>'" loading="lazy" decoding="async" alt="${safeTitle}">`
+                            : `<div class="catalog-image flex h-full w-full items-center justify-center bg-[rgba(0,0,0,0.3)] text-lg font-black text-white">${fallbackLetter}</div>`}
                     </a>
 
                     <div class="flex flex-1 flex-col pt-4">
                         <div class="space-y-2">
-                            <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Siap Pakai</p>
-                            <h3 class="catalog-title text-sm md:text-[15px] font-bold leading-snug text-slate-800 line-clamp-2">${safeTitle}</h3>
-                            <p class="catalog-desc text-[11px] md:text-xs leading-5 text-slate-500 line-clamp-3" data-product-desc style="min-height: 3.75rem;">${safeDesc}</p>
+                            <span class="glass-badge px-2 py-1 text-[9px] inline-block">Siap Pakai</span>
+                            <h3 class="catalog-title text-sm md:text-[15px] font-bold leading-snug text-white line-clamp-2">${safeTitle}</h3>
+                            <p class="catalog-desc text-[11px] md:text-xs leading-5 text-slate-400 line-clamp-3" data-product-desc style="min-height: 3.75rem;">${safeDesc}</p>
                         </div>
 
-                        <div class="mt-auto pt-4 border-t border-slate-100">
+                        <div class="mt-auto pt-4 border-t border-[rgba(255,255,255,0.1)]">
                             <div class="flex items-end justify-between gap-3 mb-3">
                                 <div class="min-w-0">
                                     <p class="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Harga</p>
-                                    <p class="text-sm md:text-base font-black tracking-tight text-slate-900">Rp ${Number(p.harga).toLocaleString('id-ID')}</p>
+                                    <p class="text-sm md:text-base font-black tracking-tight text-[#B6FF00]">Rp ${Number(p.harga).toLocaleString('id-ID')}</p>
                                 </div>
-                                <span class="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-bold text-slate-500">Siap Dipakai</span>
                             </div>
 
                             <div class="grid grid-cols-2 gap-2">
                                 <a href="${detailUrl}" 
                                     target="_blank" 
                                     rel="noopener noreferrer"
-                                    class="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-3 py-2 text-[10px] md:text-[11px] font-bold text-slate-600 hover:border-slate-300 hover:bg-slate-50 transition-colors">
+                                    class="btn-ghost flex items-center justify-center py-2 text-[10px] md:text-[11px]">
                                     Detail
                                 </a>
                                 <a href="${checkoutUrl}" 
-                                    class="inline-flex items-center justify-center rounded-full bg-indigo-600 px-3 py-2 text-[10px] md:text-[11px] font-bold text-white shadow-sm shadow-indigo-200 hover:bg-indigo-700 transition-colors">
+                                    class="btn-primary flex items-center justify-center py-2 text-[10px] md:text-[11px]">
                                     Checkout
                                 </a>
                             </div>

@@ -518,24 +518,25 @@
     <title>SpotAdmin Cepat Digital</title>
     <link rel="preload" as="style" href="tailwind.css?v=2026_1">
     <link rel="stylesheet" href="tailwind.css?v=2026_1">
+    <link rel="stylesheet" href="assets/theme.css?v=2026_1">
     <script defer src="assets/vendor/lucide.min.js?v=0.577.0"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; background-color: #f8fafc; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; background-color: var(--color-bg); color: var(--color-text-main); }
         
         /* Smooth Transitions */
         .transition-all-300 { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         
         /* Sidebar & Navigation */
-        .nav-item { transition: all 0.2s ease-in-out; color: #64748b; }
-        .nav-item:hover { background-color: #f1f5f9; color: #1e293b; }
-        .nav-item.active { background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%); color: white; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2); }
+        .nav-item { transition: all 0.2s ease-in-out; color: var(--color-text-muted); }
+        .nav-item:hover { background-color: rgba(255,255,255,0.05); color: var(--color-text-main); }
+        .nav-item.active { background: rgba(182, 255, 0, 0.1); color: var(--color-primary); box-shadow: inset 3px 0 0 var(--color-primary); }
         
         /* Custom Scrollbar */
         .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
         
         /* Animations */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -558,96 +559,96 @@
 
         /* Toast Notifications */
         #toast-container { position: fixed; bottom: 32px; right: 32px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; pointer-events: none; }
-        .toast { display: flex; align-items: center; gap: 12px; padding: 16px 24px; border-radius: 16px; font-size: 14px; font-weight: 600; color: white; opacity: 0; transform: translateY(20px); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); max-width: 400px; backdrop-filter: blur(8px); }
+        .toast { display: flex; align-items: center; gap: 12px; padding: 16px 24px; border-radius: 16px; font-size: 14px; font-weight: 600; color: white; opacity: 0; transform: translateY(20px); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3); max-width: 400px; backdrop-filter: blur(8px); }
         .toast.show { opacity: 1; transform: translateY(0); }
-        .toast.success { background-color: rgba(16, 185, 129, 0.95); }
-        .toast.error { background-color: rgba(239, 68, 68, 0.95); }
-        .toast.warning { background-color: rgba(245, 158, 11, 0.95); }
+        .toast.success { background-color: var(--color-secondary); }
+        .toast.error { background-color: #ef4444; }
+        .toast.warning { background-color: #f59e0b; }
 
         /* Glass Utilities */
-        .glass-panel { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.6); }
+        .glass-panel { background: rgba(10,10,30,0.65); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; }
     </style>
 <script src='https://cdn.jsdelivr.net/npm/chart.js'></script>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased relative h-screen w-screen overflow-hidden">
+<body class="antialiased relative h-screen w-screen overflow-hidden flex">
 
     <div id="toast-container"></div>
 
     <!-- LOGIN OVERLAY -->
-    <div id="login-overlay" class="fixed inset-0 z-[200] flex items-center justify-center p-4 overflow-hidden bg-slate-50">
+    <div id="login-overlay" class="fixed inset-0 z-[200] flex items-center justify-center p-4 overflow-hidden bg-[#000018]">
         <!-- Abstract Background -->
         <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-            <div class="absolute top-[-20%] left-[-10%] w-[800px] h-[800px] bg-indigo-200/40 rounded-full mix-blend-multiply filter blur-[120px] animate-blob"></div>
-            <div class="absolute bottom-[-20%] right-[-10%] w-[800px] h-[800px] bg-emerald-100/40 rounded-full mix-blend-multiply filter blur-[120px] animate-blob animation-delay-2000"></div>
+            <div class="absolute top[-20%] left-[-10%] w-[800px] h-[800px] bg-[#017A6B]/20 rounded-full mix-blend-screen filter blur-[120px] animate-pulse"></div>
+            <div class="absolute bottom-[-20%] right-[-10%] w-[800px] h-[800px] bg-[#B6FF00]/10 rounded-full mix-blend-screen filter blur-[120px] animate-pulse" style="animation-delay: 2s;"></div>
         </div>
 
-        <div class="w-full max-w-md bg-white/80 backdrop-blur-xl rounded-[2rem] shadow-2xl border border-white/50 p-8 md:p-12 relative z-10 fade-in-up">
+        <div class="w-full max-w-md glass-card rounded-[2rem] p-8 md:p-12 relative z-10 fade-in-up">
             <div class="text-center mb-10">
-                <img id="login-logo-img" class="w-24 h-24 object-contain mx-auto mb-6 hidden transition-all duration-500 hover:scale-110" src="" alt="Logo">
-                <div id="login-logo-icon" class="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-indigo-200 transition-all duration-500 hover:rotate-12 hover:scale-110">
-                    <i data-lucide="shield-check" class="w-8 h-8 text-white"></i>
+                <img id="login-logo-img" class="w-24 h-24 object-contain mx-auto mb-6 hidden transition-all duration-500 hover:scale-110 drop-shadow-[0_0_15px_rgba(182,255,0,0.3)]" src="" alt="Logo">
+                <div id="login-logo-icon" class="w-16 h-16 bg-[#000018] border border-[rgba(182,255,0,0.2)] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-[0_0_20px_rgba(182,255,0,0.1)] transition-all duration-500 hover:rotate-12 hover:scale-110">
+                    <i data-lucide="shield-check" class="w-8 h-8 text-[#B6FF00]"></i>
                 </div>
-                <h1 class="text-2xl font-bold text-slate-900 mb-2 tracking-tight">Welcome Back!</h1>
-                <p class="text-slate-500 text-sm font-medium">Login to manage <span class="dyn-site-name font-bold text-indigo-600">Cepat Digital</span></p>
+                <h1 class="text-2xl font-bold text-white mb-2 tracking-tight">Welcome Back!</h1>
+                <p class="text-slate-400 text-sm font-medium">Login to manage <span class="dyn-site-name font-bold text-[#B6FF00]">Cepat Digital</span></p>
             </div>
 
             <form id="form-login" class="space-y-5">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-500 mb-2 ml-1">EMAIL ADDRESS</label>
+                    <label class="block text-xs font-semibold text-slate-400 mb-2 ml-1">EMAIL ADDRESS</label>
                     <div class="relative group">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 group-focus-within:text-indigo-500 transition-colors">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-500 group-focus-within:text-[#B6FF00] transition-colors">
                             <i data-lucide="mail" class="w-5 h-5"></i>
                         </div>
-                        <input type="email" id="adm-email" class="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all font-medium text-slate-700" placeholder="admin@example.com" required>
+                        <input type="email" id="adm-email" class="w-full pl-12 pr-4 py-3.5 glass-input rounded-xl focus:border-[#B6FF00] focus:ring-1 focus:ring-[#B6FF00] outline-none transition-all font-medium text-white" placeholder="admin@example.com" required>
                     </div>
                 </div>
                 
                 <div>
                     <div class="flex items-center justify-between mb-2 ml-1">
-                        <label class="block text-xs font-semibold text-slate-500">PASSWORD</label>
-                        <button id="btn-forgot-open-admin" type="button" onclick="toggleForgotPasswordModal(true)" aria-controls="modal-forgot-admin" aria-expanded="false" class="relative z-10 text-[10px] font-bold text-indigo-600 hover:text-indigo-800 uppercase tracking-wider">
+                        <label class="block text-xs font-semibold text-slate-400">PASSWORD</label>
+                        <button id="btn-forgot-open-admin" type="button" onclick="toggleForgotPasswordModal(true)" aria-controls="modal-forgot-admin" aria-expanded="false" class="relative z-10 text-[10px] font-bold text-[#017A6B] hover:text-[#B6FF00] uppercase tracking-wider transition-colors">
                             Lupa Password?
                         </button>
                     </div>
                     <div class="relative group">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 group-focus-within:text-indigo-500 transition-colors">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-500 group-focus-within:text-[#B6FF00] transition-colors">
                             <i data-lucide="lock" class="w-5 h-5"></i>
                         </div>
-                        <input type="password" id="adm-pass" class="w-full pl-12 pr-12 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all font-medium text-slate-700" placeholder="Enter your password" required>
-                        <button type="button" onclick="togglePass()" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-indigo-600 transition-colors">
+                        <input type="password" id="adm-pass" class="w-full pl-12 pr-12 py-3.5 glass-input rounded-xl focus:border-[#B6FF00] focus:ring-1 focus:ring-[#B6FF00] outline-none transition-all font-medium text-white" placeholder="Enter your password" required>
+                        <button type="button" onclick="togglePass()" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-500 hover:text-[#B6FF00] transition-colors">
                             <i data-lucide="eye" id="eye-icon" class="w-5 h-5"></i>
                         </button>
                     </div>
                 </div>
 
-                <button type="submit" id="btn-login" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:shadow-indigo-300 hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 mt-4">
+                <button type="submit" id="btn-login" class="w-full btn-primary py-4 rounded-xl mt-4">
                     LOGIN DASHBOARD
                 </button>
             </form>
 
             <div class="mt-8 text-center">
-                <a href="index.html" class="text-xs font-semibold text-slate-400 hover:text-indigo-600 transition-colors">Back to Homepage</a>
+                <a href="index.html" class="text-xs font-semibold text-slate-500 hover:text-[#B6FF00] transition-colors">Back to Homepage</a>
             </div>
         </div>
     </div>
 
     <!-- FORGOT PASSWORD MODAL (ADMIN AREA) -->
-    <div id="modal-forgot-admin" class="fixed inset-0 z-[210] items-center justify-center bg-black/50 backdrop-blur-sm hidden p-4" style="z-index: 220;">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 relative">
-            <button type="button" onclick="toggleForgotPasswordModal(false)" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+    <div id="modal-forgot-admin" class="fixed inset-0 z-[210] items-center justify-center bg-black/60 backdrop-blur-md hidden p-4" style="z-index: 220;">
+        <div class="glass-card rounded-[2rem] w-full max-w-md p-6 relative">
+            <button type="button" onclick="toggleForgotPasswordModal(false)" class="absolute top-4 right-4 text-slate-500 hover:text-white transition-colors">
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
 
-            <h3 class="text-lg font-bold text-slate-800 mb-2">Lupa Password?</h3>
-            <p class="text-sm text-slate-500 mb-6">Masukkan email admin. Kami akan mengirimkan password sementara ke email yang terdaftar.</p>
+            <h3 class="text-lg font-bold text-white mb-2">Lupa Password?</h3>
+            <p class="text-sm text-slate-400 mb-6">Masukkan email admin. Kami akan mengirimkan password sementara ke email yang terdaftar.</p>
 
             <form id="form-forgot-admin" class="space-y-4">
                 <div class="relative">
-                    <i data-lucide="mail" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                    <input type="email" id="adm-email-forgot" class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 font-medium text-slate-800" placeholder="admin@example.com" required>
+                    <i data-lucide="mail" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                    <input type="email" id="adm-email-forgot" class="w-full pl-10 pr-4 py-3 glass-input rounded-xl outline-none focus:border-[#B6FF00] font-medium text-white transition-all" placeholder="admin@example.com" required>
                 </div>
 
-                <button type="submit" id="btn-forgot-admin" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg shadow-indigo-200 transition-all flex items-center justify-center gap-2">
+                <button type="submit" id="btn-forgot-admin" class="w-full btn-primary py-3 rounded-xl transition-all flex items-center justify-center gap-2">
                     Kirim Password
                 </button>
             </form>
@@ -657,18 +658,18 @@
     <!-- MAIN ADMIN AREA -->
     <div id="admin-main" class="flex h-screen w-screen overflow-hidden">
         
-        <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/40 z-40 md:hidden backdrop-blur-sm transition-opacity"></div>
+        <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-[#000018]/60 z-40 md:hidden backdrop-blur-sm transition-opacity"></div>
 
-        <aside id="sidebar" class="w-72 bg-white border-r border-slate-200 flex flex-col h-full flex-shrink-0 z-50 transition-transform duration-500 ease-in-out">
-            <div class="h-24 flex items-center px-8 border-b border-slate-100 bg-slate-50/50 backdrop-blur-sm">
+        <aside id="sidebar" class="w-72 bg-[#000018] border-r border-[rgba(255,255,255,0.05)] flex flex-col h-full flex-shrink-0 z-50 transition-transform duration-500 ease-in-out">
+            <div class="h-24 flex items-center px-8 border-b border-[rgba(255,255,255,0.05)] bg-[rgba(0,0,0,0.2)] backdrop-blur-sm">
                 <div class="flex items-center gap-4 w-full">
                     <img id="sidebar-logo-img" class="h-10 w-auto object-contain hidden transition-all duration-300 hover:scale-105" src="" alt="Logo">
-                    <div id="sidebar-logo-icon" class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-200 transition-transform hover:rotate-12">
+                    <div id="sidebar-logo-icon" class="w-10 h-10 bg-[rgba(182,255,0,0.1)] border border-[rgba(182,255,0,0.2)] rounded-xl flex items-center justify-center text-[#B6FF00] shadow-[0_0_15px_rgba(182,255,0,0.15)] transition-transform hover:rotate-12">
                         <i data-lucide="command" class="w-6 h-6"></i>
                     </div>
-                    <span class="font-extrabold text-xl text-slate-800 tracking-tight dyn-site-name truncate">SPOTADMIN</span>
+                    <span class="font-extrabold text-xl text-white tracking-tight dyn-site-name truncate">SPOTADMIN</span>
                 </div>
-                <button onclick="toggleSidebar()" class="md:hidden ml-auto text-slate-400 hover:text-red-500 transition-colors"><i data-lucide="x" class="w-6 h-6"></i></button>
+                <button onclick="toggleSidebar()" class="md:hidden ml-auto text-slate-500 hover:text-red-500 transition-colors"><i data-lucide="x" class="w-6 h-6"></i></button>
             </div>
 
             <nav class="p-4 space-y-1 flex-1 overflow-y-auto custom-scroll">
@@ -698,35 +699,35 @@
                 </button>
             </nav>
 
-            <div class="p-4 border-t border-slate-100 bg-slate-50/50">
+            <div class="p-4 border-t border-[rgba(255,255,255,0.05)] bg-[rgba(0,0,0,0.2)]">
                 <div class="flex items-center gap-3 mb-4 px-2">
-                    <div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center font-bold text-lg">A</div>
+                    <div class="w-10 h-10 bg-[rgba(1,122,107,0.2)] text-[#017A6B] border border-[#017A6B]/30 rounded-full flex items-center justify-center font-bold text-lg">A</div>
                     <div class="overflow-hidden">
-                        <p id="admin-name" class="font-bold text-slate-700 text-sm truncate">Admin</p>
-                        <p id="admin-role-note" class="text-xs text-slate-400">Master Control</p>
+                        <p id="admin-name" class="font-bold text-white text-sm truncate">Admin</p>
+                        <p id="admin-role-note" class="text-xs text-[#017A6B]">Master Control</p>
                     </div>
                 </div>
-                <button onclick="logout()" class="w-full flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-600 hover:bg-red-50 hover:text-red-600 hover:border-red-100 py-2.5 rounded-xl font-semibold text-xs transition-all">
+                <button onclick="logout()" class="w-full flex items-center justify-center gap-2 btn-ghost border border-[rgba(255,255,255,0.1)] hover:bg-[#ef4444]/10 hover:text-[#ef4444] hover:border-[#ef4444]/30 py-2.5 rounded-xl font-semibold text-xs transition-all">
                     <i data-lucide="log-out" class="w-4 h-4"></i> Sign Out
                 </button>
             </div>
         </aside>
 
-        <main class="flex-1 overflow-y-auto h-full bg-[#f8fafc] relative">
-            <header class="sticky top-0 bg-[#f8fafc]/90 backdrop-blur-md z-30 px-6 md:px-10 py-5 flex justify-between items-center border-b border-slate-200/50">
+        <main class="flex-1 overflow-y-auto h-full bg-[#000018] relative">
+            <header class="sticky top-0 glass-card bg-[#000018]/90 z-30 px-6 md:px-10 py-5 flex justify-between items-center border-[rgba(255,255,255,0.05)] rounded-none rounded-b-[2rem] mx-4 mt-4 shadow-xl shadow-black/20">
                 <div class="flex items-center gap-4">
-                    <button onclick="toggleSidebar()" class="md:hidden p-2 bg-white rounded-lg shadow-sm border border-slate-200 text-slate-600"><i data-lucide="menu" class="w-6 h-6"></i></button>
+                    <button onclick="toggleSidebar()" class="md:hidden p-2 glass-card hover:glow-primary rounded-lg shadow-sm border border-[rgba(255,255,255,0.1)] text-slate-400"><i data-lucide="menu" class="w-6 h-6"></i></button>
                     <div>
-                        <h2 id="tab-title" class="text-2xl font-bold text-slate-800 tracking-tight">Dashboard</h2>
-                        <p class="text-xs text-slate-400 font-medium hidden sm:block">Overview & Statistics</p>
+                        <h2 id="tab-title" class="text-2xl font-bold text-white tracking-tight">Dashboard</h2>
+                        <p class="text-xs text-[#017A6B] font-medium hidden sm:block">Overview & Statistics</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-3">
-                    <span id="sync-status" class="text-[10px] bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full hidden animate-pulse font-bold tracking-wide uppercase border border-indigo-100">Syncing...</span>
-                    <a href="index.html" target="_blank" class="hidden sm:flex items-center gap-2 text-slate-500 hover:text-indigo-600 font-medium text-sm transition-colors bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm">
+                    <span id="sync-status" class="text-[10px] bg-[rgba(182,255,0,0.1)] text-[#B6FF00] px-3 py-1 rounded-full hidden animate-pulse font-bold tracking-wide uppercase border border-[rgba(182,255,0,0.2)]">Syncing...</span>
+                    <a href="index.html" target="_blank" class="hidden sm:flex items-center gap-2 text-slate-400 hover:text-[#B6FF00] font-medium text-sm transition-colors glass-card px-4 py-2 rounded-xl">
                         <i data-lucide="external-link" class="w-4 h-4"></i> Website
                     </a>
-                    <button onclick="forceSync()" class="p-2.5 bg-white text-slate-400 hover:text-indigo-600 border border-slate-200 rounded-xl shadow-sm transition-all hover:shadow-md" title="Refresh Data">
+                    <button onclick="forceSync()" class="p-2.5 btn-ghost rounded-xl transition-all" title="Refresh Data">
                         <i data-lucide="refresh-cw" class="w-4 h-4"></i>
                     </button>
                 </div>
@@ -736,47 +737,47 @@
                 <!-- DASHBOARD TAB -->
                 <div id="tab-orders" class="tab-content active">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
-                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex items-center gap-6 hover:shadow-md transition-all">
-                            <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shadow-sm">
+                        <div class="glass-card hover:glow-primary p-6 rounded-3xl flex items-center gap-6 transition-all border-[rgba(255,255,255,0.05)]">
+                            <div class="w-16 h-16 bg-[rgba(1,122,107,0.2)] text-[#017A6B] rounded-2xl flex items-center justify-center shadow-sm border border-[#017A6B]/30">
                                 <i data-lucide="shopping-bag" class="w-8 h-8"></i>
                             </div>
                             <div>
                                 <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Total Pesanan</p>
-                                <h3 id="stat-orders" class="text-3xl font-bold text-slate-800 tracking-tight">0</h3>
+                                <h3 id="stat-orders" class="text-3xl font-bold text-white tracking-tight">0</h3>
                             </div>
                         </div>
-                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex items-center gap-6 hover:shadow-md transition-all">
-                            <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center shadow-sm">
+                        <div class="glass-card hover:glow-primary p-6 rounded-3xl flex items-center gap-6 transition-all border-[rgba(255,255,255,0.05)]">
+                            <div class="w-16 h-16 bg-[rgba(182,255,0,0.1)] text-[#B6FF00] rounded-2xl flex items-center justify-center shadow-sm border border-[rgba(182,255,0,0.2)]">
                                 <i data-lucide="wallet" class="w-8 h-8"></i>
                             </div>
                             <div>
                                 <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Total Pendapatan</p>
-                                <h3 id="stat-rev" class="text-3xl font-bold tracking-tight text-emerald-600">Rp 0</h3>
+                                <h3 id="stat-rev" class="text-3xl font-bold tracking-tight text-[#B6FF00]">Rp 0</h3>
                             </div>
                         </div>
                     </div>
 
                     <!-- DATA SALES CHART SECTION START -->
-                    <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 mb-8 overflow-hidden fade-in-up">
-                        <div class="px-8 py-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-50/30 gap-4">
+                    <div class="glass-card p-0 rounded-[2rem] mb-8 overflow-hidden fade-in-up">
+                        <div class="px-8 py-6 border-b border-[rgba(255,255,255,0.05)] flex flex-col sm:flex-row justify-between items-start sm:items-center bg-[rgba(0,0,0,0.2)] gap-4">
                             <div>
-                                <h3 class="font-bold text-slate-700 text-lg flex items-center gap-2">
-                                    <i data-lucide="bar-chart-2" class="w-5 h-5 text-indigo-500"></i> Sales Overview
+                                <h3 class="font-bold text-white text-lg flex items-center gap-2">
+                                    <i data-lucide="bar-chart-2" class="w-5 h-5 text-[#B6FF00]"></i> Sales Overview
                                 </h3>
-                                <p class="text-xs text-slate-500 font-medium mt-1">Total pendapatan & transaksi berdasarkan periode waktu</p>
+                                <p class="text-xs text-slate-400 font-medium mt-1">Total pendapatan & transaksi berdasarkan periode waktu</p>
                             </div>
                             <div class="flex items-center gap-2">
-                                <select id="sales-chart-filter" onchange="renderSalesChart(this.value)" class="text-sm font-semibold text-slate-600 bg-white border border-slate-200 rounded-xl px-4 py-2 hover:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all cursor-pointer shadow-sm">
-                                    <option value="7">7 Hari Terakhir</option>
-                                    <option value="14">14 Hari Terakhir</option>
-                                    <option value="30">30 Hari Terakhir</option>
-                                    <option value="all">Sepanjang Waktu</option>
+                                <select id="sales-chart-filter" onchange="renderSalesChart(this.value)" class="text-sm font-semibold text-slate-300 bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-xl px-4 py-2 focus:outline-none focus:border-[#B6FF00] transition-all cursor-pointer shadow-sm">
+                                    <option value="7" class="bg-[#000018]">7 Hari Terakhir</option>
+                                    <option value="14" class="bg-[#000018]">14 Hari Terakhir</option>
+                                    <option value="30" class="bg-[#000018]">30 Hari Terakhir</option>
+                                    <option value="all" class="bg-[#000018]">Sepanjang Waktu</option>
                                 </select>
                             </div>
                         </div>
                         <div class="p-6 md:p-8 relative">
-                            <div id="sales-chart-loader" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex items-center justify-center hidden">
-                                <div class="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+                            <div id="sales-chart-loader" class="absolute inset-0 bg-[#000018]/80 backdrop-blur-sm z-10 flex items-center justify-center hidden">
+                                <div class="w-8 h-8 border-4 border-[#017A6B]/30 border-t-[#B6FF00] rounded-full animate-spin"></div>
                             </div>
                             <div class="w-full h-[300px] sm:h-[400px]">
                                 <canvas id="salesChartCanvas"></canvas>
@@ -786,14 +787,14 @@
                     <!-- DATA SALES CHART SECTION END -->
 
 
-                    <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
-                        <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/30">
-                            <h3 class="font-bold text-slate-700 text-lg">Transaksi Terbaru</h3>
-                            <button class="text-xs font-bold text-indigo-600 hover:text-indigo-700">LIHAT SEMUA</button>
+                    <div class="glass-card p-0 rounded-[2rem] overflow-hidden">
+                        <div class="px-8 py-6 border-b border-[rgba(255,255,255,0.05)] flex justify-between items-center bg-[rgba(0,0,0,0.2)]">
+                            <h3 class="font-bold text-white text-lg">Transaksi Terbaru</h3>
+                            <button class="text-xs font-bold text-[#B6FF00] hover:text-white transition-colors">LIHAT SEMUA</button>
                         </div>
-                        <div class="overflow-x-auto custom-scroll">
-                            <table class="w-full text-left text-sm min-w-[700px]">
-                                <thead class="bg-slate-50 text-slate-500 text-xs font-semibold uppercase tracking-wider border-b border-slate-100">
+                        <div class="overflow-x-auto custom-scroll p-0">
+                            <table class="w-full text-left text-sm min-w-[700px] border-collapse bg-transparent">
+                                <thead class="bg-[rgba(255,255,255,0.05)] text-slate-400 text-xs font-semibold uppercase tracking-wider border-b border-[rgba(255,255,255,0.1)]">
                                     <tr>
                                         <th class="px-8 py-5">Invoice</th>
                                         <th class="px-8 py-5">Customer</th>
@@ -802,11 +803,11 @@
                                         <th class="px-8 py-5 text-right">Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody id="list-orders" class="divide-y divide-slate-100"></tbody>
+                                <tbody id="list-orders" class="divide-y divide-[rgba(255,255,255,0.05)] text-white"></tbody>
                             </table>
                         </div>
-                        <div class="p-6 border-t border-slate-100 text-center hidden" id="more-orders-container">
-                            <button onclick="loadMoreOrders()" id="btn-more-orders" class="text-xs font-bold text-indigo-600 hover:text-indigo-700 uppercase tracking-wider bg-indigo-50 hover:bg-indigo-100 px-6 py-3 rounded-xl transition-all">
+                        <div class="p-6 border-t border-[rgba(255,255,255,0.05)] text-center hidden" id="more-orders-container">
+                            <button onclick="loadMoreOrders()" id="btn-more-orders" class="btn-ghost px-6 py-3 transition-all">
                                 Muat Lebih Banyak
                             </button>
                         </div>
@@ -815,18 +816,18 @@
 
                 <!-- ADMIN ORDERS TAB (IFRAME) -->
                 <div id="tab-admin-orders" class="tab-content h-[85vh]">
-                    <iframe id="iframe-admin-orders" data-src="admin-orders.html" class="w-full h-full rounded-2xl border border-slate-200 shadow-sm bg-white" frameborder="0"></iframe>
+                    <iframe id="iframe-admin-orders" data-src="admin-orders.html" class="w-full h-full rounded-2xl border-none shadow-sm bg-transparent glass-card p-0 overflow-hidden" frameborder="0"></iframe>
                 </div>
 
                 <!-- MEMBERS TAB -->
                 <div id="tab-members" class="tab-content">
-                    <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
-                        <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/30">
-                            <h3 class="font-bold text-slate-700 text-lg">Data Member</h3>
+                    <div class="glass-card p-0 rounded-[2rem] overflow-hidden">
+                        <div class="px-8 py-6 border-b border-[rgba(255,255,255,0.05)] flex justify-between items-center bg-[rgba(0,0,0,0.2)]">
+                            <h3 class="font-bold text-white text-lg">Data Member</h3>
                         </div>
-                        <div class="overflow-x-auto custom-scroll">
-                            <table class="w-full text-left text-sm min-w-[700px]" id="list-members">
-                                <thead class="bg-slate-50 text-slate-500 text-xs font-semibold uppercase tracking-wider border-b border-slate-100">
+                        <div class="overflow-x-auto custom-scroll p-0">
+                            <table class="w-full text-left text-sm min-w-[700px] border-collapse bg-transparent" id="list-members">
+                                <thead class="bg-[rgba(255,255,255,0.05)] text-slate-400 text-xs font-semibold uppercase tracking-wider border-b border-[rgba(255,255,255,0.1)]">
                                     <tr>
                                         <th class="px-8 py-5">ID Member</th>
                                         <th class="px-8 py-5">Nama</th>
@@ -836,11 +837,11 @@
                                         <th class="px-8 py-5">Tanggal Bergabung</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-slate-100"></tbody>
+                                <tbody class="divide-y divide-[rgba(255,255,255,0.05)] text-white"></tbody>
                             </table>
                         </div>
-                        <div class="p-6 border-t border-slate-100 text-center hidden" id="more-members-container">
-                            <button onclick="loadMoreMembers()" id="btn-more-members" class="text-xs font-bold text-indigo-600 hover:text-indigo-700 uppercase tracking-wider bg-indigo-50 hover:bg-indigo-100 px-6 py-3 rounded-xl transition-all">
+                        <div class="p-6 border-t border-[rgba(255,255,255,0.05)] text-center hidden" id="more-members-container">
+                            <button onclick="loadMoreMembers()" id="btn-more-members" class="btn-ghost px-6 py-3 transition-all">
                                 Muat Lebih Banyak
                             </button>
                         </div>
@@ -850,8 +851,8 @@
                 <!-- PRODUCTS TAB -->
                 <div id="tab-products" class="tab-content">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-                        <h3 class="font-bold text-slate-500 uppercase text-xs tracking-widest">Katalog Produk (<span id="count-prod">0</span>)</h3>
-                        <button onclick="openProdModal()" class="flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:shadow-indigo-300 transition-all text-xs uppercase tracking-wide">
+                        <h3 class="font-bold text-slate-400 uppercase text-xs tracking-widest">Katalog Produk (<span id="count-prod">0</span>)</h3>
+                        <button onclick="openProdModal()" class="flex items-center gap-2 btn-primary px-6 py-3">
                             <i data-lucide="plus" class="w-4 h-4"></i> Tambah Produk
                         </button>
                     </div>
@@ -861,22 +862,22 @@
                 <!-- PAGES TAB -->
                 <div id="tab-pages" class="tab-content">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-                        <h3 class="font-bold text-slate-500 uppercase text-xs tracking-widest">Halaman CMS</h3>
-                        <button onclick="openPageModal()" class="flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:shadow-indigo-300 transition-all text-xs uppercase tracking-wide">
+                        <h3 class="font-bold text-slate-400 uppercase text-xs tracking-widest">Halaman CMS</h3>
+                        <button onclick="openPageModal()" class="flex items-center gap-2 btn-primary px-6 py-3">
                             <i data-lucide="plus" class="w-4 h-4"></i> Buat Halaman
                         </button>
                     </div>
-                    <div class="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
-                        <div class="overflow-x-auto custom-scroll">
-                            <table class="w-full text-left text-sm min-w-[700px] table-fixed">
-                                <thead class="bg-slate-50 text-slate-500 text-xs font-semibold uppercase tracking-wider border-b border-slate-100">
+                    <div class="glass-card p-0 rounded-[2rem] overflow-hidden">
+                        <div class="overflow-x-auto custom-scroll p-0">
+                            <table class="w-full text-left text-sm min-w-[700px] table-fixed border-collapse bg-transparent">
+                                <thead class="bg-[rgba(255,255,255,0.05)] text-slate-400 text-xs font-semibold uppercase tracking-wider border-b border-[rgba(255,255,255,0.1)]">
                                     <tr>
                                         <th class="px-8 py-5 w-1/3">Judul Halaman</th>
                                         <th class="px-8 py-5 w-1/2">URL Slug</th>
                                         <th class="px-8 py-5 w-1/6 text-right">Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody id="list-pages" class="divide-y divide-slate-100"></tbody>
+                                <tbody id="list-pages" class="divide-y divide-[rgba(255,255,255,0.05)] text-white"></tbody>
                             </table>
                         </div>
                     </div>
@@ -884,46 +885,46 @@
 
                 <!-- MEDIA TAB -->
                 <div id="tab-media" class="tab-content">
-                    <div class="bg-white p-8 md:p-12 rounded-[2.5rem] border border-slate-100 shadow-sm mb-8 relative overflow-hidden">
-                        <div class="absolute top-0 right-0 w-64 h-64 bg-slate-50 rounded-bl-[10rem] -mr-10 -mt-10 pointer-events-none"></div>
+                    <div class="glass-card p-8 md:p-12 rounded-[2.5rem] mb-8 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-64 h-64 bg-[rgba(1,122,107,0.1)] rounded-bl-[10rem] -mr-10 -mt-10 pointer-events-none blur-3xl"></div>
                         <div class="relative z-10">
-                            <h3 class="text-2xl font-bold text-slate-800 mb-2">Media Center</h3>
-                            <p class="text-slate-500 text-sm mb-8 max-w-md">Upload gambar atau file ke CDN ImageKit untuk digunakan di halaman CMS atau produk.</p>
+                            <h3 class="text-2xl font-bold text-white mb-2">Media Center</h3>
+                            <p class="text-slate-400 text-sm mb-8 max-w-md">Upload gambar atau file ke CDN ImageKit untuk digunakan di halaman CMS atau produk.</p>
                             
                             <div class="flex flex-col md:flex-row gap-4 items-center max-w-2xl">
                                 <div class="w-full relative group">
                                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                        <i data-lucide="upload-cloud" class="w-5 h-5 text-slate-400 group-hover:text-indigo-500 transition-colors"></i>
+                                        <i data-lucide="upload-cloud" class="w-5 h-5 text-slate-500 group-hover:text-[#B6FF00] transition-colors"></i>
                                     </div>
-                                    <input type="file" id="media-file" class="w-full pl-12 p-4 border border-slate-200 rounded-xl bg-slate-50 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm text-slate-600 file:hidden cursor-pointer hover:bg-white">
+                                    <input type="file" id="media-file" class="w-full pl-12 p-4 rounded-xl glass-input outline-none focus:border-[#B6FF00] transition-all text-sm text-slate-300 file:hidden cursor-pointer hover:bg-[rgba(255,255,255,0.05)]">
                                 </div>
-                                <button onclick="uploadMedia()" id="btn-upload" class="w-full md:w-auto bg-emerald-500 text-white px-8 py-4 rounded-xl font-bold shadow-lg shadow-emerald-200 hover:bg-emerald-600 hover:shadow-emerald-300 transition-all text-xs uppercase tracking-wide whitespace-nowrap">
+                                <button onclick="uploadMedia()" id="btn-upload" class="w-full md:w-auto btn-primary px-8 py-4 rounded-xl font-bold text-xs uppercase tracking-wide whitespace-nowrap">
                                     Upload File
                                 </button>
                             </div>
                         </div>
                     </div>
                     
-                    <div id="media-res-box" class="hidden bg-emerald-50/50 border border-emerald-100 p-6 md:p-8 rounded-[2rem] fade-in-up">
-                        <div class="flex items-center gap-3 mb-4 text-emerald-700">
+                    <div id="media-res-box" class="hidden bg-[rgba(1,149,130,0.2)] border border-[#019582]/50 p-6 md:p-8 rounded-[2rem] fade-in-up">
+                        <div class="flex items-center gap-3 mb-4 text-[#B6FF00]">
                             <i data-lucide="check-circle" class="w-5 h-5"></i>
                             <span class="font-bold text-sm">Upload Berhasil!</span>
                         </div>
                         <div class="flex flex-col md:flex-row gap-3">
-                            <input type="text" id="media-url-res" readonly class="w-full p-4 bg-white border border-emerald-200 rounded-xl font-mono text-xs text-emerald-800 focus:outline-none">
-                            <button onclick="copyLink()" class="w-full md:w-auto bg-emerald-600 text-white px-8 rounded-xl font-bold text-xs uppercase hover:bg-emerald-700 transition-colors">
+                            <input type="text" id="media-url-res" readonly class="w-full p-4 bg-[rgba(0,0,0,0.2)] border border-[rgba(255,255,255,0.1)] rounded-xl font-mono text-xs text-[#B6FF00] focus:outline-none">
+                            <button onclick="copyLink()" class="w-full md:w-auto bg-[#017A6B] text-white px-8 py-4 rounded-xl font-bold text-xs uppercase hover:bg-[#015e52] transition-colors">
                                 Copy Link
                             </button>
                         </div>
                     </div>
 
                     <!-- Media Gallery List -->
-                    <div class="mt-10 pt-10 border-t border-slate-100">
+                    <div class="mt-10 pt-10 border-t border-[rgba(255,255,255,0.05)]">
                         <div class="flex items-center justify-between mb-6">
-                             <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                                <i data-lucide="image" class="w-5 h-5 text-indigo-500"></i> Riwayat Upload (Terbaru)
+                             <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                                <i data-lucide="image" class="w-5 h-5 text-[#B6FF00]"></i> Riwayat Upload (Terbaru)
                              </h3>
-                             <button onclick="loadMediaFiles()" class="text-indigo-600 font-bold text-xs uppercase hover:text-indigo-800 transition-colors flex items-center gap-2 bg-indigo-50 px-4 py-2 rounded-lg">
+                             <button onclick="loadMediaFiles()" class="text-[#B6FF00] font-bold text-xs uppercase hover:text-white transition-colors flex items-center gap-2 bg-[rgba(182,255,0,0.1)] px-4 py-2 rounded-lg border border-[rgba(182,255,0,0.2)]">
                                  <i data-lucide="refresh-cw" class="w-3 h-3"></i> Refresh
                              </button>
                         </div>
@@ -935,159 +936,162 @@
 
                 <!-- SETTINGS TAB -->
                 <div id="tab-settings" class="tab-content">
-                    <div class="bg-white p-8 md:p-10 rounded-[2.5rem] border border-slate-100 shadow-sm mb-10">
-                        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 border-b border-slate-100 pb-6 mb-8">
+                    <div class="glass-card p-8 md:p-10 rounded-[2.5rem] mb-10 border-[rgba(255,255,255,0.05)]">
+                        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 border-b border-[rgba(255,255,255,0.05)] pb-6 mb-8">
                             <div>
-                                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-3">
-                                    <i data-lucide="activity" class="w-5 h-5 text-indigo-500"></i> Worker Request Budget
+                                <h3 class="text-lg font-bold text-white flex items-center gap-3">
+                                    <i data-lucide="activity" class="w-5 h-5 text-[#B6FF00]"></i> Worker Request Budget
                                 </h3>
-                                <p class="text-xs text-slate-500 mt-1">Monitoring permintaan Cloudflare Worker per jam/hari, cache hit ratio, dan early warning 80%-90% terhadap limit 100.000 request/hari.</p>
+                                <p class="text-xs text-slate-400 mt-1">Monitoring permintaan Cloudflare Worker per jam/hari, cache hit ratio, dan early warning 80%-90% terhadap limit 100.000 request/hari.</p>
                             </div>
-                            <button type="button" onclick="loadWorkerBudgetMetrics(false)" class="bg-indigo-50 text-indigo-700 px-4 py-3 rounded-xl font-bold text-xs uppercase hover:bg-indigo-100 transition-all flex items-center gap-2">
+                            <button type="button" onclick="loadWorkerBudgetMetrics(false)" class="bg-[rgba(182,255,0,0.1)] text-[#B6FF00] px-4 py-3 rounded-xl font-bold text-xs uppercase hover:bg-[rgba(182,255,0,0.2)] transition-all flex items-center gap-2 border border-[rgba(182,255,0,0.2)]">
                                 <i data-lucide="refresh-cw" class="w-4 h-4"></i> Refresh Metrics
                             </button>
                         </div>
                         <div id="worker-budget-alert" class="hidden rounded-2xl border px-4 py-3 text-xs font-medium mb-6"></div>
                         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-                            <div class="rounded-2xl border border-slate-100 bg-slate-50 p-5">
+                            <div class="rounded-2xl border border-[rgba(255,255,255,0.05)] bg-[rgba(0,0,0,0.2)] p-5">
                                 <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Daily Requests</p>
-                                <h4 id="worker-day-requests" class="text-3xl font-bold text-slate-800 mt-2">-</h4>
+                                <h4 id="worker-day-requests" class="text-3xl font-bold text-white mt-2">-</h4>
                                 <p id="worker-day-percent" class="text-xs text-slate-500 mt-2">-</p>
                             </div>
-                            <div class="rounded-2xl border border-slate-100 bg-slate-50 p-5">
+                            <div class="rounded-2xl border border-[rgba(255,255,255,0.05)] bg-[rgba(0,0,0,0.2)] p-5">
                                 <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Hourly Requests</p>
-                                <h4 id="worker-hour-requests" class="text-3xl font-bold text-slate-800 mt-2">-</h4>
+                                <h4 id="worker-hour-requests" class="text-3xl font-bold text-white mt-2">-</h4>
                                 <p class="text-xs text-slate-500 mt-2">UTC hour berjalan</p>
                             </div>
-                            <div class="rounded-2xl border border-slate-100 bg-slate-50 p-5">
+                            <div class="rounded-2xl border border-[rgba(255,255,255,0.05)] bg-[rgba(0,0,0,0.2)] p-5">
                                 <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Cache Hit Ratio</p>
-                                <h4 id="worker-cache-ratio" class="text-3xl font-bold text-emerald-600 mt-2">-</h4>
+                                <h4 id="worker-cache-ratio" class="text-3xl font-bold text-[#B6FF00] mt-2">-</h4>
                                 <p id="worker-saved-requests" class="text-xs text-slate-500 mt-2">-</p>
                             </div>
-                            <div class="rounded-2xl border border-slate-100 bg-slate-50 p-5">
+                            <div class="rounded-2xl border border-[rgba(255,255,255,0.05)] bg-[rgba(0,0,0,0.2)] p-5">
                                 <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Circuit Breaker</p>
-                                <h4 id="worker-circuit-state" class="text-3xl font-bold text-slate-800 mt-2">-</h4>
+                                <h4 id="worker-circuit-state" class="text-3xl font-bold text-white mt-2">-</h4>
                                 <p id="worker-circuit-detail" class="text-xs text-slate-500 mt-2">-</p>
                             </div>
                         </div>
                         <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6">
-                            <div class="rounded-2xl border border-slate-100 p-5">
+                            <div class="rounded-2xl border border-[rgba(255,255,255,0.05)] bg-[rgba(0,0,0,0.2)] p-5">
                                 <div class="flex items-center justify-between mb-4">
-                                    <h4 class="font-bold text-slate-800">Trend 24 Jam</h4>
-                                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">UTC</span>
+                                    <h4 class="font-bold text-white">Trend 24 Jam</h4>
+                                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">UTC</span>
                                 </div>
-                                <div id="worker-hourly-series" class="space-y-2 text-xs text-slate-500"></div>
+                                <div id="worker-hourly-series" class="space-y-2 text-xs text-slate-400"></div>
                             </div>
-                            <div class="rounded-2xl border border-slate-100 p-5">
+                            <div class="rounded-2xl border border-[rgba(255,255,255,0.05)] bg-[rgba(0,0,0,0.2)] p-5">
                                 <div class="flex items-center justify-between mb-4">
-                                    <h4 class="font-bold text-slate-800">7 Hari Terakhir</h4>
-                                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">UTC</span>
+                                    <h4 class="font-bold text-white">7 Hari Terakhir</h4>
+                                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">UTC</span>
                                 </div>
-                                <div id="worker-daily-series" class="space-y-2 text-xs text-slate-500"></div>
+                                <div id="worker-daily-series" class="space-y-2 text-xs text-slate-400"></div>
                             </div>
                         </div>
                         <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6">
-                            <div class="rounded-2xl border border-slate-100 p-5">
-                                <h4 class="font-bold text-slate-800 mb-4">Top Paths</h4>
-                                <div id="worker-top-paths" class="space-y-2 text-xs text-slate-500"></div>
+                            <div class="rounded-2xl border border-[rgba(255,255,255,0.05)] bg-[rgba(0,0,0,0.2)] p-5">
+                                <h4 class="font-bold text-white mb-4">Top Paths</h4>
+                                <div id="worker-top-paths" class="space-y-2 text-xs text-slate-400"></div>
                             </div>
-                            <div class="rounded-2xl border border-slate-100 p-5">
-                                <h4 class="font-bold text-slate-800 mb-4">Top API Actions</h4>
-                                <div id="worker-top-actions" class="space-y-2 text-xs text-slate-500"></div>
+                            <div class="rounded-2xl border border-[rgba(255,255,255,0.05)] bg-[rgba(0,0,0,0.2)] p-5">
+                                <h4 class="font-bold text-white mb-4">Top API Actions</h4>
+                                <div id="worker-top-actions" class="space-y-2 text-xs text-slate-400"></div>
                             </div>
                         </div>
-                        <div class="rounded-2xl border border-indigo-100 bg-indigo-50/60 p-5 mt-6">
+                        <div class="rounded-2xl border border-[#017A6B]/30 bg-[rgba(1,122,107,0.1)] p-5 mt-6">
                             <div class="flex items-center gap-3 mb-3">
-                                <i data-lucide="gauge" class="w-5 h-5 text-indigo-600"></i>
-                                <h4 class="font-bold text-slate-800">Browser Request Savings</h4>
+                                <i data-lucide="gauge" class="w-5 h-5 text-[#B6FF00]"></i>
+                                <h4 class="font-bold text-white">Browser Request Savings</h4>
                             </div>
-                            <div id="client-fetch-stats" class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-600"></div>
+                            <div id="client-fetch-stats" class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-400"></div>
                         </div>
                     </div>
                     <!-- Cloudflare Section -->
-                    <div class="bg-gradient-to-br from-amber-50 to-orange-50 p-8 md:p-10 rounded-[2.5rem] border border-orange-100 shadow-sm mb-10">
-                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-orange-200/50 pb-6 mb-8 gap-6">
-                            <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm text-amber-500">
-                                    <i data-lucide="cloud-lightning" class="w-6 h-6"></i>
+                    <div class="glass-card mb-10 overflow-hidden relative rounded-[2.5rem] p-8 md:p-10 border border-[#f59e0b]/30">
+                        <div class="absolute inset-0 bg-[#f59e0b]/5 pointer-events-none"></div>
+                        <div class="relative z-10">
+                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[rgba(245,158,11,0.2)] pb-6 mb-8 gap-6">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-[#f59e0b]/10 rounded-2xl flex items-center justify-center border border-[#f59e0b]/30 text-[#f59e0b]">
+                                        <i data-lucide="cloud-lightning" class="w-6 h-6"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-bold text-white">Cloudflare Cache</h3>
+                                        <p class="text-xs text-[#f59e0b] font-medium">Performance Management</p>
+                                    </div>
+                                </div>
+                                <button onclick="triggerPurgeCache()" id="btn-purge" class="w-full sm:w-auto bg-[#f59e0b] text-white px-6 py-3 rounded-xl font-bold text-xs uppercase shadow-[0_0_15px_rgba(245,158,11,0.4)] hover:bg-[#d97706] hover:shadow-[0_0_20px_rgba(245,158,11,0.6)] transition-all flex items-center justify-center gap-2">
+                                    <i data-lucide="eraser" class="w-4 h-4"></i> Purge Cache
+                                </button>
+                            </div>
+                            <form id="form-cf" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Zone ID</label>
+                                    <input type="text" id="set-cf-zone" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#f59e0b] focus:ring-1 focus:ring-[#f59e0b] font-mono text-xs text-white">
                                 </div>
                                 <div>
-                                    <h3 class="text-lg font-bold text-slate-800">Cloudflare Cache</h3>
-                                    <p class="text-xs text-slate-500 font-medium">Performance Management</p>
+                                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">API Token</label>
+                                    <input type="password" id="set-cf-token" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#f59e0b] focus:ring-1 focus:ring-[#f59e0b] font-mono text-xs text-white">
                                 </div>
-                            </div>
-                            <button onclick="triggerPurgeCache()" id="btn-purge" class="w-full sm:w-auto bg-amber-500 text-white px-6 py-3 rounded-xl font-bold text-xs uppercase shadow-lg shadow-amber-200 hover:bg-amber-600 hover:shadow-amber-300 transition-all flex items-center justify-center gap-2">
-                                <i data-lucide="eraser" class="w-4 h-4"></i> Purge Cache
-                            </button>
+                                <button type="submit" class="md:col-span-2 w-full btn-ghost p-4 rounded-xl font-bold uppercase text-xs transition-all mt-2 text-white hover:text-white border-[rgba(255,255,255,0.1)] hover:bg-[rgba(245,158,11,0.1)] border hover:border-[#f59e0b]/50">Simpan Konfigurasi Cloudflare</button>
+                            </form>
                         </div>
-                        <form id="form-cf" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 mb-2 block">Zone ID</label>
-                                <input type="text" id="set-cf-zone" class="w-full p-4 bg-white border border-orange-100 rounded-xl outline-none focus:ring-2 focus:ring-amber-400/20 font-mono text-xs shadow-sm">
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 mb-2 block">API Token</label>
-                                <input type="password" id="set-cf-token" class="w-full p-4 bg-white border border-orange-100 rounded-xl outline-none focus:ring-2 focus:ring-amber-400/20 font-mono text-xs shadow-sm">
-                            </div>
-                            <button type="submit" class="md:col-span-2 w-full bg-slate-900 text-white p-4 rounded-xl font-bold uppercase text-xs shadow-xl hover:bg-slate-800 transition-all mt-2">Simpan Konfigurasi Cloudflare</button>
-                        </form>
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <!-- Branding Section -->
-                        <div class="bg-white p-8 md:p-10 rounded-[2.5rem] border border-slate-100 shadow-sm h-full">
-                            <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-3">
-                                <i data-lucide="palette" class="w-5 h-5 text-indigo-500"></i> Branding Web
+                        <div class="glass-card p-8 md:p-10 rounded-[2.5rem] border-[rgba(255,255,255,0.05)] h-full">
+                            <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-3">
+                                <i data-lucide="palette" class="w-5 h-5 text-[#B6FF00]"></i> Branding Web
                             </h3>
                             <form id="form-branding" class="space-y-5">
                                 <div>
                                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Nama Website</label>
-                                    <input type="text" id="set-site-name" placeholder="Misal: KelasJuara" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition-all text-sm font-medium">
+                                    <input type="text" id="set-site-name" placeholder="Misal: KelasJuara" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] focus:ring-1 focus:ring-[#B6FF00] transition-all text-sm font-medium text-white">
                                 </div>
                                 <div>
                                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Tagline</label>
-                                    <input type="text" id="set-site-tagline" placeholder="Misal: Platform Edukasi Terbaik" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition-all text-sm font-medium">
+                                    <input type="text" id="set-site-tagline" placeholder="Misal: Platform Edukasi Terbaik" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] focus:ring-1 focus:ring-[#B6FF00] transition-all text-sm font-medium text-white">
                                 </div>
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
                                         <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Logo URL</label>
-                                        <input type="text" id="set-logo" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition-all text-xs font-mono">
+                                        <input type="text" id="set-logo" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] focus:ring-1 focus:ring-[#B6FF00] transition-all text-xs font-mono text-white">
                                     </div>
                                     <div>
                                         <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Favicon URL</label>
-                                        <input type="text" id="set-favicon" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition-all text-xs font-mono">
+                                        <input type="text" id="set-favicon" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] focus:ring-1 focus:ring-[#B6FF00] transition-all text-xs font-mono text-white">
                                     </div>
                                 </div>
-                                <button type="submit" class="w-full bg-slate-800 text-white p-4 rounded-xl font-bold uppercase text-xs hover:bg-slate-900 transition-all mt-4 shadow-lg">Simpan Branding</button>
+                                <button type="submit" class="w-full btn-primary p-4 rounded-xl font-bold uppercase text-xs transition-all mt-4">Simpan Branding</button>
                             </form>
                         </div>
 
                         <!-- System API Section -->
-                        <div class="bg-white p-8 md:p-10 rounded-[2.5rem] border border-slate-100 shadow-sm h-full">
-                            <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-3">
-                                <i data-lucide="server" class="w-5 h-5 text-emerald-500"></i> API Sistem
+                        <div class="glass-card p-8 md:p-10 rounded-[2.5rem] border-[rgba(255,255,255,0.05)] h-full">
+                            <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-3">
+                                <i data-lucide="server" class="w-5 h-5 text-[#B6FF00]"></i> API Sistem
                             </h3>
                             <form id="form-sys" class="space-y-5">
                                 <div>
                                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Email Kontak</label>
-                                    <input type="email" id="set-email" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition-all font-mono text-xs">
+                                    <input type="email" id="set-email" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] font-mono text-xs text-white">
                                 </div>
                                 <div>
-                                    <label class="text-xs font-bold text-emerald-600 uppercase tracking-wider ml-1 mb-2 block">Fonnte Token (WA)</label>
-                                    <input type="text" id="set-fonnte" class="w-full p-4 bg-emerald-50 border border-emerald-100 rounded-xl outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all font-mono text-xs text-emerald-800">
+                                    <label class="text-xs font-bold text-emerald-400 uppercase tracking-wider ml-1 mb-2 block">Fonnte Token (WA)</label>
+                                    <input type="text" id="set-fonnte" class="w-full p-4 bg-[rgba(16,185,129,0.1)] border border-[rgba(16,185,129,0.2)] rounded-xl outline-none focus:border-emerald-500 font-mono text-xs text-emerald-300">
                                 </div>
                                 <div>
                                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">WA Admin (08xxx)</label>
-                                    <input type="text" id="set-wa" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition-all font-mono text-sm">
+                                    <input type="text" id="set-wa" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] font-mono text-sm text-white">
                                 </div>
-                                <div class="rounded-[1.5rem] border border-sky-100 bg-sky-50/60 p-5 space-y-4">
+                                <div class="rounded-[1.5rem] border border-[rgba(14,165,233,0.3)] bg-[rgba(14,165,233,0.05)] p-5 space-y-4">
                                     <div class="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
                                         <div class="max-w-2xl">
-                                            <label class="text-xs font-bold text-sky-700 uppercase tracking-wider ml-1 mb-1 block">Moota Payment Gateway</label>
-                                            <p class="text-xs text-slate-500">Pengaturan Moota sekarang disederhanakan menjadi 2 field wajib: Webhook URL HTTPS dan Secret Token untuk verifikasi signature HMAC.</p>
+                                            <label class="text-xs font-bold text-sky-400 uppercase tracking-wider ml-1 mb-1 block">Moota Payment Gateway</label>
+                                            <p class="text-xs text-slate-400">Pengaturan Moota sekarang disederhanakan menjadi 2 field wajib: Webhook URL HTTPS dan Secret Token untuk verifikasi signature HMAC.</p>
                                         </div>
                                         <div class="w-full xl:w-auto">
-                                            <button type="button" onclick="testMootaConnection()" class="w-full bg-sky-600 text-white px-4 py-3 rounded-xl font-bold text-xs uppercase hover:bg-sky-700 transition-all shadow-lg shadow-sky-200">
+                                            <button type="button" onclick="testMootaConnection()" class="w-full bg-sky-500/20 text-sky-300 border border-sky-500/50 px-4 py-3 rounded-xl font-bold text-xs uppercase hover:bg-sky-500/30 transition-all">
                                                 Test Koneksi Moota
                                             </button>
                                         </div>
@@ -1096,53 +1100,53 @@
                                         <div>
                                             <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 flex items-center gap-2">
                                                 <span>Webhook URL</span>
-                                                <i data-lucide="circle-help" class="w-3.5 h-3.5 text-slate-400" title="URL webhook publik yang dipasang di dashboard Moota. Wajib HTTPS dan tanpa query string."></i>
+                                                <i data-lucide="circle-help" class="w-3.5 h-3.5 text-slate-400"></i>
                                             </label>
-                                            <input type="text" id="set-moota-url" placeholder="https://domainanda.com/webhook/moota" class="w-full p-4 bg-white border border-sky-100 rounded-xl outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/10 transition-all font-mono text-xs">
-                                            <p class="text-[11px] text-slate-500 mt-2">Gunakan URL webhook publik dari Cloudflare Worker atau proxy Anda. Jangan gunakan URL Google Apps Script langsung.</p>
+                                            <input type="text" id="set-moota-url" placeholder="https://domainanda.com/webhook/moota" class="w-full p-4 glass-input rounded-xl outline-none focus:border-sky-500 font-mono text-xs text-white">
+                                            <p class="text-[11px] text-slate-500 mt-2">Gunakan URL webhook publik dari Cloudflare Worker atau proxy Anda.</p>
                                         </div>
                                         <div>
                                             <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 flex items-center gap-2">
                                                 <span>Secret Token</span>
-                                                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-slate-400" title="Token minimal 8 karakter alphanumeric yang dipakai untuk menghitung signature HMAC SHA-256 dari payload webhook Moota."></i>
+                                                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-slate-400"></i>
                                             </label>
                                             <div class="relative">
-                                                <input type="password" id="set-moota-token" placeholder="Secret123" class="w-full p-4 pr-16 bg-white border border-sky-100 rounded-xl outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/10 transition-all font-mono text-xs">
-                                                <button type="button" onclick="toggleSensitiveField('set-moota-token', this)" class="absolute inset-y-0 right-3 text-[10px] font-bold uppercase text-sky-600">Show</button>
+                                                <input type="password" id="set-moota-token" placeholder="Secret123" class="w-full p-4 pr-16 glass-input rounded-xl outline-none focus:border-sky-500 font-mono text-xs text-white">
+                                                <button type="button" onclick="toggleSensitiveField('set-moota-token', this)" class="absolute inset-y-0 right-3 text-[10px] font-bold uppercase text-sky-400">Show</button>
                                             </div>
                                             <p id="moota-token-hint" class="text-[11px] text-slate-500 mt-2"></p>
                                         </div>
                                     </div>
-                                    <div class="rounded-2xl border border-white/70 bg-white/70 p-4 text-xs text-slate-500 space-y-3">
-                                        <p class="font-bold text-slate-700">Catatan penggunaan</p>
+                                    <div class="rounded-2xl border border-[rgba(255,255,255,0.05)] bg-[rgba(0,0,0,0.3)] p-4 text-xs text-slate-400 space-y-3">
+                                        <p class="font-bold text-slate-300">Catatan penggunaan</p>
                                         <p>1. Moota mengirim payload JSON array via `POST` dan signature di header `Signature`.</p>
-                                        <p>2. Jika Anda memakai Google Apps Script, arahkan webhook ke endpoint Cloudflare Worker atau proxy publik terlebih dahulu agar header `Signature` bisa diteruskan ke Apps Script.</p>
-                                        <p>3. Jalankan `Test Koneksi Moota` sebelum menyimpan agar Webhook URL dan Secret Token tervalidasi lebih dulu.</p>
+                                        <p>2. Arahkan webhook ke endpoint Cloudflare Worker.</p>
+                                        <p>3. Jalankan `Test Koneksi Moota` sebelum menyimpan.</p>
                                     </div>
                                     <div id="moota-test-status" class="hidden rounded-xl border px-4 py-3 text-xs font-medium"></div>
                                 </div>
-                                <div class="rounded-[1.5rem] border border-emerald-100 bg-emerald-50/50 p-5 space-y-4">
+                                <div class="rounded-[1.5rem] border border-[rgba(16,185,129,0.3)] bg-[rgba(16,185,129,0.05)] p-5 space-y-4">
                                     <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                                         <div>
-                                            <label class="text-xs font-bold text-emerald-700 uppercase tracking-wider ml-1 mb-1 block">ImageKit Media Center</label>
-                                            <p class="text-xs text-slate-500">Isi public key, URL endpoint, dan private key langsung dari aplikasi. Private key hanya disimpan di server.</p>
+                                            <label class="text-xs font-bold text-emerald-400 uppercase tracking-wider ml-1 mb-1 block">ImageKit Media Center</label>
+                                            <p class="text-xs text-slate-400">Isi public key, URL endpoint, dan private key langsung dari aplikasi.</p>
                                         </div>
-                                        <button type="button" onclick="testImageKitConnection()" class="w-full md:w-auto bg-white border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl font-bold text-xs uppercase hover:bg-emerald-100 transition-all">
+                                        <button type="button" onclick="testImageKitConnection()" class="w-full md:w-auto bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 px-4 py-3 rounded-xl font-bold text-xs uppercase hover:bg-emerald-500/30 transition-all">
                                             Test Koneksi ImageKit
                                         </button>
                                     </div>
                                     <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
                                         <div>
                                             <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">ImageKit Public Key</label>
-                                            <input type="text" id="set-ik-pub" placeholder="public_xxxxx" class="w-full p-4 bg-white border border-emerald-100 rounded-xl outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all font-mono text-xs">
+                                            <input type="text" id="set-ik-pub" placeholder="public_xxxxx" class="w-full p-4 glass-input rounded-xl outline-none focus:border-emerald-500 font-mono text-xs text-white">
                                         </div>
                                         <div>
-                                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">ImageKit URL Endpoint</label>
-                                            <input type="text" id="set-ik-end" placeholder="https://ik.imagekit.io/nama-endpoint" class="w-full p-4 bg-white border border-emerald-100 rounded-xl outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all font-mono text-xs">
+                                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">URL Endpoint</label>
+                                            <input type="text" id="set-ik-end" placeholder="https://ik.imagekit.io/" class="w-full p-4 glass-input rounded-xl outline-none focus:border-emerald-500 font-mono text-xs text-white">
                                         </div>
                                         <div>
                                             <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">ImageKit Private Key</label>
-                                            <input type="password" id="set-ik-priv" placeholder="private_xxxxx" class="w-full p-4 bg-white border border-emerald-100 rounded-xl outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all font-mono text-xs">
+                                            <input type="password" id="set-ik-priv" placeholder="private_xxxxx" class="w-full p-4 glass-input rounded-xl outline-none focus:border-emerald-500 font-mono text-xs text-white">
                                         </div>
                                     </div>
                                     <p id="ik-private-hint" class="text-[11px] text-slate-500"></p>
@@ -1150,9 +1154,9 @@
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
-                                    <button type="submit" id="btn-save-system-general" class="w-full bg-indigo-600 text-white p-4 rounded-xl font-bold uppercase text-xs hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all">Update API Sistem Umum</button>
-                                    <button type="button" id="btn-save-moota" onclick="saveMootaGatewayConfig()" class="w-full bg-sky-600 text-white p-4 rounded-xl font-bold uppercase text-xs hover:bg-sky-700 shadow-lg shadow-sky-200 transition-all">Update Moota Payment Gateway</button>
-                                    <button type="button" id="btn-save-imagekit" onclick="saveImageKitMediaConfig()" class="w-full bg-emerald-600 text-white p-4 rounded-xl font-bold uppercase text-xs hover:bg-emerald-700 shadow-lg shadow-emerald-200 transition-all">Update ImageKit Media Center</button>
+                                    <button type="submit" id="btn-save-system-general" class="w-full btn-primary p-4 rounded-xl font-bold uppercase text-xs transition-all">Update API Sistem Umum</button>
+                                    <button type="button" id="btn-save-moota" onclick="saveMootaGatewayConfig()" class="w-full bg-[rgba(14,165,233,0.2)] border border-[rgba(14,165,233,0.3)] text-sky-400 p-4 rounded-xl font-bold uppercase text-xs hover:bg-[rgba(14,165,233,0.3)] transition-all">Update Moota Payment Gateway</button>
+                                    <button type="button" id="btn-save-imagekit" onclick="saveImageKitMediaConfig()" class="w-full bg-[rgba(16,185,129,0.2)] border border-[rgba(16,185,129,0.3)] text-emerald-400 p-4 rounded-xl font-bold uppercase text-xs hover:bg-[rgba(16,185,129,0.3)] transition-all">Update ImageKit Media Center</button>
                                 </div>
                             </form>
                         </div>
@@ -1165,169 +1169,169 @@
     </div>
 
     <!-- MODAL CONFIRM -->
-    <div id="modal-confirm" class="fixed inset-0 bg-slate-900/60 z-[400] hidden items-center justify-center p-4 backdrop-blur-sm transition-opacity opacity-0">
-        <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm p-8 text-center transform transition-transform scale-95 border border-white/20" id="modal-confirm-content">
-            <div class="w-16 h-16 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-6">
+    <div id="modal-confirm" class="fixed inset-0 bg-[#000018]/80 z-[400] hidden items-center justify-center p-4 backdrop-blur-md transition-opacity opacity-0">
+        <div class="glass-card rounded-[2rem] w-full max-w-sm p-8 text-center transform transition-transform scale-95" id="modal-confirm-content">
+            <div class="w-16 h-16 bg-[#ef4444]/10 text-[#ef4444] border border-[#ef4444]/30 rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_15px_rgba(239,68,68,0.2)]">
                 <i data-lucide="alert-circle" class="w-8 h-8"></i>
             </div>
-            <h3 class="text-xl font-bold text-slate-900 mb-2">Konfirmasi</h3>
-            <p class="text-sm text-slate-500 mb-8 leading-relaxed" id="confirm-msg">Apakah anda yakin ingin melanjutkan tindakan ini?</p>
+            <h3 class="text-xl font-bold text-white mb-2">Konfirmasi</h3>
+            <p class="text-sm text-slate-400 mb-8 leading-relaxed" id="confirm-msg">Apakah anda yakin ingin melanjutkan tindakan ini?</p>
             <div class="flex gap-3">
-                <button id="btn-confirm-cancel" class="flex-1 bg-slate-50 text-slate-600 hover:bg-slate-100 py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-colors">Batal</button>
-                <button id="btn-confirm-ok" class="flex-1 bg-indigo-600 text-white hover:bg-indigo-700 py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-colors shadow-lg shadow-indigo-200">Ya, Lanjut</button>
+                <button id="btn-confirm-cancel" class="flex-1 btn-ghost py-3.5 rounded-xl transition-all">Batal</button>
+                <button id="btn-confirm-ok" class="flex-1 btn-primary bg-[#ef4444] outline-[#ef4444] border-none py-3.5 rounded-xl hover:bg-[#dc2626] transition-all">Ya, Lanjut</button>
             </div>
         </div>
     </div>
 
     <!-- MODAL PRODUCT -->
-    <div id="modal-prod" class="fixed inset-0 bg-slate-900/70 hidden z-[300] items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-2xl rounded-[2.5rem] p-8 md:p-10 shadow-2xl max-h-[90vh] overflow-y-auto custom-scroll relative">
-            <button onclick="closeModal('modal-prod')" class="absolute top-6 right-6 p-2 bg-slate-50 rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+    <div id="modal-prod" class="fixed inset-0 bg-[#000018]/80 hidden z-[300] items-center justify-center p-4 backdrop-blur-md">
+        <div class="glass-card w-full max-w-2xl rounded-[2.5rem] p-8 md:p-10 shadow-2xl shadow-black/50 max-h-[90vh] overflow-y-auto custom-scroll relative">
+            <button onclick="closeModal('modal-prod')" class="absolute top-6 right-6 p-2 bg-[rgba(255,255,255,0.05)] rounded-full text-slate-400 hover:bg-[rgba(255,255,255,0.1)] hover:text-white transition-colors border border-[rgba(255,255,255,0.1)]"><i data-lucide="x" class="w-5 h-5"></i></button>
             
-            <h3 class="text-2xl font-bold mb-2 text-slate-800">Setup Produk</h3>
-            <p class="text-slate-500 text-sm mb-8">Kelola informasi produk dan akses materi.</p>
+            <h3 class="text-2xl font-bold mb-2 text-white">Setup Produk</h3>
+            <p class="text-slate-400 text-sm mb-8">Kelola informasi produk dan akses materi.</p>
             
             <form id="form-prod" class="space-y-5">
                 <input type="hidden" id="p-is-edit">
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
                     <div>
                         <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">ID Produk</label>
-                        <input type="text" id="p-id" placeholder="PRD-01" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 transition-all font-bold text-slate-700" required>
+                        <input type="text" id="p-id" placeholder="PRD-01" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all font-bold text-white" required>
                     </div>
                     <div>
                         <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Harga (Rp)</label>
-                        <input type="number" id="p-harga" placeholder="100000" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 transition-all font-bold text-slate-700" required>
+                        <input type="number" id="p-harga" placeholder="100000" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all font-bold text-white" required>
                     </div>
                     <div>
                         <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Komisi Affiliate (Rp)</label>
-                        <input type="number" id="p-commission" placeholder="0" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 transition-all font-bold text-slate-700">
+                        <input type="number" id="p-commission" placeholder="0" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all font-bold text-white">
                     </div>
                 </div>
                 
                 <div>
                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Nama Produk</label>
-                    <input type="text" id="p-title" placeholder="Contoh: Kelas Jagoan Python" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 transition-all font-bold text-slate-700" required>
+                    <input type="text" id="p-title" placeholder="Contoh: Kelas Jagoan Python" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all font-bold text-white" required>
                 </div>
                 <div>
                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">URL Landing Page</label>
-                    <input type="text" id="p-lp" placeholder="Contoh: p.html?s=promo" class="w-full p-4 bg-indigo-50 border border-indigo-100 rounded-xl font-medium text-indigo-700 outline-none focus:ring-2 focus:ring-indigo-500/20" required>
+                    <input type="text" id="p-lp" placeholder="Contoh: p.html?s=promo" class="w-full p-4 bg-[rgba(1,122,107,0.1)] border border-[rgba(1,122,107,0.3)] rounded-xl font-medium text-[#B6FF00] outline-none focus:border-[#B6FF00] transition-all focus:ring-1 focus:ring-[#B6FF00]" required>
                 </div>
                 <div>
                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Link Gambar Produk (Opsional)</label>
                     <div class="flex gap-4 items-start">
                         <div class="flex-1">
-                            <input type="text" id="p-image" placeholder="https://ik.imagekit.io/..." class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 transition-all font-medium text-xs font-mono" oninput="updateProdPreview(this.value)">
-                            <p class="text-[10px] text-slate-400 mt-2">Gunakan URL dari Media Center.</p>
+                            <input type="text" id="p-image" placeholder="https://ik.imagekit.io/..." class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all font-medium text-xs font-mono text-white" oninput="updateProdPreview(this.value)">
+                            <p class="text-[10px] text-slate-500 mt-2">Gunakan URL dari Media Center.</p>
                         </div>
-                        <div class="w-20 h-20 bg-slate-100 rounded-xl border border-slate-200 flex items-center justify-center overflow-hidden flex-shrink-0">
+                        <div class="w-20 h-20 bg-[rgba(0,0,0,0.3)] rounded-xl border border-[rgba(255,255,255,0.1)] flex items-center justify-center overflow-hidden flex-shrink-0">
                              <img id="p-image-preview" src="" class="w-full h-full object-cover hidden" onerror="this.classList.add('hidden'); document.getElementById('p-image-placeholder').classList.remove('hidden');">
-                             <i data-lucide="image" class="w-6 h-6 text-slate-300" id="p-image-placeholder"></i>
+                             <i data-lucide="image" class="w-6 h-6 text-slate-500" id="p-image-placeholder"></i>
                         </div>
                     </div>
                 </div>
                 <div>
                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Link Akses Materi</label>
-                    <input type="text" id="p-url" placeholder="https://..." class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 transition-all font-medium" required>
+                    <input type="text" id="p-url" placeholder="https://..." class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all font-medium text-white" required>
                 </div>
 
-                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 mb-6">
+                <div class="bg-[rgba(0,0,0,0.2)] p-4 rounded-xl border border-[rgba(255,255,255,0.05)] mb-6">
                     <div class="flex items-center gap-2 mb-3">
-                        <i data-lucide="activity" class="w-4 h-4 text-indigo-500"></i>
-                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Konfigurasi Meta Pixel</span>
+                        <i data-lucide="activity" class="w-4 h-4 text-[#B6FF00]"></i>
+                        <span class="text-xs font-bold text-white uppercase tracking-wider">Konfigurasi Meta Pixel</span>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1 mb-1 block">Pixel ID</label>
-                            <input type="text" id="p-pixel-id" placeholder="Ex: 123456789" class="w-full p-3 bg-white border border-slate-200 rounded-lg outline-none focus:border-indigo-500 text-xs font-mono transition-all">
+                            <input type="text" id="p-pixel-id" placeholder="Ex: 123456789" class="w-full p-3 glass-input rounded-lg outline-none focus:border-[#B6FF00] text-xs font-mono text-white transition-all">
                         </div>
                         <div>
                             <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1 mb-1 block">Access Token</label>
-                            <input type="text" id="p-pixel-token" placeholder="Ex: EAA..." class="w-full p-3 bg-white border border-slate-200 rounded-lg outline-none focus:border-indigo-500 text-xs font-mono transition-all">
+                            <input type="text" id="p-pixel-token" placeholder="Ex: EAA..." class="w-full p-3 glass-input rounded-lg outline-none focus:border-[#B6FF00] text-xs font-mono text-white transition-all">
                         </div>
                         <div>
                             <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1 mb-1 block">Test Event Code</label>
-                            <input type="text" id="p-pixel-test" placeholder="Ex: TEST1234" class="w-full p-3 bg-white border border-slate-200 rounded-lg outline-none focus:border-indigo-500 text-xs font-mono transition-all">
+                            <input type="text" id="p-pixel-test" placeholder="Ex: TEST1234" class="w-full p-3 glass-input rounded-lg outline-none focus:border-[#B6FF00] text-xs font-mono text-white transition-all">
                         </div>
                     </div>
                 </div>
 
                 <div>
                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Deskripsi Singkat</label>
-                    <textarea id="p-desc" placeholder="Deskripsi untuk ditampilkan di katalog..." maxlength="280" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none h-24 font-medium text-sm focus:border-indigo-500 transition-all"></textarea>
+                    <textarea id="p-desc" placeholder="Deskripsi untuk ditampilkan di katalog..." maxlength="280" class="w-full p-4 glass-input rounded-xl outline-none h-24 font-medium text-sm focus:border-[#B6FF00] text-white transition-all"></textarea>
                     <div class="mt-2 flex items-center justify-between gap-4">
-                        <p class="text-[11px] text-slate-400">Disimpan sebagai plain text, maksimal 280 karakter, tanpa tag HTML.</p>
-                        <p id="p-desc-counter" class="text-[11px] font-bold text-slate-400">0/280</p>
+                        <p class="text-[11px] text-slate-500">Disimpan sebagai plain text, maksimal 280 karakter, tanpa tag HTML.</p>
+                        <p id="p-desc-counter" class="text-[11px] font-bold text-slate-500">0/280</p>
                     </div>
                 </div>
-                <div class="flex flex-col sm:flex-row gap-4 pt-4 border-t border-slate-100 mt-4">
-                    <button type="button" onclick="closeModal('modal-prod')" class="p-4 font-bold text-slate-400 hover:text-slate-600 transition-colors order-2 sm:order-1">BATAL</button>
-                    <button type="submit" class="flex-1 bg-indigo-600 text-white p-4 rounded-xl font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all uppercase text-xs tracking-wide order-1 sm:order-2">Simpan Produk</button>
+                <div class="flex flex-col sm:flex-row gap-4 pt-4 border-t border-[rgba(255,255,255,0.05)] mt-4">
+                    <button type="button" onclick="closeModal('modal-prod')" class="p-4 font-bold text-slate-400 hover:text-white transition-colors order-2 sm:order-1">BATAL</button>
+                    <button type="submit" class="flex-1 btn-primary p-4 rounded-xl transition-all uppercase order-1 sm:order-2">Simpan Produk</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- MODAL PAGE -->
-    <div id="modal-page" class="fixed inset-0 bg-slate-900/70 hidden z-[300] items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-5xl rounded-[2.5rem] p-6 md:p-10 shadow-2xl max-h-[95vh] overflow-y-auto custom-scroll relative">
-            <button onclick="closeModal('modal-page')" class="absolute top-6 right-6 p-2 bg-slate-50 rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+    <div id="modal-page" class="fixed inset-0 bg-[#000018]/80 hidden z-[300] items-center justify-center p-4 backdrop-blur-md">
+        <div class="glass-card w-full max-w-5xl rounded-[2.5rem] p-6 md:p-10 shadow-2xl max-h-[95vh] overflow-y-auto custom-scroll relative">
+            <button onclick="closeModal('modal-page')" class="absolute top-6 right-6 p-2 bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-full text-slate-400 hover:bg-[rgba(255,255,255,0.1)] hover:text-white transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
 
-            <h3 class="text-2xl font-bold mb-2 text-slate-800">Editor Halaman</h3>
-            <p class="text-slate-500 text-sm mb-8">Buat halaman landing page atau informasi.</p>
+            <h3 class="text-2xl font-bold mb-2 text-white">Editor Halaman</h3>
+            <p class="text-slate-400 text-sm mb-8">Buat halaman landing page atau informasi.</p>
             
             <form id="form-page" class="space-y-5">
                 <input type="hidden" id="pg-id"><input type="hidden" id="pg-is-edit">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
                         <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Judul Halaman</label>
-                        <input type="text" id="pg-title" placeholder="Judul Halaman" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 font-bold transition-all" required>
+                        <input type="text" id="pg-title" placeholder="Judul Halaman" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] font-bold text-white transition-all" required>
                     </div>
                     <div>
                         <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Slug URL</label>
-                        <input type="text" id="pg-slug" placeholder="slug-halaman" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 font-bold transition-all" required>
+                        <input type="text" id="pg-slug" placeholder="slug-halaman" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] font-bold text-white transition-all" required>
                     </div>
                 </div>
 
                 <!-- Meta Pixel Config -->
-                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 mb-6">
+                <div class="bg-[rgba(0,0,0,0.2)] p-4 rounded-xl border border-[rgba(255,255,255,0.05)] mb-6">
                     <div class="flex items-center gap-2 mb-3">
-                        <i data-lucide="activity" class="w-4 h-4 text-indigo-500"></i>
-                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Konfigurasi Meta Pixel (Opsional)</span>
+                        <i data-lucide="activity" class="w-4 h-4 text-[#B6FF00]"></i>
+                        <span class="text-xs font-bold text-white uppercase tracking-wider">Konfigurasi Meta Pixel (Opsional)</span>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1 mb-1 block">Pixel ID</label>
-                            <input type="text" id="pg-pixel-id" placeholder="Ex: 123456789" class="w-full p-3 bg-white border border-slate-200 rounded-lg outline-none focus:border-indigo-500 text-xs font-mono transition-all">
+                            <input type="text" id="pg-pixel-id" placeholder="Ex: 123456789" class="w-full p-3 glass-input rounded-lg outline-none focus:border-[#B6FF00] text-xs font-mono text-white transition-all">
                         </div>
                         <div>
                             <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1 mb-1 block">Access Token</label>
-                            <input type="text" id="pg-pixel-token" placeholder="Ex: EAA..." class="w-full p-3 bg-white border border-slate-200 rounded-lg outline-none focus:border-indigo-500 text-xs font-mono transition-all">
+                            <input type="text" id="pg-pixel-token" placeholder="Ex: EAA..." class="w-full p-3 glass-input rounded-lg outline-none focus:border-[#B6FF00] text-xs font-mono text-white transition-all">
                         </div>
                         <div>
                             <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1 mb-1 block">Test Event Code</label>
-                            <input type="text" id="pg-pixel-test" placeholder="Ex: TEST1234" class="w-full p-3 bg-white border border-slate-200 rounded-lg outline-none focus:border-indigo-500 text-xs font-mono transition-all">
+                            <input type="text" id="pg-pixel-test" placeholder="Ex: TEST1234" class="w-full p-3 glass-input rounded-lg outline-none focus:border-[#B6FF00] text-xs font-mono text-white transition-all">
                         </div>
                     </div>
                 </div>
 
                 <!-- Theme Config -->
-                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 mb-6">
+                <div class="bg-[rgba(0,0,0,0.2)] p-4 rounded-xl border border-[rgba(255,255,255,0.05)] mb-6">
                     <div class="flex items-center gap-2 mb-3">
-                        <i data-lucide="palette" class="w-4 h-4 text-indigo-500"></i>
-                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Tema Halaman</span>
+                        <i data-lucide="palette" class="w-4 h-4 text-[#B6FF00]"></i>
+                        <span class="text-xs font-bold text-white uppercase tracking-wider">Tema Halaman</span>
                     </div>
                     <div class="flex gap-4">
                         <label class="cursor-pointer flex items-center gap-2">
-                            <input type="radio" name="pg-theme" value="light" class="peer sr-only" checked>
-                            <div class="px-4 py-2 rounded-lg border border-slate-200 bg-white peer-checked:border-indigo-500 peer-checked:bg-indigo-50 transition-all flex items-center gap-2">
-                                <i data-lucide="sun" class="w-4 h-4 text-amber-500"></i>
-                                <span class="text-xs font-bold text-slate-700">Light</span>
+                            <input type="radio" name="pg-theme" value="light" class="peer sr-only">
+                            <div class="px-4 py-2 rounded-lg border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.05)] peer-checked:border-[#B6FF00] peer-checked:text-[#B6FF00] transition-all flex items-center gap-2 text-slate-400">
+                                <i data-lucide="sun" class="w-4 h-4"></i>
+                                <span class="text-xs font-bold">Light</span>
                             </div>
                         </label>
                         <label class="cursor-pointer flex items-center gap-2">
-                            <input type="radio" name="pg-theme" value="dark" class="peer sr-only">
-                            <div class="px-4 py-2 rounded-lg border border-slate-200 bg-slate-800 peer-checked:border-indigo-500 peer-checked:ring-1 peer-checked:ring-indigo-500 transition-all flex items-center gap-2">
-                                <i data-lucide="moon" class="w-4 h-4 text-indigo-400"></i>
+                            <input type="radio" name="pg-theme" value="dark" class="peer sr-only" checked>
+                            <div class="px-4 py-2 rounded-lg border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.05)] peer-checked:border-[#B6FF00] peer-checked:text-[#B6FF00] transition-all flex items-center gap-2 text-slate-400">
+                                <i data-lucide="moon" class="w-4 h-4"></i>
                                 <span class="text-xs font-bold text-white">Dark</span>
                             </div>
                         </label>
@@ -1336,15 +1340,15 @@
 
                 <div>
                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Konten HTML</label>
-                    <textarea id="pg-content" rows="15" placeholder="<!-- Paste kode HTML Landing Page di sini -->" class="w-full p-6 bg-slate-900 text-emerald-400 border border-slate-800 rounded-xl font-mono text-xs custom-scroll focus:ring-2 focus:ring-indigo-500/50 outline-none"></textarea>
+                    <textarea id="pg-content" rows="15" placeholder="<!-- Paste kode HTML Landing Page di sini -->" class="w-full p-6 glass-input text-emerald-400 rounded-[1.5rem] font-mono text-xs custom-scroll focus:border-[#B6FF00] outline-none transition-all"></textarea>
                 </div>
-                <div class="flex items-center pt-6 border-t border-slate-100">
-                    <button type="button" onclick="downloadPageHTML()" class="mr-auto bg-emerald-50 text-emerald-600 border border-emerald-100 px-6 py-4 rounded-xl font-bold hover:bg-emerald-100 hover:text-emerald-700 transition-colors text-xs uppercase tracking-wide flex items-center gap-2">
+                <div class="flex items-center pt-6 border-t border-[rgba(255,255,255,0.05)]">
+                    <button type="button" onclick="downloadPageHTML()" class="mr-auto btn-ghost border border-[rgba(255,255,255,0.1)] hover:bg-[rgba(1,122,107,0.2)] hover:border-[#017A6B]/50 px-6 py-4 rounded-xl font-bold transition-all text-xs uppercase tracking-wide flex items-center gap-2">
                         <i data-lucide="download" class="w-4 h-4"></i> DOWNLOAD HTML
                     </button>
                     <div class="flex gap-4">
-                        <button type="button" onclick="closeModal('modal-page')" class="font-bold text-slate-400 hover:text-slate-600 transition-colors px-4 py-4">BATAL</button>
-                        <button type="submit" class="bg-indigo-600 text-white px-10 py-4 rounded-xl font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all text-xs uppercase tracking-wide">Publish Halaman</button>
+                        <button type="button" onclick="closeModal('modal-page')" class="font-bold text-slate-400 hover:text-white transition-colors px-4 py-4">BATAL</button>
+                        <button type="submit" class="btn-primary px-10 py-4 font-bold text-xs uppercase tracking-wide">Publish Halaman</button>
                     </div>
                 </div>
             </form>
@@ -1926,18 +1930,18 @@
             if(!append) list.innerHTML = '';
             members.forEach(m => {
                 const row = document.createElement('tr');
-                row.className = 'hover:bg-slate-50 transition-colors';
+                row.className = 'hover:bg-[rgba(255,255,255,0.05)] transition-colors';
                 row.innerHTML = `
-                    <td class="px-8 py-5 font-mono font-bold text-indigo-600 text-xs">${m[0]}</td>
+                    <td class="px-8 py-5 font-mono font-bold text-[#B6FF00] text-xs">${m[0]}</td>
                     <td class="px-8 py-5">
-                        <p class="font-bold text-slate-800 text-sm">${m[3]}</p>
+                        <p class="font-bold text-white text-sm">${m[3]}</p>
                     </td>
-                    <td class="px-8 py-5 text-sm text-slate-600">${m[1]}</td>
-                    <td class="px-8 py-5 text-sm text-slate-600">${m[4]}</td>
+                    <td class="px-8 py-5 text-sm text-slate-400">${m[1]}</td>
+                    <td class="px-8 py-5 text-sm text-slate-400">${m[4]}</td>
                     <td class="px-8 py-5">
-                        <span class="px-2 py-1 bg-green-50 text-green-600 rounded-full text-xs font-bold">${m[5]}</span>
+                        <span class="px-3 py-1.5 bg-[rgba(182,255,0,0.1)] text-[#B6FF00] border border-[rgba(182,255,0,0.2)] rounded-full text-xs font-bold">${m[5]}</span>
                     </td>
-                    <td class="px-8 py-5 text-sm text-slate-600">${m[6]}</td>
+                    <td class="px-8 py-5 text-sm text-slate-400">${m[6]}</td>
                 `;
                 list.appendChild(row);
             });
@@ -1946,23 +1950,23 @@
         function renderOrders(orders, append = false) {
             const list = document.getElementById('list-orders');
             const html = orders.map(o => `
-                <tr class="hover:bg-slate-50 transition-colors">
-                    <td class="px-8 py-5 font-mono font-bold text-indigo-600 text-xs">${o[0]}</td>
+                <tr class="hover:bg-[rgba(255,255,255,0.05)] transition-colors border-b border-[rgba(255,255,255,0.05)] last:border-0">
+                    <td class="px-8 py-5 font-mono font-bold text-[#B6FF00] text-xs">${o[0]}</td>
                     <td class="px-8 py-5">
-                        <p class="font-bold text-slate-800 text-sm">${o[2]}</p>
+                        <p class="font-bold text-white text-sm">${o[2]}</p>
                         <p class="text-xs text-slate-400 font-medium mt-0.5">${o[1]}</p>
                     </td>
-                    <td class="px-8 py-5 font-medium text-slate-600 truncate max-w-[200px] text-xs">${o[5]}</td>
+                    <td class="px-8 py-5 font-medium text-slate-400 truncate max-w-[200px] text-xs">${o[5]}</td>
                     <td class="px-8 py-5">
-                        <span class="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${o[7]==='Lunas'?'bg-emerald-100 text-emerald-600':'bg-slate-100 text-slate-500'}">
+                        <span class="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${o[7]==='Lunas'?'bg-[rgba(1,122,107,0.2)] text-[#017A6B] border-[rgba(1,122,107,0.4)]':'bg-[rgba(255,255,255,0.1)] text-slate-400 border-[rgba(255,255,255,0.2)]'}">
                             ${o[7]}
                         </span>
                     </td>
-                    <td class="px-8 py-5 text-right">
+                    <td class="px-8 py-5 text-right flex justify-end gap-2">
                         ${o[7]==='Pending'
-                            ? `<button onclick="setLunas('${o[0]}')" class="text-indigo-600 font-bold uppercase text-[10px] hover:bg-indigo-50 px-3 py-1.5 rounded-lg transition-colors">Aktifkan</button>`
+                            ? `<button onclick="setLunas('${o[0]}')" class="text-[#B6FF00] border border-[rgba(182,255,0,0.2)] bg-[rgba(182,255,0,0.1)] font-bold uppercase text-[10px] hover:bg-[rgba(182,255,0,0.2)] px-3 py-1.5 rounded-lg transition-colors">Aktifkan</button>`
                             : (o[7]==='Lunas'
-                                ? `<button onclick="setPending('${o[0]}')" class="text-red-600 font-bold uppercase text-[10px] hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors">Non Aktifkan</button>`
+                                ? `<button onclick="setPending('${o[0]}')" class="text-[#ef4444] border border-[#ef4444]/20 bg-[#ef4444]/10 font-bold uppercase text-[10px] hover:bg-[#ef4444]/20 px-3 py-1.5 rounded-lg transition-colors">Non Aktifkan</button>`
                                 : '-')}
                     </td>
                 </tr>`).join('');
@@ -2033,7 +2037,7 @@
 
             document.getElementById('list-products').innerHTML = [...cachedProducts].reverse().map(p => {
                 const isAct = String(p[5]).trim() === 'Active';
-                const stCls = isAct ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-100 text-slate-500 border-slate-200';
+                const stCls = isAct ? 'bg-[rgba(1,122,107,0.2)] text-[#017A6B] border-[rgba(1,122,107,0.4)]' : 'bg-[rgba(255,255,255,0.05)] text-slate-400 border-[rgba(255,255,255,0.1)]';
                 const displayPrice = Number(p[4] || 0).toLocaleString('id-ID');
                 const productImage = p[7] || '';
                 const safeProductId = escapeHtml(normalizePlainText(p[0]) || '-');
@@ -2041,37 +2045,37 @@
                 const safeProductTitle = escapeHtml(normalizePlainText(p[1]) || '-');
                 const safeProductDesc = escapeHtml(normalizeProductDescriptionInput(p[2]) || '-');
                 return `
-                <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group">
+                <div class="glass-card p-6 rounded-3xl border border-[rgba(255,255,255,0.05)] shadow-none hover:shadow-[0_0_30px_rgba(1,122,107,0.2)] hover:-translate-y-1 transition-all duration-300 group">
                     <div class="flex justify-between items-start mb-6">
                         <div class="flex flex-col gap-2">
-                            <span class="text-[10px] font-bold bg-slate-50 text-slate-400 px-3 py-1.5 rounded-full uppercase tracking-wider w-fit group-hover:bg-indigo-50 group-hover:text-indigo-500 transition-colors">${safeProductId}</span>
+                            <span class="text-[10px] font-bold bg-[rgba(0,0,0,0.3)] text-slate-400 px-3 py-1.5 rounded-full uppercase tracking-wider w-fit group-hover:bg-[rgba(182,255,0,0.1)] group-hover:text-[#B6FF00] transition-colors">${safeProductId}</span>
                             <span class="text-[10px] font-bold ${stCls} px-3 py-1.5 rounded-full uppercase tracking-wider border w-fit flex items-center gap-1">
                                 <i data-lucide="${isAct ? 'check-circle-2' : 'minus-circle'}" class="w-3 h-3"></i> ${safeProductStatus}
                             </span>
                         </div>
-                        <span class="text-sm font-bold text-slate-800">Rp ${displayPrice}</span>
+                        <span class="text-sm font-bold text-white">Rp ${displayPrice}</span>
                     </div>
-                    ${productImage ? `<div class="w-full aspect-square rounded-2xl overflow-hidden mb-4 border border-slate-100"><img src="${productImage}" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500" onerror="this.style.display='none'" loading="lazy" decoding="async"></div>` : ''}
-                    <h4 class="font-bold text-slate-800 text-lg mb-2 leading-snug">${safeProductTitle}</h4>
+                    ${productImage ? `<div class="w-full aspect-square rounded-2xl overflow-hidden mb-4 border border-[rgba(255,255,255,0.05)]"><img src="${productImage}" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500" onerror="this.style.display='none'" loading="lazy" decoding="async"></div>` : ''}
+                    <h4 class="font-bold text-white text-lg mb-2 leading-snug">${safeProductTitle}</h4>
                     <p class="text-xs text-slate-400 line-clamp-2 mb-6 font-medium leading-relaxed">${safeProductDesc}</p>
                     <div class="flex gap-2">
-                        <button onclick="editProd('${p[0]}')" class="flex-1 bg-slate-50 text-slate-500 hover:bg-indigo-600 hover:text-white py-3.5 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all">Edit Produk</button>
-                        <button onclick="deleteProd('${p[0]}', '${String(p[1] || '').replace(/'/g, "\\'")}')" class="bg-red-50 text-red-500 hover:bg-red-600 hover:text-white px-4 py-3.5 rounded-xl font-bold transition-all" title="Hapus Produk"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        <button onclick="editProd('${p[0]}')" class="flex-1 bg-[rgba(0,0,0,0.3)] text-slate-400 border border-[rgba(255,255,255,0.1)] hover:border-[#B6FF00] hover:bg-[#B6FF00] hover:text-black hover:shadow-[0_0_15px_rgba(182,255,0,0.4)] py-3.5 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all">Edit Produk</button>
+                        <button onclick="deleteProd('${p[0]}', '${String(p[1] || '').replace(/'/g, "\\'")}')" class="bg-[#ef4444]/10 text-[#ef4444] border border-[#ef4444]/30 hover:border-transparent hover:bg-[#ef4444] hover:text-white hover:shadow-[0_0_15px_rgba(239,68,68,0.4)] px-4 py-3.5 rounded-xl font-bold transition-all" title="Hapus Produk"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                     </div>
                 </div>`;
             }).join('');
 
             document.getElementById('list-pages').innerHTML = cachedPages.map(p => `
-                <tr class="hover:bg-slate-50 transition-colors">
-                    <td class="px-8 py-5 font-bold text-slate-800 truncate text-sm">${p[2]}</td>
+                <tr class="hover:bg-[rgba(255,255,255,0.05)] transition-colors border-b border-[rgba(255,255,255,0.05)] last:border-0">
+                    <td class="px-8 py-5 font-bold text-white truncate text-sm">${p[2]}</td>
                     <td class="px-8 py-5">
-                        <a href="p.html?s=${p[1]}" target="_blank" class="font-mono text-indigo-600 hover:underline text-xs bg-indigo-50 px-2 py-1 rounded">/p.html?s=${p[1]}</a>
+                        <a href="p.html?s=${p[1]}" target="_blank" class="font-mono text-[#B6FF00] hover:underline text-xs bg-[rgba(182,255,0,0.1)] border border-[rgba(182,255,0,0.2)] px-2 py-1 rounded">/p.html?s=${p[1]}</a>
                     </td>
                     <td class="px-8 py-5 text-right">
                         <div class="flex items-center justify-end gap-2">
-                            <button onclick="downloadPageHTML('${p[0]}')" class="bg-white border border-slate-200 text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-200 transition-colors p-2 rounded-xl" title="Download HTML"><i data-lucide="download" class="w-4 h-4"></i></button>
-                            <button onclick="editPage('${p[0]}')" class="bg-white border border-slate-200 text-slate-500 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-colors px-4 py-2 rounded-xl font-bold text-xs">Edit</button>
-                            <button onclick="deletePage('${p[0]}', '${String(p[2] || '').replace(/'/g, "\\'")}')" class="bg-red-50 text-red-500 hover:bg-red-600 hover:text-white px-4 py-2 rounded-xl font-bold transition-all" title="Hapus Halaman"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            <button onclick="downloadPageHTML('${p[0]}')" class="bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-slate-400 hover:bg-[#017A6B]/20 hover:text-[#B6FF00] hover:border-[#B6FF00]/50 hover:shadow-[0_0_15px_rgba(1,122,107,0.4)] transition-colors p-2 rounded-xl" title="Download HTML"><i data-lucide="download" class="w-4 h-4"></i></button>
+                            <button onclick="editPage('${p[0]}')" class="bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-slate-400 hover:bg-[#B6FF00] hover:text-black hover:border-transparent hover:shadow-[0_0_15px_rgba(182,255,0,0.4)] transition-colors px-4 py-2 rounded-xl font-bold text-xs">Edit</button>
+                            <button onclick="deletePage('${p[0]}', '${String(p[2] || '').replace(/'/g, "\\'")}')" class="bg-[#ef4444]/10 text-[#ef4444] border border-[#ef4444]/30 hover:border-transparent hover:bg-[#ef4444] hover:text-white hover:shadow-[0_0_15px_rgba(239,68,68,0.4)] px-4 py-2 rounded-xl font-bold transition-all" title="Hapus Halaman"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                         </div>
                     </td>
                 </tr>`).join('');
@@ -2273,8 +2277,8 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             const idInput = document.getElementById('p-id');
             idInput.value = p[0]; 
             idInput.readOnly = true;
-            idInput.classList.add('bg-slate-100', 'text-slate-500', 'cursor-not-allowed');
-            idInput.classList.remove('bg-slate-50', 'text-slate-700');
+            idInput.classList.add('bg-[rgba(255,255,255,0.05)]', 'text-slate-400', 'cursor-not-allowed', 'border-transparent');
+            idInput.classList.remove('glass-input', 'text-white');
 
             document.getElementById('p-title').value = p[1]; 
             document.getElementById('p-desc').value = normalizeProductDescriptionInput(p[2]); 
@@ -2382,20 +2386,20 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
 
                 if(r.status === 'success' && r.files && r.files.length > 0) {
                     gallery.innerHTML = r.files.map(f => `
-                        <div class="group relative bg-slate-50 rounded-2xl border border-slate-100 overflow-hidden hover:shadow-md transition-all">
-                            <div class="aspect-square w-full overflow-hidden bg-slate-200 relative">
+                        <div class="group relative glass-card rounded-2xl border border-[rgba(255,255,255,0.05)] shadow-none overflow-hidden hover:shadow-[0_0_20px_rgba(182,255,0,0.1)] transition-all">
+                            <div class="aspect-square w-full overflow-hidden bg-[rgba(0,0,0,0.3)] relative">
                                 <img src="${f.thumbnail}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy">
                                 <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                    <button onclick="copyToClipboard('${f.url}')" class="bg-white text-slate-800 p-2 rounded-lg hover:bg-indigo-50 hover:text-indigo-600 transition-colors" title="Copy URL">
+                                    <button onclick="copyToClipboard('${f.url}')" class="bg-[rgba(255,255,255,0.1)] border border-[rgba(255,255,255,0.2)] text-white p-2 rounded-lg hover:bg-[#B6FF00] hover:text-black hover:border-transparent hover:shadow-[0_0_15px_rgba(182,255,0,0.4)] transition-colors" title="Copy URL">
                                         <i data-lucide="copy" class="w-4 h-4"></i>
                                     </button>
-                                    <a href="${f.url}" target="_blank" class="bg-white text-slate-800 p-2 rounded-lg hover:bg-indigo-50 hover:text-indigo-600 transition-colors" title="View">
+                                    <a href="${f.url}" target="_blank" class="bg-[rgba(255,255,255,0.1)] border border-[rgba(255,255,255,0.2)] text-white p-2 rounded-lg hover:bg-[#017A6B] hover:text-white hover:border-transparent hover:shadow-[0_0_15px_rgba(1,122,107,0.4)] transition-colors" title="View">
                                         <i data-lucide="external-link" class="w-4 h-4"></i>
                                     </a>
                                 </div>
                             </div>
-                            <div class="p-3">
-                                <p class="text-[10px] text-slate-500 truncate font-mono">${f.name}</p>
+                            <div class="p-3 border-t border-[rgba(255,255,255,0.05)]">
+                                <p class="text-[10px] text-slate-400 truncate font-mono">${f.name}</p>
                             </div>
                         </div>
                     `).join('');
@@ -2459,11 +2463,11 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                 return `
                     <div class="space-y-1">
                         <div class="flex items-center justify-between gap-3">
-                            <span class="font-mono text-[11px] text-slate-500 truncate">${label}</span>
-                            <span class="font-bold text-slate-700">${count.toLocaleString('id-ID')}</span>
+                            <span class="font-mono text-[11px] text-slate-400 truncate">${label}</span>
+                            <span class="font-bold text-white">${count.toLocaleString('id-ID')}</span>
                         </div>
-                        <div class="h-2 rounded-full bg-slate-100 overflow-hidden">
-                            <div class="h-full rounded-full bg-indigo-500" style="width:${width}%"></div>
+                        <div class="h-2 rounded-full bg-[rgba(255,255,255,0.05)] overflow-hidden border border-[rgba(255,255,255,0.05)]">
+                            <div class="h-full rounded-full bg-gradient-to-r from-[rgba(1,122,107,0.8)] to-[#B6FF00]" style="width:${width}%; box-shadow: 0 0 10px rgba(182,255,0,0.5);"></div>
                         </div>
                     </div>
                 `;
@@ -2481,20 +2485,20 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                 return;
             }
             box.innerHTML = `
-                <div class="rounded-xl bg-white border border-indigo-100 p-4">
+                <div class="rounded-xl glass-card border border-[rgba(255,255,255,0.05)] p-4 shadow-none">
                     <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Network Hits</p>
-                    <p class="text-2xl font-bold text-slate-800 mt-2">${Number(stats.network_requests || 0).toLocaleString('id-ID')}</p>
+                    <p class="text-2xl font-bold text-[#B6FF00] mt-2 drop-shadow-[0_0_10px_rgba(182,255,0,0.3)]">${Number(stats.network_requests || 0).toLocaleString('id-ID')}</p>
                 </div>
-                <div class="rounded-xl bg-white border border-indigo-100 p-4">
+                <div class="rounded-xl glass-card border border-[rgba(255,255,255,0.05)] p-4 shadow-none">
                     <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Saved Requests</p>
-                    <p class="text-2xl font-bold text-emerald-600 mt-2">${Number(stats.saved_requests || 0).toLocaleString('id-ID')}</p>
-                    <p class="text-[11px] text-slate-500 mt-2">Memory + session/local storage hits + dedupe</p>
+                    <p class="text-2xl font-bold text-[#017A6B] mt-2 drop-shadow-[0_0_10px_rgba(1,122,107,0.3)]">${Number(stats.saved_requests || 0).toLocaleString('id-ID')}</p>
+                    <p class="text-[11px] text-slate-400 mt-2">Memory + session/local storage hits + dedupe</p>
                 </div>
-                <div class="rounded-xl bg-white border border-indigo-100 p-4">
+                <div class="rounded-xl glass-card border border-[rgba(255,255,255,0.05)] p-4 shadow-none">
                     <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Cache Breakdown</p>
-                    <p class="text-sm font-medium text-slate-700 mt-2">Memory: ${Number(stats.memory_cache_hits || 0).toLocaleString('id-ID')}</p>
-                    <p class="text-sm font-medium text-slate-700">Storage: ${Number(stats.storage_cache_hits || 0).toLocaleString('id-ID')}</p>
-                    <p class="text-sm font-medium text-slate-700">Deduped: ${Number(stats.deduped_requests || 0).toLocaleString('id-ID')}</p>
+                    <p class="text-sm font-medium text-white mt-2">Memory: ${Number(stats.memory_cache_hits || 0).toLocaleString('id-ID')}</p>
+                    <p class="text-sm font-medium text-white">Storage: ${Number(stats.storage_cache_hits || 0).toLocaleString('id-ID')}</p>
+                    <p class="text-sm font-medium text-[#B6FF00]">Deduped: ${Number(stats.deduped_requests || 0).toLocaleString('id-ID')}</p>
                 </div>
             `;
         }
@@ -2668,8 +2672,8 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             idInput.value = newId;
             idInput.readOnly = true;
             // Visual feedback for read-only
-            idInput.classList.add('bg-slate-100', 'text-slate-500', 'cursor-not-allowed');
-            idInput.classList.remove('bg-slate-50', 'text-slate-700');
+            idInput.classList.add('bg-[rgba(255,255,255,0.05)]', 'text-slate-400', 'cursor-not-allowed', 'border-transparent');
+            idInput.classList.remove('glass-input', 'text-white');
             
             (function(m){ m.classList.remove('hidden'); m.classList.add('flex'); })(document.getElementById('modal-prod')); 
         }

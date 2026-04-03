@@ -7,13 +7,14 @@
     <!-- Config -->
     <script src="site.config.js"></script>
     <script src="config.js?v=2026_2"></script>
-    <!-- Tailwind CSS -->
+    <!-- Tailwind CSS & Theme -->
+    <link rel="preload" as="style" href="assets/theme.css">
+    <link rel="stylesheet" href="assets/theme.css">
     <link rel="preload" as="style" href="tailwind.css?v=2026_1">
     <link rel="stylesheet" href="tailwind.css?v=2026_1">
     <!-- SweetAlert2 -->
     <script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script defer src="assets/vendor/lucide.min.js?v=0.577.0"></script>
     
     <style>
         .loading-overlay {
@@ -43,7 +44,7 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans">
+<body class="bg-[#000018] text-white font-sans">
     <script>
         (function(){
             // 0. Redirect jika diakses langsung (bukan dari iframe/admin-area)
@@ -81,19 +82,19 @@
     </script>
 
     <!-- Loading Overlay -->
-    <div id="loading" class="loading-overlay">
-        <div class="spinner"></div>
+    <div id="loading" class="fixed inset-0 bg-[#000018]/80 z-[100] flex flex-col items-center justify-center overflow-hidden transition-opacity duration-300 hidden">
+        <i data-lucide="loader" class="w-10 h-10 animate-spin text-[#B6FF00]"></i>
     </div>
 
     <!-- Header -->
-    <header class="bg-white shadow-sm sticky top-0 z-10" id="main-header">
+    <header class="bg-[#000010] shadow-[0_4px_20px_rgba(0,0,0,0.5)] sticky top-0 z-10 border-b border-[rgba(255,255,255,0.05)]" id="main-header">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <h1 class="text-xl font-bold text-indigo-600 flex items-center gap-2">
-                <i class="fa-solid fa-cart-shopping"></i> Data Orderan
+            <h1 class="text-xl font-bold text-white flex items-center gap-2">
+                <i data-lucide="shopping-cart" class="w-5 h-5 text-[#B6FF00]"></i> Data Orderan
             </h1>
             <div class="flex items-center gap-3">
-                <button onclick="window.close()" class="text-gray-500 hover:text-gray-700 text-sm">
-                    <i class="fa-solid fa-times"></i> Tutup
+                <button onclick="window.close()" class="text-slate-400 hover:text-white transition-colors text-sm flex items-center gap-2">
+                    <i data-lucide="x" class="w-4 h-4"></i> Tutup
                 </button>
             </div>
         </div>
@@ -103,8 +104,6 @@
         // Hide header if inside iframe (integrated mode)
         if (window.self !== window.top) {
             document.getElementById('main-header').style.display = 'none';
-            document.body.classList.remove('bg-gray-50');
-            document.body.classList.add('bg-white');
         }
     </script>
 
@@ -112,64 +111,65 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
         <!-- Toolbar -->
-        <div class="bg-white p-4 rounded-lg shadow-sm mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div class="flex gap-2 w-full sm:w-auto">
+        <div class="glass-card p-4 rounded-xl shadow-none border border-[rgba(255,255,255,0.05)] mb-6 flex flex-col sm:flex-row justify-between items-center gap-4 relative overflow-hidden">
+            <div class="absolute inset-0 bg-[#B6FF00]/5 opacity-20 pointer-events-none"></div>
+            <div class="flex gap-2 w-full sm:w-auto relative z-10">
                 <div class="relative w-full sm:w-64">
                     <input type="text" id="searchInput" placeholder="Cari Invoice, Email, atau Nama..." 
-                           class="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-sm">
-                    <i class="fa-solid fa-search absolute left-3 top-2.5 text-gray-400"></i>
+                           class="w-full pl-10 pr-4 py-2 border-transparent bg-[rgba(255,255,255,0.05)] rounded-lg focus:ring-2 focus:ring-[#B6FF00] focus:outline-none text-sm text-white placeholder-slate-500 transition-all">
+                    <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-slate-500"></i>
                 </div>
-                <button onclick="fetchOrders(1)" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm">
-                    <i class="fa-solid fa-sync"></i>
+                <button onclick="fetchOrders(1)" class="bg-[rgba(255,255,255,0.1)] hover:bg-[#B6FF00] hover:text-black hover:border-transparent text-white border border-[rgba(255,255,255,0.2)] px-4 py-2 rounded-lg text-sm transition-all shadow-[0_0_15px_rgba(182,255,0,0)] hover:shadow-[0_0_15px_rgba(182,255,0,0.4)]">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
                 </button>
             </div>
             
-            <button id="btn-add-order" onclick="openModal('create')" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg shadow transition text-sm flex items-center justify-center gap-2">
-                <i class="fa-solid fa-plus"></i> Tambah Order
+            <button id="btn-add-order" onclick="openModal('create')" class="w-full sm:w-auto bg-[#B6FF00] hover:bg-[#a3e600] text-black px-4 py-2 rounded-lg shadow-[0_0_15px_rgba(182,255,0,0.3)] transition-all font-bold text-sm flex items-center justify-center gap-2 relative z-10">
+                <i data-lucide="plus" class="w-4 h-4"></i> Tambah Order
             </button>
         </div>
 
         <!-- Table Container -->
-        <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="glass-card rounded-xl shadow-none border border-[rgba(255,255,255,0.05)] overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+                <table class="min-w-full divide-y divide-[rgba(255,255,255,0.05)]">
+                    <thead class="bg-[rgba(255,255,255,0.02)]">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Invoice</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pelanggan</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produk</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-[rgba(255,255,255,0.05)]">Invoice</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-[rgba(255,255,255,0.05)]">Tanggal</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-[rgba(255,255,255,0.05)]">Pelanggan</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-[rgba(255,255,255,0.05)]">Produk</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-[rgba(255,255,255,0.05)]">Total</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-[rgba(255,255,255,0.05)]">Status</th>
+                            <th class="px-6 py-4 text-right text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-[rgba(255,255,255,0.05)]">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody id="ordersTableBody" class="bg-white divide-y divide-gray-200">
+                    <tbody id="ordersTableBody" class="divide-y divide-[rgba(255,255,255,0.05)]">
                         <!-- Data will be injected here -->
                     </tbody>
                 </table>
             </div>
             
             <!-- Pagination -->
-            <div class="bg-gray-50 px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+            <div class="bg-[rgba(255,255,255,0.02)] px-4 py-4 flex items-center justify-between border-t border-[rgba(255,255,255,0.05)] sm:px-6">
                 <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                     <div>
-                        <p class="text-sm text-gray-700">
-                            Menampilkan <span class="font-medium" id="pageStart">0</span> sampai <span class="font-medium" id="pageEnd">0</span>
+                        <p class="text-sm text-slate-400">
+                            Menampilkan <span class="font-bold text-white" id="pageStart">0</span> sampai <span class="font-bold text-white" id="pageEnd">0</span>
                         </p>
                     </div>
                     <div>
-                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                            <button id="prevBtn" onclick="changePage(-1)" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        <nav class="relative z-0 inline-flex rounded-lg shadow-sm -space-x-px border border-[rgba(255,255,255,0.1)] overflow-hidden" aria-label="Pagination">
+                            <button id="prevBtn" onclick="changePage(-1)" class="relative inline-flex items-center px-3 py-2 bg-[rgba(255,255,255,0.05)] text-sm font-medium text-white hover:bg-[#B6FF00] hover:text-black transition-colors disabled:opacity-50">
                                 <span class="sr-only">Previous</span>
-                                <i class="fa-solid fa-chevron-left h-5 w-5"></i>
+                                <i data-lucide="chevron-left" class="h-4 w-4"></i>
                             </button>
-                            <span id="pageInfo" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                            <span id="pageInfo" class="relative inline-flex items-center px-4 py-2 bg-[rgba(255,255,255,0.02)] border-x border-[rgba(255,255,255,0.1)] text-sm font-bold text-white">
                                 Page 1
                             </span>
-                            <button id="nextBtn" onclick="changePage(1)" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <button id="nextBtn" onclick="changePage(1)" class="relative inline-flex items-center px-3 py-2 bg-[rgba(255,255,255,0.05)] text-sm font-medium text-white hover:bg-[#B6FF00] hover:text-black transition-colors disabled:opacity-50">
                                 <span class="sr-only">Next</span>
-                                <i class="fa-solid fa-chevron-right h-5 w-5"></i>
+                                <i data-lucide="chevron-right" class="h-4 w-4"></i>
                             </button>
                         </nav>
                     </div>
@@ -182,64 +182,60 @@
     <!-- Modal Form -->
     <div id="orderModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeModal()"></div>
+            <div class="fixed inset-0 bg-[#000018]/80 backdrop-blur-sm transition-opacity" aria-hidden="true" onclick="closeModal()"></div>
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                    <div class="sm:flex sm:items-start">
-                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modalTitle">Tambah Order Baru</h3>
-                            <div class="mt-4 space-y-4">
-                                <input type="hidden" id="orderId">
-                                
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Nama Pelanggan</label>
-                                    <input type="text" id="inputNama" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                                </div>
-                                
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Email</label>
-                                    <input type="email" id="inputEmail" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                                </div>
+            <div class="inline-block align-bottom glass-card border border-[rgba(255,255,255,0.1)] rounded-2xl text-left overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.5)] transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
+                <div class="px-6 pt-6 pb-4 border-b border-[rgba(255,255,255,0.05)]">
+                    <h3 class="text-xl font-bold text-white tracking-tight" id="modalTitle">Tambah Order Baru</h3>
+                </div>
+                <div class="px-6 py-5 space-y-4">
+                    <input type="hidden" id="orderId">
+                    
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-0.5">Nama Pelanggan</label>
+                        <input type="text" id="inputNama" class="glass-input w-full rounded-xl py-3 px-4 text-sm text-white focus:outline-none transition-all">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-0.5">Email</label>
+                        <input type="email" id="inputEmail" class="glass-input w-full rounded-xl py-3 px-4 text-sm text-white focus:outline-none transition-all">
+                    </div>
 
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">WhatsApp</label>
-                                    <input type="text" id="inputWa" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="628xxx">
-                                </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-0.5">WhatsApp</label>
+                        <input type="text" id="inputWa" class="glass-input w-full rounded-xl py-3 px-4 text-sm text-white focus:outline-none transition-all" placeholder="628xxx">
+                    </div>
 
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">ID Produk</label>
-                                        <input type="text" id="inputIdProduk" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Nama Produk</label>
-                                        <input type="text" id="inputNamaProduk" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Harga Total</label>
-                                    <input type="number" id="inputHarga" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Status</label>
-                                    <select id="inputStatus" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                                        <option value="Pending">Pending</option>
-                                        <option value="Lunas">Lunas</option>
-                                        <option value="Batal">Batal</option>
-                                    </select>
-                                </div>
-                            </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-0.5">ID Produk</label>
+                            <input type="text" id="inputIdProduk" class="glass-input w-full rounded-xl py-3 px-4 text-sm text-white focus:outline-none transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-0.5">Nama Produk</label>
+                            <input type="text" id="inputNamaProduk" class="glass-input w-full rounded-xl py-3 px-4 text-sm text-white focus:outline-none transition-all">
                         </div>
                     </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-0.5">Harga Total</label>
+                        <input type="number" id="inputHarga" class="glass-input w-full rounded-xl py-3 px-4 text-sm text-white focus:outline-none transition-all">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-0.5">Status</label>
+                        <select id="inputStatus" class="glass-input w-full rounded-xl py-3 px-4 text-sm text-white focus:outline-none transition-all [&>option]:bg-[#000018]">
+                            <option value="Pending">Pending</option>
+                            <option value="Lunas">Lunas</option>
+                            <option value="Batal">Batal</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                    <button id="btn-save-order" type="button" onclick="saveOrder()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
-                        Simpan
+                <div class="px-6 py-4 bg-[rgba(0,0,0,0.2)] border-t border-[rgba(255,255,255,0.05)] sm:flex sm:flex-row-reverse gap-3">
+                    <button id="btn-save-order" type="button" onclick="saveOrder()" class="w-full inline-flex justify-center rounded-xl px-6 py-3 bg-[#B6FF00] text-sm font-bold text-black hover:bg-[#a3e600] focus:outline-none transition-colors sm:w-auto shadow-[0_0_15px_rgba(182,255,0,0.3)]">
+                        Simpan Order
                     </button>
-                    <button type="button" onclick="closeModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                    <button type="button" onclick="closeModal()" class="mt-3 w-full inline-flex justify-center rounded-xl border border-[rgba(255,255,255,0.1)] shadow-sm px-6 py-3 bg-[rgba(255,255,255,0.05)] text-sm font-bold text-slate-300 hover:bg-[rgba(255,255,255,0.1)] hover:text-white focus:outline-none transition-colors sm:mt-0 sm:w-auto">
                         Batal
                     </button>
                 </div>
@@ -278,6 +274,7 @@
 
         // ON LOAD
         document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
             fetchOrders(1);
             
             // Search debounce
@@ -341,7 +338,7 @@
             tbody.innerHTML = '';
 
             if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-4 text-center text-gray-500">Tidak ada data ditemukan</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-8 text-center text-slate-400 italic text-sm">Tidak ada data ditemukan</td></tr>`;
                 return;
             }
 
@@ -355,33 +352,33 @@
                 const status = item[7];
                 const date = item[8] ? new Date(item[8]).toLocaleDateString('id-ID') : '-';
                 
-                let statusClass = 'bg-gray-100 text-gray-800';
-                if (status === 'Lunas') statusClass = 'bg-green-100 text-green-800';
-                if (status === 'Pending') statusClass = 'bg-yellow-100 text-yellow-800';
-                if (status === 'Batal') statusClass = 'bg-red-100 text-red-800';
+                let statusBadge = '';
+                if (status === 'Lunas') statusBadge = '<span class="px-3 py-1 inline-flex text-[10px] font-bold rounded-full bg-[rgba(182,255,0,0.1)] text-[#B6FF00] border border-[rgba(182,255,0,0.2)]">Lunas</span>';
+                else if (status === 'Pending') statusBadge = '<span class="px-3 py-1 inline-flex text-[10px] font-bold rounded-full bg-[rgba(245,158,11,0.1)] text-[#f59e0b] border border-[rgba(245,158,11,0.2)]">Pending</span>';
+                else statusBadge = '<span class="px-3 py-1 inline-flex text-[10px] font-bold rounded-full bg-[rgba(239,68,68,0.1)] text-[#ef4444] border border-[rgba(239,68,68,0.2)]">Batal</span>';
 
                 const tr = document.createElement('tr');
+                tr.className = 'hover:bg-[rgba(255,255,255,0.02)] transition-colors group';
                 tr.innerHTML = `
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600">${inv}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${date}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-mono font-bold text-[#B6FF00]">${inv}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-400">${date}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white">
                         <div class="font-bold">${name}</div>
-                        <div class="text-xs text-gray-500">${email}</div>
+                        <div class="text-[11px] text-slate-400 mt-1">${email}</div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${pname}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">Rp ${price}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-300">${pname}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white font-mono font-bold">Rp ${price}</td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
-                            ${status}
-                        </span>
+                        ${statusBadge}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button onclick="editOrder('${inv}')" class="text-indigo-600 hover:text-indigo-900 mr-3"><i class="fa-solid fa-edit"></i></button>
-                        <button onclick="deleteOrder('${inv}')" class="text-red-600 hover:text-red-900"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="editOrder('${inv}')" class="text-slate-400 hover:text-[#B6FF00] mr-3 transition-colors bg-[rgba(255,255,255,0.05)] p-2 rounded-lg"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                        <button onclick="deleteOrder('${inv}')" class="text-slate-400 hover:text-[#ef4444] transition-colors bg-[rgba(255,255,255,0.05)] p-2 rounded-lg"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
+            lucide.createIcons();
         }
 
         // PAGINATION
