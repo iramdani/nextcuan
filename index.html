@@ -1347,20 +1347,225 @@
         </div>
     </footer>
 
-    <!-- Initialize Lucide Icons -->
+    <!-- Initialize Lucide Icons & Catalog Logic -->
     <script>
-        lucide.createIcons();
+        const CACHE_KEY_CATALOG = 'cepat_public_catalog';
+        const CACHE_AGE_CATALOG = 10 * 60 * 1000;
+        const DEFAULT_PRODUCT_DESC = 'Materi dan template praktis untuk membantu Anda merapikan proses jualan digital tanpa langkah teknis yang bikin lambat';
 
-        // Simulate loading products (remove this if using real API)
-        setTimeout(() => {
-            const loader = document.getElementById('katalog-loader');
-            const staticProducts = document.getElementById('static-products');
+        function normalizeCatalogText(value) {
+            return String(value == null ? '' : value)
+                .replace(/\r\n?/g, '\n')
+                .replace(/\u00A0/g, ' ')
+                .replace(/<[^>]+>/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
 
-            if (loader && staticProducts) {
-                loader.style.display = 'none';
-                staticProducts.style.display = 'grid';
+        function escapeCatalogHtml(value) {
+            return String(value == null ? '' : value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function getCatalogDescription(product) {
+            const desc = normalizeCatalogText(product && product.desc);
+            return desc || DEFAULT_PRODUCT_DESC;
+        }
+
+        // Fungsi Render HTML Produk
+        function renderCatalog(products) {
+            const container = document.getElementById('public-products');
+            
+            // Safety check: Pastikan products adalah array valid
+            if (!products || !Array.isArray(products) || products.length === 0) {
+                container.innerHTML = '<p class="text-slate-400 text-center col-span-full py-10 border border-dashed border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.02)] rounded-[1.5rem] shadow-sm">Pilihan produk sedang diperbarui. Silakan cek lagi dalam beberapa saat.</p>';
+                if (window.CEPAT_SEO && typeof window.CEPAT_SEO.sync === 'function') {
+                    window.CEPAT_SEO.sync({ products: [], reason: 'catalog-empty' });
+                }
+                return;
             }
-        }, 2000);
+
+            // Dapatkan Affiliate Ref (URL Priority -> LocalStorage Fallback)
+            const urlParams = new URLSearchParams(window.location.search);
+            const affRef = urlParams.get('ref') || urlParams.get('aff_id') || localStorage.getItem('cepat_affiliate');
+            const affParam = affRef ? `&ref=${affRef}` : '';
+
+            container.innerHTML = [...products].reverse().map((p, index) => {
+                let delayClass = `delay-${(index % 3) + 1}`;
+                const rawTitle = normalizeCatalogText(p && p.title) || 'Produk';
+                const rawDesc = getCatalogDescription(p);
+                const safeTitle = escapeCatalogHtml(rawTitle);
+                const safeDesc = escapeCatalogHtml(rawDesc);
+                const fallbackLetter = rawTitle.trim().charAt(0).toUpperCase() || 'P';
+                
+                // Logic URL Detail (Bisa ke LP atau Checkout)
+                let detailUrl = (p.lp_url && p.lp_url !== "") ? p.lp_url : `checkout.html?id=${p.id}`;
+                if (affRef) {
+                    detailUrl += (detailUrl.includes('?') ? '&' : '?') + `ref=${affRef}`;
+                }
+
+                const checkoutUrl = `checkout.html?id=${p.id}${affParam}`;
+
+                return `
+                <article class="glass-card group p-4 md:p-5 flex flex-col h-full fade-in ${delayClass} rounded-[2rem] relative transition-all duration-300 transform hover:-translate-y-2 cursor-pointer">
+                    <a href="${detailUrl}" target="_blank" rel="noopener noreferrer" class="block overflow-hidden rounded-[1.5rem] relative aspect-[4/3] mb-5">
+                        <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10"></div>
+                        ${p.image_url
+                            ? `<img src="${p.image_url}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" onerror="this.outerHTML='<div class=\\'flex h-full w-full items-center justify-center bg-black/40 text-3xl font-black text-white\\'>${fallbackLetter}</div>'" loading="lazy" decoding="async" alt="${safeTitle}">`
+                            : `<div class="flex h-full w-full items-center justify-center bg-[rgba(0,0,0,0.3)] text-3xl font-black text-white">${fallbackLetter}</div>`}
+                        <div class="absolute top-3 right-3 z-20">
+                            <span class="glass-badge backdrop-blur-md bg-black/40 border border-white/10 text-white px-3 py-1 text-[10px] rounded-full">Siap Pakai</span>
+                        </div>
+                    </a>
+
+                    <div class="flex flex-1 flex-col">
+                        <div class="space-y-3">
+                            <h3 class="text-xl font-semibold mb-2 group-hover:text-[#B6FF00] transition line-clamp-2" style="min-height: 3.5rem;">${safeTitle}</h3>
+                            <p class="text-sm mb-4 leading-relaxed line-clamp-3" data-product-desc style="color: var(--color-text-muted); min-height: 4rem;">${safeDesc}</p>
+                        </div>
+
+                        <div class="mt-auto pt-4 border-t mt-4" style="border-top-color: var(--color-border);">
+                            <div class="flex items-end justify-between gap-3 mb-4">
+                                <div class="min-w-0">
+                                    <p class="text-[10px] font-bold uppercase tracking-widest mb-1" style="color: var(--color-text-muted);">Harga</p>
+                                    <p class="text-xl md:text-2xl font-black tracking-tight" style="color: var(--color-primary);">Rp ${Number(p.harga).toLocaleString('id-ID')}</p>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <a href="${detailUrl}" 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    class="btn-secondary flex items-center justify-center py-2.5 text-xs font-bold rounded-xl transition-all hover:bg-white/5">
+                                    Detail
+                                </a>
+                                <a href="${checkoutUrl}" 
+                                    class="btn-primary flex items-center justify-center py-2.5 text-xs font-bold rounded-xl shadow-lg">
+                                    Beli
+                                    <i data-lucide="shopping-cart" class="w-4 h-4 ml-1.5"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+                `;
+            }).join('');
+            
+            // Re-initialize icons inside new elements
+            if(window.lucide) { lucide.createIcons() };
+            
+            if (window.CEPAT_SEO && typeof window.CEPAT_SEO.sync === 'function') {
+                window.CEPAT_SEO.sync({ products: products, reason: 'catalog-render' });
+            }
+            
+            // Hide static products fallback if any when real products load
+            const staticProducts = document.getElementById('static-products');
+            if (staticProducts) staticProducts.style.display = 'none';
+        }
+
+        async function loadPublicCatalog() {
+            const cachedData = localStorage.getItem(CACHE_KEY_CATALOG);
+            const globalCache = window.__CEPAT_GLOBAL_SETTINGS__ || {};
+            let cachedPayload = null;
+            try { cachedPayload = cachedData ? JSON.parse(cachedData) : null; } catch(e) { cachedPayload = null; }
+            let cachedList = null;
+            let cachedAt = 0;
+            if (Array.isArray(cachedPayload)) {
+                cachedList = cachedPayload;
+            } else if (cachedPayload && typeof cachedPayload === 'object') {
+                cachedList = Array.isArray(cachedPayload.data) ? cachedPayload.data : null;
+                cachedAt = Number(cachedPayload.time || 0);
+                if (!isFinite(cachedAt)) cachedAt = 0;
+            }
+            
+            if (cachedList) {
+                try {
+                    renderCatalog(cachedList);
+                } catch(e) {
+                    console.error("Cache corrupted", e);
+                    localStorage.removeItem(CACHE_KEY_CATALOG);
+                }
+            } 
+
+            try {
+                if(typeof SCRIPT_URL === 'undefined') return; 
+                const cacheState = (window.CEPAT_CACHE_STATE && typeof window.CEPAT_CACHE_STATE.ensureFresh === 'function')
+                    ? await window.CEPAT_CACHE_STATE.ensureFresh()
+                    : null;
+                const currentCatalogVersion = String((cacheState && cacheState.catalog) || '');
+                const currentSettingsVersion = String((cacheState && cacheState.settings) || '');
+                const cachedCatalogVersion = String((cachedPayload && typeof cachedPayload === 'object' && !Array.isArray(cachedPayload) && cachedPayload.version) || '');
+                const cachedSettingsVersion = String((globalCache.cached && globalCache.cached.version) || '');
+                const isCatalogStale = !cachedAt || ((Date.now() - cachedAt) > CACHE_AGE_CATALOG);
+                const isCatalogVersionStale = !!currentCatalogVersion && cachedCatalogVersion !== currentCatalogVersion;
+                const isSettingsVersionStale = !!currentSettingsVersion && cachedSettingsVersion !== currentSettingsVersion;
+                const isSettingsStale = !globalCache.isFresh || isSettingsVersionStale;
+                if (cachedList && !isCatalogStale && !isSettingsStale && !isCatalogVersionStale) return;
+
+                const requests = [];
+                const requestMap = {};
+                if (isSettingsStale) {
+                    requestMap.settings = requests.push({ action: 'get_global_settings', cache_version: currentSettingsVersion }) - 1;
+                }
+                if (!cachedList || isCatalogStale || isCatalogVersionStale) {
+                    requestMap.catalog = requests.push({ action: 'get_products', email: '', cache_version: currentCatalogVersion }) - 1;
+                }
+                if (!requests.length) return;
+
+                const batch = (window.CEPAT_API && typeof window.CEPAT_API.batch === 'function')
+                    ? await window.CEPAT_API.batch(requests)
+                    : { status: 'error', results: [] };
+                const results = Array.isArray(batch.results) ? batch.results : [];
+
+                if (requestMap.settings !== undefined) {
+                    const settingsResult = results[requestMap.settings];
+                    if (settingsResult && settingsResult.data && settingsResult.data.status === 'success') {
+                        const settingsData = settingsResult.data.data;
+                        const cachedSettings = globalCache.cached && globalCache.cached.data ? JSON.stringify(globalCache.cached.data) : '';
+                        const nextSettings = JSON.stringify(settingsData || {});
+                        const nextSettingsVersion = String((settingsResult.data && settingsResult.data.cache_version) || currentSettingsVersion || '');
+                        if (cachedSettings !== nextSettings && typeof globalCache.sync === 'function') {
+                            globalCache.sync(settingsData, Date.now(), nextSettingsVersion);
+                        } else if (settingsData && typeof globalCache.sync === 'function') {
+                            globalCache.sync(settingsData, Date.now(), nextSettingsVersion);
+                        } else if (settingsData && typeof globalCache.apply === 'function') {
+                            globalCache.apply(settingsData);
+                        }
+                    }
+                }
+
+                if (requestMap.catalog !== undefined) {
+                    const catalogResult = results[requestMap.catalog];
+                    const r = catalogResult && catalogResult.data ? catalogResult.data : null;
+                    if (r && r.status === 'success') {
+                        const data = Array.isArray(r.available) ? r.available : [];
+                        const nextCatalogVersion = String((r && r.cache_version) || currentCatalogVersion || '');
+                        const freshData = JSON.stringify({ data: data, time: Date.now(), version: nextCatalogVersion });
+                        if(cachedData !== freshData) {
+                            localStorage.setItem(CACHE_KEY_CATALOG, freshData);
+                            renderCatalog(data);
+                        }
+                    }
+                }
+            } catch (err) { 
+                console.error('Background sync failed', err);
+                if (!cachedData) {
+                    document.getElementById('public-products').innerHTML = '<p class="text-red-500 text-center col-span-full bg-red-50/10 border border-red-500/20 py-4 rounded-[1.5rem]">Produk belum berhasil dimuat. Silakan refresh halaman dan coba lagi.</p>';
+                    if (window.CEPAT_SEO && typeof window.CEPAT_SEO.scheduleSync === 'function') {
+                        window.CEPAT_SEO.scheduleSync('catalog-error');
+                    }
+                }
+            }
+        }
+        
+        window.addEventListener('load', () => { 
+            if(window.lucide) { lucide.createIcons(); }
+            loadPublicCatalog(); 
+        });
     </script>
 
 </body>
