@@ -1375,37 +1375,6 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                         <input type="text" id="pg-slug" placeholder="slug-halaman" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] font-bold transition-all" required onblur="checkSlugAvailability(this)">
                         <p id="slug-feedback" class="text-xs font-medium mt-2 hidden"></p>
                     </div>
-                    <div class="sm:col-span-2">
-                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Tema Halaman</label>
-                        <div class="grid grid-cols-2 gap-4">
-                            <label class="cursor-pointer relative" onclick="setTheme('light')">
-                                <input type="radio" name="pg-theme" value="light" class="sr-only" checked>
-                                <div id="theme-btn-light" class="theme-toggle-btn active p-4 rounded-xl border transition-all flex items-center gap-3" style="border-color:rgba(255,255,255,0.1);">
-                                    <div class="w-8 h-8 rounded-full bg-slate-100 border border-[rgba(255,255,255,0.1)] flex items-center justify-center">
-                                        <i data-lucide="sun" class="w-4 h-4 text-amber-500"></i>
-                                    </div>
-                                    <div>
-                                        <p class="font-bold text-white text-sm">Light Mode</p>
-                                        <p class="text-[10px] text-slate-500">Latar putih, teks gelap</p>
-                                    </div>
-                                    <i data-lucide="check-circle" class="check-icon w-5 h-5 text-[#B6FF00] ml-auto"></i>
-                                </div>
-                            </label>
-                            <label class="cursor-pointer relative" onclick="setTheme('dark')">
-                                <input type="radio" name="pg-theme" value="dark" class="sr-only">
-                                <div id="theme-btn-dark" class="theme-toggle-btn p-4 rounded-xl border transition-all flex items-center gap-3" style="border-color:rgba(255,255,255,0.1);">
-                                    <div class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center">
-                                        <i data-lucide="moon" class="w-4 h-4 text-[#B6FF00]"></i>
-                                    </div>
-                                    <div>
-                                        <p class="font-bold text-white text-sm">Dark Mode</p>
-                                        <p class="text-[10px] text-slate-400">Latar gelap, teks putih</p>
-                                    </div>
-                                    <i data-lucide="check-circle" class="check-icon w-5 h-5 text-[#B6FF00] ml-auto"></i>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
                 </div>
                 
                 <!-- Meta Pixel Config -->
@@ -1446,25 +1415,6 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
         </div>
     </div>
 
-    <script>
-        // Theme toggle handler for page editor
-        function setTheme(val) {
-            const btnLight = document.getElementById('theme-btn-light');
-            const btnDark  = document.getElementById('theme-btn-dark');
-            const radioLight = document.querySelector('input[name="pg-theme"][value="light"]');
-            const radioDark  = document.querySelector('input[name="pg-theme"][value="dark"]');
-            if (!btnLight || !btnDark) return;
-            if (val === 'light') {
-                btnLight.classList.add('active');
-                btnDark.classList.remove('active');
-                if (radioLight) radioLight.checked = true;
-            } else {
-                btnDark.classList.add('active');
-                btnLight.classList.remove('active');
-                if (radioDark) radioDark.checked = true;
-            }
-        }
-    </script>
 
     <script>
         // Impl function to avoid duplicate code issues
@@ -1603,11 +1553,6 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             document.getElementById('pg-pixel-id').value = p[7] || '';
             document.getElementById('pg-pixel-token').value = p[8] || '';
             document.getElementById('pg-pixel-test').value = p[9] || '';
-            
-            // Theme Mode (Col 11 -> Index 10)
-            const theme = p[10] || 'light';
-            const themeRadio = document.querySelector(`input[name="pg-theme"][value="${theme}"]`);
-            if(themeRadio) themeRadio.checked = true;
             
             document.getElementById('pg-is-edit').value = 'true';
             document.getElementById('modal-page').classList.remove('hidden');
@@ -1757,7 +1702,7 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                     meta_pixel_id: document.getElementById('pg-pixel-id').value,
                     meta_pixel_token: document.getElementById('pg-pixel-token').value,
                     meta_pixel_test_event: document.getElementById('pg-pixel-test').value,
-                    theme_mode: document.querySelector('input[name="pg-theme"]:checked').value
+                    theme_mode: 'dark'
                 };
                 
                 const res = await fetch(SCRIPT_URL, {

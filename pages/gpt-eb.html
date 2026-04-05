@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPT EBOOK BUILDER - Ubah Skill Jadi Produk Digital</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'dark-bg': '#000018',
+                        'primary': '#B6FF00',
+                        'secondary': '#017A6B',
+                        'card-bg': 'rgba(255,255,255,0.03)',
+                        'border-glow': 'rgba(182,255,0,0.2)',
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: #000018;
+            overflow-x: hidden;
+        }
+
+        .gradient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .gradient-blob-1 {
+            position: absolute;
+            top: -10%;
+            right: -5%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(182, 255, 0, 0.15) 0%, transparent 70%);
+            filter: blur(80px);
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .gradient-blob-2 {
+            position: absolute;
+            bottom: 20%;
+            left: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(1, 122, 107, 0.12) 0%, transparent 70%);
+            filter: blur(70px);
+            animation: float 10s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            50% {
+                transform: translate(30px, -30px) scale(1.05);
+            }
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(182, 255, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(182, 255, 0, 0.4);
+            box-shadow: 0 0 40px rgba(182, 255, 0, 0.15);
+            transform: translateY(-4px);
+        }
+
+        .glow-text {
+            text-shadow: 0 0 20px rgba(182, 255, 0, 0.3);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #B6FF00 0%, #9ED600 100%);
+            color: #000018;
+            font-weight: 700;
+            padding: 16px 40px;
+            border-radius: 12px;
+            display: inline-block;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(182, 255, 0, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 35px rgba(255, 255, 255, 0.25);
+        }
+
+        .badge-guarantee {
+            background: linear-gradient(135deg, #ff0066 0%, #cc0052 100%);
+            padding: 10px 24px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            margin-bottom: 24px;
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(255, 0, 102, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 0 35px rgba(255, 0, 102, 0.7);
+            }
+        }
+
+        .section-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .icon-box {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, rgba(182, 255, 0, 0.15) 0%, rgba(182, 255, 0, 0.05) 100%);
+            border: 1px solid rgba(182, 255, 0, 0.3);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .number-badge {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #B6FF00 0%, #9ED600 100%);
+            color: #000018;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .price-old {
+            text-decoration: line-through;
+            opacity: 0.5;
+            font-size: 28px;
+        }
+
+        .price-new {
+            font-size: 64px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #B6FF00 0%, #9ED600 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        details summary {
+            cursor: pointer;
+            list-style: none;
+        }
+
+        details summary::-webkit-details-marker {
+            display: none;
+        }
+
+        details[open] .faq-icon {
+            transform: rotate(180deg);
+        }
+
+        .bonus-item {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bonus-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(182, 255, 0, 0.08), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .bonus-item:hover::before {
+            left: 100%;
+        }
+
+        .dashboard-preview {
+            border: 1px solid rgba(182, 255, 0, 0.2);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(182, 255, 0, 0.1);
+        }
+
+        .step-line {
+            position: absolute;
+            top: 28px;
+            left: calc(50% + 32px);
+            width: calc(100% - 64px);
+            height: 2px;
+            background: linear-gradient(90deg, rgba(182, 255, 0, 0.3), rgba(182, 255, 0, 0.1));
+            z-index: 0;
+        }
+
+        .immersive-bg {
+            position: relative;
+        }
+
+        .immersive-bg::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 800px;
+            height: 400px;
+            background: radial-gradient(ellipse, rgba(182, 255, 0, 0.1) 0%, transparent 60%);
+            filter: blur(60px);
+            z-index: 0;
+        }
+
+        .testimonial-image {
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(182, 255, 0, 0.2);
+        }
+
+        .wa-badge {
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .countdown-box {
+            background: linear-gradient(135deg, rgba(182, 255, 0, 0.1) 0%, rgba(182, 255, 0, 0.05) 100%);
+            border: 2px solid rgba(182, 255, 0, 0.3);
+            border-radius: 16px;
+            padding: 20px 32px;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .countdown-number {
+            font-size: 48px;
+            font-weight: 900;
+            color: #B6FF00;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .countdown-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        @keyframes countdown-pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .countdown-pulse {
+            animation: countdown-pulse 1s ease-in-out infinite;
+        }
+    </style>
+</head>
+
+<body class="text-white antialiased bg-[#000018]">
+    <div id="main-wrapper"
+        style="background-color: #000018 !important; width: 100%; min-height: 100vh; overflow-x: hidden;">
+        <!-- Gradient Background -->
+        <div class="gradient-bg">
+            <div class="gradient-blob-1"></div>
+            <div class="gradient-blob-2"></div>
+        </div>
+
+        <!-- HERO SECTION -->
+        <section class="section-container pt-32 pb-20">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <div class="space-y-8">
+                    <div class="badge-guarantee">
+                        ⚠️GARANSI 100% UANG KEMBALI TANPA SYARAT ⚠️
+                    </div>
+
+                    <h1 class="text-5xl lg:text-6xl font-black leading-tight">
+                        Ubah Skillmu Jadi Produk Digital & Hasilkan Cuan Sekarang!!
+                    </h1>
+
+                    <p class="text-xl text-gray-300 leading-relaxed">
+                        Punya skill tapi bingung cara dapetin cuan-nya?<br>
+                        Stop cuma jadi "penonton" di dunia digital...
+                    </p>
+
+                    <a href="#cta" class="btn-primary text-lg">
+                        Mulai Sekarang →
+                    </a>
+                </div>
+
+                <div class="relative">
+                    <div class="dashboard-preview">
+                        <img src="https://cdn.lynkid.my.id/draft-products/23-10-2025/1761152633309_2499798.png"
+                            alt="GPT EBOOK BUILDER Dashboard Preview" class="w-full">
+                    </div>
+                    <!-- Decorative elements -->
+                    <div class="absolute -top-4 -right-4 w-24 h-24 bg-primary rounded-full opacity-20 blur-2xl"></div>
+                    <div class="absolute -bottom-4 -left-4 w-32 h-32 bg-secondary rounded-full opacity-20 blur-2xl">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- INTRO + PROBLEM BLOCK -->
+        <section class="section-container py-20">
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="glass-card rounded-3xl p-10">
+                    <div class="icon-box mb-6">
+                        <svg class="w-7 h-7 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Dengan GPT EBOOK BUILDER...</h3>
+                    <p class="text-gray-300 leading-relaxed text-lg">
+                        Kamu bisa mengubah skill & pengetahuan yang sudah kamu miliki menjadi produk digital berkualitas
+                        tinggi dalam hitungan menit, tanpa perlu keahlian teknis atau desain sama sekali.
+                    </p>
+                </div>
+
+                <div class="glass-card rounded-3xl p-10">
+                    <div class="icon-box mb-6">
+                        <svg class="w-7 h-7 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Kenapa GPT EBOOK BUILDER...</h3>
+                    <p class="text-gray-300 leading-relaxed text-lg">
+                        Karena ini adalah solusi terbaik untuk siapa saja yang ingin mulai bisnis digital tapi terhalang
+                        oleh keterbatasan waktu, budget, atau skill teknis. Platform ini dirancang khusus untuk pemula
+                        sekalipun.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- HOW IT WORKS (TANPA ICON) -->
+        <section class="section-container py-20">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl lg:text-5xl font-black mb-4 glow-text">Cara Kerja (3 Langkah)</h2>
+                <p class="text-xl text-gray-400">Proses simpel yang bisa dilakukan siapa saja</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8 relative">
+                <div class="glass-card rounded-3xl p-8 text-center relative z-10">
+                    <div class="number-badge mx-auto mb-6">1</div>
+                    <h3 class="text-xl font-bold mb-3">Input Ide / Topik</h3>
+                    <p class="text-gray-400">Masukkan ide atau topik ebook yang ingin kamu buat. Bisa tentang apa saja
+                        sesuai skillmu.</p>
+                </div>
+
+                <div class="glass-card rounded-3xl p-8 text-center relative z-10">
+                    <div class="number-badge mx-auto mb-6">2</div>
+                    <h3 class="text-xl font-bold mb-3">AI Generate Konten</h3>
+                    <p class="text-gray-400">Sistem AI canggih kami akan otomatis generate konten ebook yang lengkap,
+                        terstruktur, dan berkualitas.</p>
+                </div>
+
+                <div class="glass-card rounded-3xl p-8 text-center relative z-10">
+                    <div class="number-badge mx-auto mb-6">3</div>
+                    <h3 class="text-xl font-bold mb-3">Download & Jual</h3>
+                    <p class="text-gray-400">Download ebook profesional yang siap jual langsung! Tinggal upload ke
+                        platform
+                        marketplace favoritmu.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- STORY / IMAGINATION SECTION -->
+        <section class="section-container py-20 immersive-bg">
+            <div class="max-w-4xl mx-auto text-center relative z-10">
+                <div class="glass-card rounded-3xl p-12 lg:p-16">
+                    <div class="text-6xl mb-8">💭</div>
+                    <h2 class="text-4xl lg:text-5xl font-black mb-8 glow-text">Bayangin deh...</h2>
+                    <p class="text-xl text-gray-300 leading-relaxed space-y-4">
+                        Kamu bangun pagi, buka HP, dan lihat notifikasi:<br><br>
+                        <span class="text-primary font-semibold">"Pesanan Baru! Ebook Kamu Terjual
+                            RpXX.XXX"</span><br><br>
+                        Itu bukan mimpi. Itu bisa jadi kenyataan kamu besok.<br><br>
+                        Bayangkan punya produk digital yang jualan sendiri 24/7...<br>
+                        Tanpa perlu stok barang...<br>
+                        Tanpa perlu packing...<br>
+                        Tanpa perlu kirim paket...<br><br>
+                        <span class="text-white font-semibold text-2xl">Cuma butuh SATU langkah pertama hari ini.</span>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- VALUE PROPOSITION -->
+        <section class="section-container py-20">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl lg:text-5xl font-black mb-4">🔥 Nggak perlu repot...</h2>
+                <p class="text-xl text-gray-400">Semua yang kamu butuhkan sudah tersedia</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="glass-card rounded-2xl p-6 flex items-start gap-4">
+                    <div class="icon-box w-12 h-12">
+                        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-lg mb-2">Nggak Perlu Skill Desain</h4>
+                        <p class="text-gray-400 text-sm">Template profesional siap pakai yang sudah didesain oleh expert
+                        </p>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 flex items-start gap-4">
+                    <div class="icon-box w-12 h-12">
+                        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-lg mb-2">Nggak Perlu Ngoding</h4>
+                        <p class="text-gray-400 text-sm">Platform user-friendly yang bisa digunakan siapa saja tanpa
+                            technical skill</p>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 flex items-start gap-4">
+                    <div class="icon-box w-12 h-12">
+                        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-lg mb-2">Nggak Perlu Waktu Lama</h4>
+                        <p class="text-gray-400 text-sm">Hasilkan ebook lengkap dalam hitungan menit, bukan minggu atau
+                            bulan</p>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 flex items-start gap-4">
+                    <div class="icon-box w-12 h-12">
+                        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-lg mb-2">Nggak Perlu Budget Besar</h4>
+                        <p class="text-gray-400 text-sm">Investasi minimal dengan potensi return yang luar biasa besar
+                        </p>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 flex items-start gap-4">
+                    <div class="icon-box w-12 h-12">
+                        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-lg mb-2">Nggak Perlu Tim</h4>
+                        <p class="text-gray-400 text-sm">Kerja sendiri saja sudah cukup, semua otomatis dan sistematis
+                        </p>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 flex items-start gap-4">
+                    <div class="icon-box w-12 h-12">
+                        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-lg mb-2">Nggak Perlu Pengalaman</h4>
+                        <p class="text-gray-400 text-sm">Cocok untuk pemula total yang baru mulai di dunia digital</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- REASON SECTION (3 ALASAN) -->
+        <section class="section-container py-20">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl lg:text-5xl font-black mb-4">3 Alasan Kenapa Harus Ambil Sekarang</h2>
+                <p class="text-xl text-gray-400">Jangan sampai menyesal kemudian</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="glass-card rounded-3xl p-10 text-center">
+                    <div class="number-badge mx-auto mb-6">1</div>
+                    <h3 class="text-2xl font-bold mb-4">Harga Promo Terbatas</h3>
+                    <p class="text-gray-300 leading-relaxed">
+                        Harga spesial ini hanya berlaku untuk early adopters. Setelah kuota tercapai, harga akan naik
+                        signifikan tanpa pemberitahuan.
+                    </p>
+                </div>
+
+                <div class="glass-card rounded-3xl p-10 text-center">
+                    <div class="number-badge mx-auto mb-6">2</div>
+                    <h3 class="text-2xl font-bold mb-4">Market Masih Terbuka Lebar</h3>
+                    <p class="text-gray-300 leading-relaxed">
+                        Industri ebook digital sedang booming. Semakin cepat kamu mulai, semakin besar peluang untuk
+                        mendominasi niche-mu.
+                    </p>
+                </div>
+
+                <div class="glass-card rounded-3xl p-10 text-center">
+                    <div class="number-badge mx-auto mb-6">3</div>
+                    <h3 class="text-2xl font-bold mb-4">Garansi Tanpa Risiko</h3>
+                    <p class="text-gray-300 leading-relaxed">
+                        Kami berani memberikan garansi 100% uang kembali karena yakin produk ini benar-benar memberikan
+                        nilai luar biasa untukmu.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- RESULT / PROOF SECTION -->
+        <section class="section-container py-20">
+            <div class="max-w-5xl mx-auto">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl lg:text-5xl font-black mb-4">Hasil Dari Jualan Ebook</h2>
+                    <p class="text-xl text-gray-400">Bukti nyata dari pengguna nyata</p>
+                </div>
+
+                <!-- Screenshot Penjualan Ebook (DI ATAS TESTIMONI) -->
+                <div class="mb-10">
+                    <div class="text-center mb-6">
+                        <h3 class="text-2xl font-bold text-primary mb-2">Penjualan Saya Dari Ebook</h3>
+                        <p class="text-gray-400">Bukti transfer nyata masuk ke rekening</p>
+                    </div>
+                    <div class="glass-card rounded-3xl p-6 border-2 border-primary/30">
+                        <img src="https://cdn.lynkid.my.id/draft-products/23-10-2025/1761158874277_9117310.png"
+                            alt="Screenshot Bukti Penjualan Ebook" class="w-full rounded-2xl shadow-2xl">
+                    </div>
+                </div>
+
+                <!-- Testimoni Card (DI BAWAH SCREENSHOT) -->
+                <div class="glass-card rounded-3xl p-10 lg:p-14 border-2 border-primary/30 mb-10">
+                    <div class="flex items-start gap-6 mb-8">
+                        <div
+                            class="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-3xl flex-shrink-0">
+                            💬
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-3">
+                                <span class="font-bold text-lg">Testimoni Nyata</span>
+                                <span
+                                    class="px-3 py-1 bg-primary/20 text-primary text-xs font-semibold rounded-full">TERVERIFIKASI</span>
+                            </div>
+                            <p class="text-2xl font-bold text-primary mb-4">"Sore beli..."</p>
+                            <p class="text-gray-300 text-lg leading-relaxed">
+                                "Sore beli GPT EBOOK BUILDER, malamnya udah bisa bikin ebook pertama. Besoknya langsung
+                                upload ke marketplace. 3 hari kemudian... <span
+                                    class="text-white font-semibold">PENJUALAN
+                                    PERTAMA MASUK!</span> Gila, dari nol jadi punya penghasilan passive cuma seminggu!"
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-white/10 pt-8 grid grid-cols-3 gap-6 text-center">
+                        <div>
+                            <div class="text-3xl font-black text-primary mb-2">3 Hari</div>
+                            <div class="text-gray-400 text-sm">Waktu Sampai Jual</div>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-black text-primary mb-2">1 Ebook</div>
+                            <div class="text-gray-400 text-sm">Produk Pertama</div>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-black text-primary mb-2">∞ Potensi</div>
+                            <div class="text-gray-400 text-sm">Passive Income</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial Screenshots WA -->
+                <div class="mt-12">
+                    <h3 class="text-2xl font-bold text-center mb-8">💬 Testimoni Via WhatsApp</h3>
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="testimonial-image relative">
+                            <img src="https://cdn.lynkid.my.id/draft-products/23-10-2025/1761153791267_2884312.jpeg"
+                                alt="Testimoni WhatsApp 1" class="w-full">
+                            <div class="absolute top-3 left-3 wa-badge">
+                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                                    <path
+                                        d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                                </svg>
+                                WhatsApp
+                            </div>
+                        </div>
+
+                        <div class="testimonial-image relative">
+                            <img src="https://cdn.lynkid.my.id/draft-products/23-10-2025/1761153791267_2884312.jpeg"
+                                alt="Testimoni WhatsApp 2" class="w-full">
+                            <div class="absolute top-3 left-3 wa-badge">
+                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                                    <path
+                                        d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                                </svg>
+                                WhatsApp
+                            </div>
+                        </div>
+
+                        <div class="testimonial-image relative">
+                            <img src="https://cdn.lynkid.my.id/draft-products/23-10-2025/1761153791267_2884312.jpeg"
+                                alt="Testimoni WhatsApp 3" class="w-full">
+                            <div class="absolute top-3 left-3 wa-badge">
+                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                                    <path
+                                        d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                                </svg>
+                                WhatsApp
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- BONUS SECTION -->
+        <section class="section-container py-20">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl lg:text-5xl font-black mb-4">🎁 Nggak Maksa, Tapi Sayang Banget Kalau Bonus Ini
+                        Dilewatkan</h2>
+                    <p class="text-xl text-gray-400 mb-8">Bonus Yang akan Kamu Dapatkan:</p>
+                    <p class="text-2xl font-bold text-primary">Ada Bonus Senilai Rp 500.000 bisa Kamu dapetin GRATIS!
+                    </p>
+                </div>
+
+                <div class="space-y-4 max-w-4xl mx-auto">
+                    <div class="bonus-item glass-card rounded-2xl p-6 flex items-center justify-between gap-6">
+                        <div class="flex items-center gap-4 flex-1">
+                            <div
+                                class="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center text-2xl flex-shrink-0">
+                                🎥
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-lg">Video Roadmap 1 Juta Pertama dari Produk Digital</h4>
+                                <p class="text-gray-400 text-sm">Panduan video langkah demi langkah menuju income
+                                    pertama
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="text-gray-500 line-through">Rp 67.000</span>
+                            <span class="px-4 py-2 bg-primary text-dark-bg font-black rounded-lg text-sm">GRATIS</span>
+                        </div>
+                    </div>
+
+                    <div class="bonus-item glass-card rounded-2xl p-6 flex items-center justify-between gap-6">
+                        <div class="flex items-center gap-4 flex-1">
+                            <div
+                                class="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center text-2xl flex-shrink-0">
+                                👥
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-lg">Grup Premium Bahas Produk Digital, Meta Ads, Copywriting &
+                                    semua tentang digital marketing</h4>
+                                <p class="text-gray-400 text-sm">Akses eksklusif komunitas premium</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="text-gray-500 line-through">Rp 100.000</span>
+                            <span class="px-4 py-2 bg-primary text-dark-bg font-black rounded-lg text-sm">GRATIS</span>
+                        </div>
+                    </div>
+
+                    <div class="bonus-item glass-card rounded-2xl p-6 flex items-center justify-between gap-6">
+                        <div class="flex items-center gap-4 flex-1">
+                            <div
+                                class="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center text-2xl flex-shrink-0">
+                                ✍️
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-lg">Kelas Copywriting</h4>
+                                <p class="text-gray-400 text-sm">Master teknik copywriting yang menjual</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="text-gray-500 line-through">Rp 99.000</span>
+                            <span class="px-4 py-2 bg-primary text-dark-bg font-black rounded-lg text-sm">GRATIS</span>
+                        </div>
+                    </div>
+
+                    <div class="bonus-item glass-card rounded-2xl p-6 flex items-center justify-between gap-6">
+                        <div class="flex items-center gap-4 flex-1">
+                            <div
+                                class="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center text-2xl flex-shrink-0">
+                                🎣
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-lg">Magic Hook. 300+ Template Hook yang bikin stop scroll</h4>
+                                <p class="text-gray-400 text-sm">Koleksi template hook terlengkap</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="text-gray-500 line-through">Rp 63.000</span>
+                            <span class="px-4 py-2 bg-primary text-dark-bg font-black rounded-lg text-sm">GRATIS</span>
+                        </div>
+                    </div>
+
+                    <div class="bonus-item glass-card rounded-2xl p-6 flex items-center justify-between gap-6">
+                        <div class="flex items-center gap-4 flex-1">
+                            <div
+                                class="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center text-2xl flex-shrink-0">
+                                🎨
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-lg">Bonus GenMock untuk bikin cover yang keren</h4>
+                                <p class="text-gray-400 text-sm">Tool mockup profesional untuk cover ebook</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="text-gray-500 line-through">Rp 49.000</span>
+                            <span class="px-4 py-2 bg-primary text-dark-bg font-black rounded-lg text-sm">GRATIS</span>
+                        </div>
+                    </div>
+
+                    <div class="bonus-item glass-card rounded-2xl p-6 flex items-center justify-between gap-6">
+                        <div class="flex items-center gap-4 flex-1">
+                            <div
+                                class="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center text-2xl flex-shrink-0">
+                                📖
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-lg">Bonus Ebook "JADI KAPAN? Jualan Produk Digital" panduan
+                                    ringan
+                                    untuk memulai jualan produk digital</h4>
+                                <p class="text-gray-400 text-sm">Panduan praktis start jualan produk digital</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="text-gray-500 line-through">Rp 29.000</span>
+                            <span class="px-4 py-2 bg-primary text-dark-bg font-black rounded-lg text-sm">GRATIS</span>
+                        </div>
+                    </div>
+
+                    <div class="bonus-item glass-card rounded-2xl p-6 flex items-center justify-between gap-6">
+                        <div class="flex items-center gap-4 flex-1">
+                            <div
+                                class="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center text-2xl flex-shrink-0">
+                                🎬
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-lg">Bonus Rekaman Webinar 2 Jam Cara Mudah Bikin Produk
+                                    Digital
+                                </h4>
+                                <p class="text-gray-400 text-sm">Webinar lengkap 2 jam full strategi</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="text-gray-500 line-through">Rp 35.000</span>
+                            <span class="px-4 py-2 bg-primary text-dark-bg font-black rounded-lg text-sm">GRATIS</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-10">
+                    <div class="inline-block glass-card rounded-2xl px-8 py-4 border-2 border-primary/40">
+                        <span class="text-2xl font-black text-primary">TOTAL NILAI BONUS: Rp 500.000 → GRATIS
+                            UNTUKMU!</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PRICE SECTION -->
+        <section id="cta" class="section-container py-20">
+            <div class="max-w-3xl mx-auto">
+                <div
+                    class="glass-card rounded-3xl p-10 lg:p-16 text-center border-2 border-primary/30 relative overflow-hidden">
+                    <!-- Background decoration -->
+                    <div
+                        class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent">
+                    </div>
+
+                    <h2 class="text-3xl lg:text-4xl font-black mb-8">Dapatkan Sekarang Juga!</h2>
+
+                    <div class="mb-8">
+                        <div class="text-gray-400 text-xl mb-2">Harga Normal:</div>
+                        <div class="price-old">Rp34.000</div>
+                    </div>
+
+                    <div class="mb-10">
+                        <div class="text-primary text-xl font-semibold mb-2">🔥 Harga Spesial Hari Ini:</div>
+                        <div class="price-new">Rp27.000</div>
+                        <div class="text-gray-400 mt-2">(Sekali bayar, akses selamanya)</div>
+                    </div>
+
+                    <a href="#" class="btn-primary text-xl px-16 py-5 inline-block mb-6">
+                        MILIKI SEKARANG →
+                    </a>
+
+                    <div class="flex items-center justify-center gap-6 text-sm text-gray-400">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            <span>Garansi 100%</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            <span>Akses Instan</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            <span>Support 24/7</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- URGENCY + CTA -->
+        <section class="section-container py-20">
+            <div class="max-w-4xl mx-auto text-center">
+                <div class="glass-card rounded-3xl p-12 lg:p-16 border-2 border-red-500/30 relative">
+                    <div
+                        class="absolute -top-4 left-1/2 transform -translate-x-1/2 px-6 py-2 bg-gradient-to-r from-red-600 to-pink-600 rounded-full font-bold text-sm animate-pulse">
+                        ⏰ PENAWARAN TERBATAS
+                    </div>
+
+                    <h2 class="text-4xl lg:text-5xl font-black mb-6">💥 TERTARIK?</h2>
+
+                    <div class="space-y-6 text-xl text-gray-300 leading-relaxed mb-10">
+                        <p>💡 Kami pengen kamu dapetin hasil maksimal dari investasi ini...</p>
+                        <p>Jangan biarkan kesempatan emas ini lewat begitu saja!</p>
+                        <p>Harga promo <span class="text-primary font-bold">Rp27.000</span> tidak akan bertahan lama...
+                        </p>
+                    </div>
+
+                    <a href="#cta" class="btn-primary text-xl px-16 py-5 inline-block">
+                        AMANKAN POSISIMU SEKARANG →
+                    </a>
+
+                    <p class="mt-6 text-gray-400 text-sm">
+                        ⚠️ Ingat: Garansi 100% uang kembali tanpa syarat!
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ -->
+        <section class="section-container py-20">
+            <div class="max-w-3xl mx-auto">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl lg:text-5xl font-black mb-4">Pertanyaan Yang Sering Ditanyakan</h2>
+                    <p class="text-xl text-gray-400">FAQ - Jawaban untuk keraguanmu</p>
+                </div>
+
+                <div class="space-y-4">
+                    <details class="glass-card rounded-2xl group">
+                        <summary class="p-6 flex items-center justify-between cursor-pointer">
+                            <span class="font-bold text-lg pr-4">🤔 Apa sih GPT Ebook Builder ini?</span>
+                            <svg class="faq-icon w-6 h-6 text-primary flex-shrink-0 transition-transform duration-300"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </summary>
+                        <div class="px-6 pb-6 text-gray-300 leading-relaxed">
+                            Sebuah custom GPT yang sudah ditanamkan framework khusus untuk bisa bikin ebook dengan
+                            cepat.
+                        </div>
+                    </details>
+
+                    <details class="glass-card rounded-2xl group">
+                        <summary class="p-6 flex items-center justify-between cursor-pointer">
+                            <span class="font-bold text-lg pr-4">🤔 Apa itu custom GPT?</span>
+                            <svg class="faq-icon w-6 h-6 text-primary flex-shrink-0 transition-transform duration-300"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </summary>
+                        <div class="px-6 pb-6 text-gray-300 leading-relaxed">
+                            Sebuah chat GPT yang sudah dilatih atau sudah dibekali ilmu atau framework tertentu di
+                            dalamnya.
+                            Jadi cara bekerja dan berpikirnya mengikuti apa yang sudah ditanamkan di dalamnya. Jadi
+                            basicnya
+                            tetap pakai chat GPT.
+                        </div>
+                    </details>
+
+                    <details class="glass-card rounded-2xl group">
+                        <summary class="p-6 flex items-center justify-between cursor-pointer">
+                            <span class="font-bold text-lg pr-4">🤔 Apa bisa menggunakan custom GPT versi Gratis?</span>
+                            <svg class="faq-icon w-6 h-6 text-primary flex-shrink-0 transition-transform duration-300"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </summary>
+                        <div class="px-6 pb-6 text-gray-300 leading-relaxed">
+                            Bisa banget! Namun Kamu tetap harus mengikuti aturan dari chat GPT-nya. Biasanya ada batasan
+                            harian. Jika sudah mencapai batasan, besoknya bisa dipakai kembali.
+                        </div>
+                    </details>
+
+                    <details class="glass-card rounded-2xl group">
+                        <summary class="p-6 flex items-center justify-between cursor-pointer">
+                            <span class="font-bold text-lg pr-4">🤔 Apakah ada garansi?</span>
+                            <svg class="faq-icon w-6 h-6 text-primary flex-shrink-0 transition-transform duration-300"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </summary>
+                        <div class="px-6 pb-6 text-gray-300 leading-relaxed">
+                            Ya. Garansi uang kembali 100% jika produknya sampah atau tidak bermanfaat sama sekali. Nggak
+                            usah pakai alasan. Langsung chat admin minta refund atau uang kembali. Maksimal klaim
+                            garansi
+                            2x24 sejak pembelian ya
+                        </div>
+                    </details>
+                </div>
+            </div>
+        </section>
+
+        <!-- ADD ON SECTION -->
+        <section class="section-container py-20">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl lg:text-5xl font-black mb-4">⚡ Mau Lebih Untung?</h2>
+                    <p class="text-xl text-gray-400">Upgrade experience-mu dengan Add-On eksklusif</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div
+                        class="glass-card rounded-3xl p-8 border-2 border-secondary/30 hover:border-secondary/60 transition-all">
+                        <div
+                            class="inline-block px-4 py-1 bg-secondary/20 text-secondary text-xs font-bold rounded-full mb-4">
+                            BUNDLE DEAL #1
+                        </div>
+
+                        <h3 class="text-2xl font-bold mb-4">GPT Ebook Builder + 2 Ebook Cara Beriklan di Meta Ads</h3>
+
+                        <div class="mb-6">
+                            <div class="text-gray-400 text-lg">Harga Bundle:</div>
+                            <div class="text-gray-500 font-semibold line-through text-xl">IDR 64.000</div>
+                            <div class="text-4xl font-black text-secondary mt-1">IDR 35.000</div>
+                        </div>
+
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-center gap-3 text-gray-300">
+                                <svg class="w-5 h-5 text-secondary flex-shrink-0" fill="currentColor"
+                                    viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span>Akses GPT EBOOK BUILDER Full</span>
+                            </li>
+                            <li class="flex items-center gap-3 text-gray-300">
+                                <svg class="w-5 h-5 text-secondary flex-shrink-0" fill="currentColor"
+                                    viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span>Semua Bonus Utama (Rp 500.000)</span>
+                            </li>
+                            <li class="flex items-center gap-3 text-gray-300">
+                                <svg class="w-5 h-5 text-secondary flex-shrink-0" fill="currentColor"
+                                    viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span>Ebook Cara Beriklan di Meta Ads #1</span>
+                            </li>
+                            <li class="flex items-center gap-3 text-gray-300">
+                                <svg class="w-5 h-5 text-secondary flex-shrink-0" fill="currentColor"
+                                    viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span>Ebook Cara Beriklan di Meta Ads #2</span>
+                            </li>
+                            <li class="flex items-center gap-3 text-gray-300">
+                                <svg class="w-5 h-5 text-secondary flex-shrink-0" fill="currentColor"
+                                    viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span>Support via Email</span>
+                            </li>
+                        </ul>
+
+                        <button
+                            class="w-full py-4 border-2 border-secondary text-secondary font-bold rounded-xl hover:bg-secondary hover:text-white transition-all">
+                            AMBIL BUNDLE INI
+                        </button>
+                    </div>
+
+                    <div
+                        class="glass-card rounded-3xl p-8 border-2 border-primary/40 hover:border-primary/70 transition-all relative overflow-hidden">
+                        <div
+                            class="absolute top-0 right-0 px-4 py-1 bg-primary text-dark-bg text-xs font-black rounded-bl-xl">
+                            BEST VALUE
+                        </div>
+
+                        <div
+                            class="inline-block px-4 py-1 bg-primary/20 text-primary text-xs font-bold rounded-full mb-4">
+                            PREMIUM BUNDLE
+                        </div>
+
+                        <h3 class="text-2xl font-bold mb-4">GPT Ebook Builder + 500+ Digital Profit Master<br><span
+                                class="text-base text-gray-400">(500+ Produk Digital Siap Jual)</span></h3>
+
+                        <div class="mb-6">
+                            <div class="text-gray-400 text-lg">Harga Bundle:</div>
+                            <div class="text-gray-500 font-semibold line-through text-xl">IDR 890.000</div>
+                            <div class="text-4xl font-black text-primary mt-1">IDR 69.000</div>
+                        </div>
+
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-center gap-3 text-gray-300">
+                                <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span>GPT Ebook Builder Full Access</span>
+                            </li>
+                            <li class="flex items-center gap-3 text-gray-300">
+                                <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span>500+ Produk Digital Siap Jual</span>
+                            </li>
+                            <li class="flex items-center gap-3 text-gray-300">
+                                <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span>Semua Bonus Utama (Rp 500.000)</span>
+                            </li>
+                            <li class="flex items-center gap-3 text-gray-300">
+                                <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span>Ebook, Template, Tools & Resources</span>
+                            </li>
+                            <li class="flex items-center gap-3 text-gray-300">
+                                <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span>Priority Support 24/7</span>
+                            </li>
+                            <li class="flex items-center gap-3 text-gray-300">
+                                <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span>Lisensi Resell Rights Included</span>
+                            </li>
+                            <li class="flex items-center gap-3 text-gray-300">
+                                <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span>Update Selamanya Gratis</span>
+                            </li>
+                        </ul>
+
+                        <button class="btn-primary w-full py-4 text-center">
+                            AMBIL PREMIUM BUNDLE →
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- COUNTDOWN TIMER + FINAL CTA SECTION -->
+        <section class="section-container py-20">
+            <div class="max-w-4xl mx-auto">
+                <div class="glass-card rounded-3xl p-12 lg:p-16 border-2 border-red-500/40 relative">
+                    <!-- Background decoration -->
+                    <div
+                        class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-red-500 to-transparent">
+                    </div>
+
+                    <!-- Urgency Badge -->
+                    <div
+                        class="absolute -top-4 left-1/2 transform -translate-x-1/2 px-6 py-2 bg-gradient-to-r from-red-600 to-orange-600 rounded-full font-bold text-sm animate-pulse whitespace-nowrap">
+                        ⏰ HARGA NAIK DALAM:
+                    </div>
+
+                    <div class="text-center space-y-8">
+                        <!-- Main Headline -->
+                        <h2 class="text-3xl lg:text-5xl font-black glow-text">
+                            ⚡ Kesempatan Terakhir! ⚡
+                        </h2>
+
+                        <!-- Subheadline -->
+                        <p class="text-xl text-gray-300 leading-relaxed">
+                            Promo harga spesial ini akan berakhir dalam waktu:
+                        </p>
+
+                        <!-- Countdown Timer Display -->
+                        <div class="flex justify-center items-center gap-4 my-10">
+                            <div class="countdown-box countdown-pulse">
+                                <div class="countdown-number" id="hours">00</div>
+                                <div class="countdown-label">Jam</div>
+                            </div>
+
+                            <div class="text-4xl font-black text-primary">:</div>
+
+                            <div class="countdown-box countdown-pulse">
+                                <div class="countdown-number" id="minutes">59</div>
+                                <div class="countdown-label">Menit</div>
+                            </div>
+
+                            <div class="text-4xl font-black text-primary">:</div>
+
+                            <div class="countdown-box countdown-pulse">
+                                <div class="countdown-number" id="seconds">59</div>
+                                <div class="countdown-label">Detik</div>
+                            </div>
+                        </div>
+
+                        <!-- Warning Text -->
+                        <div class="bg-red-500/10 border border-red-500/30 rounded-2xl p-6 mb-8">
+                            <p class="text-red-400 font-bold text-lg">
+                                ⚠️ Setelah waktu habis, harga akan kembali ke harga coret!
+                            </p>
+                        </div>
+
+                        <!-- Final CTA Button -->
+                        <a href="#cta" class="btn-primary text-2xl px-20 py-6 inline-block">
+                            Klik Untuk Mulai Buat Ebook Sekarang<br>
+                            <span class="text-base font-semibold">- Sebelum Harga Naik!</span>
+                        </a>
+
+                        <!-- Trust Badges -->
+                        <div class="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-400 pt-6">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span>Garansi 100%</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span>Akses Instan</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span>Support 24/7</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="border-t border-white/5 py-12">
+            <div class="max-w-1200px mx-auto px-6 text-center">
+                <p class="text-gray-500 text-sm">
+                    © 2024 GPT EBOOK BUILDER. All rights reserved.<br>
+                    Dibuat dengan ❤️ untuk para creator Indonesia
+                </p>
+            </div>
+        </footer>
+
+        <script>
+            // Smooth scroll for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Add subtle parallax effect to gradient blobs
+            document.addEventListener('mousemove', (e) => {
+                const blobs = document.querySelectorAll('.gradient-blob-1, .gradient-blob-2');
+                const x = e.clientX / window.innerWidth;
+                const y = e.clientY / window.innerHeight;
+
+                blobs.forEach((blob, index) => {
+                    const speed = index === 0 ? 20 : 15;
+                    blob.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
+                });
+            });
+
+            // Countdown Timer Functionality (Repeats every 1 hour)
+            function initCountdown() {
+                // Set countdown duration to 1 hour (3600 seconds)
+                let totalSeconds = 3600;
+
+                // Try to get saved time from localStorage
+                const savedTime = localStorage.getItem('countdownEndTime');
+                const currentTime = new Date().getTime();
+
+                if (savedTime) {
+                    const endTime = parseInt(savedTime);
+                    const remaining = Math.floor((endTime - currentTime) / 1000);
+
+                    if (remaining > 0) {
+                        totalSeconds = remaining;
+                    } else {
+                        // If time expired, reset to 1 hour
+                        const newEndTime = currentTime + (3600 * 1000);
+                        localStorage.setItem('countdownEndTime', newEndTime.toString());
+                        totalSeconds = 3600;
+                    }
+                } else {
+                    // First visit, set end time
+                    const endTime = currentTime + (3600 * 1000);
+                    localStorage.setItem('countdownEndTime', endTime.toString());
+                }
+
+                updateCountdownDisplay(totalSeconds);
+
+                // Update every second
+                const interval = setInterval(() => {
+                    totalSeconds--;
+
+                    if (totalSeconds <= 0) {
+                        // Reset countdown when it reaches zero
+                        totalSeconds = 3600;
+                        const newEndTime = new Date().getTime() + (3600 * 1000);
+                        localStorage.setItem('countdownEndTime', newEndTime.toString());
+                    }
+
+                    updateCountdownDisplay(totalSeconds);
+                }, 1000);
+            }
+
+            function updateCountdownDisplay(totalSeconds) {
+                const hours = Math.floor(totalSeconds / 3600);
+                const minutes = Math.floor((totalSeconds % 3600) / 60);
+                const seconds = totalSeconds % 60;
+
+                // Update DOM with padded numbers
+                document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+                document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+                document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+            }
+
+            // Initialize countdown when page loads
+            document.addEventListener('DOMContentLoaded', initCountdown);
+        </script>
+    </div>
+</body>
+
+</html>

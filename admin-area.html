@@ -1341,30 +1341,6 @@
                     </div>
                 </div>
 
-                <!-- Theme Config -->
-                <div class="bg-[rgba(0,0,0,0.2)] p-4 rounded-xl border border-[rgba(255,255,255,0.05)] mb-6">
-                    <div class="flex items-center gap-2 mb-3">
-                        <i data-lucide="palette" class="w-4 h-4 text-[#B6FF00]"></i>
-                        <span class="text-xs font-bold text-white uppercase tracking-wider">Tema Halaman</span>
-                    </div>
-                    <div class="flex gap-4">
-                        <label class="cursor-pointer flex items-center gap-2" onclick="setTheme('light')">
-                            <input type="radio" name="pg-theme" value="light" class="sr-only">
-                            <div id="adm-theme-btn-light" class="theme-toggle-btn px-4 py-2 rounded-lg border transition-all flex items-center gap-2 text-slate-400" style="border-color:rgba(255,255,255,0.1);">
-                                <i data-lucide="sun" class="w-4 h-4"></i>
-                                <span class="text-xs font-bold">Light</span>
-                            </div>
-                        </label>
-                        <label class="cursor-pointer flex items-center gap-2" onclick="setTheme('dark')">
-                            <input type="radio" name="pg-theme" value="dark" class="sr-only" checked>
-                            <div id="adm-theme-btn-dark" class="theme-toggle-btn active px-4 py-2 rounded-lg border transition-all flex items-center gap-2 text-slate-400" style="border-color:rgba(255,255,255,0.1);">
-                                <i data-lucide="moon" class="w-4 h-4"></i>
-                                <span class="text-xs font-bold">Dark</span>
-                            </div>
-                        </label>
-                    </div>
-                </div>
-
                 <div>
                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Konten HTML</label>
                     <textarea id="pg-content" rows="15" placeholder="<!-- Paste kode HTML Landing Page di sini -->" class="w-full p-6 glass-input text-emerald-400 rounded-[1.5rem] font-mono text-xs custom-scroll focus:border-[#B6FF00] outline-none transition-all" style="background: rgba(0,0,0,0.3) !important; color: white !important;"></textarea>
@@ -1383,24 +1359,6 @@
     </div>
 
     <script>
-        // Theme toggle handler for admin page editor
-        function setTheme(val) {
-            const btnLight = document.getElementById('adm-theme-btn-light');
-            const btnDark  = document.getElementById('adm-theme-btn-dark');
-            const radioLight = document.querySelector('input[name="pg-theme"][value="light"]');
-            const radioDark  = document.querySelector('input[name="pg-theme"][value="dark"]');
-            if (!btnLight || !btnDark) return;
-            if (val === 'light') {
-                btnLight.classList.add('active');
-                btnDark.classList.remove('active');
-                if (radioLight) radioLight.checked = true;
-            } else {
-                btnDark.classList.add('active');
-                btnLight.classList.remove('active');
-                if (radioDark) radioDark.checked = true;
-            }
-        }
-
         function updateProdPreview(url) {
             const preview = document.getElementById('p-image-preview');
             const placeholder = document.getElementById('p-image-placeholder');
@@ -2863,7 +2821,7 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                 meta_pixel_id: document.getElementById('pg-pixel-id').value,
                 meta_pixel_token: document.getElementById('pg-pixel-token').value,
                 meta_pixel_test_event: document.getElementById('pg-pixel-test').value,
-                theme_mode: document.querySelector('input[name="pg-theme"]:checked').value,
+                theme_mode: 'dark',
                 is_edit: document.getElementById('pg-is-edit').value === 'true' 
             }; 
             await submitFormToGAS('form-page', p, 'Halaman CMS tersimpan!', 'modal-page');
