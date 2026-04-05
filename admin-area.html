@@ -6,10 +6,14 @@
     <link rel="icon" type="image/png" href="assets/seo/og-default.png">
     <style>
         /* Admin Modal Dark Overlay & Textarea Fixes */
-        #modal-page {
-            background: rgba(0, 0, 8, 0.92) !important;
-            backdrop-filter: blur(24px) !important;
-            -webkit-backdrop-filter: blur(24px) !important;
+        #modal-page .modal-overlay {
+            background: rgba(0, 0, 0, 0.85) !important;
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
+        }
+        #modal-page .modal-panel {
+            background: #0a0a18 !important;
+            border: 1px solid rgba(255,255,255,0.08) !important;
         }
         #pg-content {
             background: rgba(0, 0, 0, 0.5) !important;
@@ -1294,8 +1298,9 @@
     </div>
 
     <!-- MODAL PAGE -->
-    <div id="modal-page" class="fixed inset-0 bg-[#000000]/80 hidden z-[300] items-center justify-center p-4 backdrop-blur-2xl">
-        <div class="glass-card bg-[rgba(0,0,24,0.9)] backdrop-blur-3xl w-full max-w-5xl rounded-[2.5rem] p-6 md:p-10 shadow-[0_0_50px_rgba(0,0,0,0.8)] max-h-[95vh] overflow-y-auto custom-scroll relative">
+    <div id="modal-page" class="fixed inset-0 hidden z-[300] flex items-center justify-center p-4">
+        <div class="modal-overlay absolute inset-0" onclick="closeModal('modal-page')"></div>
+        <div class="modal-panel w-full max-w-5xl rounded-[2.5rem] p-6 md:p-10 max-h-[95vh] overflow-y-auto custom-scroll relative z-10" style="box-shadow: 0 0 80px rgba(0,0,0,1);">
             <button onclick="closeModal('modal-page')" class="absolute top-6 right-6 p-2 bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-full text-slate-400 hover:bg-[rgba(255,255,255,0.1)] hover:text-white transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
 
             <h3 class="text-2xl font-bold mb-2 text-white">Editor Halaman</h3>

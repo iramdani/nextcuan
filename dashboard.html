@@ -138,14 +138,13 @@
         .clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
         /* Modal Dark Overlay */
-        #modal-page {
-            background: rgba(0, 0, 8, 0.92) !important;
-            backdrop-filter: blur(24px) !important;
-            -webkit-backdrop-filter: blur(24px) !important;
+        #modal-page .modal-overlay {
+            background: rgba(0, 0, 0, 0.85) !important;
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
         }
         #modal-page .modal-panel {
             background: #0a0a18 !important;
-            border: 1px solid rgba(255,255,255,0.08) !important;
         }
 
         /* Textarea dark forced */
@@ -1357,8 +1356,8 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
 
     <!-- Page Editor Modal -->
     <div id="modal-page" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
-        <div class="absolute inset-0" onclick="closeModal('modal-page')"></div>
-        <div class="modal-panel w-full max-w-5xl rounded-[2.5rem] p-6 md:p-10 max-h-[95vh] overflow-y-auto custom-scroll relative z-10 fade-in-up" style="background: #0a0a18; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 0 60px rgba(0,0,0,0.9);">
+        <div class="modal-overlay absolute inset-0" onclick="closeModal('modal-page')"></div>
+        <div class="modal-panel w-full max-w-5xl rounded-[2.5rem] p-6 md:p-10 max-h-[95vh] overflow-y-auto custom-scroll relative z-10 fade-in-up" style="border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 0 80px rgba(0,0,0,1);">
             <button onclick="closeModal('modal-page')" class="absolute top-6 right-6 p-2 bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-full text-slate-400 hover:bg-[rgba(255,255,255,0.1)] hover:text-white transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
 
             <h3 class="text-2xl font-bold mb-2 text-white">Editor Halaman</h3>
