@@ -264,3 +264,12 @@ p, .text-slate-600, .text-slate-500 {
   color: var(--color-primary) !important;
   border-right: 3px solid var(--color-primary);
 }
+
+/* Fix Chrome Autofill Blinking */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+    transition: background-color 5000s ease-in-out 0s !important;
+    -webkit-text-fill-color: #fff !important;
+}
