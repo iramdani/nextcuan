@@ -203,7 +203,8 @@
 
         @media (max-width: 640px) {
             .catalog-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
             }
         }
 
@@ -1412,7 +1413,7 @@
 
                 return `
                 <article class="glass-card group p-4 md:p-5 flex flex-col h-full fade-in ${delayClass} rounded-[2rem] relative transition-all duration-300 transform hover:-translate-y-2 cursor-pointer">
-                    <a href="${detailUrl}" target="_blank" rel="noopener noreferrer" class="block overflow-hidden rounded-[1.5rem] relative aspect-[4/3] mb-5">
+                    <a href="${detailUrl}" target="_blank" rel="noopener noreferrer" class="block overflow-hidden rounded-[1.5rem] relative aspect-square mb-5">
                         <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10"></div>
                         ${p.image_url
                             ? `<img src="${p.image_url}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" onerror="this.outerHTML='<div class=\\'flex h-full w-full items-center justify-center bg-black/40 text-3xl font-black text-white\\'>${fallbackLetter}</div>'" loading="lazy" decoding="async" alt="${safeTitle}">`
