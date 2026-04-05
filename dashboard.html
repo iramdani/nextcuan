@@ -1321,8 +1321,8 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
 
     <!-- Page Editor Modal -->
     <div id="modal-page" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-[#000018]/90 backdrop-blur-xl" onclick="closeModal('modal-page')"></div>
-        <div class="bg-[#000018] border border-[rgba(255,255,255,0.05)] w-full max-w-5xl rounded-[2.5rem] p-6 md:p-10 shadow-2xl max-h-[95vh] overflow-y-auto custom-scroll relative z-10 fade-in-up">
+        <div class="absolute inset-0 bg-[#000000]/80 backdrop-blur-2xl" onclick="closeModal('modal-page')"></div>
+        <div class="bg-[rgba(0,0,24,0.9)] backdrop-blur-3xl border border-[rgba(255,255,255,0.05)] w-full max-w-5xl rounded-[2.5rem] p-6 md:p-10 shadow-[0_0_50px_rgba(0,0,0,0.8)] max-h-[95vh] overflow-y-auto custom-scroll relative z-10 fade-in-up">
             <button onclick="closeModal('modal-page')" class="absolute top-6 right-6 p-2 bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-full text-slate-400 hover:bg-[rgba(255,255,255,0.1)] hover:text-white transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
 
             <h3 class="text-2xl font-bold mb-2 text-white">Editor Halaman</h3>
@@ -1396,7 +1396,7 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                 </div>
                 <div>
                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Konten HTML</label>
-                    <textarea id="pg-content" rows="15" placeholder="<!-- Paste kode HTML Landing Page di sini -->" class="w-full p-6 glass-input text-white rounded-[1.5rem] font-mono text-xs custom-scroll focus:border-[#B6FF00] outline-none transition-all"></textarea>
+                    <textarea id="pg-content" rows="15" placeholder="<!-- Paste kode HTML Landing Page di sini -->" class="w-full p-6 glass-input text-white rounded-[1.5rem] font-mono text-xs custom-scroll focus:ring-2 focus:ring-[#B6FF00]/50 outline-none transition-all" style="background: rgba(0,0,0,0.3) !important; color: white !important;"></textarea>
                 </div>
                 <div class="flex items-center pt-6 border-t border-[rgba(255,255,255,0.05)]">
                     <button type="button" onclick="downloadPageHTML(document.getElementById('pg-slug').value)" class="mr-auto btn-ghost border border-[rgba(255,255,255,0.1)] hover:bg-[rgba(1,122,107,0.2)] hover:border-[#017A6B]/50 px-6 py-4 rounded-xl font-bold transition-all text-xs uppercase tracking-wide flex items-center gap-2">

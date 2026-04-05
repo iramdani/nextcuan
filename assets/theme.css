@@ -273,3 +273,16 @@ input:-webkit-autofill:active {
     transition: background-color 5000s ease-in-out 0s !important;
     -webkit-text-fill-color: #fff !important;
 }
+
+/* Radio Theme Fix */
+input[type="radio"]:checked + .theme-toggle-btn {
+    border-color: var(--color-primary) !important;
+    background: rgba(182, 255, 0, 0.1) !important;
+    box-shadow: 0 0 15px rgba(182, 255, 0, 0.2) !important;
+}
+input[type="radio"]:checked + .theme-toggle-btn i,
+input[type="radio"]:checked + .theme-toggle-btn span,
+input[type="radio"]:checked + .theme-toggle-btn p {
+    color: var(--color-primary) !important;
+    opacity: 1 !important;
+}
