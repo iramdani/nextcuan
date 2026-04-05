@@ -1,782 +1,415 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kelas Jagoan | Produk Digital Siap Pakai</title>
-    <meta name="title" content="Kelas Jagoan | Produk Digital Siap Pakai">
-    <meta name="description" content="Template, toolkit, dan sistem siap pakai untuk membantu proses jualan digital terasa lebih cepat dan tertata.">
-    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
-    <meta name="theme-color" content="#4f46e5">
-    <meta name="image" content="assets/seo/og-default.png">
-    <link rel="canonical" href="./">
-    <meta property="og:locale" content="id_ID">
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="Kelas Jagoan">
-    <meta property="og:title" content="Kelas Jagoan | Produk Digital Siap Pakai">
-    <meta property="og:description" content="Template, toolkit, dan sistem siap pakai untuk membantu proses jualan digital terasa lebih cepat dan tertata.">
-    <meta property="og:url" content="./">
-    <meta property="og:image" content="assets/seo/og-default.png">
-    <meta property="og:image:type" content="image/png">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="Produk digital siap pakai untuk membantu proses jualan digital terasa lebih cepat dan tertata.">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Kelas Jagoan | Produk Digital Siap Pakai">
-    <meta name="twitter:description" content="Template, toolkit, dan sistem siap pakai untuk membantu proses jualan digital terasa lebih cepat dan tertata.">
-    <meta name="twitter:image" content="assets/seo/og-default.png">
-    <meta name="twitter:image:alt" content="Produk digital siap pakai untuk membantu proses jualan digital terasa lebih cepat dan tertata.">
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="dns-prefetch" href="https://script.google.com">
-    <script src="site.config.js"></script>
-    <script src="config.js?v=2026_1"></script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Next Cuan - Platform AI & Digital Tools untuk Income Online</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <script>
-        (function() {
-            const CACHE_KEY = 'cepat_global_settings';
-            const CACHE_AGE = 60 * 60 * 1000;
-            const SEO_CONFIG = Object.assign({
-                locale: 'id_ID',
-                pageType: 'website',
-                maxDescriptionLength: 160,
-                titleSeparator: ' | ',
-                robots: 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1',
-                defaultSiteName: 'Kelas Jagoan',
-                defaultDescription: 'Template, toolkit, dan sistem siap pakai untuk membantu proses jualan digital terasa lebih cepat dan tertata.',
-                defaultOgImagePath: 'assets/seo/og-default.png',
-                defaultOgImageType: 'image/png',
-                defaultOgImageWidth: 1200,
-                defaultOgImageHeight: 630,
-                defaultOgImageBytes: 133235,
-                titleSelectors: ['[data-seo-title]', 'h1'],
-                descriptionSelectors: [
-                    '[data-seo-description]',
-                    '.dyn-site-tagline',
-                    'section p',
-                    '#katalog p',
-                    'footer p'
-                ],
-                productCardSelector: '#public-products article',
-                productTitleSelector: '#public-products .catalog-title',
-                productDescriptionSelector: '#public-products .catalog-desc, #public-products [data-product-desc]',
-                productImageSelector: '#public-products img'
-            }, window.CEPAT_SEO_CONFIG || {});
-
-            window.waAdminGlobal = '';
-            window.CEPAT_SEO_CONFIG = SEO_CONFIG;
-
-            const seoState = {
-                settings: null,
-                products: [],
-                syncTimer: null,
-                observer: null,
-                imageValidationToken: 0,
-                lastMeta: null,
-                lastAudit: null
-            };
-
-            const setMeta = (attrName, attrValue, content) => {
-                if (!content) return;
-                let element = document.querySelector(`meta[${attrName}="${attrValue}"]`);
-                if (!element) {
-                    element = document.createElement('meta');
-                    element.setAttribute(attrName, attrValue);
-                    document.head.appendChild(element);
-                }
-                element.setAttribute('content', content);
-            };
-
-            const setLink = (rel, href) => {
-                if (!href) return;
-                let element = document.querySelector(`link[rel="${rel}"]`);
-                if (!element) {
-                    element = document.createElement('link');
-                    element.setAttribute('rel', rel);
-                    document.head.appendChild(element);
-                }
-                element.setAttribute('href', href);
-            };
-
-            const normalizeWhitespace = (value) => String(value || '').replace(/\s+/g, ' ').trim();
-            const htmlDecoder = document.createElement('textarea');
-
-            const cleanText = (value) => {
-                const normalized = normalizeWhitespace(value);
-                if (!normalized) return '';
-                const withoutTags = normalized.replace(/<[^>]+>/g, ' ');
-                htmlDecoder.innerHTML = withoutTags;
-                return normalizeWhitespace(htmlDecoder.value);
-            };
-
-            const shortenText = (value, maxLength) => {
-                const text = cleanText(value);
-                if (!text) return '';
-                if (text.length <= maxLength) return text;
-                let truncated = text.slice(0, Math.max(0, maxLength - 3));
-                const lastSpace = truncated.lastIndexOf(' ');
-                if (lastSpace > Math.floor(maxLength * 0.6)) {
-                    truncated = truncated.slice(0, lastSpace);
-                }
-                truncated = truncated.replace(/[.,;:!?-]+$/g, '').trim();
-                return (truncated || text.slice(0, Math.max(0, maxLength - 3))).trim() + '...';
-            };
-
-            const uniqueParts = (items) => {
-                const seen = {};
-                return items.filter((item) => {
-                    const value = cleanText(item);
-                    if (!value) return false;
-                    const key = value.toLowerCase();
-                    if (seen[key]) return false;
-                    seen[key] = true;
-                    return true;
-                }).map((item) => cleanText(item));
-            };
-
-            const toAbsoluteUrl = (value) => {
-                const normalized = normalizeWhitespace(value);
-                if (!normalized) return '';
-                try {
-                    return new URL(normalized, window.location.href).href;
-                } catch (error) {
-                    return normalized;
-                }
-            };
-
-            const getCanonicalUrl = () => {
-                try {
-                    const url = new URL(window.location.href);
-                    url.hash = '';
-                    url.search = '';
-                    return url.href;
-                } catch (error) {
-                    return window.location.href.split('#')[0].split('?')[0];
-                }
-            };
-
-            const getTextFromSelectors = (selectors, limit) => {
-                const results = [];
-                const max = Number(limit || 1);
-                selectors.forEach((selector) => {
-                    try {
-                        const nodes = document.querySelectorAll(selector);
-                        for (let index = 0; index < nodes.length; index += 1) {
-                            const text = cleanText(nodes[index].textContent || nodes[index].innerText || '');
-                            if (!text) continue;
-                            results.push(text);
-                            if (results.length >= max) return;
-                        }
-                    } catch (error) {}
-                });
-                return results;
-            };
-
-            const buildTitle = (siteName) => {
-                const heroTitle = cleanText((getTextFromSelectors(SEO_CONFIG.titleSelectors, 1)[0]) || '');
-                if (heroTitle && siteName && heroTitle.toLowerCase() !== siteName.toLowerCase()) {
-                    return shortenText(`${heroTitle}${SEO_CONFIG.titleSeparator}${siteName}`, 70);
-                }
-                return shortenText(heroTitle || siteName || SEO_CONFIG.defaultSiteName, 70);
-            };
-
-            const collectProductSignals = () => {
-                const titles = [];
-                const descriptions = [];
-                const images = [];
-
-                if (Array.isArray(seoState.products) && seoState.products.length) {
-                    seoState.products.forEach((product) => {
-                        if (!product) return;
-                        if (product.title) titles.push(product.title);
-                        if (product.desc) descriptions.push(product.desc);
-                        if (product.image_url || product.image || product.thumbnail) {
-                            images.push(product.image_url || product.image || product.thumbnail);
-                        }
-                    });
-                }
-
-                if (!titles.length) {
-                    getTextFromSelectors([SEO_CONFIG.productTitleSelector], 5).forEach((title) => titles.push(title));
-                }
-                if (!descriptions.length) {
-                    getTextFromSelectors([SEO_CONFIG.productDescriptionSelector], 5).forEach((description) => descriptions.push(description));
-                }
-                if (!images.length) {
-                    try {
-                        const nodes = document.querySelectorAll(SEO_CONFIG.productImageSelector);
-                        for (let index = 0; index < nodes.length; index += 1) {
-                            const src = normalizeWhitespace(nodes[index].getAttribute('src') || '');
-                            if (src) images.push(src);
-                            if (images.length >= 5) break;
-                        }
-                    } catch (error) {}
-                }
-
-                return {
-                    titles: uniqueParts(titles).slice(0, 5),
-                    descriptions: uniqueParts(descriptions).slice(0, 5),
-                    images: uniqueParts(images).slice(0, 5)
-                };
-            };
-
-            const buildProductSummary = (signals) => {
-                if (!signals || !signals.titles || !signals.titles.length) return '';
-                const featured = signals.titles.slice(0, 3);
-                if (featured.length === 1) {
-                    return `Temukan ${featured[0]} dan produk digital siap pakai lainnya.`;
-                }
-                const tail = featured.slice(0, featured.length - 1).join(', ');
-                const last = featured[featured.length - 1];
-                return `Temukan ${tail}, dan ${last} untuk membantu proses jualan digital lebih cepat.`;
-            };
-
-            const composeDescription = (settings, siteName, productSignals) => {
-                const heroDescription = cleanText((getTextFromSelectors(['[data-seo-description]'], 1)[0]) || '');
-                const secondaryDescription = cleanText((getTextFromSelectors(['#katalog p', 'section p'], 2)[1]) || '');
-                const tagline = cleanText(settings && settings.site_tagline);
-                const productSummary = buildProductSummary(productSignals);
-                const candidates = uniqueParts([
-                    heroDescription,
-                    tagline,
-                    secondaryDescription,
-                    productSummary
-                ]);
-
-                let description = '';
-                candidates.forEach((part) => {
-                    const next = description ? `${description} ${part}` : part;
-                    if (next.length <= SEO_CONFIG.maxDescriptionLength) {
-                        description = next;
-                    }
-                });
-
-                if (!description && candidates.length) {
-                    description = candidates[0];
-                }
-
-                if (!description) {
-                    description = tagline || SEO_CONFIG.defaultDescription;
-                }
-
-                if (description.toLowerCase() === String(siteName || '').toLowerCase()) {
-                    description = SEO_CONFIG.defaultDescription;
-                }
-
-                return shortenText(description, SEO_CONFIG.maxDescriptionLength);
-            };
-
-            const buildImageCandidates = (settings, productSignals, title) => {
-                const candidates = [];
-                const pushCandidate = (url, source, defaults) => {
-                    const absoluteUrl = toAbsoluteUrl(url);
-                    if (!absoluteUrl) return;
-                    if (candidates.some((candidate) => candidate.url === absoluteUrl)) return;
-                    candidates.push(Object.assign({
-                        url: absoluteUrl,
-                        source: source,
-                        alt: title
-                    }, defaults || {}));
-                };
-
-                productSignals.images.slice(0, 3).forEach((url) => pushCandidate(url, 'product'));
-                pushCandidate(settings && settings.site_logo, 'brand-logo');
-                pushCandidate(SEO_CONFIG.defaultOgImagePath, 'fallback', {
-                    type: SEO_CONFIG.defaultOgImageType,
-                    width: SEO_CONFIG.defaultOgImageWidth,
-                    height: SEO_CONFIG.defaultOgImageHeight,
-                    bytes: SEO_CONFIG.defaultOgImageBytes,
-                    recommended: true
-                });
-
-                return candidates;
-            };
-
-            const isRecommendedOgImage = (width, height) => {
-                if (!width || !height) return false;
-                const ratio = Number(width) / Number(height);
-                return Number(width) >= 1200 && Number(height) >= 630 && ratio >= 1.8 && ratio <= 2.0;
-            };
-
-            const inspectImageCandidate = async (candidate) => {
-                if (!candidate || !candidate.url) return null;
-                const result = {
-                    url: candidate.url,
-                    source: candidate.source,
-                    type: candidate.type || '',
-                    width: Number(candidate.width || 0),
-                    height: Number(candidate.height || 0),
-                    bytes: Number(candidate.bytes || 0),
-                    alt: candidate.alt || ''
-                };
-
-                if (!result.width || !result.height) {
-                    try {
-                        await new Promise((resolve, reject) => {
-                            const probe = new Image();
-                            probe.onload = () => {
-                                result.width = Number(probe.naturalWidth || result.width || 0);
-                                result.height = Number(probe.naturalHeight || result.height || 0);
-                                resolve();
-                            };
-                            probe.onerror = reject;
-                            probe.src = candidate.url;
-                        });
-                    } catch (error) {
-                        return Object.assign(result, { valid: false, recommended: false });
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            900: '#000018',
+                            800: '#0a0a24',
+                            700: '#111827',
+                        },
+                        primary: '#B6FF00',
+                        secondary: '#017A6B',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
                     }
                 }
-
-                if (!result.type) {
-                    if (/\.png(\?|#|$)/i.test(candidate.url)) result.type = 'image/png';
-                    if (/\.jpe?g(\?|#|$)/i.test(candidate.url)) result.type = 'image/jpeg';
-                    if (/\.webp(\?|#|$)/i.test(candidate.url)) result.type = 'image/webp';
-                }
-
-                try {
-                    const parsedUrl = new URL(candidate.url, window.location.href);
-                    if (!result.bytes && parsedUrl.origin === window.location.origin) {
-                        const headResponse = await fetch(parsedUrl.href, { method: 'HEAD' });
-                        if (headResponse.ok) {
-                            const length = Number(headResponse.headers.get('content-length') || 0);
-                            if (length > 0) result.bytes = length;
-                            if (!result.type) result.type = headResponse.headers.get('content-type') || result.type;
-                        }
-                    }
-                } catch (error) {}
-
-                result.valid = !!(result.width && result.height);
-                result.recommended = isRecommendedOgImage(result.width, result.height);
-                return result;
-            };
-
-            const buildAudit = (payload) => {
-                const issues = [];
-                const warnings = [];
-                const image = payload.image || {};
-
-                if (!payload.title) issues.push('Meta title belum terisi.');
-                if (!payload.description) issues.push('Meta description belum terisi.');
-                if (payload.description && payload.description.length > SEO_CONFIG.maxDescriptionLength) {
-                    issues.push(`Meta description melebihi ${SEO_CONFIG.maxDescriptionLength} karakter.`);
-                }
-                if (!image.url) issues.push('Meta image belum terisi.');
-                if (!image.recommended) warnings.push('Meta image belum memenuhi rasio Open Graph 1200x630 dan memakai fallback jika diperlukan.');
-                if (image.bytes && image.bytes > 1048576) {
-                    issues.push('Ukuran file meta image melebihi 1MB.');
-                }
-                if (!image.bytes) warnings.push('Ukuran file meta image belum bisa dipastikan dari browser.');
-                if (image.source === 'fallback') warnings.push('Meta image masih memakai fallback bawaan.');
-                if (!payload.url) warnings.push('Canonical URL belum terbentuk dengan baik.');
-
-                return {
-                    timestamp: new Date().toISOString(),
-                    passed: issues.length === 0,
-                    issues: issues,
-                    warnings: warnings,
-                    payload: payload
-                };
-            };
-
-            const exposeSeoDebug = () => {
-                window.__SEO_DEBUG__ = {
-                    config: SEO_CONFIG,
-                    getMeta: () => seoState.lastMeta,
-                    getAudit: () => seoState.lastAudit,
-                    revalidate: () => window.CEPAT_SEO.sync({ reason: 'manual-revalidate' }),
-                    printReport: () => {
-                        const audit = seoState.lastAudit || { issues: [], warnings: [] };
-                        console.group('SEO Audit');
-                        console.log('Meta', seoState.lastMeta);
-                        console.log('Issues', audit.issues);
-                        console.log('Warnings', audit.warnings);
-                        console.groupEnd();
-                    }
-                };
-            };
-
-            const applySeoPayload = (payload) => {
-                if (!payload) return;
-                document.title = payload.title;
-                setMeta('name', 'title', payload.title);
-                setMeta('name', 'description', payload.description);
-                setMeta('name', 'robots', SEO_CONFIG.robots);
-                setMeta('name', 'image', payload.image.url);
-                setMeta('name', 'theme-color', '#4f46e5');
-                setMeta('property', 'og:locale', SEO_CONFIG.locale);
-                setMeta('property', 'og:type', SEO_CONFIG.pageType);
-                setMeta('property', 'og:site_name', payload.siteName);
-                setMeta('property', 'og:title', payload.title);
-                setMeta('property', 'og:description', payload.description);
-                setMeta('property', 'og:url', payload.url);
-                setMeta('property', 'og:image', payload.image.url);
-                setMeta('property', 'og:image:type', payload.image.type || SEO_CONFIG.defaultOgImageType);
-                setMeta('property', 'og:image:width', String(payload.image.width || SEO_CONFIG.defaultOgImageWidth));
-                setMeta('property', 'og:image:height', String(payload.image.height || SEO_CONFIG.defaultOgImageHeight));
-                setMeta('property', 'og:image:alt', payload.image.alt || payload.title);
-                setMeta('name', 'twitter:card', 'summary_large_image');
-                setMeta('name', 'twitter:title', payload.title);
-                setMeta('name', 'twitter:description', payload.description);
-                setMeta('name', 'twitter:image', payload.image.url);
-                setMeta('name', 'twitter:image:alt', payload.image.alt || payload.title);
-                setLink('canonical', payload.url);
-                seoState.lastMeta = payload;
-                seoState.lastAudit = buildAudit(payload);
-                exposeSeoDebug();
-            };
-
-            const buildSeoPayload = () => {
-                const settings = seoState.settings || {};
-                const siteName = cleanText(settings.site_name) || cleanText((getTextFromSelectors(['.dyn-site-name'], 1)[0]) || '') || SEO_CONFIG.defaultSiteName;
-                const productSignals = collectProductSignals();
-                const title = buildTitle(siteName);
-                const defaultImage = {
-                    url: toAbsoluteUrl(SEO_CONFIG.defaultOgImagePath),
-                    source: 'fallback',
-                    type: SEO_CONFIG.defaultOgImageType,
-                    width: SEO_CONFIG.defaultOgImageWidth,
-                    height: SEO_CONFIG.defaultOgImageHeight,
-                    bytes: SEO_CONFIG.defaultOgImageBytes,
-                    recommended: true,
-                    alt: title
-                };
-
-                return {
-                    siteName: siteName,
-                    title: title,
-                    description: composeDescription(settings, siteName, productSignals),
-                    url: getCanonicalUrl(),
-                    image: defaultImage,
-                    imageCandidates: buildImageCandidates(settings, productSignals, title)
-                };
-            };
-
-            const validateDynamicImage = async (payload) => {
-                const token = ++seoState.imageValidationToken;
-                const candidates = Array.isArray(payload.imageCandidates) ? payload.imageCandidates : [];
-                for (let index = 0; index < candidates.length; index += 1) {
-                    const candidate = candidates[index];
-                    const inspected = await inspectImageCandidate(candidate);
-                    if (token !== seoState.imageValidationToken) return;
-                    if (!inspected || !inspected.valid) continue;
-                    if (inspected.recommended && (!inspected.bytes || inspected.bytes <= 1048576)) {
-                        payload.image = Object.assign({}, inspected, { alt: payload.title });
-                        applySeoPayload(payload);
-                        return;
-                    }
-                }
-                applySeoPayload(payload);
-            };
-
-            const syncSeo = (overrides) => {
-                const nextState = overrides || {};
-                if (nextState.settings && typeof nextState.settings === 'object') {
-                    seoState.settings = Object.assign({}, seoState.settings || {}, nextState.settings);
-                }
-                if (Array.isArray(nextState.products)) {
-                    seoState.products = nextState.products.slice();
-                }
-
-                const payload = buildSeoPayload();
-                applySeoPayload(payload);
-                validateDynamicImage(payload);
-            };
-
-            const scheduleSeoSync = (reason) => {
-                clearTimeout(seoState.syncTimer);
-                seoState.syncTimer = window.setTimeout(() => {
-                    syncSeo({ reason: reason || 'scheduled-sync' });
-                }, 90);
-            };
-
-            const setupSeoObserver = () => {
-                if (seoState.observer || !window.MutationObserver || !document.body) return;
-                seoState.observer = new MutationObserver(() => scheduleSeoSync('mutation'));
-                seoState.observer.observe(document.body, {
-                    childList: true,
-                    subtree: true,
-                    characterData: true,
-                    attributes: true,
-                    attributeFilter: ['src', 'content']
-                });
-            };
-
-            window.setMeta = setMeta;
-            window.CEPAT_SEO = {
-                sync: syncSeo,
-                scheduleSync: scheduleSeoSync,
-                getMeta: () => seoState.lastMeta,
-                getAudit: () => seoState.lastAudit,
-                config: SEO_CONFIG
-            };
-
-            function syncGlobalSettingsCache(data, timestamp, version) {
-                if (!data) return;
-                const payload = { data: data, time: Number(timestamp || Date.now()), version: String(version || '') };
-                try { localStorage.setItem(CACHE_KEY, JSON.stringify(payload)); } catch (e) {}
-                if (window.__CEPAT_GLOBAL_SETTINGS__) {
-                    window.__CEPAT_GLOBAL_SETTINGS__.cached = payload;
-                    window.__CEPAT_GLOBAL_SETTINGS__.isFresh = true;
-                    window.__CEPAT_GLOBAL_SETTINGS__.version = payload.version;
-                }
-                applyGlobalSettings(data);
             }
-
-            function applyGlobalSettings(data) {
-                // Eksekusi Cepat (Favicon & Title Browser)
-                if(data.site_favicon) {
-                    let link = document.querySelector("link[rel~='icon']");
-                    if (!link) { link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link); }
-                    link.href = data.site_favicon;
-                }
-                if(data.wa_admin) window.waAdminGlobal = data.wa_admin;
-
-                // Auto Replace Text di Title Browser & Meta Title
-                if(data.site_name) {
-                    document.querySelectorAll('.dyn-site-name').forEach(el => { el.innerText = data.site_name; });
-                }
-
-                // Tagline -> Meta Description
-                if(data.site_tagline) {
-                    document.querySelectorAll('.dyn-site-tagline').forEach(el => {
-                        el.innerText = data.site_tagline;
-                    });
-                }
-
-                // Logo URL -> Header Branding
-                if(data.site_logo) {
-                    const img = document.getElementById('dyn-site-logo');
-                    if (img) {
-                        img.src = data.site_logo;
-                        img.classList.remove('hidden');
-                        img.classList.add('block');
-                    }
-                    const fb = document.getElementById('logo-fallback');
-                    if (fb) fb.classList.add('hidden');
-                }
-
-                // Eksekusi DOM HTML (Menyuntikkan Teks ke Halaman)
-                const updateDomElements = () => {
-                    if(data.site_name) {
-                        const logoImg = document.getElementById('dyn-site-logo');
-                        if(logoImg && logoImg.alt === '') logoImg.alt = data.site_name;
-                    }
-
-                    // INJEKSI KONTAK
-                    if(data.contact_email) {
-                        const a = document.getElementById('dyn-email-link');
-                        if(a) { a.href = 'mailto:' + data.contact_email; a.innerText = data.contact_email; }
-                    }
-                    if(data.wa_admin) {
-                        const wa = String(data.wa_admin).replace(/[^0-9]/g,'');
-                        const a = document.getElementById('dyn-wa-link');
-                        if(a) { a.href = 'https://wa.me/' + wa; a.innerText = (wa.startsWith('62')?'+':'') + wa; }
-                    }
-                };
-
-                if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', () => {
-                        updateDomElements();
-                        scheduleSeoSync('global-settings-dom');
-                    });
-                } else {
-                    updateDomElements();
-                    scheduleSeoSync('global-settings-ready');
-                }
-
-                syncSeo({ settings: data, reason: 'global-settings' });
-            }
-
-            const cachedStr = localStorage.getItem(CACHE_KEY);
-            let cached = null;
-            try { cached = JSON.parse(cachedStr); } catch(e){}
-            const now = Date.now();
-
-            if (cached && cached.data) { applyGlobalSettings(cached.data); }
-            window.__CEPAT_GLOBAL_SETTINGS__ = {
-                key: CACHE_KEY,
-                maxAge: CACHE_AGE,
-                cached: cached,
-                isFresh: !!(cached && cached.time && (now - cached.time <= CACHE_AGE)),
-                version: String((cached && cached.version) || ''),
-                apply: applyGlobalSettings,
-                sync: syncGlobalSettingsCache
-            };
-
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', () => {
-                    setupSeoObserver();
-                    scheduleSeoSync('dom-ready');
-                });
-            } else {
-                setupSeoObserver();
-                scheduleSeoSync('script-ready');
-            }
-        })();
+        }
     </script>
-    <link rel="preload" as="style" href="tailwind.css?v=2026_1">
-    <link rel="stylesheet" href="tailwind.css?v=2026_1">
-    <link rel="stylesheet" href="assets/theme.css?v=2026_1">
-    <script defer src="assets/vendor/lucide.min.js?v=0.577.0"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; scroll-behavior: smooth; }
-        .fade-in { animation: fadeIn 0.4s ease-out forwards; opacity: 0; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        .delay-1 { animation-delay: 0.1s; }
-        .delay-2 { animation-delay: 0.2s; }
-        .delay-3 { animation-delay: 0.3s; }
-        .gradient-glow { background: radial-gradient(ellipse at center, var(--color-primary-glow) 0%, transparent 70%); }
-        .floating-animation { animation: float 6s ease-in-out infinite; }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        .pulse-glow { animation: pulseGlow 2s ease-in-out infinite; }
-        @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 20px var(--color-primary-glow); } 50% { box-shadow: 0 0 40px var(--color-primary-glow); } }
-        .neon-border { position: relative; }
+        :root {
+            --color-bg: #000018;
+            --color-surface: rgba(255, 255, 255, 0.03);
+            --color-primary: #B6FF00;
+            --color-secondary: #017A6B;
+            --color-text: #f5f5f7;
+            --color-text-muted: #9ca3af;
+            --color-border: rgba(182, 255, 0, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            overflow-x: hidden;
+        }
+
+        .gradient-glow {
+            background: radial-gradient(ellipse at center, rgba(182, 255, 0, 0.12) 0%, transparent 70%);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #B6FF00 0%, #9ae600 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, #B6FF00 0%, #9ae600 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .glass-card {
+            background: var(--color-surface);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--color-border);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(182, 255, 0, 0.3);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(182, 255, 0, 0.1);
+        }
+
+        .glass-badge {
+            background: rgba(182, 255, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--color-border);
+        }
+
+        .neon-border {
+            position: relative;
+        }
+
         .neon-border::before {
-            content: ''; position: absolute; inset: -1px; border-radius: inherit; padding: 1px;
-            background: linear-gradient(135deg, var(--color-primary-glow), transparent);
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(182, 255, 0, 0.3), transparent);
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
             mask-composite: exclude;
         }
-        .catalog-grid { display: grid; grid-template-columns: repeat(1, minmax(0, 1fr)); gap: 1.5rem; align-items: stretch; }
-        @media (min-width: 640px) { .catalog-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-        @media (min-width: 1024px) { .catalog-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-        @media (min-width: 1280px) { .catalog-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-        .catalog-media { aspect-ratio: 1 / 1 !important; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #B6FF00 0%, #9ae600 100%);
+            color: #000018;
+            font-weight: 600;
+            text-decoration: none !important;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(182, 255, 0, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(182, 255, 0, 0.5);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--color-text);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-decoration: none !important;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .floating-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .pulse-glow {
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(182, 255, 0, 0.2);
+            }
+
+            50% {
+                box-shadow: 0 0 40px rgba(182, 255, 0, 0.4);
+            }
+        }
+
+        .glow-primary {
+            box-shadow: 0 0 20px rgba(182, 255, 0, 0.3);
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #000018;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #B6FF00;
+            border-radius: 4px;
+        }
+
+        .dashboard-preview {
+            background: linear-gradient(180deg, rgba(10, 10, 36, 0.95) 0%, rgba(0, 0, 24, 0.98) 100%);
+            border: 1px solid var(--color-border);
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(182, 255, 0, 0.05) 0%, rgba(154, 230, 0, 0.02) 100%);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .catalog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 640px) {
+            .catalog-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
-<body class="antialiased">
 
-    <!-- Dark Mode Init Script -->
-    <script>
-        function initTheme() {
-            const savedTheme = localStorage.getItem('theme');
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            if (savedTheme === 'light' || (!savedTheme && !prefersDark)) {
-                document.documentElement.setAttribute('data-theme', 'light');
-            } else {
-                document.documentElement.removeAttribute('data-theme');
-            }
-        }
-        initTheme();
-        function toggleTheme() {
-            const isLight = document.documentElement.getAttribute('data-theme') === 'light';
-            if (isLight) {
-                document.documentElement.removeAttribute('data-theme');
-                localStorage.setItem('theme', 'dark');
-            } else {
-                document.documentElement.setAttribute('data-theme', 'light');
-                localStorage.setItem('theme', 'light');
-            }
-        }
-    </script>
+<body>
 
     <!-- Navigation -->
-    <nav class="fixed top-0 left-0 right-0 z-50 glass-navbar">
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-card border-b" style="border-color: rgba(182, 255, 0, 0.08);">
         <div class="max-w-7xl mx-auto px-6 py-4">
             <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3 min-w-0">
-                    <img id="dyn-site-logo" src="" alt="" class="h-8 md:h-10 w-auto hidden select-none object-contain flex-shrink-0 transition-transform hover:scale-105" loading="lazy">
-                    <div id="logo-fallback" class="w-10 h-10 rounded-lg flex items-center justify-center glow-primary" style="background: var(--color-primary);">
-                        <i data-lucide="zap" class="w-6 h-6 text-black" style="color: #000 !important;"></i>
-                    </div>
-                    <strong class="dyn-site-name text-lg md:text-2xl font-black tracking-tighter uppercase truncate block" style="text-shadow: 0 0 10px rgba(255,255,255,0.3);">Next Cuan</strong>
-                </div>
-                
+                <!-- Logo dengan gambar -->
+                <a href="https://akses.nextcuan.my.id" target="_blank"
+                    class="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+                    <img src="https://ik.imagekit.io/iramdani/NextCuan_Logo_Transparent_Horizontal-3__1__n8uCKrYMC.png"
+                        alt="Next Cuan Logo" class="h-10 w-auto object-contain">
+                </a>
+
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="#katalog" class="hover:text-white transition font-medium text-sm" style="color: var(--color-text-muted);">Tools</a>
-                    <a href="#platform" class="hover:text-white transition font-medium text-sm" style="color: var(--color-text-muted);">Platform</a>
-                    <a href="#how-it-works" class="hover:text-white transition font-medium text-sm" style="color: var(--color-text-muted);">Cara Kerja</a>
-                    <a href="#faq" class="hover:text-white transition font-medium text-sm" style="color: var(--color-text-muted);">FAQ</a>
+                    <a href="#katalog" class="transition hover:text-[#B6FF00]"
+                        style="color: var(--color-text-muted);">Tools</a>
+                    <a href="#solution" class="transition hover:text-[#B6FF00]"
+                        style="color: var(--color-text-muted);">Platform</a>
+                    <a href="#how-it-works" class="transition hover:text-[#B6FF00]"
+                        style="color: var(--color-text-muted);">Cara Kerja</a>
+                    <a href="#faq" class="transition hover:text-[#B6FF00]"
+                        style="color: var(--color-text-muted);">FAQ</a>
                 </div>
 
-                <div class="flex items-center space-x-3 md:space-x-5">
-                    <button onclick="toggleTheme()" class="theme-toggle flex items-center justify-center w-10 h-10 rounded-full bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)] transition-colors" aria-label="Toggle Theme">
-                        <i data-lucide="sun-moon" class="w-5 h-5" style="color: var(--color-text-main);"></i>
-                    </button>
-                    <a href="login.html" class="hidden sm:inline-flex btn-ghost px-5 py-2.5 text-sm border border-white/10 hover:bg-white/5 rounded-xl">Masuk</a>
-                    <a href="#katalog" class="inline-flex btn-primary px-5 py-2.5 text-sm rounded-xl font-bold shadow-lg shadow-primary/20">Mulai Sekarang</a>
+                <div class="flex items-center space-x-4">
+                    <a href="#" class="hidden sm:block btn-secondary px-5 py-2.5 rounded-lg text-sm">Masuk</a>
+                    <a href="#cta" class="btn-primary px-5 py-2.5 rounded-lg text-sm">Mulai Sekarang</a>
                 </div>
             </div>
         </div>
     </nav>
 
     <!-- HERO SECTION -->
-    <section class="relative min-h-screen flex items-center pt-24 pb-12 overflow-hidden">
-        <div class="absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full blur-[150px] opacity-20 pointer-events-none" style="background: var(--color-primary);"></div>
-        
-        <div class="max-w-7xl mx-auto px-6 relative z-10 w-full mt-10 md:mt-0">
+    <section class="relative min-h-screen flex items-center pt-20 overflow-hidden">
+        <!-- Background Glow Effects -->
+        <div class="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-[#B6FF00]/10 rounded-full blur-[150px]"></div>
+        <div class="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-[#B6FF00]/5 rounded-full blur-[120px]"></div>
+
+        <div class="max-w-7xl mx-auto px-6 py-20 relative z-10">
             <div class="grid lg:grid-cols-2 gap-12 items-center">
                 <!-- Left Content -->
-                <div class="space-y-8 fade-in delay-1">
-                    <div class="inline-flex items-center space-x-2 glass-badge px-4 py-2">
-                        <span class="w-2 h-2 rounded-full animate-pulse" style="background: var(--color-primary);"></span>
-                        <span class="text-sm border-none tracking-normal normal-case">Powered by AI Technology</span>
+                <div class="space-y-8">
+                    <div class="inline-flex items-center space-x-2 glass-badge px-4 py-2 rounded-full">
+                        <span class="w-2 h-2 bg-[#B6FF00] rounded-full animate-pulse"></span>
+                        <span class="text-sm" style="color: var(--color-text-muted);">Powered by AI Technology</span>
                     </div>
 
-                    <h1 data-seo-title class="text-4xl md:text-5xl lg:text-7xl font-black leading-tight tracking-tight">
-                        Peluang Income di Era 
-                        <span class="text-gradient">AI & Digital</span> 
-                        Dimulai Sini
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+                        Peluang Income di Era
+                        <span class="gradient-text">AI & Digital</span>
+                        Dimulai dari Sini
                     </h1>
 
-                    <p data-seo-description class="dyn-site-tagline text-lg leading-relaxed max-w-xl" style="color: var(--color-text-muted);">
-                        Template, toolkit, dan sistem siap pakai untuk membantu proses jualan digital terasa lebih cepat dan tertata tanpa harus jadi expert.
+                    <p class="text-lg leading-relaxed max-w-xl" style="color: var(--color-text-muted);">
+                        Next Cuan adalah platform ekosistem digital yang menyediakan tools AI, template siap pakai, dan
+                        sistem otomatisasi untuk membangun income online tanpa harus jadi expert teknologi.
                     </p>
 
                     <div class="flex flex-col sm:flex-row gap-4">
-                        <a href="#katalog" class="btn-primary py-3.5 px-8 text-base shadow-lg shadow-primary/20 font-bold items-center justify-center flex">
-                            Mulai Sekarang
-                            <i data-lucide="arrow-right" class="w-5 h-5 ml-2"></i>
+                        <a href="#cta"
+                            class="btn-primary px-8 py-4 rounded-xl text-center text-lg inline-flex items-center justify-center space-x-2">
+                            <span>Mulai Sekarang</span>
+                            <i data-lucide="arrow-right" class="w-5 h-5"></i>
                         </a>
-                        <a href="#platform" class="btn-ghost py-3.5 px-8 text-base border border-white/10 flex items-center justify-center hover:bg-white/5">
-                            Lihat Tools
-                            <i data-lucide="layout-grid" class="w-5 h-5 ml-2 text-slate-400"></i>
+                        <a href="#katalog"
+                            class="btn-secondary px-8 py-4 rounded-xl text-center text-lg inline-flex items-center justify-center space-x-2">
+                            <span>Lihat Tools</span>
+                            <i data-lucide="grid-3x3" class="w-5 h-5"></i>
                         </a>
                     </div>
-                    
-                    <div class="flex items-center gap-8 pt-4 border-t mt-4" style="border-color: var(--glass-border);">
+
+                    <!-- Stats Mini -->
+                    <div class="flex items-center gap-8 pt-4">
                         <div>
-                            <div class="text-2xl font-bold" style="color: var(--color-primary);">10K+</div>
-                            <div class="text-xs" style="color: var(--color-text-muted);">Active Users</div>
+                            <div class="text-2xl font-bold text-[#B6FF00]">10K+</div>
+                            <div class="text-sm" style="color: var(--color-text-muted);">Active Users</div>
                         </div>
-                        <div class="w-px h-10" style="background: var(--glass-border);"></div>
+                        <div class="w-px h-12 bg-white/10"></div>
                         <div>
-                            <div class="text-2xl font-bold" style="color: var(--color-primary);">50+</div>
-                            <div class="text-xs" style="color: var(--color-text-muted);">Tools Digital</div>
+                            <div class="text-2xl font-bold text-[#B6FF00]">50+</div>
+                            <div class="text-sm" style="color: var(--color-text-muted);">Tools & Template</div>
                         </div>
-                        <div class="w-px h-10" style="background: var(--glass-border);"></div>
+                        <div class="w-px h-12 bg-white/10"></div>
                         <div>
-                            <div class="text-2xl font-bold" style="color: var(--color-primary);">24/7</div>
-                            <div class="text-xs" style="color: var(--color-text-muted);">AI Support</div>
+                            <div class="text-2xl font-bold text-[#B6FF00]">24/7</div>
+                            <div class="text-sm" style="color: var(--color-text-muted);">AI Support</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Right Content -->
-                <div class="relative floating-animation fade-in delay-2 mt-10 lg:mt-0">
-                    <img src="assets/robot.png" alt="NextCuan AI Robot Mascot" class="relative z-10 w-full max-w-[400px] lg:max-w-lg mx-auto drop-shadow-2xl">
-                    <div class="absolute top-10 -right-2 md:-right-4 glass-card rounded-2xl p-4 shadow-xl pulse-glow z-20">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-12 h-12 rounded-xl flex items-center justify-center glow-primary" style="background: rgba(182, 255, 0, 0.15);">
-                                <i data-lucide="check-circle" class="w-6 h-6" style="color: var(--color-primary);"></i>
+                <!-- Right Content - Dashboard Preview -->
+                <div class="relative floating-animation">
+                    <div class="dashboard-preview rounded-2xl p-6 shadow-2xl">
+                        <!-- Mock Dashboard Header -->
+                        <div class="flex items-center justify-between mb-6 pb-4 border-b"
+                            style="border-color: var(--color-border);">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-lg bg-[#B6FF00]/20 flex items-center justify-center">
+                                    <i data-lucide="layout-dashboard" class="w-4 h-4 text-[#B6FF00]"></i>
+                                </div>
+                                <span class="font-semibold">Dashboard Overview</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-3 h-3 rounded-full bg-red-500/60"></div>
+                                <div class="w-3 h-3 rounded-full bg-yellow-500/60"></div>
+                                <div class="w-3 h-3 rounded-full bg-green-500/60"></div>
+                            </div>
+                        </div>
+
+                        <!-- Stats Cards -->
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div class="stat-card rounded-xl p-4 border" style="border-color: var(--color-border);">
+                                <div class="flex items-center space-x-2 mb-2">
+                                    <i data-lucide="trending-up" class="w-4 h-4 text-[#B6FF00]"></i>
+                                    <span class="text-xs" style="color: var(--color-text-muted);">Total Income</span>
+                                </div>
+                                <div class="text-xl font-bold">Rp 12.5M</div>
+                                <div class="text-xs text-green-400 mt-1">+23% bulan ini</div>
+                            </div>
+                            <div class="stat-card rounded-xl p-4 border" style="border-color: var(--color-border);">
+                                <div class="flex items-center space-x-2 mb-2">
+                                    <i data-lucide="file-text" class="w-4 h-4 text-blue-400"></i>
+                                    <span class="text-xs" style="color: var(--color-text-muted);">Content
+                                        Generated</span>
+                                </div>
+                                <div class="text-xl font-bold">247</div>
+                                <div class="text-xs text-green-400 mt-1">+45 minggu ini</div>
+                            </div>
+                        </div>
+
+                        <!-- Chart Placeholder -->
+                        <div class="rounded-xl bg-black/30 p-4 border" style="border-color: var(--color-border);">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-sm" style="color: var(--color-text-muted);">Activity Graph</span>
+                                <select class="bg-transparent text-xs outline-none"
+                                    style="color: var(--color-text-muted);">
+                                    <option>Last 7 days</option>
+                                </select>
+                            </div>
+                            <div class="h-32 flex items-end justify-between gap-2">
+                                <div class="flex-1 bg-[#B6FF00]/30 rounded-t" style="height: 40%"></div>
+                                <div class="flex-1 bg-[#B6FF00]/40 rounded-t" style="height: 65%"></div>
+                                <div class="flex-1 bg-[#B6FF00]/50 rounded-t" style="height: 45%"></div>
+                                <div class="flex-1 bg-[#B6FF00]/60 rounded-t" style="height: 80%"></div>
+                                <div class="flex-1 bg-[#B6FF00]/70 rounded-t" style="height: 55%"></div>
+                                <div class="flex-1 bg-[#B6FF00]/80 rounded-t" style="height: 90%"></div>
+                                <div class="flex-1 bg-[#B6FF00] rounded-t" style="height: 70%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div class="mt-4 flex gap-2">
+                            <button
+                                class="flex-1 bg-[#B6FF00]/10 text-[#B6FF00] py-2 rounded-lg text-xs font-medium hover:bg-[#B6FF00]/20 transition">
+                                + New Project
+                            </button>
+                            <button
+                                class="flex-1 bg-white/5 py-2 rounded-lg text-xs font-medium hover:bg-white/10 transition"
+                                style="color: var(--color-text-muted);">
+                                View Reports
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Floating Elements -->
+                    <div class="absolute -top-4 -right-4 glass-card rounded-xl p-3 shadow-xl pulse-glow">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
+                                <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
                             </div>
                             <div>
-                                <div class="text-sm font-bold">Produk Siap Pakai</div>
-                                <div class="text-xs" style="color: var(--color-text-muted);">Tinggal Jualan</div>
+                                <div class="text-xs font-semibold">AI Task Done!</div>
+                                <div class="text-[10px]" style="color: var(--color-text-muted);">Content generated</div>
                             </div>
                         </div>
                     </div>
-                    <div class="absolute bottom-10 -left-2 md:-left-6 glass-card rounded-2xl p-4 shadow-xl z-20">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: rgba(1, 122, 107, 0.15);">
-                                <i data-lucide="sparkles" class="w-6 h-6" style="color: var(--color-secondary);"></i>
+
+                    <div class="absolute -bottom-4 -left-4 glass-card rounded-xl p-3 shadow-xl">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-8 h-8 rounded-full bg-[#B6FF00]/20 flex items-center justify-center">
+                                <i data-lucide="sparkles" class="w-4 h-4 text-[#B6FF00]"></i>
                             </div>
                             <div>
-                                <div class="text-sm font-bold">AI Automation</div>
-                                <div class="text-xs" style="color: var(--color-text-muted);">Hemat Waktu & Biaya</div>
+                                <div class="text-xs font-semibold">AI Ready</div>
+                                <div class="text-[10px]" style="color: var(--color-text-muted);">5 tools active</div>
                             </div>
                         </div>
                     </div>
@@ -785,175 +418,729 @@
         </div>
     </section>
 
-    <!-- TRUST STRIP -->
-    <section class="py-8 relative z-10 border-y mt-20" style="border-color: var(--glass-border); background: var(--glass-bg);">
-        <div class="max-w-7xl mx-auto px-6 text-center">
-            <p class="text-[10px] md:text-xs uppercase tracking-[0.2em] font-bold mb-6" style="color: var(--color-text-muted);">Dipercaya oleh komunitas digital & creator di seluruh Indonesia</p>
-            <div class="flex flex-wrap justify-center items-center gap-6 md:gap-12 opacity-70 grayscale hover:grayscale-0 transition-all duration-500">
-                <div class="flex items-center space-x-2"><i data-lucide="users" class="w-5 h-5"></i><span class="text-sm font-semibold">Komunitas Creator</span></div>
-                <div class="flex items-center space-x-2"><i data-lucide="trending-up" class="w-5 h-5"></i><span class="text-sm font-semibold">Digital Marketer</span></div>
-                <div class="flex items-center space-x-2"><i data-lucide="briefcase" class="w-5 h-5"></i><span class="text-sm font-semibold">Freelancer</span></div>
-                <div class="flex items-center space-x-2"><i data-lucide="store" class="w-5 h-5"></i><span class="text-sm font-semibold">Online Seller</span></div>
-                <div class="flex items-center space-x-2"><i data-lucide="rocket" class="w-5 h-5"></i><span class="text-sm font-semibold">Startup Founder</span></div>
-            </div>
-        </div>
-    </section>
+    <!-- TRUST LOGO / SOCIAL PROOF STRIP -->
+    <section class="py-16 border-y" style="border-color: var(--color-border);">
+        <div class="max-w-7xl mx-auto px-6">
+            <p class="text-center text-sm mb-8" style="color: var(--color-text-muted);">Dipercaya oleh komunitas digital
+                & creator di seluruh Indonesia</p>
 
-    <!-- MASALAH SECTION -->
-    <section class="py-24 relative overflow-hidden">
-        <div class="max-w-7xl mx-auto px-6 relative z-10">
-            <div class="text-center max-w-3xl mx-auto mb-16 fade-in">
-                <h2 class="text-3xl md:text-4xl font-bold mb-5">Masalah yang Sering Dihadapi</h2>
-                <p class="text-base md:text-lg" style="color: var(--color-text-muted);">Di era AI dan digital, banyak orang ingin memulai tapi terhalang oleh beberapa hal ini...</p>
-            </div>
-            <div class="grid md:grid-cols-3 gap-6 fade-in delay-1">
-                <div class="glass-card p-8 rounded-[1.5rem] text-center border-t transition-transform hover:-translate-y-2">
-                    <div class="w-14 h-14 mx-auto mb-6 rounded-2xl flex items-center justify-center glow-primary" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.15);">
-                        <i data-lucide="help-circle" class="w-6 h-6 text-red-500"></i>
-                    </div>
-                    <h3 class="text-lg font-bold mb-3">Bingung Mulai dari Mana</h3>
-                    <p class="text-sm leading-relaxed" style="color: var(--color-text-muted);">Banyak sekali informasi tentang AI dan income online, tapi tidak tahu langkah pertama yang tepat.</p>
+            <div class="flex flex-wrap items-center justify-center gap-12 opacity-60">
+                <div class="flex items-center space-x-2" style="color: var(--color-text-muted);">
+                    <i data-lucide="users" class="w-6 h-6"></i>
+                    <span class="font-semibold">Komunitas Creator</span>
                 </div>
-                <div class="glass-card p-8 rounded-[1.5rem] text-center border-t transition-transform hover:-translate-y-2">
-                    <div class="w-14 h-14 mx-auto mb-6 rounded-2xl flex items-center justify-center glow-primary" style="background: rgba(249, 115, 22, 0.1); border: 1px solid rgba(249, 115, 22, 0.15);">
-                        <i data-lucide="wrench" class="w-6 h-6 text-orange-500"></i>
-                    </div>
-                    <h3 class="text-lg font-bold mb-3">Tidak Tahu Tools yang Tepat</h3>
-                    <p class="text-sm leading-relaxed" style="color: var(--color-text-muted);">Tools AI ada banyak, tapi mana yang benar-benar efektif dan cocok untuk kebutuhan kita?</p>
+                <div class="flex items-center space-x-2" style="color: var(--color-text-muted);">
+                    <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+                    <span class="font-semibold">Digital Marketer</span>
                 </div>
-                <div class="glass-card p-8 rounded-[1.5rem] text-center border-t transition-transform hover:-translate-y-2">
-                    <div class="w-14 h-14 mx-auto mb-6 rounded-2xl flex items-center justify-center glow-primary" style="background: rgba(234, 179, 8, 0.1); border: 1px solid rgba(234, 179, 8, 0.15);">
-                        <i data-lucide="shield-alert" class="w-6 h-6 text-yellow-500"></i>
-                    </div>
-                    <h3 class="text-lg font-bold mb-3">Takut Tidak Punya Skill</h3>
-                    <p class="text-sm leading-relaxed" style="color: var(--color-text-muted);">Merasa tidak punya kemampuan teknis atau kreatif untuk memanfaatkan peluang digital.</p>
+                <div class="flex items-center space-x-2" style="color: var(--color-text-muted);">
+                    <i data-lucide="briefcase" class="w-6 h-6"></i>
+                    <span class="font-semibold">Freelancer</span>
+                </div>
+                <div class="flex items-center space-x-2" style="color: var(--color-text-muted);">
+                    <i data-lucide="store" class="w-6 h-6"></i>
+                    <span class="font-semibold">Online Seller</span>
+                </div>
+                <div class="flex items-center space-x-2" style="color: var(--color-text-muted);">
+                    <i data-lucide="rocket" class="w-6 h-6"></i>
+                    <span class="font-semibold">Startup Founder</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- PLATFORM SECTION -->
-    <section id="platform" class="py-24 relative overflow-hidden scroll-mt-24">
+    <!-- PROBLEM SECTION -->
+    <section class="py-24 relative">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-6">
+                    Masalah yang Sering Dihadapi
+                </h2>
+                <p class="text-lg" style="color: var(--color-text-muted);">
+                    Di era AI dan digital, banyak orang ingin memulai tapi terhalang oleh beberapa hal ini...
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Problem Card 1 -->
+                <div class="glass-card rounded-2xl p-8 text-center">
+                    <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-red-500/10 flex items-center justify-center">
+                        <i data-lucide="help-circle" class="w-8 h-8 text-red-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Bingung Mulai dari Mana</h3>
+                    <p style="color: var(--color-text-muted);">
+                        Banyak sekali informasi tentang AI dan income online, tapi tidak tahu langkah pertama yang
+                        tepat.
+                    </p>
+                </div>
+
+                <!-- Problem Card 2 -->
+                <div class="glass-card rounded-2xl p-8 text-center">
+                    <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-orange-500/10 flex items-center justify-center">
+                        <i data-lucide="wrench" class="w-8 h-8 text-orange-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Tidak Tahu Tools yang Tepat</h3>
+                    <p style="color: var(--color-text-muted);">
+                        Tools AI ada banyak, tapi mana yang benar-benar efektif dan cocok untuk kebutuhan kita?
+                    </p>
+                </div>
+
+                <!-- Problem Card 3 -->
+                <div class="glass-card rounded-2xl p-8 text-center">
+                    <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-yellow-500/10 flex items-center justify-center">
+                        <i data-lucide="shield-alert" class="w-8 h-8 text-yellow-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Takut Tidak Punya Skill</h3>
+                    <p style="color: var(--color-text-muted);">
+                        Merasa tidak punya kemampuan teknis atau kreatif untuk memanfaatkan peluang digital.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SOLUTION SECTION -->
+    <section id="solution" class="py-24 relative overflow-hidden">
+        <div class="absolute inset-0 gradient-glow opacity-50"></div>
+
         <div class="max-w-7xl mx-auto px-6 relative z-10">
-            <div class="glass-card rounded-[2rem] p-8 md:p-14 fade-in" style="border: 1px solid var(--color-primary-glow);">
-                <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            <div class="glass-card rounded-3xl p-12 md:p-16 neon-border">
+                <div class="grid lg:grid-cols-2 gap-12 items-center">
                     <div class="space-y-6">
-                        <div class="inline-flex items-center space-x-2 glass-badge px-4 py-2" style="background: rgba(182, 255, 0, 0.1);">
-                            <i data-lucide="sparkles" class="w-4 h-4" style="color: var(--color-primary);"></i>
-                            <span class="border-none normal-case tracking-normal text-xs font-bold" style="color: var(--color-primary);">Solusi Lengkap</span>
+                        <div class="inline-flex items-center space-x-2 glass-badge px-4 py-2 rounded-full">
+                            <i data-lucide="sparkles" class="w-4 h-4 text-[#B6FF00]"></i>
+                            <span class="text-sm text-[#B6FF00] font-medium">Solusi Lengkap</span>
                         </div>
-                        <h2 class="text-3xl md:text-4xl font-bold leading-tight">
-                            Kenalkan, <span class="dyn-site-name text-gradient">Next Cuan Platform</span>
+
+                        <h2 class="text-3xl md:text-4xl font-bold">
+                            Kenalkan, <span class="gradient-text">Next Cuan Platform</span>
                         </h2>
-                        <p class="text-sm md:text-base leading-relaxed" style="color: var(--color-text-muted);">
-                            Bukan hanya satu produk atau tool. Next Cuan adalah <strong>ekosistem lengkap</strong> yang menggabungkan AI technology, template siap pakai, dan sistem otomatisasi dalam satu platform.
+
+                        <p class="text-lg leading-relaxed" style="color: var(--color-text-muted);">
+                            Bukan hanya satu produk atau tool. Next Cuan adalah <strong>ekosistem lengkap</strong> yang
+                            menggabungkan AI technology, template siap pakai, dan sistem otomatisasi dalam satu
+                            platform.
                         </p>
-                        <ul class="space-y-4 pt-2">
+
+                        <ul class="space-y-4">
                             <li class="flex items-start space-x-3">
-                                <div class="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5" style="background: rgba(182, 255, 0, 0.2);">
-                                    <i data-lucide="check" class="w-3 h-3" style="color: var(--color-primary);"></i>
+                                <div
+                                    class="w-6 h-6 rounded-full bg-[#B6FF00]/20 flex items-center justify-center mt-0.5 shrink-0">
+                                    <i data-lucide="check" class="w-4 h-4 text-[#B6FF00]"></i>
                                 </div>
-                                <span class="text-sm font-medium" style="color: var(--color-text-main);">Ekosistem terintegrasi untuk berbagai kebutuhan digital</span>
+                                <span style="color: var(--color-text);">Ekosistem terintegrasi untuk berbagai kebutuhan
+                                    digital</span>
                             </li>
                             <li class="flex items-start space-x-3">
-                                <div class="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5" style="background: rgba(182, 255, 0, 0.2);">
-                                    <i data-lucide="check" class="w-3 h-3" style="color: var(--color-primary);"></i>
+                                <div
+                                    class="w-6 h-6 rounded-full bg-[#B6FF00]/20 flex items-center justify-center mt-0.5 shrink-0">
+                                    <i data-lucide="check" class="w-4 h-4 text-[#B6FF00]"></i>
                                 </div>
-                                <span class="text-sm font-medium" style="color: var(--color-text-main);">Tools AI powered yang mudah digunakan siapa saja</span>
+                                <span style="color: var(--color-text);">Tools AI powered yang mudah digunakan siapa
+                                    saja</span>
                             </li>
                             <li class="flex items-start space-x-3">
-                                <div class="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5" style="background: rgba(182, 255, 0, 0.2);">
-                                    <i data-lucide="check" class="w-3 h-3" style="color: var(--color-primary);"></i>
+                                <div
+                                    class="w-6 h-6 rounded-full bg-[#B6FF00]/20 flex items-center justify-center mt-0.5 shrink-0">
+                                    <i data-lucide="check" class="w-4 h-4 text-[#B6FF00]"></i>
                                 </div>
-                                <span class="text-sm font-medium" style="color: var(--color-text-main);">Template & produk digital siap pakai tanpa bikin dari nol</span>
+                                <span style="color: var(--color-text);">Template & produk digital siap pakai tanpa bikin
+                                    dari nol</span>
                             </li>
                             <li class="flex items-start space-x-3">
-                                <div class="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5" style="background: rgba(182, 255, 0, 0.2);">
-                                    <i data-lucide="check" class="w-3 h-3" style="color: var(--color-primary);"></i>
+                                <div
+                                    class="w-6 h-6 rounded-full bg-[#B6FF00]/20 flex items-center justify-center mt-0.5 shrink-0">
+                                    <i data-lucide="check" class="w-4 h-4 text-[#B6FF00]"></i>
                                 </div>
-                                <span class="text-sm font-medium" style="color: var(--color-text-main);">Komunitas support dan panduan step-by-step</span>
+                                <span style="color: var(--color-text);">Komunitas support dan panduan
+                                    step-by-step</span>
                             </li>
                         </ul>
-                        <div class="pt-4">
-                            <a href="#katalog" class="btn-primary inline-flex items-center px-6 py-3 rounded-xl text-sm font-bold shadow-lg shadow-primary/20">
-                                Jelajahi Semua Tools
-                                <i data-lucide="arrow-down" class="w-4 h-4 ml-2"></i>
-                            </a>
-                        </div>
+
+                        <a href="#katalog"
+                            class="btn-primary inline-flex items-center space-x-2 px-6 py-3 rounded-xl mt-4">
+                            <span>Jelajahi Semua Tools</span>
+                            <i data-lucide="arrow-down" class="w-5 h-5"></i>
+                        </a>
                     </div>
-                    <div class="relative w-full h-[300px] md:h-[400px] rounded-2xl overflow-hidden flex items-center justify-center" style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--glass-border); box-shadow: inset 0 0 40px rgba(0,0,0,0.5);">
-                        <div class="absolute top-4 right-4 glass-badge px-3 py-1.5 text-[10px] flex items-center bg-black/40 border-white/5 shadow-none"><i data-lucide="layers" class="w-3 h-3 mr-1.5" style="color: var(--color-primary);"></i> Multi-Tool Ecosystem</div>
-                        <h3 class="text-2xl font-black text-transparent bg-clip-text" style="background-image: linear-gradient(to right, var(--color-primary), #4ade80);">Ecosystem Preview</h3>
+
+                    <div class="relative">
+                        <img src="https://placehold.co/600x500/000018/B6FF00?text=Ecosystem+Preview"
+                            alt="Next Cuan Ecosystem" class="rounded-2xl shadow-2xl w-full">
+
+                        <!-- Overlay badges -->
+                        <div class="absolute top-4 right-4 glass-card rounded-lg px-3 py-2">
+                            <div class="flex items-center space-x-2">
+                                <i data-lucide="layers" class="w-4 h-4 text-[#B6FF00]"></i>
+                                <span class="text-sm font-medium">Multi-Tool Ecosystem</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- PRODUCT CATALOG SECTION -->
+    <!-- PRODUCT CATALOG SECTION (DITAMBAHKAN) -->
     <section id="katalog" class="max-w-7xl mx-auto px-6 py-24 scroll-mt-24">
         <div class="max-w-3xl mx-auto text-center mb-16 fade-in">
-            <div class="inline-flex items-center space-x-2 glass-badge px-4 py-2 mb-6" style="background: rgba(182, 255, 0, 0.1);">
-                <i data-lucide="grid-3x3" class="w-4 h-4" style="color: var(--color-primary);"></i>
-                <span class="border-none normal-case tracking-normal text-xs font-bold" style="color: var(--color-primary);">Tools & Produk Digital</span>
+            <div class="inline-flex items-center space-x-2 glass-badge px-4 py-2 mb-6 rounded-full">
+                <i data-lucide="grid-3x3" class="w-4 h-4 text-[#B6FF00]"></i>
+                <span class="text-xs font-bold uppercase tracking-normal" style="color: #B6FF00;">Tools & Produk
+                    Digital</span>
             </div>
             <h2 class="text-3xl md:text-5xl font-bold mb-6">
-                Galeri Tools & Produk <span class="dyn-site-name text-gradient">Next Cuan</span>
+                Galeri Tools & Produk <span class="text-gradient">Next Cuan</span>
             </h2>
             <p class="text-lg" style="color: var(--color-text-muted);">
                 Semua yang kamu butuhkan untuk membangun income digital ada dalam satu ekosistem ini
             </p>
         </div>
-        
+
         <div id="public-products" class="catalog-grid">
             <div id="katalog-loader" class="col-span-full text-center py-16 glass-card rounded-[2rem]">
-                <div class="animate-spin w-10 h-10 rounded-full mx-auto mb-4 glow-primary" style="border: 4px solid rgba(182, 255, 0, 0.2); border-top-color: var(--color-primary);"></div>
-                <p class="text-xs font-bold uppercase tracking-[0.2em] animate-pulse" style="color: var(--color-text-muted);">Menyiapkan Produk...</p>
+                <div class="animate-spin w-10 h-10 rounded-full mx-auto mb-4 glow-primary"
+                    style="border: 4px solid rgba(182, 255, 0, 0.2); border-top-color: #B6FF00;"></div>
+                <p class="text-xs font-bold uppercase tracking-[0.2em] animate-pulse"
+                    style="color: var(--color-text-muted);">Menyiapkan Produk...</p>
             </div>
+        </div>
+
+        <!-- Static Product Cards (Fallback/Preview) -->
+        <div class="catalog-grid mt-8" id="static-products" style="display: none;">
+            <!-- Tool Card 1: AI Content Generator -->
+            <div class="glass-card rounded-2xl p-6 group cursor-pointer">
+                <div
+                    class="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-600/10 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                    <i data-lucide="pen-tool" class="w-7 h-7 text-purple-400"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2 group-hover:text-[#B6FF00] transition">AI Content Generator</h3>
+                <p class="text-sm mb-4" style="color: var(--color-text-muted);">
+                    Hasilkan konten berkualitas tinggi untuk social media, blog, dan marketing dalam hitungan detik
+                    menggunakan AI.
+                </p>
+                <div class="flex items-center space-x-4 text-xs" style="color: var(--color-text-muted);">
+                    <span class="flex items-center"><i data-lucide="zap" class="w-3 h-3 mr-1"></i>AI Powered</span>
+                    <span class="flex items-center"><i data-lucide="clock" class="w-3 h-3 mr-1"></i>Instant</span>
+                </div>
+            </div>
+
+            <!-- Tool Card 2: Produk Digital Siap Jual -->
+            <div class="glass-card rounded-2xl p-6 group cursor-pointer">
+                <div
+                    class="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-600/10 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                    <i data-lucide="shopping-cart" class="w-7 h-7 text-blue-400"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2 group-hover:text-[#B6FF00] transition">Produk Digital Siap Jual
+                </h3>
+                <p class="text-sm mb-4" style="color: var(--color-text-muted);">
+                    Koleksi ebook, template, dan produk digital PLR/MRR yang bisa langsung kamu jual dengan profit 100%.
+                </p>
+                <div class="flex items-center space-x-4 text-xs" style="color: var(--color-text-muted);">
+                    <span class="flex items-center"><i data-lucide="package" class="w-3 h-3 mr-1"></i>Ready Stock</span>
+                    <span class="flex items-center"><i data-lucide="percent" class="w-3 h-3 mr-1"></i>100% Profit</span>
+                </div>
+            </div>
+
+            <!-- Tool Card 3: Template Canva Premium -->
+            <div class="glass-card rounded-2xl p-6 group cursor-pointer">
+                <div
+                    class="w-14 h-14 rounded-xl bg-gradient-to-br from-pink-500/20 to-pink-600/10 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                    <i data-lucide="palette" class="w-7 h-7 text-pink-400"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2 group-hover:text-[#B6FF00] transition">Template Canva Premium</h3>
+                <p class="text-sm mb-4" style="color: var(--color-text-muted);">
+                    Ratusan template Canva profesional untuk feed Instagram, story, presentation, dan kebutuhan visual
+                    lainnya.
+                </p>
+                <div class="flex items-center space-x-4 text-xs" style="color: var(--color-text-muted);">
+                    <span class="flex items-center"><i data-lucide="image" class="w-3 h-3 mr-1"></i>500+ Template</span>
+                    <span class="flex items-center"><i data-lucide="edit-3" class="w-3 h-3 mr-1"></i>Editable</span>
+                </div>
+            </div>
+
+            <!-- Tool Card 4: Tools Automation -->
+            <div class="glass-card rounded-2xl p-6 group cursor-pointer">
+                <div
+                    class="w-14 h-14 rounded-xl bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                    <i data-lucide="settings-2" class="w-7 h-7 text-cyan-400"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2 group-hover:text-[#B6FF00] transition">Tools Automation</h3>
+                <p class="text-sm mb-4" style="color: var(--color-text-muted);">
+                    Otomatisasi rutinitas bisnis online seperti posting, follow up customer, dan reporting secara
+                    otomatis.
+                </p>
+                <div class="flex items-center space-x-4 text-xs" style="color: var(--color-text-muted);">
+                    <span class="flex items-center"><i data-lucide="bot" class="w-3 h-3 mr-1"></i>Auto Pilot</span>
+                    <span class="flex items-center"><i data-lucide="timer" class="w-3 h-3 mr-1"></i>Save Time</span>
+                </div>
+            </div>
+
+            <!-- Tool Card 5: Affiliate System -->
+            <div class="glass-card rounded-2xl p-6 group cursor-pointer">
+                <div
+                    class="w-14 h-14 rounded-xl bg-gradient-to-br from-green-500/20 to-green-600/10 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                    <i data-lucide="link" class="w-7 h-7 text-green-400"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2 group-hover:text-[#B6FF00] transition">Affiliate System</h3>
+                <p class="text-sm mb-4" style="color: var(--color-text-muted);">
+                    Sistem affiliate terintegrasi untuk mendapatkan passive income dengan membagikan link produk Next
+                    Cuan.
+                </p>
+                <div class="flex items-center space-x-4 text-xs" style="color: var(--color-text-muted);">
+                    <span class="flex items-center"><i data-lucide="repeat" class="w-3 h-3 mr-1"></i>Recurring</span>
+                    <span class="flex items-center"><i data-lucide="trending-up" class="w-3 h-3 mr-1"></i>Passive</span>
+                </div>
+            </div>
+
+            <!-- Tool Card 6: AI Image Generator -->
+            <div class="glass-card rounded-2xl p-6 group cursor-pointer">
+                <div
+                    class="w-14 h-14 rounded-xl bg-gradient-to-br from-orange-500/20 to-orange-600/10 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                    <i data-lucide="image-plus" class="w-7 h-7 text-orange-400"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2 group-hover:text-[#B6FF00] transition">AI Image Generator</h3>
+                <p class="text-sm mb-4" style="color: var(--color-text-muted);">
+                    Buat gambar, ilustrasi, dan visual assets unik menggunakan AI tanpa perlu skill desain sama sekali.
+                </p>
+                <div class="flex items-center space-x-4 text-xs" style="color: var(--color-text-muted);">
+                    <span class="flex items-center"><i data-lucide="wand-2" class="w-3 h-3 mr-1"></i>Text to
+                        Image</span>
+                    <span class="flex items-center"><i data-lucide="sparkles" class="w-3 h-3 mr-1"></i>HQ Output</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- View All Button -->
+        <div class="text-center mt-12">
+            <a href="#" class="btn-secondary inline-flex items-center space-x-2 px-8 py-4 rounded-xl">
+                <span>Lihat Semua Tools (50+)</span>
+                <i data-lucide="arrow-right" class="w-5 h-5"></i>
+            </a>
         </div>
     </section>
 
     <!-- HOW IT WORKS -->
     <section id="how-it-works" class="py-24 relative overflow-hidden">
-        <div class="absolute inset-0 gradient-glow opacity-10 pointer-events-none"></div>
-        <div class="max-w-7xl mx-auto px-6 relative z-10">
-            <div class="text-center max-w-3xl mx-auto mb-20 fade-in">
-                <h2 class="text-3xl md:text-5xl font-bold mb-6">
-                    Cara Kerja <span class="text-gradient">Sederhana</span>
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-6">
+                    Cara Kerja <span class="gradient-text">Sederhana</span>
                 </h2>
                 <p class="text-lg" style="color: var(--color-text-muted);">
                     Hanya 3 langkah untuk mulai memanfaatkan ekosistem Next Cuan
                 </p>
             </div>
 
-            <div class="grid md:grid-cols-3 gap-12 relative fade-in delay-1 max-w-5xl mx-auto">
-                <div class="hidden md:block absolute top-[3rem] left-[20%] right-[20%] h-[2px]" style="background: linear-gradient(90deg, transparent, var(--color-primary), transparent); opacity: 0.5;"></div>
-                
-                <div class="text-center relative">
-                    <div class="w-24 h-24 mx-auto mb-8 rounded-[1.5rem] flex items-center justify-center relative z-10 glow-primary transition-transform hover:-translate-y-2" style="background: var(--glass-bg); border: 2px solid var(--color-primary);">
-                        <i data-lucide="user-plus" class="w-10 h-10" style="color: var(--color-primary);"></i>
-                        <div class="absolute -top-3 -right-3 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm bg-black" style="color: var(--color-primary); border: 1px solid var(--color-primary);">1</div>
-                    </div>
-                    <h3 class="text-xl font-bold mb-4">Daftar & Akses</h3>
-                    <p class="text-sm leading-relaxed max-w-xs mx-auto" style="color: var(--color-text-muted);">Buat akun gratis dan dapatkan akses ke dashboard serta tools dasar Next Cuan.</p>
+            <div class="grid md:grid-cols-3 gap-8 relative">
+                <!-- Connection Line -->
+                <div
+                    class="hidden md:block absolute top-24 left-1/4 right-1/4 h-0.5 bg-gradient-to-r from-[#B6FF00]/30 via-[#B6FF00]/60 to-[#B6FF00]/30">
                 </div>
 
+                <!-- Step 1 -->
                 <div class="text-center relative">
-                    <div class="w-24 h-24 mx-auto mb-8 rounded-[1.5rem] flex items-center justify-center relative z-10 glow-primary transition-transform hover:-translate-y-2" style="background: var(--glass-bg); border: 2px solid var(--color-primary);">
-                        <i data-lucide="mouse-pointer-click" class="w-10 h-10" style="color: var(--color-primary);"></i>
-                        <div class="absolute -top-3 -right-3 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm bg-black" style="color: var(--color-primary); border: 1px solid var(--color-primary);">2</div>
+                    <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-[#B6FF00]/10 border-2 flex items-center justify-center relative z-10"
+                        style="border-color: rgba(182, 255, 0, 0.3);">
+                        <span class="text-3xl font-bold text-[#B6FF00]">1</span>
                     </div>
-                    <h3 class="text-xl font-bold mb-4">Gunakan Tools</h3>
-                    <p class="text-sm leading-relaxed max-w-xs mx-auto" style="color: var(--color-text-muted);">Pilih dan gunakan tools sesuai kebutuhan: generate konten, akses template, atau jual produk.</p>
+                    <div class="w-14 h-14 mx-auto mb-4 rounded-xl flex items-center justify-center -mt-16 relative z-20"
+                        style="background: var(--color-surface); border: 1px solid var(--color-border);">
+                        <i data-lucide="user-plus" class="w-7 h-7 text-[#B6FF00]"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 mt-4">Daftar & Akses</h3>
+                    <p style="color: var(--color-text-muted);">
+                        Buat akun gratis dan dapatkan akses ke dashboard serta tools dasal Next Cuan.
+                    </p>
                 </div>
 
+                <!-- Step 2 -->
                 <div class="text-center relative">
-                    <div class="w-24 h-24 mx-auto mb-8 rounded-[1.5rem] flex items-center justify-center relative z-10 glow-primary transition-transform hover:-translate-y-2" style="background: var(--glass-bg); border: 2px solid var(--color-primary);">
-                        <i data-lucide="award" class="w-10 h-10" style="color: var(--color-primary);"></i>
-                        <div class="absolute -top-3 -right-3 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm bg-black" style="color: var(--color-primary); border: 1px solid var(--color-primary);">3</div>
+                    <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-[#B6FF00]/10 border-2 flex items-center justify-center relative z-10"
+                        style="border-color: rgba(182, 255, 0, 0.3);">
+                        <span class="text-3xl font-bold text-[#B6FF00]">2</span>
                     </div>
-                    <h3 class="text-xl font-bold mb-4">Hasilkan Income</h3>
-                    <p class="text-sm leading-relaxed max-w-xs mx-auto" style="color: var(--color-text-muted);">Manfaatkan hasilnya untuk bisnis, konten, atau jual kembali sebagai sumber income baru.</p>
+                    <div class="w-14 h-14 mx-auto mb-4 rounded-xl flex items-center justify-center -mt-16 relative z-20"
+                        style="background: var(--color-surface); border: 1px solid var(--color-border);">
+                        <i data-lucide="mouse-pointer-click" class="w-7 h-7 text-[#B6FF00]"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 mt-4">Gunakan Tools</h3>
+                    <p style="color: var(--color-text-muted);">
+                        Pilih dan gunakan tools sesuai kebutuhan: generate konten, akses template, atau jual produk.
+                    </p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="text-center relative">
+                    <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-[#B6FF00]/10 border-2 flex items-center justify-center relative z-10"
+                        style="border-color: rgba(182, 255, 0, 0.3);">
+                        <span class="text-3xl font-bold text-[#B6FF00]">3</span>
+                    </div>
+                    <div class="w-14 h-14 mx-auto mb-4 rounded-xl flex items-center justify-center -mt-16 relative z-20"
+                        style="background: var(--color-surface); border: 1px solid var(--color-border);">
+                        <i data-lucide="trophy" class="w-7 h-7 text-[#B6FF00]"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 mt-4">Hasilkan Income</h3>
+                    <p style="color: var(--color-text-muted);">
+                        Manfaatkan hasilnya untuk bisnis, konten, atau jual kembali sebagai sumber income baru.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BENEFIT SECTION -->
+    <section class="py-24 relative">
+        <div class="absolute inset-0 gradient-glow opacity-30"></div>
+
+        <div class="max-w-7xl mx-auto px-6 relative z-10">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-6">
+                    Mengapa <span class="gradient-text">Next Cuan</span>?
+                </h2>
+                <p class="text-lg" style="color: var(--color-text-muted);">
+                    Keunggulan yang membuat ribuan orang memilih platform ini
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Benefit 1 -->
+                <div class="glass-card rounded-2xl p-6 text-center">
+                    <div class="w-14 h-14 mx-auto mb-4 rounded-xl bg-[#B6FF00]/10 flex items-center justify-center">
+                        <i data-lucide="clock" class="w-7 h-7 text-[#B6FF00]"></i>
+                    </div>
+                    <h3 class="font-semibold mb-2">Hemat Waktu</h3>
+                    <p class="text-sm" style="color: var(--color-text-muted);">Tools AI mempercepat pekerjaan yang
+                        biasanya butuh berjam-jam</p>
+                </div>
+
+                <!-- Benefit 2 -->
+                <div class="glass-card rounded-2xl p-6 text-center">
+                    <div class="w-14 h-14 mx-auto mb-4 rounded-xl bg-blue-400/10 flex items-center justify-center">
+                        <i data-lucide="wallet" class="w-7 h-7 text-blue-400"></i>
+                    </div>
+                    <h3 class="font-semibold mb-2">Hemat Biaya</h3>
+                    <p class="text-sm" style="color: var(--color-text-muted);">Satu akses untuk banyak tools, lebih
+                        murah dari beli satuan</p>
+                </div>
+
+                <!-- Benefit 3 -->
+                <div class="glass-card rounded-2xl p-6 text-center">
+                    <div class="w-14 h-14 mx-auto mb-4 rounded-xl bg-purple-400/10 flex items-center justify-center">
+                        <i data-lucide="graduation-cap" class="w-7 h-7 text-purple-400"></i>
+                    </div>
+                    <h3 class="font-semibold mb-2">Mudah Dipelajari</h3>
+                    <p class="text-sm" style="color: var(--color-text-muted);">Tutorial lengkap dan support komunitas
+                        untuk pemula sekalipun</p>
+                </div>
+
+                <!-- Benefit 4 -->
+                <div class="glass-card rounded-2xl p-6 text-center">
+                    <div class="w-14 h-14 mx-auto mb-4 rounded-xl bg-pink-400/10 flex items-center justify-center">
+                        <i data-lucide="refresh-cw" class="w-7 h-7 text-pink-400"></i>
+                    </div>
+                    <h3 class="font-semibold mb-2">Update Berkala</h3>
+                    <p class="text-sm" style="color: var(--color-text-muted);">Tools dan template selalu diperbarui
+                        mengikuti tren terbaru</p>
+                </div>
+
+                <!-- Benefit 5 -->
+                <div class="glass-card rounded-2xl p-6 text-center">
+                    <div class="w-14 h-14 mx-auto mb-4 rounded-xl bg-cyan-400/10 flex items-center justify-center">
+                        <i data-lucide="shield-check" class="w-7 h-7 text-cyan-400"></i>
+                    </div>
+                    <h3 class="font-semibold mb-2">Aman & Terpercaya</h3>
+                    <p class="text-sm" style="color: var(--color-text-muted);">Platform dengan reputasi baik dan ribuan
+                        pengguna aktif</p>
+                </div>
+
+                <!-- Benefit 6 -->
+                <div class="glass-card rounded-2xl p-6 text-center">
+                    <div class="w-14 h-14 mx-auto mb-4 rounded-xl bg-yellow-400/10 flex items-center justify-center">
+                        <i data-lucide="headphones" class="w-7 h-7 text-yellow-400"></i>
+                    </div>
+                    <h3 class="font-semibold mb-2">Support 24/7</h3>
+                    <p class="text-sm" style="color: var(--color-text-muted);">Tim support siap membantu kapanpun kamu
+                        butuhkan</p>
+                </div>
+
+                <!-- Benefit 7 -->
+                <div class="glass-card rounded-2xl p-6 text-center">
+                    <div class="w-14 h-14 mx-auto mb-4 rounded-xl bg-red-400/10 flex items-center justify-center">
+                        <i data-lucide="smartphone" class="w-7 h-7 text-red-400"></i>
+                    </div>
+                    <h3 class="font-semibold mb-2">Mobile Friendly</h3>
+                    <p class="text-sm" style="color: var(--color-text-muted);">Akses dari device mana saja, kapan saja
+                    </p>
+                </div>
+
+                <!-- Benefit 8 -->
+                <div class="glass-card rounded-2xl p-6 text-center">
+                    <div class="w-14 h-14 mx-auto mb-4 rounded-xl bg-green-400/10 flex items-center justify-center">
+                        <i data-lucide="users" class="w-7 h-7 text-green-400"></i>
+                    </div>
+                    <h3 class="font-semibold mb-2">Komunitas Aktif</h3>
+                    <p class="text-sm" style="color: var(--color-text-muted);">Bergabung dengan ribuan member lain untuk
+                        sharing dan networking</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DASHBOARD PREVIEW SECTION -->
+    <section class="py-24 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-6">
+                    Tampilan Dashboard <span class="gradient-text">Modern</span>
+                </h2>
+                <p class="text-lg" style="color: var(--color-text-muted);">
+                    Interface intuitif yang dirancang untuk kemudahan penggunaan
+                </p>
+            </div>
+
+            <div class="relative">
+                <!-- Main Dashboard Preview -->
+                <div class="dashboard-preview rounded-3xl p-8 shadow-2xl">
+                    <!-- Top Bar -->
+                    <div class="flex items-center justify-between mb-8 pb-6 border-b"
+                        style="border-color: var(--color-border);">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 rounded-xl bg-[#B6FF00] flex items-center justify-center">
+                                <i data-lucide="zap" class="w-5 h-5 text-[#000018]"></i>
+                            </div>
+                            <div>
+                                <div class="font-semibold">Next Cuan Dashboard</div>
+                                <div class="text-xs" style="color: var(--color-text-muted);">Welcome back! 👋</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center">
+                                <i data-lucide="bell" class="w-5 h-5" style="color: var(--color-text-muted);"></i>
+                            </div>
+                            <div class="w-10 h-10 rounded-xl bg-[#B6FF00]/20 flex items-center justify-center">
+                                <span class="text-sm font-bold text-[#B6FF00]">JD</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stats Row -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                        <div class="stat-card rounded-xl p-4 border" style="border-color: var(--color-border);">
+                            <div class="flex items-center justify-between mb-2">
+                                <i data-lucide="eye" class="w-5 h-5 text-blue-400"></i>
+                                <span class="text-xs text-green-400">+12%</span>
+                            </div>
+                            <div class="text-2xl font-bold">24.5K</div>
+                            <div class="text-xs" style="color: var(--color-text-muted);">Total Views</div>
+                        </div>
+                        <div class="stat-card rounded-xl p-4 border" style="border-color: var(--color-border);">
+                            <div class="flex items-center justify-between mb-2">
+                                <i data-lucide="file-check" class="w-5 h-5 text-[#B6FF00]"></i>
+                                <span class="text-xs text-green-400">+8%</span>
+                            </div>
+                            <div class="text-2xl font-bold">156</div>
+                            <div class="text-xs" style="color: var(--color-text-muted);">Projects Done</div>
+                        </div>
+                        <div class="stat-card rounded-xl p-4 border" style="border-color: var(--color-border);">
+                            <div class="flex items-center justify-between mb-2">
+                                <i data-lucide="coins" class="w-5 h-5 text-yellow-400"></i>
+                                <span class="text-xs text-green-400">+23%</span>
+                            </div>
+                            <div class="text-2xl font-bold">Rp8.2M</div>
+                            <div class="text-xs" style="color: var(--color-text-muted);">Earnings</div>
+                        </div>
+                        <div class="stat-card rounded-xl p-4 border" style="border-color: var(--color-border);">
+                            <div class="flex items-center justify-between mb-2">
+                                <i data-lucide="users" class="w-5 h-5 text-purple-400"></i>
+                                <span class="text-xs text-green-400">+5%</span>
+                            </div>
+                            <div class="text-2xl font-bold">1,234</div>
+                            <div class="text-xs" style="color: var(--color-text-muted);">Followers</div>
+                        </div>
+                    </div>
+
+                    <!-- Main Content Grid -->
+                    <div class="grid lg:grid-cols-3 gap-6">
+                        <!-- Left Column - Activity -->
+                        <div class="lg:col-span-2 space-y-6">
+                            <div class="rounded-xl p-6 border"
+                                style="background: rgba(0, 0, 24, 0.5); border-color: var(--color-border);">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="font-semibold">Recent Activity</h3>
+                                    <button class="text-xs text-[#B6FF00] hover:underline">View All</button>
+                                </div>
+                                <div class="space-y-4">
+                                    <div class="flex items-center space-x-4 p-3 rounded-lg bg-white/5">
+                                        <div
+                                            class="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                                            <i data-lucide="file-text" class="w-5 h-5 text-purple-400"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="text-sm font-medium">AI Content Generated</div>
+                                            <div class="text-xs" style="color: var(--color-text-muted);">Instagram
+                                                caption for product launch</div>
+                                        </div>
+                                        <span class="text-xs" style="color: var(--color-text-muted);">2m ago</span>
+                                    </div>
+                                    <div class="flex items-center space-x-4 p-3 rounded-lg bg-white/5">
+                                        <div
+                                            class="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                                            <i data-lucide="download" class="w-5 h-5 text-blue-400"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="text-sm font-medium">Template Downloaded</div>
+                                            <div class="text-xs" style="color: var(--color-text-muted);">Canva Social
+                                                Media Kit v2</div>
+                                        </div>
+                                        <span class="text-xs" style="color: var(--color-text-muted);">15m ago</span>
+                                    </div>
+                                    <div class="flex items-center space-x-4 p-3 rounded-lg bg-white/5">
+                                        <div
+                                            class="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
+                                            <i data-lucide="dollar-sign" class="w-5 h-5 text-green-400"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="text-sm font-medium">New Sale!</div>
+                                            <div class="text-xs" style="color: var(--color-text-muted);">Affiliate
+                                                commission received</div>
+                                        </div>
+                                        <span class="text-xs" style="color: var(--color-text-muted);">1h ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column - Quick Access -->
+                        <div class="space-y-6">
+                            <div class="rounded-xl p-6 border"
+                                style="background: rgba(0, 0, 24, 0.5); border-color: var(--color-border);">
+                                <h3 class="font-semibold mb-4">Quick Access</h3>
+                                <div class="space-y-3">
+                                    <button
+                                        class="w-full flex items-center space-x-3 p-3 rounded-lg bg-[#B6FF00]/10 hover:bg-[#B6FF00]/20 transition text-left">
+                                        <i data-lucide="plus-circle" class="w-5 h-5 text-[#B6FF00]"></i>
+                                        <span class="text-sm">New AI Content</span>
+                                    </button>
+                                    <button
+                                        class="w-full flex items-center space-x-3 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition text-left">
+                                        <i data-lucide="folder-open" class="w-5 h-5 text-blue-400"></i>
+                                        <span class="text-sm">Browse Templates</span>
+                                    </button>
+                                    <button
+                                        class="w-full flex items-center space-x-3 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition text-left">
+                                        <i data-lucide="bar-chart-3" class="w-5 h-5 text-purple-400"></i>
+                                        <span class="text-sm">View Analytics</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="rounded-xl p-6 border"
+                                style="background: rgba(0, 0, 24, 0.5); border-color: var(--color-border);">
+                                <h3 class="font-semibold mb-4">AI Credits</h3>
+                                <div class="mb-3">
+                                    <div class="flex justify-between text-sm mb-1">
+                                        <span style="color: var(--color-text-muted);">Remaining</span>
+                                        <span class="text-[#B6FF00] font-medium">847 / 1000</span>
+                                    </div>
+                                    <div class="h-2 bg-white/10 rounded-full overflow-hidden">
+                                        <div class="h-full bg-gradient-to-r from-[#B6FF00] to-[#9ae600] rounded-full"
+                                            style="width: 84.7%"></div>
+                                    </div>
+                                </div>
+                                <button class="w-full text-xs text-[#B6FF00] hover:underline">Upgrade Plan</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Decorative Elements -->
+                <div class="absolute -top-6 -right-6 w-32 h-32 bg-[#B6FF00]/20 rounded-full blur-3xl"></div>
+                <div class="absolute -bottom-6 -left-6 w-40 h-40 bg-blue-400/10 rounded-full blur-3xl"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TESTIMONIAL SECTION -->
+    <section class="py-24 relative">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-6">
+                    Apa Kata <span class="gradient-text">Mereka</span>?
+                </h2>
+                <p class="text-lg" style="color: var(--color-text-muted);">
+                    Testimoni nyata dari pengguna Next Cuan
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- Testimonial 1 -->
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="flex items-center space-x-1 mb-4">
+                        <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                    </div>
+                    <p class="mb-6 italic" style="color: var(--color-text);">
+                        "Awalnya ragu, tapi setelah coba AI Content Generator, konten saya jadi 10x lebih produktif.
+                        Template Canva-nya juga keren banget!"
+                    </p>
+                    <div class="flex items-center space-x-3">
+                        <img src="https://placehold.co/48x48/111827/B6FF00?text=S" alt="User"
+                            class="w-12 h-12 rounded-full">
+                        <div>
+                            <div class="font-semibold">Sarah Dewi</div>
+                            <div class="text-sm" style="color: var(--color-text-muted);">Content Creator</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 2 -->
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="flex items-center space-x-1 mb-4">
+                        <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                    </div>
+                    <p class="mb-6 italic" style="color: var(--color-text);">
+                        "Produk digital siap jual dari Next Cuan membantu saya mulai bisnis online tanpa harus bikin
+                        produk sendiri. Profit 100%!"
+                    </p>
+                    <div class="flex items-center space-x-3">
+                        <img src="https://placehold.co/48x48/111827/B6FF00?text=R" alt="User"
+                            class="w-12 h-12 rounded-full">
+                        <div>
+                            <div class="font-semibold">Rizky Pratama</div>
+                            <div class="text-sm" style="color: var(--color-text-muted);">Online Seller</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 3 -->
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="flex items-center space-x-1 mb-4">
+                        <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                    </div>
+                    <p class="mb-6 italic" style="color: var(--color-text);">
+                        "Sebagai freelancer, tools automation dari Next Cuan sangat membantu mengerjakan banyak klien
+                        sekaligus. Highly recommended!"
+                    </p>
+                    <div class="flex items-center space-x-3">
+                        <img src="https://placehold.co/48x48/111827/B6FF00?text=A" alt="User"
+                            class="w-12 h-12 rounded-full">
+                        <div>
+                            <div class="font-semibold">Andika Wijaya</div>
+                            <div class="text-sm" style="color: var(--color-text-muted);">Freelancer Digital</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -961,322 +1148,219 @@
 
     <!-- FAQ SECTION -->
     <section id="faq" class="py-24 relative">
+        <div class="absolute inset-0 gradient-glow opacity-20"></div>
+
         <div class="max-w-3xl mx-auto px-6 relative z-10">
-            <div class="text-center mb-16 fade-in">
+            <div class="text-center mb-16">
                 <h2 class="text-3xl md:text-4xl font-bold mb-6">
-                    Pertanyaan <span class="text-gradient">Umum</span>
+                    Pertanyaan <span class="gradient-text">Umum</span>
                 </h2>
                 <p class="text-lg" style="color: var(--color-text-muted);">
                     Jawaban untuk keraguan yang mungkin kamu miliki
                 </p>
             </div>
 
-            <div class="space-y-4 fade-in delay-1">
-                <details class="group glass-card rounded-xl overflow-hidden cursor-pointer" open>
-                    <summary class="flex items-center justify-between p-6 list-none hover:bg-[rgba(255,255,255,0.02)] transition-colors">
-                        <span class="font-bold text-lg pr-4">Apakah saya perlu skill teknis?</span>
-                        <i data-lucide="chevron-down" class="w-5 h-5 group-open:rotate-180 transition-transform"></i>
+            <div class="space-y-4">
+                <!-- FAQ Item 1 -->
+                <details class="group glass-card rounded-xl overflow-hidden">
+                    <summary class="flex items-center justify-between p-6 cursor-pointer list-none">
+                        <span class="font-semibold pr-4">Apakah saya perlu skill teknis untuk menggunakan Next
+                            Cuan?</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5 transition-transform group-open:rotate-180"
+                            style="color: var(--color-text-muted);"></i>
                     </summary>
                     <div class="px-6 pb-6" style="color: var(--color-text-muted);">
-                        Tidak perlu! Sistem ini dirancang untuk siapa saja. Tools memiliki interface yang user-friendly dan panduan yang jelas.
+                        Tidak perlu! Next Cuan dirancang untuk siapa saja, termasuk pemula. Semua tools memiliki
+                        interface yang user-friendly dan kami menyediakan tutorial lengkap serta video panduan untuk
+                        setiap fitur.
                     </div>
                 </details>
-                <details class="group glass-card rounded-xl overflow-hidden cursor-pointer">
-                    <summary class="flex items-center justify-between p-6 list-none hover:bg-[rgba(255,255,255,0.02)] transition-colors">
-                        <span class="font-bold text-lg pr-4">Apakah langsung dapat digunakan?</span>
-                        <i data-lucide="chevron-down" class="w-5 h-5 group-open:rotate-180 transition-transform"></i>
+
+                <!-- FAQ Item 2 -->
+                <details class="group glass-card rounded-xl overflow-hidden">
+                    <summary class="flex items-center justify-between p-6 cursor-pointer list-none">
+                        <span class="font-semibold pr-4">Berapa waktu yang dibutuhkan untuk melihat hasil?</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5 transition-transform group-open:rotate-180"
+                            style="color: var(--color-text-muted);"></i>
                     </summary>
                     <div class="px-6 pb-6" style="color: var(--color-text-muted);">
-                        Ya, semua produk digital dan sistemnya bisa langsung diakses dan diimplementasi saat itu juga setelah checkout dan aktivasi.
+                        Tergantung bagaimana kamu menggunakannya. Untuk generate konten AI, hasil bisa langsung
+                        didapatkan dalam hitungan detik. Untuk membangun income, banyak user melihat hasil dalam 2-4
+                        minggu konsisten menggunakan tools dan menerapkannya.
                     </div>
                 </details>
-                <details class="group glass-card rounded-xl overflow-hidden cursor-pointer">
-                    <summary class="flex items-center justify-between p-6 list-none hover:bg-[rgba(255,255,255,0.02)] transition-colors">
-                        <span class="font-bold text-lg pr-4">Apakah aman dan legal?</span>
-                        <i data-lucide="chevron-down" class="w-5 h-5 group-open:rotate-180 transition-transform"></i>
+
+                <!-- FAQ Item 3 -->
+                <details class="group glass-card rounded-xl overflow-hidden">
+                    <summary class="flex items-center justify-between p-6 cursor-pointer list-none">
+                        <span class="font-semibold pr-4">Apakah ada garansi atau kebijakan refund?</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5 transition-transform group-open:rotate-180"
+                            style="color: var(--color-text-muted);"></i>
                     </summary>
                     <div class="px-6 pb-6" style="color: var(--color-text-muted);">
-                        Sangat aman. Sistem yang diintegrasikan mematuhi kebijakan privasi dan keamanan resmi dari platform tersebut.
+                        Ya, kami menyediakan garansi kepuasan. Jika kamu merasa Next Cuan tidak sesuai ekspektasi dalam
+                        periode tertentu, kamu bisa mengajukan refund sesuai dengan ketentuan yang berlaku.
+                    </div>
+                </details>
+
+                <!-- FAQ Item 4 -->
+                <details class="group glass-card rounded-xl overflow-hidden">
+                    <summary class="flex items-center justify-between p-6 cursor-pointer list-none">
+                        <span class="font-semibold pr-4">Apakah tools ini bisa dipakai untuk bisnis apa saja?</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5 transition-transform group-open:rotate-180"
+                            style="color: var(--color-text-muted);"></i>
+                    </summary>
+                    <div class="px-6 pb-6" style="color: var(--color-text-muted);">
+                        Sangat fleksibel! Tools Next Cuan bisa digunakan untuk berbagai jenis bisnis: content creation,
+                        e-commerce, affiliate marketing, freelance services, dan masih banyak lagi. Kamu bisa
+                        menyesuaikan penggunaannya dengan niche bisnismu.
+                    </div>
+                </details>
+
+                <!-- FAQ Item 5 -->
+                <details class="group glass-card rounded-xl overflow-hidden">
+                    <summary class="flex items-center justify-between p-6 cursor-pointer list-none">
+                        <span class="font-semibold pr-4">Bagaimana cara mendapatkan support jika ada kendala?</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5 transition-transform group-open:rotate-180"
+                            style="color: var(--color-text-muted);"></i>
+                    </summary>
+                    <div class="px-6 pb-6" style="color: var(--color-text-muted);">
+                        Kami memiliki tim support yang responsif melalui chat, email, dan grup komunitas eksklusif.
+                        Selain itu, ada juga knowledge base lengkap dan video tutorial yang bisa kamu akses kapan saja.
                     </div>
                 </details>
             </div>
         </div>
     </section>
 
-    <!-- FINAL CTA -->
+    <!-- FINAL CTA SECTION -->
     <section id="cta" class="py-24 relative overflow-hidden">
         <div class="absolute inset-0">
-            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-[200px] opacity-10 pointer-events-none" style="background: var(--color-primary);"></div>
+            <div
+                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#B6FF00]/10 rounded-full blur-[200px]">
+            </div>
         </div>
-        
+
         <div class="max-w-4xl mx-auto px-6 relative z-10">
-            <div class="glass-card rounded-[2.5rem] p-12 md:p-16 text-center neon-border fade-in">
-                <div class="w-20 h-20 mx-auto mb-8 rounded-2xl flex items-center justify-center glow-primary" style="background: rgba(182, 255, 0, 0.1);">
-                    <i data-lucide="rocket" class="w-10 h-10" style="color: var(--color-primary);"></i>
+            <div class="glass-card rounded-3xl p-12 md:p-16 text-center neon-border">
+                <div class="w-20 h-20 mx-auto mb-8 rounded-2xl bg-[#B6FF00]/10 flex items-center justify-center">
+                    <i data-lucide="rocket" class="w-10 h-10 text-[#B6FF00]"></i>
                 </div>
 
-                <h2 class="text-3xl md:text-5xl font-black mb-6">
-                    Siap Memulai Perjalanan <span class="text-gradient">Digitalmu?</span>
+                <h2 class="text-3xl md:text-5xl font-bold mb-6">
+                    Siap Memulai Perjalanan <span class="gradient-text">Digital</span>mu?
                 </h2>
 
                 <p class="text-xl mb-10 max-w-2xl mx-auto" style="color: var(--color-text-muted);">
-                    Bergabung dengan ribuan orang lain yang sudah memanfaatkan ekosistem digital untuk membangun otomatisasi bisnis.
+                    Bergabung dengan ribuan orang lain yang sudah memanfaatkan ekosistem Next Cuan untuk membangun
+                    income di era AI.
                 </p>
 
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="login.html" class="btn-primary px-10 py-4 rounded-xl text-lg">
-                        Mulai Sekarang
-                        <i data-lucide="arrow-right" class="w-5 h-5 ml-2"></i>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+                    <a href="#"
+                        class="btn-primary px-10 py-4 rounded-xl text-lg inline-flex items-center justify-center space-x-2">
+                        <span>Mulai Gratis Sekarang</span>
+                        <i data-lucide="arrow-right" class="w-5 h-5"></i>
                     </a>
-                    <a href="#katalog" class="btn-ghost px-10 py-4 rounded-xl text-lg">
-                        Jelajahi Produk
+                    <a href="#katalog"
+                        class="btn-secondary px-10 py-4 rounded-xl text-lg inline-flex items-center justify-center space-x-2">
+                        <span>Jelajahi Tools Dulu</span>
+                        <i data-lucide="search" class="w-5 h-5"></i>
                     </a>
                 </div>
+
+                <p class="text-sm" style="color: var(--color-text-muted);">
+                    ✨ No credit card required • Free tier available • Cancel anytime
+                </p>
             </div>
         </div>
     </section>
 
-    <footer class="glass-card border-t py-16" style="border-top-color: var(--glass-border); border-radius: 0;">
-        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-10 text-center md:text-left">
-            <div>
-                <h3 class="text-2xl font-black mb-4 dyn-site-name uppercase" style="color: var(--color-primary); text-shadow: 0 0 10px rgba(182,255,0,0.3);">NEXT CUAN</h3>
-                <p class="text-sm dyn-site-tagline leading-relaxed" style="color: var(--color-text-muted);">Template, toolkit, dan sistem siap pakai untuk membantu proses jualan digital terasa lebih cepat dan tertata.</p>
+    <!-- FOOTER -->
+    <footer class="py-12 border-t" style="border-color: var(--color-border);">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-8 mb-12">
+                <!-- Brand -->
+                <div class="md:col-span-1">
+                    <a href="https://akses.nextcuan.my.id" target="_blank"
+                        class="flex items-center space-x-2 mb-4 hover:opacity-80 transition-opacity">
+                        <img src="https://ik.imagekit.io/iramdani/NextCuan_Logo_Transparent_Horizontal-3__1__n8uCKrYMC.png"
+                            alt="Next Cuan Logo" class="h-10 w-auto object-contain">
+                    </a>
+                    <p class="text-sm mb-4" style="color: var(--color-text-muted);">
+                        Platform ekosistem digital untuk membangun income online di era AI.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);">
+                            <i data-lucide="instagram" class="w-5 h-5"></i>
+                        </a>
+                        <a href="#" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);">
+                            <i data-lucide="youtube" class="w-5 h-5"></i>
+                        </a>
+                        <a href="#" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);">
+                            <i data-lucide="twitter" class="w-5 h-5"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Products -->
+                <div>
+                    <h4 class="font-semibold mb-4">Products</h4>
+                    <ul class="space-y-2 text-sm" style="color: var(--color-text-muted);">
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">AI Content Generator</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Template Canva</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Produk Digital</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Automation Tools</a></li>
+                    </ul>
+                </div>
+
+                <!-- Resources -->
+                <div>
+                    <h4 class="font-semibold mb-4">Resources</h4>
+                    <ul class="space-y-2 text-sm" style="color: var(--color-text-muted);">
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Documentation</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Tutorials</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Blog</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Community</a></li>
+                    </ul>
+                </div>
+
+                <!-- Company -->
+                <div>
+                    <h4 class="font-semibold mb-4">Company</h4>
+                    <ul class="space-y-2 text-sm" style="color: var(--color-text-muted);">
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">About Us</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Contact</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Terms of Service</a></li>
+                    </ul>
+                </div>
             </div>
-            <div>
-                <h4 class="font-bold mb-6 text-lg" style="color: var(--color-text-main);">Informasi Bisnis</h4>
-                <ul class="text-sm space-y-3" style="color: var(--color-text-muted);">
-                    <li><a href="/p.html?s=tentang-kami" class="hover:text-primary transition-colors">Tentang Kami</a></li>
-                    <li><a href="/p.html?s=syarat-ketentuan" class="hover:text-primary transition-colors">Syarat & Ketentuan</a></li>
-                    <li><a href="/p.html?s=kebijakan-privasi" class="hover:text-primary transition-colors">Kebijakan Privasi</a></li>
-                </ul>
+
+            <div class="pt-8 border-t flex flex-col md:flex-row items-center justify-between text-sm"
+                style="border-color: var(--color-border); color: var(--color-text-muted);">
+                <p>&copy; 2024 Next Cuan. All rights reserved.</p>
+                <p class="mt-2 md:mt-0">Made with ❤️ in Indonesia</p>
             </div>
-            <div>
-                <h4 class="font-bold mb-6 text-lg" style="color: var(--color-text-main);">Hubungi Kami</h4>
-                <p class="text-sm mb-3" style="color: var(--color-text-muted);">Email: <a id="dyn-email-link" href="#" class="font-bold hover:underline" style="color: var(--color-secondary);">...</a></p>
-                <p class="text-sm" style="color: var(--color-text-muted);">WhatsApp: <a id="dyn-wa-link" href="#" class="font-bold hover:underline" style="color: var(--color-secondary);">...</a></p>
-            </div>
-        </div>
-        <div class="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t text-sm font-medium flex flex-col md:flex-row justify-between items-center gap-4" style="color: var(--color-text-muted); border-top-color: var(--glass-border);">
-            <p>&copy; 2026 <span class="dyn-site-name font-bold">Kelas Jagoan</span>. Hak cipta dilindungi.</p>
-            <p>Made with ❤️ in Indonesia</p>
         </div>
     </footer>
 
+    <!-- Initialize Lucide Icons -->
     <script>
-        const CACHE_KEY_CATALOG = 'cepat_public_catalog';
-        const CACHE_AGE_CATALOG = 10 * 60 * 1000;
-        const DEFAULT_PRODUCT_DESC = 'Materi dan template praktis untuk membantu Anda merapikan proses jualan digital tanpa langkah teknis yang bikin lambat';
+        lucide.createIcons();
 
-        function normalizeCatalogText(value) {
-            return String(value == null ? '' : value)
-                .replace(/\r\n?/g, '\n')
-                .replace(/\u00A0/g, ' ')
-                .replace(/<[^>]+>/g, ' ')
-                .replace(/\s+/g, ' ')
-                .trim();
-        }
+        // Simulate loading products (remove this if using real API)
+        setTimeout(() => {
+            const loader = document.getElementById('katalog-loader');
+            const staticProducts = document.getElementById('static-products');
 
-        function escapeCatalogHtml(value) {
-            return String(value == null ? '' : value)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
-        }
-
-        function getCatalogDescription(product) {
-            const desc = normalizeCatalogText(product && product.desc);
-            return desc || DEFAULT_PRODUCT_DESC;
-        }
-
-        // Fungsi Render HTML Produk
-        function renderCatalog(products) {
-            const container = document.getElementById('public-products');
-            
-            // Safety check: Pastikan products adalah array valid
-            if (!products || !Array.isArray(products) || products.length === 0) {
-                container.innerHTML = '<p class="text-slate-400 text-center col-span-full py-10 border border-dashed border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.02)] rounded-[1.5rem] shadow-sm">Pilihan produk sedang diperbarui. Silakan cek lagi dalam beberapa saat.</p>';
-                if (window.CEPAT_SEO && typeof window.CEPAT_SEO.sync === 'function') {
-                    window.CEPAT_SEO.sync({ products: [], reason: 'catalog-empty' });
-                }
-                return;
+            if (loader && staticProducts) {
+                loader.style.display = 'none';
+                staticProducts.style.display = 'grid';
             }
-
-            // Dapatkan Affiliate Ref (URL Priority -> LocalStorage Fallback)
-            const urlParams = new URLSearchParams(window.location.search);
-            const affRef = urlParams.get('ref') || urlParams.get('aff_id') || localStorage.getItem('cepat_affiliate');
-            const affParam = affRef ? `&ref=${affRef}` : '';
-
-            container.innerHTML = [...products].reverse().map((p, index) => {
-                let delayClass = `delay-${(index % 3) + 1}`;
-                const rawTitle = normalizeCatalogText(p && p.title) || 'Produk';
-                const rawDesc = getCatalogDescription(p);
-                const safeTitle = escapeCatalogHtml(rawTitle);
-                const safeDesc = escapeCatalogHtml(rawDesc);
-                const fallbackLetter = rawTitle.trim().charAt(0).toUpperCase() || 'P';
-                
-                // Logic URL Detail (Bisa ke LP atau Checkout)
-                let detailUrl = (p.lp_url && p.lp_url !== "") ? p.lp_url : `checkout.html?id=${p.id}`;
-                if (affRef) {
-                    detailUrl += (detailUrl.includes('?') ? '&' : '?') + `ref=${affRef}`;
-                }
-
-                const checkoutUrl = `checkout.html?id=${p.id}${affParam}`;
-
-                return `
-                <article class="glass-card group hover:glow-primary p-5 flex flex-col h-full fade-in ${delayClass} transition-all duration-300 transform hover:-translate-y-2 border-white/5" style="background: rgba(20,25,35,0.4);">
-                    <a href="${detailUrl}" target="_blank" rel="noopener noreferrer" class="catalog-media block overflow-hidden rounded-2xl relative mb-5 w-full">
-                        <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors z-10 w-full h-full"></div>
-                        ${p.image_url
-                            ? `<img src="${p.image_url}" class="catalog-image w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.outerHTML='<div class=&quot;catalog-image flex h-full w-full items-center justify-center bg-[rgba(0,0,0,0.3)] text-5xl font-black text-white aspect-square&quot;>${fallbackLetter}</div>'" loading="lazy" decoding="async" alt="${safeTitle}">`
-                            : `<div class="catalog-image flex h-full w-full items-center justify-center bg-[rgba(0,0,0,0.3)] text-5xl font-black text-white aspect-square">${fallbackLetter}</div>`}
-                        <div class="absolute top-3 right-3 z-20">
-                            <span class="glass-badge backdrop-blur-md bg-black/60 border border-white/10 text-white px-3 py-1.5 text-[10px] rounded-lg">Siap Pakai</span>
-                        </div>
-                    </a>
-
-                    <div class="flex flex-1 flex-col">
-                        <div class="space-y-3 flex-1">
-                            <h3 class="catalog-title text-lg font-bold leading-snug line-clamp-2 transition-colors group-hover:text-primary tracking-wide" style="color: var(--color-text-main); min-height: 3.2rem;">${safeTitle}</h3>
-                            <p class="catalog-desc text-sm leading-relaxed line-clamp-3" data-product-desc style="color: var(--color-text-muted); min-height: 4.5rem;">${safeDesc}</p>
-                        </div>
-
-                        <div class="mt-6 pt-5 border-t border-white/5">
-                            <div class="flex items-end justify-between gap-3 mb-5">
-                                <div class="min-w-0">
-                                    <p class="text-[10px] font-bold uppercase tracking-widest mb-1.5" style="color: var(--color-text-muted);">Harga</p>
-                                    <p class="text-2xl font-black tracking-tight" style="color: var(--color-primary);">Rp ${Number(p.harga).toLocaleString('id-ID')}</p>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-3 mt-auto">
-                                <a href="${detailUrl}" 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    class="btn-ghost flex items-center justify-center py-3 text-[13px] font-bold rounded-xl transition-all border border-white/10 hover:bg-white/5">
-                                    Detail
-                                </a>
-                                <a href="${checkoutUrl}" 
-                                    class="btn-primary flex items-center justify-center py-3 text-[13px] font-bold rounded-xl shadow-[0_0_15px_rgba(182,255,0,0.2)]">
-                                    Beli Sekarang
-                                    <i data-lucide="shopping-cart" class="w-4 h-4 ml-1.5"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </article>
-                `;
-            }).join('');
-            
-            lucide.createIcons();
-            if (window.CEPAT_SEO && typeof window.CEPAT_SEO.sync === 'function') {
-                window.CEPAT_SEO.sync({ products: products, reason: 'catalog-render' });
-            }
-        }
-
-        // --> FUNGSI LOADING SAT SET (Optimistic UI & Background Sync)
-        async function loadPublicCatalog() {
-            const cachedData = localStorage.getItem(CACHE_KEY_CATALOG);
-            const globalCache = window.__CEPAT_GLOBAL_SETTINGS__ || {};
-            let cachedPayload = null;
-            try { cachedPayload = cachedData ? JSON.parse(cachedData) : null; } catch(e) { cachedPayload = null; }
-            let cachedList = null;
-            let cachedAt = 0;
-            if (Array.isArray(cachedPayload)) {
-                cachedList = cachedPayload;
-            } else if (cachedPayload && typeof cachedPayload === 'object') {
-                cachedList = Array.isArray(cachedPayload.data) ? cachedPayload.data : null;
-                cachedAt = Number(cachedPayload.time || 0);
-                if (!isFinite(cachedAt)) cachedAt = 0;
-            }
-            
-            // JIKA ADA CACHE: Langsung render tanpa spinner loading!
-            if (cachedList) {
-                try {
-                    renderCatalog(cachedList);
-                } catch(e) {
-                    console.error("Cache corrupted", e);
-                    localStorage.removeItem(CACHE_KEY_CATALOG);
-                }
-            } 
-
-            // Pengecekan data terbaru di belakang layar
-            try {
-                if(typeof SCRIPT_URL === 'undefined') return; // Cek SCRIPT_URL dari config.js
-                const cacheState = (window.CEPAT_CACHE_STATE && typeof window.CEPAT_CACHE_STATE.ensureFresh === 'function')
-                    ? await window.CEPAT_CACHE_STATE.ensureFresh()
-                    : null;
-                const currentCatalogVersion = String((cacheState && cacheState.catalog) || '');
-                const currentSettingsVersion = String((cacheState && cacheState.settings) || '');
-                const cachedCatalogVersion = String((cachedPayload && typeof cachedPayload === 'object' && !Array.isArray(cachedPayload) && cachedPayload.version) || '');
-                const cachedSettingsVersion = String((globalCache.cached && globalCache.cached.version) || '');
-                const isCatalogStale = !cachedAt || ((Date.now() - cachedAt) > CACHE_AGE_CATALOG);
-                const isCatalogVersionStale = !!currentCatalogVersion && cachedCatalogVersion !== currentCatalogVersion;
-                const isSettingsVersionStale = !!currentSettingsVersion && cachedSettingsVersion !== currentSettingsVersion;
-                const isSettingsStale = !globalCache.isFresh || isSettingsVersionStale;
-                if (cachedList && !isCatalogStale && !isSettingsStale && !isCatalogVersionStale) return;
-
-                const requests = [];
-                const requestMap = {};
-                if (isSettingsStale) {
-                    requestMap.settings = requests.push({ action: 'get_global_settings', cache_version: currentSettingsVersion }) - 1;
-                }
-                if (!cachedList || isCatalogStale || isCatalogVersionStale) {
-                    requestMap.catalog = requests.push({ action: 'get_products', email: '', cache_version: currentCatalogVersion }) - 1;
-                }
-                if (!requests.length) return;
-
-                const batch = (window.CEPAT_API && typeof window.CEPAT_API.batch === 'function')
-                    ? await window.CEPAT_API.batch(requests)
-                    : { status: 'error', results: [] };
-                const results = Array.isArray(batch.results) ? batch.results : [];
-
-                if (requestMap.settings !== undefined) {
-                    const settingsResult = results[requestMap.settings];
-                    if (settingsResult && settingsResult.data && settingsResult.data.status === 'success') {
-                        const settingsData = settingsResult.data.data;
-                        const cachedSettings = globalCache.cached && globalCache.cached.data ? JSON.stringify(globalCache.cached.data) : '';
-                        const nextSettings = JSON.stringify(settingsData || {});
-                        const nextSettingsVersion = String((settingsResult.data && settingsResult.data.cache_version) || currentSettingsVersion || '');
-                        if (cachedSettings !== nextSettings && typeof globalCache.sync === 'function') {
-                            globalCache.sync(settingsData, Date.now(), nextSettingsVersion);
-                        } else if (settingsData && typeof globalCache.sync === 'function') {
-                            globalCache.sync(settingsData, Date.now(), nextSettingsVersion);
-                        } else if (settingsData && typeof globalCache.apply === 'function') {
-                            globalCache.apply(settingsData);
-                        }
-                    }
-                }
-
-                if (requestMap.catalog !== undefined) {
-                    const catalogResult = results[requestMap.catalog];
-                    const r = catalogResult && catalogResult.data ? catalogResult.data : null;
-                    if (r && r.status === 'success') {
-                        const data = Array.isArray(r.available) ? r.available : [];
-                        const nextCatalogVersion = String((r && r.cache_version) || currentCatalogVersion || '');
-                        const freshData = JSON.stringify({ data: data, time: Date.now(), version: nextCatalogVersion });
-                        if(cachedData !== freshData) {
-                            localStorage.setItem(CACHE_KEY_CATALOG, freshData);
-                            renderCatalog(data);
-                        }
-                    }
-                }
-            } catch (err) { 
-                console.error('Background sync failed', err);
-                if (!cachedData) {
-                    document.getElementById('public-products').innerHTML = '<p class="text-red-500 text-center col-span-full bg-red-50 border border-red-100 py-4 rounded-[1.5rem]">Produk belum berhasil dimuat. Silakan refresh halaman dan coba lagi.</p>';
-                    if (window.CEPAT_SEO && typeof window.CEPAT_SEO.scheduleSync === 'function') {
-                        window.CEPAT_SEO.scheduleSync('catalog-error');
-                    }
-                }
-            }
-        }
-        
-        window.onload = () => { 
-            lucide.createIcons(); 
-            loadPublicCatalog(); 
-        };
+        }, 2000);
     </script>
+
 </body>
+
 </html>
