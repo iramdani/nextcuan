@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semua Produk - Next Cuan</title>
+    <meta name="description" content="Jelajahi semua produk digital Next Cuan: ebook, template, kelas online, dan tools AI. Filter berdasarkan kategori sesuai kebutuhanmu.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="config.js" defer></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #000018;
+            --color-surface: rgba(255, 255, 255, 0.03);
+            --color-border: rgba(255, 255, 255, 0.08);
+            --color-primary: #B6FF00;
+            --color-secondary: #017A6B;
+            --color-text: #f1f5f9;
+            --color-text-muted: #94a3b8;
+        }
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: var(--color-surface);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--color-border);
+        }
+        .glass-nav {
+            background: rgba(0, 0, 24, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(182, 255, 0, 0.08);
+        }
+        .btn-primary {
+            background: var(--color-primary);
+            color: #000018;
+            font-weight: 700;
+            border-radius: 0.75rem;
+            transition: all 0.2s;
+        }
+        .btn-primary:hover {
+            background: #c8ff33;
+            box-shadow: 0 0 30px rgba(182, 255, 0, 0.4);
+            transform: translateY(-1px);
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
+            font-weight: 600;
+            border-radius: 0.75rem;
+            transition: all 0.2s;
+        }
+        .btn-secondary:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #B6FF00 0%, #017A6B 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .catalog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        @media (max-width: 640px) {
+            .catalog-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+        }
+        .product-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        .product-card:hover {
+            border-color: rgba(182, 255, 0, 0.3);
+            box-shadow: 0 0 40px rgba(182, 255, 0, 0.08);
+            transform: translateY(-4px);
+        }
+        .filter-btn {
+            border-radius: 9999px;
+            padding: 0.5rem 1.25rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            white-space: nowrap;
+            cursor: pointer;
+            background: rgba(255,255,255,0.03);
+            color: var(--color-text);
+        }
+        .filter-btn:hover {
+            border-color: rgba(182, 255, 0, 0.5);
+            color: var(--color-primary);
+        }
+        .filter-btn.active {
+            background: var(--color-primary);
+            color: #000018;
+            border-color: var(--color-primary);
+            font-weight: 700;
+            box-shadow: 0 0 20px rgba(182, 255, 0, 0.3);
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in { animation: fadeIn 0.4s ease forwards; }
+        .search-input {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.875rem;
+            color: white;
+            padding: 0.75rem 1rem 0.75rem 2.75rem;
+            width: 100%;
+            font-size: 0.875rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .search-input:focus { border-color: var(--color-primary); }
+        .search-input::placeholder { color: var(--color-text-muted); }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.625rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 0.2rem 0.6rem;
+            border-radius: 9999px;
+        }
+        .skeleton {
+            background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 0.75rem;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .hero-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(182,255,0,0.07) 0%, transparent 70%);
+            pointer-events: none;
+            top: -200px;
+            right: -100px;
+        }
+        .hero-glow-2 {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(1,122,107,0.1) 0%, transparent 70%);
+            pointer-events: none;
+            bottom: -100px;
+            left: -100px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="glass-nav fixed top-0 left-0 right-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <a href="index.html" class="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+                    <img src="https://ik.imagekit.io/iramdani/NextCuan_Logo_Transparent_Horizontal-3__1__n8uCKrYMC.png"
+                        alt="Next Cuan Logo" class="h-10 w-auto object-contain">
+                </a>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);">Beranda</a>
+                    <a href="products.html" class="text-[#B6FF00] font-semibold">Products</a>
+                    <a href="index.html#solution" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);">Platform</a>
+                    <a href="index.html#faq" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);">FAQ</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="index.html#cta" class="btn-primary px-5 py-2.5 rounded-lg text-sm">Mulai Sekarang</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section class="relative pt-32 pb-12 overflow-hidden">
+        <div class="hero-glow"></div>
+        <div class="hero-glow-2"></div>
+        <div class="max-w-7xl mx-auto px-6 text-center relative z-10">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[rgba(182,255,0,0.3)] bg-[rgba(182,255,0,0.07)] mb-6 text-xs font-bold uppercase tracking-widest" style="color: var(--color-primary);">
+                <i data-lucide="package" class="w-4 h-4"></i>
+                <span>Katalog Produk Digital</span>
+            </div>
+            <h1 class="text-4xl md:text-6xl font-black mb-6 leading-tight">
+                Semua Produk <span class="gradient-text">Next Cuan</span>
+            </h1>
+            <p class="text-lg max-w-2xl mx-auto mb-10" style="color: var(--color-text-muted);">
+                Temukan ebook, template, kelas online, dan tools AI yang tepat untuk membangun income digitalmu. Filter sesuai kebutuhan.
+            </p>
+
+            <!-- Search & Filter Bar -->
+            <div class="max-w-lg mx-auto relative">
+                <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style="color: var(--color-text-muted);"></i>
+                <input id="search-input" type="text" placeholder="Cari produk..." class="search-input" oninput="onSearchInput(this.value)">
+            </div>
+        </div>
+    </section>
+
+    <!-- CATALOG SECTION -->
+    <section class="pb-24 relative">
+        <div class="max-w-7xl mx-auto px-6">
+
+            <!-- Category Filters -->
+            <div class="mb-10 w-full overflow-x-auto no-scrollbar">
+                <div id="category-filters" class="flex gap-3 justify-start min-w-max">
+                    <!-- Auto-generated -->
+                </div>
+            </div>
+
+            <!-- Sort & Count Bar -->
+            <div class="flex items-center justify-between mb-8 flex-wrap gap-4">
+                <p id="product-count" class="text-sm font-medium" style="color: var(--color-text-muted);">Memuat produk...</p>
+                <div class="flex items-center gap-3">
+                    <label class="text-xs font-bold uppercase tracking-wider" style="color: var(--color-text-muted);">Urutkan:</label>
+                    <select id="sort-select" class="search-input w-auto px-4 py-2 text-sm cursor-pointer" onchange="onSortChange(this.value)">
+                        <option value="default">Terbaru</option>
+                        <option value="price-asc">Harga: Rendah ke Tinggi</option>
+                        <option value="price-desc">Harga: Tinggi ke Rendah</option>
+                        <option value="name-asc">Nama A-Z</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Product Grid -->
+            <div id="public-products" class="catalog-grid">
+                <!-- Skeleton loaders -->
+                <div class="product-card p-4" style="min-height:380px;">
+                    <div class="skeleton aspect-square w-full rounded-2xl mb-4" style="height:200px;"></div>
+                    <div class="skeleton h-4 w-3/4 mb-3"></div>
+                    <div class="skeleton h-3 w-full mb-2"></div>
+                    <div class="skeleton h-3 w-2/3 mb-6"></div>
+                    <div class="skeleton h-10 w-full rounded-xl mt-auto"></div>
+                </div>
+                <div class="product-card p-4" style="min-height:380px;">
+                    <div class="skeleton aspect-square w-full rounded-2xl mb-4" style="height:200px;"></div>
+                    <div class="skeleton h-4 w-3/4 mb-3"></div>
+                    <div class="skeleton h-3 w-full mb-2"></div>
+                    <div class="skeleton h-3 w-2/3 mb-6"></div>
+                    <div class="skeleton h-10 w-full rounded-xl mt-auto"></div>
+                </div>
+                <div class="product-card p-4" style="min-height:380px;">
+                    <div class="skeleton aspect-square w-full rounded-2xl mb-4" style="height:200px;"></div>
+                    <div class="skeleton h-4 w-3/4 mb-3"></div>
+                    <div class="skeleton h-3 w-full mb-2"></div>
+                    <div class="skeleton h-3 w-2/3 mb-6"></div>
+                    <div class="skeleton h-10 w-full rounded-xl mt-auto"></div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="hidden text-center py-20">
+                <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-[rgba(182,255,0,0.05)] border border-[rgba(182,255,0,0.1)] flex items-center justify-center">
+                    <i data-lucide="search-x" class="w-10 h-10 text-[#B6FF00] opacity-50"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-2">Tidak Ada Produk Ditemukan</h3>
+                <p class="text-sm mb-6" style="color: var(--color-text-muted);">Coba ubah kata kunci pencarian atau pilih kategori lain.</p>
+                <button onclick="resetFilters()" class="btn-primary px-6 py-3 text-sm inline-flex items-center gap-2">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i> Reset Filter
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="py-12 border-t" style="border-color: var(--color-border);">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <a href="index.html" class="inline-flex items-center hover:opacity-80 transition-opacity mb-4">
+                <img src="https://ik.imagekit.io/iramdani/NextCuan_Logo_Transparent_Horizontal-3__1__n8uCKrYMC.png"
+                    alt="Next Cuan Logo" class="h-8 w-auto object-contain">
+            </a>
+            <p class="text-sm" style="color: var(--color-text-muted);">&copy; 2024 Next Cuan. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[999] flex flex-col gap-3" style="pointer-events:none;"></div>
+
+    <style>
+        .toast {
+            display: flex; align-items: center; gap: 0.75rem;
+            background: rgba(10,10,30,0.98); border: 1px solid rgba(255,255,255,0.1);
+            color: white; padding: 0.9rem 1.25rem; border-radius: 1rem;
+            font-size: 0.875rem; font-weight: 600; pointer-events: all;
+            min-width: 220px; max-width: 380px;
+            transform: translateX(120%); opacity: 0;
+            transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), opacity 0.35s ease;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+        }
+        .toast.success { border-color: rgba(182,255,0,0.3); color: #B6FF00; }
+        .toast.show { transform: translateX(0); opacity: 1; }
+    </style>
+
+    <script>
+        const CACHE_KEY_CATALOG = 'cepat_public_catalog';
+        const CACHE_AGE_CATALOG = 10 * 60 * 1000;
+        const DEFAULT_DESC = 'Materi dan template praktis untuk membantu Anda membangun income digital.';
+
+        let allProducts = [];
+        let currentCategory = 'Semua';
+        let currentSearch = '';
+        let currentSort = 'default';
+
+        // ─── Utility ─────────────────────────────────────────────────────────────
+        function normalizeText(v) {
+            return String(v == null ? '' : v)
+                .replace(/\r\n?/g, '\n').replace(/\u00A0/g, ' ')
+                .replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+        }
+        function escapeHtml(v) {
+            return String(v == null ? '' : v)
+                .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+                .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+        }
+        function showToast(msg, type = 'success') {
+            const c = document.getElementById('toast-container');
+            const t = document.createElement('div');
+            t.className = `toast ${type}`;
+            t.innerHTML = `<i data-lucide="check-circle" class="w-5 h-5 flex-shrink-0"></i><span>${msg}</span>`;
+            c.appendChild(t);
+            if (window.lucide) lucide.createIcons({ root: t });
+            setTimeout(() => t.classList.add('show'), 10);
+            setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, 3000);
+        }
+        function copyProductLink(url) {
+            const full = new URL(url, window.location.origin).href;
+            navigator.clipboard.writeText(full).then(() => showToast('Link berhasil disalin!')).catch(() => {
+                const inp = document.createElement('input');
+                inp.value = full; document.body.appendChild(inp); inp.select();
+                document.execCommand('copy'); document.body.removeChild(inp);
+                showToast('Link berhasil disalin!');
+            });
+        }
+
+        // ─── Filters ─────────────────────────────────────────────────────────────
+        function onSearchInput(v) { currentSearch = v.trim().toLowerCase(); renderProducts(); }
+        function onSortChange(v) { currentSort = v; renderProducts(); }
+        function changeCategory(cat) { currentCategory = cat; renderProducts(); }
+        function resetFilters() {
+            currentCategory = 'Semua'; currentSearch = ''; currentSort = 'default';
+            document.getElementById('search-input').value = '';
+            document.getElementById('sort-select').value = 'default';
+            renderProducts();
+        }
+
+        // ─── Category Filters ─────────────────────────────────────────────────────
+        function buildCategoryFilters(products) {
+            const cats = ['Semua'];
+            products.forEach(p => {
+                const c = (p.category || '').trim();
+                const cat = c || 'Lainnya';
+                if (!cats.includes(cat)) cats.push(cat);
+            });
+            const container = document.getElementById('category-filters');
+            if (!container) return;
+            container.innerHTML = cats.map(c => `
+                <button onclick="changeCategory('${escapeHtml(c)}')"
+                    class="filter-btn ${c === currentCategory ? 'active' : ''}"
+                    data-cat="${escapeHtml(c)}">${escapeHtml(c)}</button>
+            `).join('');
+        }
+
+        // ─── Render ───────────────────────────────────────────────────────────────
+        function renderProducts() {
+            buildCategoryFilters(allProducts);
+
+            let filtered = allProducts.filter(p => {
+                const cat = currentCategory === 'Semua' ? true :
+                    ((p.category || '').trim() || 'Lainnya') === currentCategory;
+                const q = currentSearch ? (
+                    normalizeText(p.title).toLowerCase().includes(currentSearch) ||
+                    normalizeText(p.desc).toLowerCase().includes(currentSearch) ||
+                    (p.category || '').toLowerCase().includes(currentSearch)
+                ) : true;
+                return cat && q;
+            });
+
+            // Sort
+            if (currentSort === 'price-asc') filtered.sort((a,b) => Number(a.harga||0) - Number(b.harga||0));
+            else if (currentSort === 'price-desc') filtered.sort((a,b) => Number(b.harga||0) - Number(a.harga||0));
+            else if (currentSort === 'name-asc') filtered.sort((a,b) => normalizeText(a.title).localeCompare(normalizeText(b.title)));
+            else filtered = [...filtered].reverse(); // default: newest
+
+            const container = document.getElementById('public-products');
+            const emptyEl = document.getElementById('empty-state');
+            const countEl = document.getElementById('product-count');
+
+            if (countEl) countEl.textContent = `Menampilkan ${filtered.length} dari ${allProducts.length} produk`;
+
+            if (filtered.length === 0) {
+                container.innerHTML = '';
+                if (emptyEl) emptyEl.classList.remove('hidden');
+                return;
+            }
+            if (emptyEl) emptyEl.classList.add('hidden');
+
+            // Get affiliate ref from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const affRef = urlParams.get('ref') || urlParams.get('aff_id') || localStorage.getItem('cepat_affiliate');
+            const affParam = affRef ? `&ref=${affRef}` : '';
+
+            container.innerHTML = filtered.map((p, idx) => {
+                const rawTitle = normalizeText(p.title) || 'Produk';
+                const rawDesc = normalizeText(p.desc) || DEFAULT_DESC;
+                const safeTitle = escapeHtml(rawTitle);
+                const safeDesc = escapeHtml(rawDesc);
+                const fallbackLetter = rawTitle.charAt(0).toUpperCase() || 'P';
+                const price = Number(p.harga || 0);
+                const catLabel = (p.category || 'Lainnya').trim();
+                const isReko = p.rekomendasi === true || String(p.rekomendasi).toUpperCase() === 'TRUE';
+
+                let detailUrl = (p.lp_url && p.lp_url !== '') ? p.lp_url : `checkout.html?id=${p.id}`;
+                if (affRef) detailUrl += (detailUrl.includes('?') ? '&' : '?') + `ref=${affRef}`;
+                const checkoutUrl = `checkout.html?id=${p.id}${affParam}`;
+
+                return `
+                <article class="product-card fade-in" style="animation-delay:${Math.min(idx * 0.05, 0.4)}s;">
+                    <!-- Thumbnail -->
+                    <a href="${detailUrl}" target="_blank" rel="noopener noreferrer" class="block overflow-hidden relative" style="aspect-ratio:1/1;">
+                        <div class="absolute inset-0 bg-black/20 hover:bg-transparent transition-colors z-10"></div>
+                        ${p.image_url
+                            ? `<img src="${p.image_url}" alt="${safeTitle}" class="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500" loading="lazy" decoding="async" onerror="this.parentElement.innerHTML='<div class=\\'w-full h-full flex items-center justify-center bg-[rgba(182,255,0,0.05)]\\'><span class=\\'text-6xl font-black text-[#B6FF00] opacity-30\\'>${fallbackLetter}</span></div>'">`
+                            : `<div class="w-full h-full flex items-center justify-center bg-[rgba(182,255,0,0.05)]"><span class="text-6xl font-black text-[#B6FF00] opacity-30">${fallbackLetter}</span></div>`
+                        }
+                        ${isReko ? `<span class="absolute top-3 left-3 z-20 badge bg-[#B6FF00] text-[#000018]"><i data-lucide="star" class="w-3 h-3 mr-1 fill-current"></i>Rekomendasi</span>` : ''}
+                        ${catLabel ? `<span class="absolute top-3 right-3 z-20 badge bg-[rgba(0,0,24,0.8)] border border-[rgba(255,255,255,0.1)] text-slate-300">${escapeHtml(catLabel)}</span>` : ''}
+                    </a>
+
+                    <!-- Info -->
+                    <div class="p-4 flex flex-col flex-1">
+                        <h3 class="font-bold text-white text-base mb-2 leading-snug line-clamp-2">${safeTitle}</h3>
+                        <p class="text-xs mb-4 line-clamp-2 leading-relaxed flex-1" style="color:var(--color-text-muted);">${safeDesc}</p>
+
+                        <div class="mt-auto pt-3 border-t" style="border-color:var(--color-border);">
+                            <p class="text-[10px] font-bold uppercase tracking-widest mb-1" style="color:var(--color-text-muted);">Harga</p>
+                            <p class="text-lg font-black mb-3" style="color:var(--color-primary);">Rp ${price.toLocaleString('id-ID')}</p>
+                            <div class="grid grid-cols-2 gap-2 mb-2">
+                                <a href="${detailUrl}" target="_blank" rel="noopener noreferrer"
+                                    class="btn-secondary flex items-center justify-center py-2.5 text-xs font-bold rounded-xl">Detail</a>
+                                <a href="${checkoutUrl}"
+                                    class="btn-primary flex items-center justify-center py-2.5 text-xs font-bold rounded-xl">
+                                    Beli <i data-lucide="shopping-cart" class="w-3.5 h-3.5 ml-1.5"></i>
+                                </a>
+                            </div>
+                            <button onclick="copyProductLink('${checkoutUrl}')"
+                                class="w-full flex items-center justify-center gap-2 py-2 text-[11px] font-bold rounded-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.07)] text-slate-400 hover:text-slate-200 transition-all">
+                                <i data-lucide="link" class="w-3.5 h-3.5"></i> Copy Link Area
+                            </button>
+                        </div>
+                    </div>
+                </article>`;
+            }).join('');
+
+            if (window.lucide) lucide.createIcons();
+        }
+
+        // ─── Load Catalog ────────────────────────────────────────────────────────
+        async function loadCatalog() {
+            try {
+                // Try cache first
+                const raw = localStorage.getItem(CACHE_KEY_CATALOG);
+                let cached = null;
+                try { cached = raw ? JSON.parse(raw) : null; } catch(e) {}
+
+                let list = null;
+                if (Array.isArray(cached)) list = cached;
+                else if (cached && Array.isArray(cached.data)) list = cached.data;
+
+                if (list && list.length > 0) {
+                    allProducts = list;
+                    renderProducts();
+                }
+
+                // Fetch fresh data
+                if (typeof SCRIPT_URL === 'undefined' && !window.API_URL) return;
+                const endpoint = window.API_URL || (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.protocol === 'file:' ? SCRIPT_URL : '/api');
+
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'get_products', email: '' })
+                });
+                const r = await res.json();
+                if (r && r.status === 'success') {
+                    const data = Array.isArray(r.available) ? r.available : [];
+                    allProducts = data;
+                    localStorage.setItem(CACHE_KEY_CATALOG, JSON.stringify({ data, time: Date.now() }));
+                    renderProducts();
+                }
+            } catch (err) {
+                console.error('Gagal memuat produk:', err);
+                const container = document.getElementById('public-products');
+                if (!allProducts.length) {
+                    container.innerHTML = '<p class="col-span-full text-center py-16 text-red-400">Gagal memuat produk. Silakan refresh halaman.</p>';
+                }
+            }
+        }
+
+        window.addEventListener('load', () => {
+            if (window.lucide) lucide.createIcons();
+            loadCatalog();
+        });
+    </script>
+</body>
+</html>

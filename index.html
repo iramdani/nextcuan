@@ -250,6 +250,8 @@
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="#katalog" class="transition hover:text-[#B6FF00]"
                         style="color: var(--color-text-muted);">Tools</a>
+                    <a href="products.html" class="transition hover:text-[#B6FF00]"
+                        style="color: var(--color-text-muted);">Products</a>
                     <a href="#solution" class="transition hover:text-[#B6FF00]"
                         style="color: var(--color-text-muted);">Platform</a>
                     <a href="#how-it-works" class="transition hover:text-[#B6FF00]"
@@ -621,6 +623,14 @@
                 <p class="text-xs font-bold uppercase tracking-[0.2em] animate-pulse"
                     style="color: var(--color-text-muted);">Menyiapkan Produk...</p>
             </div>
+        </div>
+        <!-- Lihat Semua Produk CTA -->
+        <div class="text-center mt-12" id="lihat-semua-cta" style="display:none;">
+            <a href="products.html" class="btn-primary inline-flex items-center space-x-2 px-8 py-4 rounded-xl text-base font-bold shadow-[0_0_30px_rgba(182,255,0,0.25)] hover:shadow-[0_0_40px_rgba(182,255,0,0.4)] transition-all">
+                <i data-lucide="layout-grid" class="w-5 h-5"></i>
+                <span>Lihat Semua Produk</span>
+                <i data-lucide="arrow-right" class="w-5 h-5"></i>
+            </a>
         </div>
     </section>
 
@@ -1540,12 +1550,22 @@
                 return;
             }
 
-            currentCatalogData = products;
+            // Filter: only show rekomendasi products on homepage
+            const rekomendasiList = products.filter(p => p.rekomendasi === true || String(p.rekomendasi).toUpperCase() === 'TRUE');
+            const displayProducts = rekomendasiList.length > 0 ? rekomendasiList : products;
+            const hasMore = rekomendasiList.length > 0 && products.length > rekomendasiList.length;
 
-            // Extract unique categories
+            currentCatalogData = displayProducts;
+
+            // Show/hide "Lihat Semua Produk" button
+            const ctaEl = document.getElementById('lihat-semua-cta');
+            if (ctaEl) ctaEl.style.display = hasMore ? 'block' : 'none';
+            if (ctaEl && window.lucide) lucide.createIcons({ root: ctaEl });
+
+            // Extract unique categories from displayed products
             const cats = ['Semua'];
             let hasCategories = false;
-            products.forEach(p => {
+            displayProducts.forEach(p => {
                 let c = (p.category || '').trim();
                 let displayCat = c ? c : 'Lainnya';
                 if(c) hasCategories = true;
@@ -1569,7 +1589,7 @@
             renderCatalogItems();
 
             if (window.CEPAT_SEO && typeof window.CEPAT_SEO.sync === 'function') {
-                window.CEPAT_SEO.sync({ products: products, reason: 'catalog-render' });
+                window.CEPAT_SEO.sync({ products: displayProducts, reason: 'catalog-render' });
             }
         }
 

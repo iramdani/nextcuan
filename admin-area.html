@@ -1244,6 +1244,12 @@
                         <input type="text" id="p-category" placeholder="Contoh: Ebook, Kelas" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all font-bold text-white">
                     </div>
                 </div>
+                <div class="mb-5 mt-2">
+                    <label class="flex items-center space-x-3 cursor-pointer p-4 rounded-xl border border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.02)] hover:bg-[rgba(255,255,255,0.05)] transition-all">
+                        <input type="checkbox" id="p-rekomendasi" class="form-checkbox h-5 w-5 text-[#B6FF00] rounded focus:ring-[#B6FF00] focus:ring-offset-0 bg-[rgba(0,0,0,0.5)] border-gray-600">
+                        <span class="text-sm font-bold text-white tracking-wider">Tampilkan di Halaman Utama (Rekomendasi)</span>
+                    </label>
+                </div>
                 <div>
                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">URL Landing Page</label>
                     <input type="text" id="p-lp" placeholder="Contoh: p.html?s=promo" class="w-full p-4 glass-input rounded-xl font-medium text-white outline-none focus:border-[#B6FF00] transition-all" required>
@@ -2068,9 +2074,13 @@
                     <h4 class="font-bold text-white text-lg mb-2 leading-snug">${safeProductTitle}</h4>
                     <p class="text-xs text-slate-400 line-clamp-2 mb-6 font-medium leading-relaxed">${safeProductDesc}</p>
                     <div class="flex gap-2">
+                    <div class="flex gap-2 mb-2">
                         <button onclick="editProd('${p[0]}')" class="flex-1 btn-primary py-3.5 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all">Edit Produk</button>
                         <button onclick="deleteProd('${p[0]}', '${String(p[1] || '').replace(/'/g, "\\'")}')" class="bg-[#ef4444]/10 text-[#ef4444] border border-[#ef4444]/30 hover:border-transparent hover:bg-[#ef4444] hover:text-white hover:shadow-[0_0_15px_rgba(239,68,68,0.4)] px-4 py-3.5 rounded-xl font-bold transition-all" title="Hapus Produk"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                     </div>
+                    <button onclick="copyProductLink('${location.origin + location.pathname.replace(/admin-area\.html/i, '')}checkout.html?id=${p[0]}')" class="w-full bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.1)] flex items-center justify-center py-2.5 text-xs font-bold rounded-xl transition-all hover:bg-[rgba(255,255,255,0.08)] text-slate-300">
+                        <i data-lucide="link" class="w-4 h-4 mr-2"></i> Copy Link Area
+                    </button>
                 </div>`;
             }).join('');
 
@@ -2294,6 +2304,7 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             updateProductDescriptionCounter(document.getElementById('p-desc').value);
             document.getElementById('p-url').value = p[3]; 
             document.getElementById('p-category').value = p[12] || '';
+            document.getElementById('p-rekomendasi').checked = p[13] === true || String(p[13]).toUpperCase() === 'TRUE';
             document.getElementById('p-harga').value = p[4]; 
             document.getElementById('p-commission').value = p[11] || 0;
             document.getElementById('p-lp').value = p[6] || ""; 
@@ -2426,6 +2437,20 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
 
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => showToast('URL berhasil dicopy!', 'success'));
+        }
+
+        function copyProductLink(url) {
+            navigator.clipboard.writeText(url).then(() => {
+                showToast('URL Produk berhasil dicopy!', 'success');
+            }).catch(err => {
+                const tempInput = document.createElement('input');
+                tempInput.value = url;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
+                showToast('URL Produk berhasil dicopy!', 'success');
+            });
         }
         
         async function uploadMedia() { 
@@ -2656,6 +2681,7 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
         function openProdModal() { 
             document.getElementById('form-prod').reset(); 
             document.getElementById('p-desc').value = '';
+            document.getElementById('p-rekomendasi').checked = false;
             updateProductDescriptionCounter('');
             updateProdPreview(''); 
             document.getElementById('p-is-edit').value = 'false'; 
@@ -2801,6 +2827,7 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                 pixel_id: document.getElementById('p-pixel-id').value,
                 pixel_token: document.getElementById('p-pixel-token').value,
                 pixel_test_code: document.getElementById('p-pixel-test').value,
+                rekomendasi: document.getElementById('p-rekomendasi').checked,
                 status: 'Active', 
                 is_edit: document.getElementById('p-is-edit').value === 'true' 
             }; 
