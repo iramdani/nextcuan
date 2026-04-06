@@ -2031,7 +2031,8 @@ function getProducts(d, cfg, cachedOrders) {
         access: hasAccess,
         lp_url: rules[i][6] || "",
         image_url: rules[i][7] || "",
-        commission: rules[i][11] || 0
+        commission: rules[i][11] || 0,
+        category: rules[i][12] || ""
       };
       
       if (targetMode) {
@@ -2703,18 +2704,19 @@ function saveProduct(d) {
     const pixelToken = String(d.pixel_token || "").trim();
     const pixelTestCode = normalizePlainText_(d.pixel_test_code);
     const commission = String(d.commission || "").trim();
+    const category = String(d.category || "").trim();
     
-    // Ensure we have enough columns (12 columns needed)
-    if (s.getMaxColumns() < 12) s.insertColumnsAfter(s.getMaxColumns(), 12 - s.getMaxColumns());
+    // Ensure we have enough columns (13 columns needed)
+    if (s.getMaxColumns() < 13) s.insertColumnsAfter(s.getMaxColumns(), 13 - s.getMaxColumns());
     
-    const dataRow = [productId, productTitle, productDesc, productUrl, d.harga, productStatus, landingPageUrl, imageUrl, pixelId, pixelToken, pixelTestCode, commission];
+    const dataRow = [productId, productTitle, productDesc, productUrl, d.harga, productStatus, landingPageUrl, imageUrl, pixelId, pixelToken, pixelTestCode, commission, category];
     const isEdit = String(d.is_edit) === "true";
 
     if (isEdit) {
       const r = s.getDataRange().getValues();
       for (let i = 1; i < r.length; i++) {
         if (String(r[i][0]).trim() === productId) {
-          s.getRange(i + 1, 1, 1, 12).setValues([dataRow]);
+          s.getRange(i + 1, 1, 1, 13).setValues([dataRow]);
           invalidateCaches_(["access_rules"]);
           return withPublicCacheState_({ status: "success" }, bumpPublicCacheState_(["catalog", "dashboard"]));
         }

@@ -1234,9 +1234,15 @@
                     </div>
                 </div>
                 
-                <div>
-                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Nama Produk</label>
-                    <input type="text" id="p-title" placeholder="Contoh: Kelas Jagoan Python" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all font-bold text-white" required>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Nama Produk</label>
+                        <input type="text" id="p-title" placeholder="Contoh: Kelas Jagoan Python" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all font-bold text-white" required>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Kategori Produk</label>
+                        <input type="text" id="p-category" placeholder="Contoh: Ebook, Kelas" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all font-bold text-white">
+                    </div>
                 </div>
                 <div>
                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">URL Landing Page</label>
@@ -2287,6 +2293,7 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             document.getElementById('p-desc').value = normalizeProductDescriptionInput(p[2]); 
             updateProductDescriptionCounter(document.getElementById('p-desc').value);
             document.getElementById('p-url').value = p[3]; 
+            document.getElementById('p-category').value = p[12] || '';
             document.getElementById('p-harga').value = p[4]; 
             document.getElementById('p-commission').value = p[11] || 0;
             document.getElementById('p-lp').value = p[6] || ""; 
@@ -2786,6 +2793,7 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                 title: document.getElementById('p-title').value, 
                 desc: descValidation.value, 
                 url: document.getElementById('p-url').value, 
+                category: document.getElementById('p-category').value,
                 harga: document.getElementById('p-harga').value, 
                 commission: document.getElementById('p-commission').value,
                 lp_url: document.getElementById('p-lp').value,
