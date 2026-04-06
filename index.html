@@ -197,15 +197,28 @@
 
         .catalog-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            grid-template-columns: repeat(4, 1fr);
             gap: 1.5rem;
         }
 
-        @media (max-width: 640px) {
-            .catalog-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 1rem;
-            }
+        @media (max-width: 1024px) {
+            .catalog-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .catalog-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+        }
+        @media (max-width: 480px) {
+            .catalog-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+        }
+
+        /* Mobile menu */
+        #mobile-menu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        #mobile-menu.open {
+            max-height: 400px;
         }
 
         .fade-in {
@@ -240,29 +253,44 @@
     <nav class="fixed top-0 left-0 right-0 z-50 glass-card border-b" style="border-color: rgba(182, 255, 0, 0.08);">
         <div class="max-w-7xl mx-auto px-6 py-4">
             <div class="flex items-center justify-between">
-                <!-- Logo dengan gambar -->
+                <!-- Logo -->
                 <a href="https://akses.nextcuan.my.id" target="_blank"
                     class="flex items-center space-x-2 hover:opacity-80 transition-opacity">
                     <img src="https://ik.imagekit.io/iramdani/NextCuan_Logo_Transparent_Horizontal-3__1__n8uCKrYMC.png"
                         alt="Next Cuan Logo" class="h-10 w-auto object-contain">
                 </a>
 
+                <!-- Desktop Menu -->
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="#katalog" class="transition hover:text-[#B6FF00]"
-                        style="color: var(--color-text-muted);">Tools</a>
-                    <a href="products.html" class="transition hover:text-[#B6FF00]"
-                        style="color: var(--color-text-muted);">Products</a>
-                    <a href="#solution" class="transition hover:text-[#B6FF00]"
-                        style="color: var(--color-text-muted);">Platform</a>
-                    <a href="#how-it-works" class="transition hover:text-[#B6FF00]"
-                        style="color: var(--color-text-muted);">Cara Kerja</a>
-                    <a href="#faq" class="transition hover:text-[#B6FF00]"
-                        style="color: var(--color-text-muted);">FAQ</a>
+                    <a href="#katalog" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);">Tools</a>
+                    <a href="products.html" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);">Products</a>
+                    <a href="#solution" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);">Platform</a>
+                    <a href="#how-it-works" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);">Cara Kerja</a>
+                    <a href="#faq" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);">FAQ</a>
                 </div>
 
-                <div class="flex items-center space-x-4">
+                <!-- Right Side -->
+                <div class="flex items-center space-x-3">
                     <a href="#" class="hidden sm:block btn-secondary px-5 py-2.5 rounded-lg text-sm">Masuk</a>
                     <a href="#cta" class="btn-primary px-5 py-2.5 rounded-lg text-sm">Mulai Sekarang</a>
+                    <!-- Hamburger (mobile only) -->
+                    <button id="hamburger-btn" class="md:hidden flex items-center justify-center w-10 h-10 rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.04)] text-white transition hover:border-[#B6FF00] hover:text-[#B6FF00]" aria-label="Menu" onclick="toggleMobileMenu()">
+                        <i data-lucide="menu" class="w-5 h-5" id="hamburger-icon"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Dropdown Menu -->
+            <div id="mobile-menu" class="md:hidden">
+                <div class="py-4 border-t border-[rgba(255,255,255,0.07)] mt-3 flex flex-col space-y-1">
+                    <a href="#katalog" onclick="closeMobileMenu()" class="px-4 py-3 rounded-xl text-sm font-medium transition hover:bg-[rgba(182,255,0,0.08)] hover:text-[#B6FF00]" style="color: var(--color-text-muted);">Tools</a>
+                    <a href="products.html" onclick="closeMobileMenu()" class="px-4 py-3 rounded-xl text-sm font-medium transition hover:bg-[rgba(182,255,0,0.08)] hover:text-[#B6FF00]" style="color: var(--color-text-muted);">Products</a>
+                    <a href="#solution" onclick="closeMobileMenu()" class="px-4 py-3 rounded-xl text-sm font-medium transition hover:bg-[rgba(182,255,0,0.08)] hover:text-[#B6FF00]" style="color: var(--color-text-muted);">Platform</a>
+                    <a href="#how-it-works" onclick="closeMobileMenu()" class="px-4 py-3 rounded-xl text-sm font-medium transition hover:bg-[rgba(182,255,0,0.08)] hover:text-[#B6FF00]" style="color: var(--color-text-muted);">Cara Kerja</a>
+                    <a href="#faq" onclick="closeMobileMenu()" class="px-4 py-3 rounded-xl text-sm font-medium transition hover:bg-[rgba(182,255,0,0.08)] hover:text-[#B6FF00]" style="color: var(--color-text-muted);">FAQ</a>
+                    <div class="pt-2 border-t border-[rgba(255,255,255,0.07)]">
+                        <a href="#" class="block px-4 py-3 rounded-xl text-sm font-semibold btn-secondary text-center mt-1">Masuk</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1460,7 +1488,7 @@
                             ? `<img src="${p.image_url}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" onerror="this.outerHTML='<div class=\\'flex h-full w-full items-center justify-center bg-black/40 text-3xl font-black text-white\\'>${fallbackLetter}</div>'" loading="lazy" decoding="async" alt="${safeTitle}">`
                             : `<div class="flex h-full w-full items-center justify-center bg-[rgba(0,0,0,0.3)] text-3xl font-black text-white">${fallbackLetter}</div>`}
                         <div class="absolute top-3 right-3 z-20">
-                            <span class="glass-badge backdrop-blur-md bg-black/40 border border-white/10 text-white px-3 py-1 text-[10px] rounded-full">Siap Pakai</span>
+                            ${(p.category || '').trim() ? `<span class="glass-badge backdrop-blur-md bg-black/50 border border-[rgba(182,255,0,0.25)] text-[#B6FF00] px-3 py-1 text-[10px] rounded-full font-bold uppercase tracking-wide">${escapeCatalogHtml((p.category || '').trim())}</span>` : ''}
                         </div>
                     </a>
 
@@ -1630,6 +1658,26 @@
             loadPublicCatalog(); 
         });
 
+    </script>
+
+    <script>
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const icon = document.getElementById('hamburger-icon');
+            if (menu.classList.contains('open')) {
+                menu.classList.remove('open');
+                if (icon) { icon.setAttribute('data-lucide', 'menu'); lucide.createIcons({ nodes: [icon] }); }
+            } else {
+                menu.classList.add('open');
+                if (icon) { icon.setAttribute('data-lucide', 'x'); lucide.createIcons({ nodes: [icon] }); }
+            }
+        }
+        function closeMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const icon = document.getElementById('hamburger-icon');
+            menu.classList.remove('open');
+            if (icon) { icon.setAttribute('data-lucide', 'menu'); lucide.createIcons({ nodes: [icon] }); }
+        }
     </script>
 
 </body>

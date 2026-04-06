@@ -73,11 +73,18 @@
         }
         .catalog-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(4, 1fr);
             gap: 1.5rem;
         }
-        @media (max-width: 640px) {
+
+        @media (max-width: 1024px) {
+            .catalog-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 768px) {
             .catalog-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+        }
+        @media (max-width: 480px) {
+            .catalog-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
         }
         .product-card {
             background: rgba(255, 255, 255, 0.03);
@@ -176,6 +183,15 @@
             bottom: -100px;
             left: -100px;
         }
+        /* Mobile menu */
+        #mobile-menu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        #mobile-menu.open {
+            max-height: 400px;
+        }
     </style>
 </head>
 <body>
@@ -184,18 +200,42 @@
     <nav class="glass-nav fixed top-0 left-0 right-0 z-50">
         <div class="max-w-7xl mx-auto px-6 py-4">
             <div class="flex items-center justify-between">
+                <!-- Logo -->
                 <a href="index.html" class="flex items-center space-x-2 hover:opacity-80 transition-opacity">
                     <img src="https://ik.imagekit.io/iramdani/NextCuan_Logo_Transparent_Horizontal-3__1__n8uCKrYMC.png"
                         alt="Next Cuan Logo" class="h-10 w-auto object-contain">
                 </a>
+
+                <!-- Desktop Menu -->
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="index.html" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);">Beranda</a>
                     <a href="products.html" class="text-[#B6FF00] font-semibold">Products</a>
                     <a href="index.html#solution" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);">Platform</a>
+                    <a href="index.html#how-it-works" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);">Cara Kerja</a>
                     <a href="index.html#faq" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);">FAQ</a>
                 </div>
-                <div class="flex items-center space-x-4">
+
+                <!-- Right Side -->
+                <div class="flex items-center space-x-3">
                     <a href="index.html#cta" class="btn-primary px-5 py-2.5 rounded-lg text-sm">Mulai Sekarang</a>
+                    <!-- Hamburger (mobile only) -->
+                    <button id="hamburger-btn" class="md:hidden flex items-center justify-center w-10 h-10 rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.04)] text-white transition hover:border-[#B6FF00] hover:text-[#B6FF00]" aria-label="Menu" onclick="toggleMobileMenu()">
+                        <i data-lucide="menu" class="w-5 h-5" id="hamburger-icon"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Dropdown Menu -->
+            <div id="mobile-menu" class="md:hidden">
+                <div class="py-4 border-t border-[rgba(255,255,255,0.07)] mt-3 flex flex-col space-y-1">
+                    <a href="index.html" onclick="closeMobileMenu()" class="px-4 py-3 rounded-xl text-sm font-medium transition hover:bg-[rgba(182,255,0,0.08)] hover:text-[#B6FF00]" style="color: var(--color-text-muted);">Beranda</a>
+                    <a href="products.html" onclick="closeMobileMenu()" class="px-4 py-3 rounded-xl text-sm font-semibold text-[#B6FF00] bg-[rgba(182,255,0,0.06)] rounded-xl">Products</a>
+                    <a href="index.html#solution" onclick="closeMobileMenu()" class="px-4 py-3 rounded-xl text-sm font-medium transition hover:bg-[rgba(182,255,0,0.08)] hover:text-[#B6FF00]" style="color: var(--color-text-muted);">Platform</a>
+                    <a href="index.html#how-it-works" onclick="closeMobileMenu()" class="px-4 py-3 rounded-xl text-sm font-medium transition hover:bg-[rgba(182,255,0,0.08)] hover:text-[#B6FF00]" style="color: var(--color-text-muted);">Cara Kerja</a>
+                    <a href="index.html#faq" onclick="closeMobileMenu()" class="px-4 py-3 rounded-xl text-sm font-medium transition hover:bg-[rgba(182,255,0,0.08)] hover:text-[#B6FF00]" style="color: var(--color-text-muted);">FAQ</a>
+                    <div class="pt-2 border-t border-[rgba(255,255,255,0.07)]">
+                        <a href="index.html#cta" class="block px-4 py-3 rounded-xl text-sm font-semibold btn-primary text-center mt-1">Mulai Sekarang</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -524,5 +564,84 @@
             loadCatalog();
         });
     </script>
+
+    <!-- FOOTER -->
+    <footer class="py-12 border-t" style="border-color: rgba(182, 255, 0, 0.15);">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-8 mb-12">
+                <!-- Brand -->
+                <div class="md:col-span-1">
+                    <a href="index.html" class="flex items-center space-x-2 mb-4 hover:opacity-80 transition-opacity">
+                        <img src="https://ik.imagekit.io/iramdani/NextCuan_Logo_Transparent_Horizontal-3__1__n8uCKrYMC.png"
+                            alt="Next Cuan Logo" class="h-10 w-auto object-contain">
+                    </a>
+                    <p class="text-sm mb-4" style="color: var(--color-text-muted);">
+                        Platform ekosistem digital untuk membangun income online di era AI.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);"><i data-lucide="instagram" class="w-5 h-5"></i></a>
+                        <a href="#" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);"><i data-lucide="youtube" class="w-5 h-5"></i></a>
+                        <a href="#" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);"><i data-lucide="twitter" class="w-5 h-5"></i></a>
+                    </div>
+                </div>
+                <!-- Products -->
+                <div>
+                    <h4 class="font-semibold mb-4">Products</h4>
+                    <ul class="space-y-2 text-sm" style="color: var(--color-text-muted);">
+                        <li><a href="products.html" class="hover:text-[#B6FF00] transition">Semua Produk</a></li>
+                        <li><a href="products.html" class="hover:text-[#B6FF00] transition">Ebook Digital</a></li>
+                        <li><a href="products.html" class="hover:text-[#B6FF00] transition">Template</a></li>
+                        <li><a href="products.html" class="hover:text-[#B6FF00] transition">GPT Tools</a></li>
+                    </ul>
+                </div>
+                <!-- Resources -->
+                <div>
+                    <h4 class="font-semibold mb-4">Resources</h4>
+                    <ul class="space-y-2 text-sm" style="color: var(--color-text-muted);">
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Documentation</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Tutorials</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Blog</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Community</a></li>
+                    </ul>
+                </div>
+                <!-- Company -->
+                <div>
+                    <h4 class="font-semibold mb-4">Company</h4>
+                    <ul class="space-y-2 text-sm" style="color: var(--color-text-muted);">
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">About Us</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Contact</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="pt-8 border-t flex flex-col md:flex-row items-center justify-between text-sm"
+                style="border-color: rgba(182, 255, 0, 0.15); color: var(--color-text-muted);">
+                <p>&copy; 2024 Next Cuan. All rights reserved.</p>
+                <p class="mt-2 md:mt-0">Made with ❤️ in Indonesia</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const icon = document.getElementById('hamburger-icon');
+            if (menu.classList.contains('open')) {
+                menu.classList.remove('open');
+                if (icon) { icon.setAttribute('data-lucide', 'menu'); lucide.createIcons({ nodes: [icon] }); }
+            } else {
+                menu.classList.add('open');
+                if (icon) { icon.setAttribute('data-lucide', 'x'); lucide.createIcons({ nodes: [icon] }); }
+            }
+        }
+        function closeMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const icon = document.getElementById('hamburger-icon');
+            menu.classList.remove('open');
+            if (icon) { icon.setAttribute('data-lucide', 'menu'); lucide.createIcons({ nodes: [icon] }); }
+        }
+    </script>
+
 </body>
 </html>
