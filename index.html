@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 
 <head>
@@ -1594,96 +1594,43 @@
         }
 
         async function loadPublicCatalog() {
-            const cachedData = localStorage.getItem(CACHE_KEY_CATALOG);
-            const globalCache = window.__CEPAT_GLOBAL_SETTINGS__ || {};
-            let cachedPayload = null;
-            try { cachedPayload = cachedData ? JSON.parse(cachedData) : null; } catch(e) { cachedPayload = null; }
+            // Step 1: Tampilkan dari cache dulu (instant render)
+            const raw = localStorage.getItem(CACHE_KEY_CATALOG);
             let cachedList = null;
-            let cachedAt = 0;
-            if (Array.isArray(cachedPayload)) {
-                cachedList = cachedPayload;
-            } else if (cachedPayload && typeof cachedPayload === 'object') {
-                cachedList = Array.isArray(cachedPayload.data) ? cachedPayload.data : null;
-                cachedAt = Number(cachedPayload.time || 0);
-                if (!isFinite(cachedAt)) cachedAt = 0;
-            }
-            
-            if (cachedList) {
-                try {
-                    renderCatalog(cachedList);
-                } catch(e) {
-                    console.error("Cache corrupted", e);
-                    localStorage.removeItem(CACHE_KEY_CATALOG);
-                }
-            } 
-
             try {
-                if(typeof SCRIPT_URL === 'undefined' && !window.API_URL && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1' && location.protocol !== 'file:') {
-                    // Production: use /api endpoint, so don't return early
-                }
-                const cacheState = (window.CEPAT_CACHE_STATE && typeof window.CEPAT_CACHE_STATE.ensureFresh === 'function')
-                    ? await window.CEPAT_CACHE_STATE.ensureFresh()
-                    : null;
-                const currentCatalogVersion = String((cacheState && cacheState.catalog) || '');
-                const currentSettingsVersion = String((cacheState && cacheState.settings) || '');
-                const cachedCatalogVersion = String((cachedPayload && typeof cachedPayload === 'object' && !Array.isArray(cachedPayload) && cachedPayload.version) || '');
-                const cachedSettingsVersion = String((globalCache.cached && globalCache.cached.version) || '');
-                const isCatalogStale = !cachedAt || ((Date.now() - cachedAt) > CACHE_AGE_CATALOG);
-                const isCatalogVersionStale = !!currentCatalogVersion && cachedCatalogVersion !== currentCatalogVersion;
-                const isSettingsVersionStale = !!currentSettingsVersion && cachedSettingsVersion !== currentSettingsVersion;
-                const isSettingsStale = !globalCache.isFresh || isSettingsVersionStale;
-                if (cachedList && !isCatalogStale && !isSettingsStale && !isCatalogVersionStale) return;
+                const parsed = raw ? JSON.parse(raw) : null;
+                if (Array.isArray(parsed)) cachedList = parsed;
+                else if (parsed && Array.isArray(parsed.data)) cachedList = parsed.data;
+            } catch(e) { localStorage.removeItem(CACHE_KEY_CATALOG); }
 
-                const requests = [];
-                const requestMap = {};
-                if (isSettingsStale) {
-                    requestMap.settings = requests.push({ action: 'get_global_settings', cache_version: currentSettingsVersion }) - 1;
-                }
-                if (!cachedList || isCatalogStale || isCatalogVersionStale) {
-                    requestMap.catalog = requests.push({ action: 'get_products', email: '', cache_version: currentCatalogVersion }) - 1;
-                }
-                if (!requests.length) return;
+            if (cachedList && cachedList.length > 0) {
+                renderCatalog(cachedList);
+            }
 
-                const batch = (window.CEPAT_API && typeof window.CEPAT_API.batch === 'function')
-                    ? await window.CEPAT_API.batch(requests)
-                    : { status: 'error', results: [] };
-                const results = Array.isArray(batch.results) ? batch.results : [];
+            // Step 2: Selalu ambil data segar dari API
+            try {
+                const endpoint = (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.protocol === 'file:')
+                    ? (window.SCRIPT_URL || window.GAS_URL || null)
+                    : '/api';
 
-                if (requestMap.settings !== undefined) {
-                    const settingsResult = results[requestMap.settings];
-                    if (settingsResult && settingsResult.data && settingsResult.data.status === 'success') {
-                        const settingsData = settingsResult.data.data;
-                        const cachedSettings = globalCache.cached && globalCache.cached.data ? JSON.stringify(globalCache.cached.data) : '';
-                        const nextSettings = JSON.stringify(settingsData || {});
-                        const nextSettingsVersion = String((settingsResult.data && settingsResult.data.cache_version) || currentSettingsVersion || '');
-                        if (cachedSettings !== nextSettings && typeof globalCache.sync === 'function') {
-                            globalCache.sync(settingsData, Date.now(), nextSettingsVersion);
-                        } else if (settingsData && typeof globalCache.sync === 'function') {
-                            globalCache.sync(settingsData, Date.now(), nextSettingsVersion);
-                        } else if (settingsData && typeof globalCache.apply === 'function') {
-                            globalCache.apply(settingsData);
-                        }
-                    }
-                }
+                if (!endpoint) return;
 
-                if (requestMap.catalog !== undefined) {
-                    const catalogResult = results[requestMap.catalog];
-                    const r = catalogResult && catalogResult.data ? catalogResult.data : null;
-                    if (r && r.status === 'success') {
-                        const data = Array.isArray(r.available) ? r.available : [];
-                        const nextCatalogVersion = String((r && r.cache_version) || currentCatalogVersion || '');
-                        const freshData = JSON.stringify({ data: data, time: Date.now(), version: nextCatalogVersion });
-                        localStorage.setItem(CACHE_KEY_CATALOG, freshData);
-                        renderCatalog(data);
-                    }
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'get_products', email: '' })
+                });
+                const r = await res.json();
+                if (r && r.status === 'success') {
+                    const data = Array.isArray(r.available) ? r.available : [];
+                    localStorage.setItem(CACHE_KEY_CATALOG, JSON.stringify({ data, time: Date.now() }));
+                    renderCatalog(data);
                 }
-            } catch (err) { 
-                console.error('Background sync failed', err);
+            } catch (err) {
+                console.error('Gagal memuat produk:', err);
                 if (!cachedList) {
-                    document.getElementById('public-products').innerHTML = '<p class="text-red-500 text-center col-span-full bg-red-50/10 border border-red-500/20 py-4 rounded-[1.5rem]">Produk belum berhasil dimuat. Silakan refresh halaman dan coba lagi.</p>';
-                    if (window.CEPAT_SEO && typeof window.CEPAT_SEO.scheduleSync === 'function') {
-                        window.CEPAT_SEO.scheduleSync('catalog-error');
-                    }
+                    const container = document.getElementById('public-products');
+                    if (container) container.innerHTML = '<p class="text-red-500 text-center col-span-full bg-red-50/10 border border-red-500/20 py-4 rounded-[1.5rem]">Produk belum berhasil dimuat. Silakan refresh halaman.</p>';
                 }
             }
         }
@@ -1692,6 +1639,7 @@
             if(window.lucide) { lucide.createIcons(); }
             loadPublicCatalog(); 
         });
+
     </script>
 
 </body>
