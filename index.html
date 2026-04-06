@@ -1618,7 +1618,9 @@
             } 
 
             try {
-                if(typeof SCRIPT_URL === 'undefined') return; 
+                if(typeof SCRIPT_URL === 'undefined' && !window.API_URL && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1' && location.protocol !== 'file:') {
+                    // Production: use /api endpoint, so don't return early
+                }
                 const cacheState = (window.CEPAT_CACHE_STATE && typeof window.CEPAT_CACHE_STATE.ensureFresh === 'function')
                     ? await window.CEPAT_CACHE_STATE.ensureFresh()
                     : null;
@@ -1671,15 +1673,13 @@
                         const data = Array.isArray(r.available) ? r.available : [];
                         const nextCatalogVersion = String((r && r.cache_version) || currentCatalogVersion || '');
                         const freshData = JSON.stringify({ data: data, time: Date.now(), version: nextCatalogVersion });
-                        if(cachedData !== freshData) {
-                            localStorage.setItem(CACHE_KEY_CATALOG, freshData);
-                            renderCatalog(data);
-                        }
+                        localStorage.setItem(CACHE_KEY_CATALOG, freshData);
+                        renderCatalog(data);
                     }
                 }
             } catch (err) { 
                 console.error('Background sync failed', err);
-                if (!cachedData) {
+                if (!cachedList) {
                     document.getElementById('public-products').innerHTML = '<p class="text-red-500 text-center col-span-full bg-red-50/10 border border-red-500/20 py-4 rounded-[1.5rem]">Produk belum berhasil dimuat. Silakan refresh halaman dan coba lagi.</p>';
                     if (window.CEPAT_SEO && typeof window.CEPAT_SEO.scheduleSync === 'function') {
                         window.CEPAT_SEO.scheduleSync('catalog-error');
