@@ -2059,6 +2059,9 @@
                 const safeProductStatus = escapeHtml(normalizePlainText(p[5]) || '-');
                 const safeProductTitle = escapeHtml(normalizePlainText(p[1]) || '-');
                 const safeProductDesc = escapeHtml(normalizeProductDescriptionInput(p[2]) || '-');
+                // Build checkout URL (strip /admin-area path)
+                const _basePath = location.pathname.replace(/\/?admin-area(\.html)?\s*$/i, '').replace(/\/?$/, '/');
+                const copyUrl = location.origin + _basePath + 'checkout.html?id=' + p[0];
                 return `
                 <div class="glass-card p-6 rounded-3xl border border-[rgba(255,255,255,0.05)] shadow-none hover:shadow-[0_0_30px_rgba(1,122,107,0.2)] hover:-translate-y-1 transition-all duration-300 group">
                     <div class="flex justify-between items-start mb-6">
@@ -2068,19 +2071,18 @@
                                 <i data-lucide="${isAct ? 'check-circle-2' : 'minus-circle'}" class="w-3 h-3"></i> ${safeProductStatus}
                             </span>
                         </div>
-                        <span class="text-sm font-bold text-white">Rp ${displayPrice}</span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-bold text-white">Rp ${displayPrice}</span>
+                            <button onclick="copyProductLink('${copyUrl}')" class="p-2 rounded-xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-slate-400 hover:text-[#B6FF00] hover:bg-[rgba(182,255,0,0.1)] hover:border-[rgba(182,255,0,0.3)] transition-all" title="Copy Link Checkout"><i data-lucide="link" class="w-4 h-4"></i></button>
+                        </div>
                     </div>
                     ${productImage ? `<div class="w-full aspect-square rounded-2xl overflow-hidden mb-4 border border-[rgba(255,255,255,0.05)]"><img src="${productImage}" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500" onerror="this.style.display='none'" loading="lazy" decoding="async"></div>` : ''}
                     <h4 class="font-bold text-white text-lg mb-2 leading-snug">${safeProductTitle}</h4>
                     <p class="text-xs text-slate-400 line-clamp-2 mb-6 font-medium leading-relaxed">${safeProductDesc}</p>
                     <div class="flex gap-2">
-                    <div class="flex gap-2 mb-2">
                         <button onclick="editProd('${p[0]}')" class="flex-1 btn-primary py-3.5 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all">Edit Produk</button>
                         <button onclick="deleteProd('${p[0]}', '${String(p[1] || '').replace(/'/g, "\\'")}')" class="bg-[#ef4444]/10 text-[#ef4444] border border-[#ef4444]/30 hover:border-transparent hover:bg-[#ef4444] hover:text-white hover:shadow-[0_0_15px_rgba(239,68,68,0.4)] px-4 py-3.5 rounded-xl font-bold transition-all" title="Hapus Produk"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                     </div>
-                    <button onclick="copyProductLink('${location.origin + location.pathname.replace(/admin-area\.html/i, '')}checkout.html?id=${p[0]}')" class="w-full bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.1)] flex items-center justify-center py-2.5 text-xs font-bold rounded-xl transition-all hover:bg-[rgba(255,255,255,0.08)] text-slate-300">
-                        <i data-lucide="link" class="w-4 h-4 mr-2"></i> Copy Link Area
-                    </button>
                 </div>`;
             }).join('');
 
