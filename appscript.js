@@ -2018,10 +2018,13 @@ function getProducts(d, cfg, cachedOrders) {
   }
 
   let owned = [], available = [];
+  const isPublicRequest = !email; // No email = public catalog request
+
   for (let i = 1; i < rules.length; i++) {
     if (String(rules[i][5]).trim() === "Active") {
       const pId = String(rules[i][0]);
       const hasAccess = lunasIds.includes(pId);
+      const isHidden = rules[i][15] === true || String(rules[i][15]).toUpperCase() === "TRUE";
       const pObj = {
         id: pId,
         title: normalizePlainText_(rules[i][1]),
@@ -2034,7 +2037,8 @@ function getProducts(d, cfg, cachedOrders) {
         commission: rules[i][11] || 0,
         category: rules[i][12] || "",
         rekomendasi: rules[i][13] === true || String(rules[i][13]).toUpperCase() === "TRUE",
-        harga_coret: Number(rules[i][14] || 0) || 0
+        harga_coret: Number(rules[i][14] || 0) || 0,
+        hidden: isHidden
       };
       
       if (targetMode) {
@@ -2043,7 +2047,11 @@ function getProducts(d, cfg, cachedOrders) {
       } else {
           // Normal Dashboard mode
           if (hasAccess && email) owned.push(pObj);
-          else available.push(pObj);
+          else {
+            // For public requests (no email): filter out hidden products
+            // For member dashboard: include all products (even hidden) for affiliate use
+            if (!isPublicRequest || !isHidden) available.push(pObj);
+          }
       }
     }
   }
@@ -2709,18 +2717,19 @@ function saveProduct(d) {
     const category = String(d.category || "").trim();
     const rekomendasi = String(d.rekomendasi || "false") === "true";
     const hargaCoret = String(d.harga_coret || "").trim();
+    const hidden = String(d.hidden || "false") === "true";
     
-    // Ensure we have enough columns (15 columns needed)
-    if (s.getMaxColumns() < 15) s.insertColumnsAfter(s.getMaxColumns(), 15 - s.getMaxColumns());
+    // Ensure we have enough columns (16 columns needed)
+    if (s.getMaxColumns() < 16) s.insertColumnsAfter(s.getMaxColumns(), 16 - s.getMaxColumns());
     
-    const dataRow = [productId, productTitle, productDesc, productUrl, d.harga, productStatus, landingPageUrl, imageUrl, pixelId, pixelToken, pixelTestCode, commission, category, rekomendasi, hargaCoret];
+    const dataRow = [productId, productTitle, productDesc, productUrl, d.harga, productStatus, landingPageUrl, imageUrl, pixelId, pixelToken, pixelTestCode, commission, category, rekomendasi, hargaCoret, hidden];
     const isEdit = String(d.is_edit) === "true";
 
     if (isEdit) {
       const r = s.getDataRange().getValues();
       for (let i = 1; i < r.length; i++) {
         if (String(r[i][0]).trim() === productId) {
-          s.getRange(i + 1, 1, 1, 15).setValues([dataRow]);
+          s.getRange(i + 1, 1, 1, 16).setValues([dataRow]);
           invalidateCaches_(["access_rules"]);
           return withPublicCacheState_({ status: "success" }, bumpPublicCacheState_(["catalog", "dashboard"]));
         }

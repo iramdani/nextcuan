@@ -1219,6 +1219,20 @@
             
             <form id="form-prod" class="space-y-5">
                 <input type="hidden" id="p-is-edit">
+
+                <!-- Row 1: Nama Produk & Kategori (most important, at top) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Nama Produk</label>
+                        <input type="text" id="p-title" placeholder="Contoh: Kelas Jagoan Python" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all font-bold text-white" required>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Kategori Produk</label>
+                        <input type="text" id="p-category" placeholder="Contoh: Ebook, Kelas" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all font-bold text-white">
+                    </div>
+                </div>
+
+                <!-- Row 2: ID Produk, Harga, Harga Coret -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
                     <div>
                         <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">ID Produk</label>
@@ -1234,29 +1248,32 @@
                         <p id="p-discount-preview" class="text-[11px] font-bold mt-1 hidden" style="color:#ef4444;"></p>
                     </div>
                 </div>
+
+                <!-- Row 3: Komisi -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
                         <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Komisi Affiliate (Rp)</label>
                         <input type="number" id="p-commission" placeholder="0" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all font-bold text-white" oninput="updateCommissionPreview()">
                         <p id="p-commission-preview" class="text-[11px] font-bold mt-1 hidden" style="color:#B6FF00;"></p>
                     </div>
+                    <div></div>
                 </div>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+
+                <!-- Row 4: toggles (Tampilkan Halaman Utama & Sembunyikan dari Katalog) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Nama Produk</label>
-                        <input type="text" id="p-title" placeholder="Contoh: Kelas Jagoan Python" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all font-bold text-white" required>
+                        <label class="flex items-center gap-3 cursor-pointer p-4 rounded-xl border border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.02)] hover:bg-[rgba(255,255,255,0.05)] transition-all">
+                            <input type="checkbox" id="p-rekomendasi" class="form-checkbox h-5 w-5 text-[#B6FF00] rounded focus:ring-[#B6FF00] focus:ring-offset-0 bg-[rgba(0,0,0,0.5)] border-gray-600 flex-shrink-0">
+                            <span class="text-sm font-bold text-white tracking-wider">Tampilkan di Halaman Utama (Rekomendasi)</span>
+                        </label>
                     </div>
                     <div>
-                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Kategori Produk</label>
-                        <input type="text" id="p-category" placeholder="Contoh: Ebook, Kelas" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all font-bold text-white">
+                        <label class="flex items-center gap-3 cursor-pointer p-4 rounded-xl border border-[rgba(239,68,68,0.2)] bg-[rgba(239,68,68,0.03)] hover:bg-[rgba(239,68,68,0.07)] transition-all">
+                            <input type="checkbox" id="p-hidden" class="form-checkbox h-5 w-5 text-[#ef4444] rounded focus:ring-[#ef4444] focus:ring-offset-0 bg-[rgba(0,0,0,0.5)] border-gray-600 flex-shrink-0">
+                            <span class="text-sm font-bold text-slate-300 tracking-wider">Sembunyikan dari Katalog Publik</span>
+                        </label>
+                        <p class="text-[10px] text-slate-500 mt-1 ml-1">Produk tetap bisa di-order via direct link. Tidak muncul di halaman utama, produk, dan pencarian.</p>
                     </div>
-                </div>
-                <div class="mb-5 mt-2">
-                    <label class="flex items-center space-x-3 cursor-pointer p-4 rounded-xl border border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.02)] hover:bg-[rgba(255,255,255,0.05)] transition-all">
-                        <input type="checkbox" id="p-rekomendasi" class="form-checkbox h-5 w-5 text-[#B6FF00] rounded focus:ring-[#B6FF00] focus:ring-offset-0 bg-[rgba(0,0,0,0.5)] border-gray-600">
-                        <span class="text-sm font-bold text-white tracking-wider">Tampilkan di Halaman Utama (Rekomendasi)</span>
-                    </label>
                 </div>
                 <div>
                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">URL Landing Page</label>
@@ -2060,6 +2077,7 @@
 
             document.getElementById('list-products').innerHTML = [...cachedProducts].reverse().map(p => {
                 const isAct = String(p[5]).trim() === 'Active';
+                const isHiddenProd = p[15] === true || String(p[15]).toUpperCase() === 'TRUE';
                 const stCls = isAct ? 'bg-[rgba(1,122,107,0.2)] text-[#017A6B] border-[rgba(1,122,107,0.4)]' : 'bg-[rgba(255,255,255,0.05)] text-slate-400 border-[rgba(255,255,255,0.1)]';
                 const displayPrice = Number(p[4] || 0).toLocaleString('id-ID');
                 const productImage = p[7] || '';
@@ -2071,13 +2089,15 @@
                 const _basePath = location.pathname.replace(/\/?admin-area(\.html)?\s*$/i, '').replace(/\/?$/, '/');
                 const copyUrl = location.origin + _basePath + 'checkout.html?id=' + p[0];
                 return `
-                <div class="glass-card p-6 rounded-3xl border border-[rgba(255,255,255,0.05)] shadow-none hover:shadow-[0_0_30px_rgba(1,122,107,0.2)] hover:-translate-y-1 transition-all duration-300 group">
+                <div class="glass-card p-6 rounded-3xl border ${isHiddenProd ? 'border-[rgba(239,68,68,0.2)] bg-[rgba(239,68,68,0.02)]' : 'border-[rgba(255,255,255,0.05)]'} shadow-none hover:shadow-[0_0_30px_rgba(1,122,107,0.2)] hover:-translate-y-1 transition-all duration-300 group relative">
+                    ${isHiddenProd ? '<div class="absolute inset-0 pointer-events-none rounded-3xl" style="background:rgba(239,68,68,0.03);"></div>' : ''}
                     <div class="flex justify-between items-start mb-6">
                         <div class="flex flex-col gap-2">
                             <span class="text-[10px] font-bold bg-[rgba(0,0,0,0.3)] text-slate-400 px-3 py-1.5 rounded-full uppercase tracking-wider w-fit group-hover:bg-[rgba(182,255,0,0.1)] group-hover:text-[#B6FF00] transition-colors">${safeProductId}</span>
                             <span class="text-[10px] font-bold ${stCls} px-3 py-1.5 rounded-full uppercase tracking-wider border w-fit flex items-center gap-1">
                                 <i data-lucide="${isAct ? 'check-circle-2' : 'minus-circle'}" class="w-3 h-3"></i> ${safeProductStatus}
                             </span>
+                            ${isHiddenProd ? '<span class="text-[10px] font-bold bg-[rgba(239,68,68,0.15)] text-[#ef4444] border border-[rgba(239,68,68,0.3)] px-3 py-1.5 rounded-full uppercase tracking-wider w-fit flex items-center gap-1"><i data-lucide="eye-off" class="w-3 h-3"></i> Tersembunyi</span>' : ''}
                         </div>
                         <div class="flex items-center gap-2">
                             <div class="text-right">
@@ -2319,6 +2339,7 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             document.getElementById('p-url').value = p[3]; 
             document.getElementById('p-category').value = p[12] || '';
             document.getElementById('p-rekomendasi').checked = p[13] === true || String(p[13]).toUpperCase() === 'TRUE';
+            document.getElementById('p-hidden') && (document.getElementById('p-hidden').checked = p[15] === true || String(p[15]).toUpperCase() === 'TRUE');
             document.getElementById('p-harga').value = p[4];
             // Trigger discount preview update after setting both harga and harga_coret
             const hargaCoretVal = p[14] || '';
@@ -2701,6 +2722,7 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             document.getElementById('form-prod').reset(); 
             document.getElementById('p-desc').value = '';
             document.getElementById('p-rekomendasi').checked = false;
+            const hiddenEl = document.getElementById('p-hidden'); if (hiddenEl) hiddenEl.checked = false;
             updateProductDescriptionCounter('');
             updateProdPreview(''); 
             document.getElementById('p-is-edit').value = 'false';
@@ -2853,6 +2875,7 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                 pixel_token: document.getElementById('p-pixel-token').value,
                 pixel_test_code: document.getElementById('p-pixel-test').value,
                 rekomendasi: document.getElementById('p-rekomendasi').checked,
+                hidden: document.getElementById('p-hidden') ? document.getElementById('p-hidden').checked : false,
                 status: 'Active', 
                 is_edit: document.getElementById('p-is-edit').value === 'true' 
             }; 

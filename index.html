@@ -1576,10 +1576,13 @@
                 return;
             }
 
+            // Filter out hidden products (add-on products not meant for public browsing)
+            const visibleProducts = products.filter(p => p.hidden !== true && String(p.hidden).toUpperCase() !== 'TRUE');
+
             // Filter: only show rekomendasi products on homepage
-            const rekomendasiList = products.filter(p => p.rekomendasi === true || String(p.rekomendasi).toUpperCase() === 'TRUE');
-            const displayProducts = rekomendasiList.length > 0 ? rekomendasiList : products;
-            const hasMore = rekomendasiList.length > 0 && products.length > rekomendasiList.length;
+            const rekomendasiList = visibleProducts.filter(p => p.rekomendasi === true || String(p.rekomendasi).toUpperCase() === 'TRUE');
+            const displayProducts = rekomendasiList.length > 0 ? rekomendasiList : visibleProducts;
+            const hasMore = rekomendasiList.length > 0 && visibleProducts.length > rekomendasiList.length;
 
             currentCatalogData = displayProducts;
 

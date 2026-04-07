@@ -526,7 +526,8 @@
                 else if (cached && Array.isArray(cached.data)) list = cached.data;
 
                 if (list && list.length > 0) {
-                    allProducts = list;
+                    // Filter hidden products from cache as well
+                    allProducts = list.filter(p => p.hidden !== true && String(p.hidden).toUpperCase() !== 'TRUE');
                     renderProducts();
                 }
 
@@ -542,7 +543,8 @@
                 const r = await res.json();
                 if (r && r.status === 'success') {
                     const data = Array.isArray(r.available) ? r.available : [];
-                    allProducts = data;
+                    // Filter out hidden products client-side as safety net
+                    allProducts = data.filter(p => p.hidden !== true && String(p.hidden).toUpperCase() !== 'TRUE');
                     localStorage.setItem(CACHE_KEY_CATALOG, JSON.stringify({ data, time: Date.now() }));
                     renderProducts();
                 }
