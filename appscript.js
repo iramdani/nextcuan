@@ -2033,7 +2033,8 @@ function getProducts(d, cfg, cachedOrders) {
         image_url: rules[i][7] || "",
         commission: rules[i][11] || 0,
         category: rules[i][12] || "",
-        rekomendasi: rules[i][13] === true || String(rules[i][13]).toUpperCase() === "TRUE"
+        rekomendasi: rules[i][13] === true || String(rules[i][13]).toUpperCase() === "TRUE",
+        harga_coret: Number(rules[i][14] || 0) || 0
       };
       
       if (targetMode) {
@@ -2707,18 +2708,19 @@ function saveProduct(d) {
     const commission = String(d.commission || "").trim();
     const category = String(d.category || "").trim();
     const rekomendasi = String(d.rekomendasi || "false") === "true";
+    const hargaCoret = String(d.harga_coret || "").trim();
     
-    // Ensure we have enough columns (14 columns needed)
-    if (s.getMaxColumns() < 14) s.insertColumnsAfter(s.getMaxColumns(), 14 - s.getMaxColumns());
+    // Ensure we have enough columns (15 columns needed)
+    if (s.getMaxColumns() < 15) s.insertColumnsAfter(s.getMaxColumns(), 15 - s.getMaxColumns());
     
-    const dataRow = [productId, productTitle, productDesc, productUrl, d.harga, productStatus, landingPageUrl, imageUrl, pixelId, pixelToken, pixelTestCode, commission, category, rekomendasi];
+    const dataRow = [productId, productTitle, productDesc, productUrl, d.harga, productStatus, landingPageUrl, imageUrl, pixelId, pixelToken, pixelTestCode, commission, category, rekomendasi, hargaCoret];
     const isEdit = String(d.is_edit) === "true";
 
     if (isEdit) {
       const r = s.getDataRange().getValues();
       for (let i = 1; i < r.length; i++) {
         if (String(r[i][0]).trim() === productId) {
-          s.getRange(i + 1, 1, 1, 14).setValues([dataRow]);
+          s.getRange(i + 1, 1, 1, 15).setValues([dataRow]);
           invalidateCaches_(["access_rules"]);
           return withPublicCacheState_({ status: "success" }, bumpPublicCacheState_(["catalog", "dashboard"]));
         }

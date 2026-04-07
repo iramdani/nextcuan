@@ -1226,11 +1226,19 @@
                     </div>
                     <div>
                         <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Harga (Rp)</label>
-                        <input type="number" id="p-harga" placeholder="100000" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all font-bold text-white" required>
+                        <input type="number" id="p-harga" placeholder="100000" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all font-bold text-white" required oninput="updateDiscountPreview()">
                     </div>
                     <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Harga Coret (Opsional)</label>
+                        <input type="number" id="p-harga-coret" placeholder="150000" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all font-bold text-white" oninput="updateDiscountPreview()">
+                        <p id="p-discount-preview" class="text-[11px] font-bold mt-1 hidden" style="color:#ef4444;"></p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
                         <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Komisi Affiliate (Rp)</label>
-                        <input type="number" id="p-commission" placeholder="0" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all font-bold text-white">
+                        <input type="number" id="p-commission" placeholder="0" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all font-bold text-white" oninput="updateCommissionPreview()">
+                        <p id="p-commission-preview" class="text-[11px] font-bold mt-1 hidden" style="color:#B6FF00;"></p>
                     </div>
                 </div>
                 
@@ -2072,7 +2080,11 @@
                             </span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="text-sm font-bold text-white">Rp ${displayPrice}</span>
+                            <div class="text-right">
+                                ${Number(p[14] || 0) > 0 && Number(p[14] || 0) > Number(p[4] || 0) ? `<span class="text-xs line-through text-slate-500">Rp ${Number(p[14]).toLocaleString('id-ID')}</span>` : ''}
+                                <span class="text-sm font-bold text-white block">Rp ${displayPrice}</span>
+                                ${(function() { const hCoret = Number(p[14]||0); const harga = Number(p[4]||0); if(hCoret > 0 && hCoret > harga) { const pct = Math.round((1-harga/hCoret)*100); return `<span class="text-[10px] font-bold text-[#ef4444] bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.2)] px-1.5 py-0.5 rounded-full">-${pct}%</span>`; } return ''; })()}
+                            </div>
                             <button onclick="copyProductLink('${copyUrl}')" class="p-2 rounded-xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-slate-400 hover:text-[#B6FF00] hover:bg-[rgba(182,255,0,0.1)] hover:border-[rgba(182,255,0,0.3)] transition-all" title="Copy Link Checkout"><i data-lucide="link" class="w-4 h-4"></i></button>
                         </div>
                     </div>
@@ -2307,8 +2319,13 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             document.getElementById('p-url').value = p[3]; 
             document.getElementById('p-category').value = p[12] || '';
             document.getElementById('p-rekomendasi').checked = p[13] === true || String(p[13]).toUpperCase() === 'TRUE';
-            document.getElementById('p-harga').value = p[4]; 
+            document.getElementById('p-harga').value = p[4];
+            // Trigger discount preview update after setting both harga and harga_coret
+            const hargaCoretVal = p[14] || '';
+            document.getElementById('p-harga-coret').value = hargaCoretVal;
             document.getElementById('p-commission').value = p[11] || 0;
+            updateDiscountPreview();
+            updateCommissionPreview();
             document.getElementById('p-lp').value = p[6] || ""; 
             const imgUrl = p[7] || "";
             document.getElementById('p-image').value = imgUrl;
@@ -2686,7 +2703,12 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             document.getElementById('p-rekomendasi').checked = false;
             updateProductDescriptionCounter('');
             updateProdPreview(''); 
-            document.getElementById('p-is-edit').value = 'false'; 
+            document.getElementById('p-is-edit').value = 'false';
+            // Reset previews
+            const discPreview = document.getElementById('p-discount-preview');
+            const commPreview = document.getElementById('p-commission-preview');
+            if (discPreview) { discPreview.classList.add('hidden'); discPreview.textContent = ''; }
+            if (commPreview) { commPreview.classList.add('hidden'); commPreview.textContent = ''; } 
             
             // Auto-generate Unique ID
             const prefix = 'PRD';
@@ -2823,6 +2845,7 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                 url: document.getElementById('p-url').value, 
                 category: document.getElementById('p-category').value,
                 harga: document.getElementById('p-harga').value, 
+                harga_coret: document.getElementById('p-harga-coret').value || '',
                 commission: document.getElementById('p-commission').value,
                 lp_url: document.getElementById('p-lp').value,
                 image_url: document.getElementById('p-image').value, 
@@ -2846,6 +2869,36 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
         });
 
         updateProductDescriptionCounter(document.getElementById('p-desc').value);
+
+        function updateDiscountPreview() {
+            const harga = Number(document.getElementById('p-harga').value || 0);
+            const hargaCoret = Number(document.getElementById('p-harga-coret').value || 0);
+            const preview = document.getElementById('p-discount-preview');
+            if (!preview) return;
+            if (hargaCoret > 0 && hargaCoret > harga && harga > 0) {
+                const pct = Math.round((1 - harga / hargaCoret) * 100);
+                preview.textContent = `💰 Diskon ${pct}% dari harga normal Rp ${hargaCoret.toLocaleString('id-ID')}`;
+                preview.classList.remove('hidden');
+            } else {
+                preview.textContent = '';
+                preview.classList.add('hidden');
+            }
+        }
+
+        function updateCommissionPreview() {
+            const harga = Number(document.getElementById('p-harga').value || 0);
+            const comm = Number(document.getElementById('p-commission').value || 0);
+            const preview = document.getElementById('p-commission-preview');
+            if (!preview) return;
+            if (comm > 0 && harga > 0) {
+                const pct = Math.round((comm / harga) * 100);
+                preview.textContent = `🤝 Komisi ${pct}% dari harga jual`;
+                preview.classList.remove('hidden');
+            } else {
+                preview.textContent = '';
+                preview.classList.add('hidden');
+            }
+        }
 
         document.getElementById('form-page').onsubmit = async (e) => { 
             e.preventDefault(); 

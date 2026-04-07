@@ -846,7 +846,10 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                             ${p.commission > 0 ? `
                             <div class="mb-6 pt-4 border-t border-[rgba(255,255,255,0.1)]">
                                 <p class="text-[10px] font-bold text-[#019582] uppercase tracking-widest mb-1">Komisi Affiliate</p>
-                                <span class="text-sm font-bold text-[#B6FF00] bg-[rgba(1,122,107,0.2)] border border-[#017A6B]/30 px-2 py-1 rounded-lg">Rp ${Number(p.commission).toLocaleString('id-ID')}</span>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span class="text-sm font-bold text-[#B6FF00] bg-[rgba(1,122,107,0.2)] border border-[#017A6B]/30 px-2 py-1 rounded-lg">Rp ${Number(p.commission).toLocaleString('id-ID')}</span>
+                                    ${p.harga > 0 ? `<span class="text-xs font-bold text-[#B6FF00] bg-[rgba(182,255,0,0.08)] border border-[rgba(182,255,0,0.2)] px-2 py-1 rounded-lg">${Math.round((Number(p.commission) / Number(p.harga)) * 100)}%</span>` : ''}
+                                </div>
                             </div>` : ''}
 
                             <div class="flex gap-2 mt-auto">
@@ -901,12 +904,17 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                             <div class="flex justify-between items-end mb-6 pt-4 border-t border-[rgba(255,255,255,0.05)]">
                                 <div>
                                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Harga</p>
+                                    ${(Number(p.harga_coret || 0) > Number(p.harga || 0)) ? `<p class="text-[10px] line-through text-slate-500">Rp ${Number(p.harga_coret).toLocaleString('id-ID')}</p>` : ''}
                                     <span class="text-xl font-bold text-[#B6FF00]">Rp ${Number(p.harga).toLocaleString('id-ID')}</span>
+                                    ${(Number(p.harga_coret || 0) > Number(p.harga || 0)) ? `<span class="ml-2 text-[10px] font-bold text-[#ef4444] bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.2)] px-1.5 py-0.5 rounded-full">-${Math.round((1 - Number(p.harga) / Number(p.harga_coret)) * 100)}%</span>` : ''}
                                 </div>
                                 ${p.commission > 0 ? `
                                 <div class="text-right">
                                     <p class="text-[10px] font-bold text-[#019582] uppercase tracking-widest mb-1">Komisi</p>
-                                    <span class="text-sm font-bold text-[#B6FF00] bg-[rgba(1,122,107,0.2)] border border-[#017A6B]/30 px-2 py-1 rounded-lg">Rp ${Number(p.commission).toLocaleString('id-ID')}</span>
+                                    <div class="flex items-center gap-1 justify-end flex-wrap">
+                                        <span class="text-sm font-bold text-[#B6FF00] bg-[rgba(1,122,107,0.2)] border border-[#017A6B]/30 px-2 py-1 rounded-lg">Rp ${Number(p.commission).toLocaleString('id-ID')}</span>
+                                        ${p.harga > 0 ? `<span class="text-xs font-bold text-[#B6FF00] bg-[rgba(182,255,0,0.08)] border border-[rgba(182,255,0,0.2)] px-1.5 py-0.5 rounded-full">${Math.round((Number(p.commission) / Number(p.harga)) * 100)}%</span>` : ''}
+                                    </div>
                                 </div>` : ''}
                             </div>
                             
