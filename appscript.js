@@ -2027,17 +2027,21 @@ function getProducts(d, cfg, cachedOrders) {
   const isPublicRequest = !email; // No email = public catalog request
 
   for (let i = 1; i < rules.length; i++) {
-    if (String(rules[i][5]).trim() === "Active") {
-      const pId = String(rules[i][0]);
-      const hasAccess = lunasIds.includes(pId);
-      const isHidden = rules[i][15] === true || String(rules[i][15]).toUpperCase() === "TRUE";
-      const pObj = {
+    const pId = String(rules[i][0]);
+    const hasAccess = lunasIds.includes(pId);
+    const isActive = String(rules[i][5]).trim() === "Active";
+    const isHidden = rules[i][15] === true || String(rules[i][15]).toUpperCase() === "TRUE";
+
+    // Members who already own a product can ALWAYS access it,
+    // even if admin later deactivated or hid the product.
+    if (hasAccess && email) {
+      owned.push({
         id: pId,
         title: normalizePlainText_(rules[i][1]),
         desc: normalizeProductDescription_(rules[i][2]),
-        url: hasAccess ? rules[i][3] : "#",
+        url: rules[i][3],           // full access URL for owners
         harga: rules[i][4],
-        access: hasAccess,
+        access: true,
         lp_url: rules[i][6] || "",
         image_url: rules[i][7] || "",
         commission: rules[i][11] || 0,
@@ -2045,20 +2049,34 @@ function getProducts(d, cfg, cachedOrders) {
         rekomendasi: rules[i][13] === true || String(rules[i][13]).toUpperCase() === "TRUE",
         harga_coret: Number(rules[i][14] || 0) || 0,
         hidden: isHidden
-      };
-      
-      if (targetMode) {
-          // In Bio Page mode, we show what the user OWNS as the "Available Catalog" for visitors
-          if (hasAccess) available.push(pObj);
-      } else {
-          // Normal Dashboard mode
-          if (hasAccess && email) owned.push(pObj);
-          else {
-            // For public requests (no email): filter out hidden products
-            // For member dashboard: include all products (even hidden) for affiliate use
-            if (!isPublicRequest || !isHidden) available.push(pObj);
-          }
-      }
+      });
+      continue; // don't add to available if already owned
+    }
+
+    // Only Active products appear in the public/affiliate catalog
+    if (!isActive) continue;
+
+    const pObj = {
+      id: pId,
+      title: normalizePlainText_(rules[i][1]),
+      desc: normalizeProductDescription_(rules[i][2]),
+      url: "#",
+      harga: rules[i][4],
+      access: false,
+      lp_url: rules[i][6] || "",
+      image_url: rules[i][7] || "",
+      commission: rules[i][11] || 0,
+      category: rules[i][12] || "",
+      rekomendasi: rules[i][13] === true || String(rules[i][13]).toUpperCase() === "TRUE",
+      harga_coret: Number(rules[i][14] || 0) || 0,
+      hidden: isHidden
+    };
+
+    if (targetMode) {
+      // Bio Page mode: show nothing for non-owners here (owners already handled above)
+    } else {
+      // Public/affiliate catalog: exclude hidden products for public requests
+      if (!isPublicRequest || !isHidden) available.push(pObj);
     }
   }
 

@@ -1210,8 +1210,8 @@
     </div>
 
     <!-- MODAL PRODUCT -->
-    <div id="modal-prod" class="fixed inset-0 bg-[#000018]/80 hidden z-[300] items-center justify-center p-4 backdrop-blur-md">
-        <div class="glass-card w-full max-w-2xl rounded-[2.5rem] p-8 md:p-10 shadow-2xl shadow-black/50 max-h-[90vh] overflow-y-auto custom-scroll relative">
+    <div id="modal-prod" class="fixed inset-0 bg-[#000018]/95 hidden z-[300] items-center justify-center p-4 backdrop-blur-xl">
+        <div class="glass-card w-full max-w-2xl rounded-[2.5rem] p-8 md:p-10 shadow-2xl shadow-black/80 max-h-[90vh] overflow-y-auto custom-scroll relative" style="background: rgba(5,5,20,0.92); border-color: rgba(255,255,255,0.1);">
             <button onclick="closeModal('modal-prod')" class="absolute top-6 right-6 p-2 bg-[rgba(255,255,255,0.05)] rounded-full text-slate-400 hover:bg-[rgba(255,255,255,0.1)] hover:text-white transition-colors border border-[rgba(255,255,255,0.1)]"><i data-lucide="x" class="w-5 h-5"></i></button>
             
             <h3 class="text-2xl font-bold mb-2 text-white">Setup Produk</h3>
@@ -1265,6 +1265,7 @@
                             <input type="checkbox" id="p-rekomendasi" class="form-checkbox h-5 w-5 text-[#B6FF00] rounded focus:ring-[#B6FF00] focus:ring-offset-0 bg-[rgba(0,0,0,0.5)] border-gray-600 flex-shrink-0">
                             <span class="text-sm font-bold text-white tracking-wider">Tampilkan di Halaman Utama (Rekomendasi)</span>
                         </label>
+                        <p class="text-[10px] text-slate-500 mt-1 ml-1">Produk ditampilkan di section rekomendasi halaman utama.</p>
                     </div>
                     <div>
                         <label class="flex items-center gap-3 cursor-pointer p-4 rounded-xl border border-[rgba(239,68,68,0.2)] bg-[rgba(239,68,68,0.03)] hover:bg-[rgba(239,68,68,0.07)] transition-all">
@@ -1273,17 +1274,6 @@
                         </label>
                         <p class="text-[10px] text-slate-500 mt-1 ml-1">Produk tetap bisa di-order via direct link. Tidak muncul di halaman utama, produk, dan pencarian.</p>
                     </div>
-                </div>
-
-                <!-- Row 5: Non-aktifkan Produk -->
-                <div>
-                    <label class="flex items-center gap-3 cursor-pointer p-4 rounded-xl border border-[rgba(239,68,68,0.35)] bg-[rgba(239,68,68,0.05)] hover:bg-[rgba(239,68,68,0.1)] transition-all">
-                        <input type="checkbox" id="p-inactive" class="form-checkbox h-5 w-5 text-[#ef4444] rounded focus:ring-[#ef4444] focus:ring-offset-0 bg-[rgba(0,0,0,0.5)] border-gray-600 flex-shrink-0">
-                        <div>
-                            <span class="text-sm font-bold text-[#ef4444] tracking-wider block">Nonaktifkan Produk</span>
-                            <span class="text-[10px] text-slate-500">Produk tidak bisa di-order, tidak muncul di mana pun. Link lama akan menampilkan halaman &ldquo;Produk Tidak Tersedia&rdquo;.</span>
-                        </div>
-                    </label>
                 </div>
                 <div>
                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">URL Landing Page</label>
@@ -1336,6 +1326,16 @@
                         <p id="p-desc-counter" class="text-[11px] font-bold text-slate-500">0/280</p>
                     </div>
                 </div>
+
+                <!-- Nonaktifkan Produk - paling bawah setelah deskripsi -->
+                <div>
+                    <label class="flex items-center gap-3 cursor-pointer p-4 rounded-xl border border-[rgba(239,68,68,0.35)] bg-[rgba(239,68,68,0.05)] hover:bg-[rgba(239,68,68,0.1)] transition-all">
+                        <input type="checkbox" id="p-inactive" class="form-checkbox h-5 w-5 text-[#ef4444] rounded focus:ring-[#ef4444] focus:ring-offset-0 bg-[rgba(0,0,0,0.5)] border-gray-600 flex-shrink-0">
+                        <span class="text-sm font-bold text-[#ef4444] tracking-wider">Nonaktifkan Produk</span>
+                    </label>
+                    <p class="text-[10px] text-slate-500 mt-1 ml-1">Produk tidak bisa di-order dan tidak muncul di katalog maupun pencarian. Link lama akan menampilkan halaman &ldquo;Produk Tidak Tersedia&rdquo;. Member yang sudah membeli tetap bisa mengakses produk.</p>
+                </div>
+
                 <div class="flex flex-col sm:flex-row gap-4 pt-4 border-t border-[rgba(255,255,255,0.05)] mt-4">
                     <button type="button" onclick="closeModal('modal-prod')" class="p-4 font-bold text-slate-400 hover:text-white transition-colors order-2 sm:order-1">BATAL</button>
                     <button type="submit" class="flex-1 btn-primary p-4 rounded-xl transition-all uppercase order-1 sm:order-2">Simpan Produk</button>
