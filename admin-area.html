@@ -1220,7 +1220,7 @@
             <form id="form-prod" class="space-y-5">
                 <input type="hidden" id="p-is-edit">
 
-                <!-- Row 1: Nama Produk & Kategori (most important, at top) -->
+                <!-- Row 1: Nama Produk & Kategori -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
                         <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Nama Produk</label>
@@ -1232,12 +1232,8 @@
                     </div>
                 </div>
 
-                <!-- Row 2: ID Produk, Harga, Harga Coret -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                    <div>
-                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">ID Produk</label>
-                        <input type="text" id="p-id" placeholder="PRD-01" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all font-bold text-white" required>
-                    </div>
+                <!-- Row 2: Harga & Harga Coret -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
                         <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Harga (Rp)</label>
                         <input type="number" id="p-harga" placeholder="100000" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all font-bold text-white" required oninput="updateDiscountPreview()">
@@ -1249,14 +1245,17 @@
                     </div>
                 </div>
 
-                <!-- Row 3: Komisi -->
+                <!-- Row 3: ID Produk & Komisi Affiliate -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">ID Produk</label>
+                        <input type="text" id="p-id" placeholder="PRD-01" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all font-bold text-white" required>
+                    </div>
                     <div>
                         <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Komisi Affiliate (Rp)</label>
                         <input type="number" id="p-commission" placeholder="0" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all font-bold text-white" oninput="updateCommissionPreview()">
                         <p id="p-commission-preview" class="text-[11px] font-bold mt-1 hidden" style="color:#B6FF00;"></p>
                     </div>
-                    <div></div>
                 </div>
 
                 <!-- Row 4: toggles (Tampilkan Halaman Utama & Sembunyikan dari Katalog) -->
@@ -2330,8 +2329,8 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             const idInput = document.getElementById('p-id');
             idInput.value = p[0]; 
             idInput.readOnly = true;
-            idInput.classList.add('bg-[rgba(255,255,255,0.05)]', 'text-slate-400', 'cursor-not-allowed', 'border-transparent');
-            idInput.classList.remove('glass-input', 'text-white');
+            idInput.classList.add('opacity-60', 'cursor-not-allowed');
+            idInput.classList.remove('focus:border-[#B6FF00]');
 
             document.getElementById('p-title').value = p[1]; 
             document.getElementById('p-desc').value = normalizeProductDescriptionInput(p[2]); 
@@ -2753,9 +2752,10 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             const idInput = document.getElementById('p-id');
             idInput.value = newId;
             idInput.readOnly = true;
-            // Visual feedback for read-only
-            idInput.classList.add('bg-[rgba(255,255,255,0.05)]', 'text-slate-400', 'cursor-not-allowed', 'border-transparent');
-            idInput.classList.remove('glass-input', 'text-white');
+            // Visual feedback for read-only: keep dark glass look, just reduce opacity
+            idInput.classList.add('opacity-60', 'cursor-not-allowed');
+            idInput.classList.remove('focus:border-[#B6FF00]');
+            idInput.classList.add('glass-input', 'text-white');
             
             (function(m){ m.classList.remove('hidden'); m.classList.add('flex'); })(document.getElementById('modal-prod')); 
         }
