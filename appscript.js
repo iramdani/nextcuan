@@ -1580,14 +1580,20 @@ function createOrder(d, cfg) {
 
     let komisiNominal = 0;
     
-    // Lookup Product Commission
+    // Validate product status + lookup commission
     const pId = String(d.id_produk || "").trim();
-    if (pId && aff !== "-") {
+    if (pId) {
         const rules = mustSheet_("Access_Rules").getDataRange().getValues();
         for (let i = 1; i < rules.length; i++) {
             if (String(rules[i][0]) === pId) {
-                // Commission is in column 12 (index 11)
-                komisiNominal = Number(rules[i][11] || 0);
+                // Guard: always reject order if product is not Active
+                if (String(rules[i][5]).trim() !== "Active") {
+                    return { status: "error", message: "Produk ini tidak aktif dan tidak bisa di-order." };
+                }
+                // Commission only relevant when there's an affiliate
+                if (aff !== "-") {
+                    komisiNominal = Number(rules[i][11] || 0);
+                }
                 break;
             }
         }

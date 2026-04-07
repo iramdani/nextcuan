@@ -380,6 +380,25 @@
                     </form>
                 </div>
 
+                <!-- UNAVAILABLE STATE -->
+                <div id="unavailable-state" class="hidden fade-in">
+                    <div class="text-center">
+                        <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.25)] flex items-center justify-center shadow-[0_0_30px_rgba(239,68,68,0.15)]">
+                            <i data-lucide="package-x" class="w-10 h-10 text-[#ef4444]"></i>
+                        </div>
+                        <h2 class="text-2xl font-extrabold text-white tracking-tight mb-2">Produk Tidak Tersedia</h2>
+                        <p class="text-slate-400 text-sm font-medium mb-8 leading-relaxed">Produk ini sedang tidak aktif atau telah dihentikan penjualannya. Silakan cek produk lain yang tersedia.</p>
+                        <div class="flex flex-col gap-3">
+                            <a href="products.html" class="w-full inline-flex items-center justify-center gap-2 bg-[#B6FF00] hover:bg-[#a3e600] text-black px-6 py-4 rounded-xl font-bold uppercase tracking-widest text-[10px] transition-colors shadow-[0_0_20px_rgba(182,255,0,0.2)]">
+                                <i data-lucide="shopping-bag" class="w-4 h-4"></i> Lihat Produk Lainnya
+                            </a>
+                            <a href="index.html" class="w-full inline-flex items-center justify-center gap-2 bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)] text-slate-300 border border-[rgba(255,255,255,0.08)] px-6 py-3.5 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-colors">
+                                <i data-lucide="home" class="w-4 h-4"></i> Kembali ke Beranda
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- SUCCESS STATE -->
                 <div id="success-state" class="hidden fade-in">
                     <div class="text-center mb-8">
@@ -677,6 +696,26 @@
             lucide.createIcons();
         }
 
+        // === SHOW UNAVAILABLE PAGE ===
+        function showUnavailablePage() {
+            // Hide loader
+            const loader = document.getElementById('loading-state');
+            loader.classList.add('opacity-0');
+            setTimeout(() => {
+                loader.style.display = 'none';
+                document.getElementById('main-content').classList.remove('hidden');
+                document.getElementById('main-content').classList.add('flex');
+            }, 300);
+            // Update left panel
+            document.getElementById('display-title').innerText = 'Produk Tidak Tersedia';
+            document.getElementById('display-total-top').innerHTML = '<span class="text-[#ef4444] text-2xl">—</span>';
+            // Hide form, show unavailable
+            document.getElementById('checkout-form-section').classList.add('hidden');
+            const unavEl = document.getElementById('unavailable-state');
+            if (unavEl) { unavEl.classList.remove('hidden'); }
+            lucide.createIcons();
+        }
+
         async function loadProduct() {
             if(!productId) { window.location.href = 'index.html'; return; }
             
@@ -779,8 +818,10 @@
                         } else {
                             localStorage.setItem(PRODUCT_CACHE_KEY, JSON.stringify({ data: cachedData, time: Date.now(), version: nextProductVersion || cachedProductVersion }));
                         }
-                    } else { 
-                        if(!prefilled) { showToast((r && r.message) || 'Produk tidak ditemukan.', 'error'); setTimeout(() => window.location.href = 'index.html', 1500); }
+                    } else {
+                        // Product inactive or not found — clear stale cache and show unavailable page
+                        localStorage.removeItem(PRODUCT_CACHE_KEY);
+                        showUnavailablePage();
                     }
                 }
             } catch (e) { 

@@ -1258,7 +1258,7 @@
                     </div>
                 </div>
 
-                <!-- Row 4: toggles (Tampilkan Halaman Utama & Sembunyikan dari Katalog) -->
+                <!-- Row 4: toggles -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="flex items-center gap-3 cursor-pointer p-4 rounded-xl border border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.02)] hover:bg-[rgba(255,255,255,0.05)] transition-all">
@@ -1273,6 +1273,17 @@
                         </label>
                         <p class="text-[10px] text-slate-500 mt-1 ml-1">Produk tetap bisa di-order via direct link. Tidak muncul di halaman utama, produk, dan pencarian.</p>
                     </div>
+                </div>
+
+                <!-- Row 5: Non-aktifkan Produk -->
+                <div>
+                    <label class="flex items-center gap-3 cursor-pointer p-4 rounded-xl border border-[rgba(239,68,68,0.35)] bg-[rgba(239,68,68,0.05)] hover:bg-[rgba(239,68,68,0.1)] transition-all">
+                        <input type="checkbox" id="p-inactive" class="form-checkbox h-5 w-5 text-[#ef4444] rounded focus:ring-[#ef4444] focus:ring-offset-0 bg-[rgba(0,0,0,0.5)] border-gray-600 flex-shrink-0">
+                        <div>
+                            <span class="text-sm font-bold text-[#ef4444] tracking-wider block">Nonaktifkan Produk</span>
+                            <span class="text-[10px] text-slate-500">Produk tidak bisa di-order, tidak muncul di mana pun. Link lama akan menampilkan halaman &ldquo;Produk Tidak Tersedia&rdquo;.</span>
+                        </div>
+                    </label>
                 </div>
                 <div>
                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">URL Landing Page</label>
@@ -2339,6 +2350,8 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             document.getElementById('p-category').value = p[12] || '';
             document.getElementById('p-rekomendasi').checked = p[13] === true || String(p[13]).toUpperCase() === 'TRUE';
             document.getElementById('p-hidden') && (document.getElementById('p-hidden').checked = p[15] === true || String(p[15]).toUpperCase() === 'TRUE');
+            const inactiveEl = document.getElementById('p-inactive');
+            if (inactiveEl) inactiveEl.checked = String(p[5]).trim() !== 'Active';
             document.getElementById('p-harga').value = p[4];
             // Trigger discount preview update after setting both harga and harga_coret
             const hargaCoretVal = p[14] || '';
@@ -2722,6 +2735,7 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             document.getElementById('p-desc').value = '';
             document.getElementById('p-rekomendasi').checked = false;
             const hiddenEl = document.getElementById('p-hidden'); if (hiddenEl) hiddenEl.checked = false;
+            const inactiveEl2 = document.getElementById('p-inactive'); if (inactiveEl2) inactiveEl2.checked = false;
             updateProductDescriptionCounter('');
             updateProdPreview(''); 
             document.getElementById('p-is-edit').value = 'false';
@@ -2876,7 +2890,7 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                 pixel_test_code: document.getElementById('p-pixel-test').value,
                 rekomendasi: document.getElementById('p-rekomendasi').checked,
                 hidden: document.getElementById('p-hidden') ? document.getElementById('p-hidden').checked : false,
-                status: 'Active', 
+                status: (document.getElementById('p-inactive') && document.getElementById('p-inactive').checked) ? 'Inactive' : 'Active',
                 is_edit: document.getElementById('p-is-edit').value === 'true' 
             }; 
             await submitFormToGAS('form-prod', p, 'Produk berhasil disimpan!', 'modal-prod');
