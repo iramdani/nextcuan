@@ -205,10 +205,12 @@
             if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
             n.queue=[];t=b.createElement(e);t.async=!0;
             t.src=v;s=b.getElementsByTagName(e)[0];
-            s.parentNode.insertBefore(t,s)}(window, document,'script',
+            if(s && s.parentNode) s.parentNode.insertBefore(t,s);
+            else document.head.appendChild(t);
+            }(window, document,'script',
             'https://connect.facebook.net/en_US/fbevents.js');
-            fbq('init', id);
-            fbq('track', 'PageView');
+            window.fbq('init', id);
+            window.fbq('track', 'PageView');
         }
     </script>
 </head>
@@ -638,8 +640,8 @@
             // 3. Track AddToCart
             try {
                 console.log("Calling fbq track AddToCart");
-                if(typeof fbq === 'function') {
-                    fbq('track', 'AddToCart', { 
+                if(typeof window.fbq === 'function') {
+                    window.fbq('track', 'AddToCart', { 
                         content_name: p.title, 
                         content_ids: [p.id], 
                         content_type: 'product',
@@ -897,8 +899,8 @@
                     setStep(3);
 
                     try {
-                        if(typeof fbq === 'function') {
-                            fbq('track', 'InitiateCheckout', {
+                        if(typeof window.fbq === 'function') {
+                            window.fbq('track', 'InitiateCheckout', {
                                 content_ids: [pData.id_produk],
                                 content_type: 'product',
                                 value: Number(r.tagihan) || Number(pData.harga) || 0,
