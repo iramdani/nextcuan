@@ -1958,9 +1958,18 @@ function updateOrderStatus(d, cfg) {
       Logger.log(traceId + " Status=Lunas, proceeding with notifications...");
 
       let accessUrl = "";
+      let capiPixelId = "";
+      let capiPixelToken = "";
+      let capiPixelTestCode = "";
       const pData = pS.getDataRange().getValues();
       for (let k = 1; k < pData.length; k++) {
-        if (String(pData[k][0]) === String(pId)) { accessUrl = pData[k][3]; break; }
+        if (String(pData[k][0]) === String(pId)) {
+          accessUrl = pData[k][3];
+          capiPixelId = String(pData[k][8] || "").trim();
+          capiPixelToken = String(pData[k][9] || "").trim();
+          capiPixelTestCode = String(pData[k][10] || "").trim();
+          break;
+        }
       }
       Logger.log(traceId + " accessUrl=" + accessUrl);
 
@@ -1996,7 +2005,22 @@ function updateOrderStatus(d, cfg) {
       const emailResult = sendEmail(uEmail, `Akses Terbuka! Produk ${pName} - ${siteName}`, emailActivationHtml, cfg);
       Logger.log(traceId + " Email Result: " + JSON.stringify(emailResult));
 
-      return withPublicCacheState_({ status: "success", trace: traceId, notifications: { wa: waResult, email: emailResult } }, cacheState);
+      // STEP 3: META CONVERSIONS API - Server-side Purchase event (konfirmasi manual admin)
+      const capiResult = sendMetaCAPIEvent_({
+        pixelId: capiPixelId,
+        accessToken: capiPixelToken,
+        testEventCode: capiPixelTestCode,
+        invoice: String(d.id || ""),
+        productId: pId,
+        productName: pName,
+        value: Number(r.find ? (r.find(row => String(row[0]) === String(d.id)) || [])[6] : 0) || 0,
+        email: uEmail,
+        phone: uWA,
+        sourceUrl: "https://nextcuan.my.id/checkout.html"
+      });
+      Logger.log(traceId + " CAPI Result: " + JSON.stringify(capiResult));
+
+      return withPublicCacheState_({ status: "success", trace: traceId, notifications: { wa: waResult, email: emailResult, capi: capiResult } }, cacheState);
     }
 
     return { status: "error", message: "Order tidak ditemukan" };
@@ -3367,6 +3391,130 @@ function pancinganIzin() {
 }
 
 /* =========================
+   META CONVERSIONS API (SERVER-SIDE PURCHASE)
+========================= */
+
+/**
+ * Mengirim event Purchase ke Meta Conversions API (server-side CAPI).
+ * Dipanggil dari handleMootaWebhook setelah pembayaran dikonfirmasi oleh Moota.
+ *
+ * Dokumentasi: https://developers.facebook.com/docs/marketing-api/conversions-api/
+ *
+ * @param {Object} opts - { pixelId, accessToken, testEventCode, invoice, productId, productName, value, email, phone, sourceUrl }
+ */
+function sendMetaCAPIEvent_(opts) {
+  try {
+    const pixelId = String(opts.pixelId || "").trim();
+    const accessToken = String(opts.accessToken || "").trim();
+    if (!pixelId || !accessToken) {
+      logMoota_("CAPI_SKIP", "Pixel ID atau Access Token tidak tersedia. Lewati CAPI Purchase event.");
+      return { ok: false, reason: "missing_credentials" };
+    }
+
+    const eventTime = Math.floor(Date.now() / 1000);
+
+    // Hash SHA256 email (lowercase) dan phone
+    function sha256Hex_(raw) {
+      const str = String(raw || "").trim().toLowerCase();
+      if (!str) return null;
+      const digest = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, str, Utilities.Charset.UTF_8);
+      return digest.map(function(b) {
+        const v = b < 0 ? b + 256 : b;
+        return ("0" + v.toString(16)).slice(-2);
+      }).join("").toLowerCase();
+    }
+
+    // Normalisasi nomor HP: hapus karakter non-digit, pastikan diawali 62
+    function normalizePhoneForCAPI_(raw) {
+      const digits = String(raw || "").replace(/\D/g, "");
+      if (!digits) return null;
+      if (digits.startsWith("62")) return digits;
+      if (digits.startsWith("0")) return "62" + digits.substring(1);
+      if (digits.startsWith("8")) return "62" + digits;
+      return digits;
+    }
+
+    const emailHash = sha256Hex_(opts.email || "");
+    const phoneNorm = normalizePhoneForCAPI_(opts.phone || "");
+    const phoneHash = phoneNorm ? sha256Hex_(phoneNorm) : null;
+
+    const userData = {};
+    if (emailHash) userData.em = [emailHash];
+    if (phoneHash) userData.ph = [phoneHash];
+    // client_ip_address dan client_user_agent tidak tersedia di server-side, dihilangkan
+
+    const customData = {
+      currency: "IDR",
+      value: Number(opts.value) || 0,
+      content_ids: [String(opts.productId || "")],
+      content_type: "product",
+      content_name: String(opts.productName || ""),
+      order_id: String(opts.invoice || "")
+    };
+
+    const eventPayload = {
+      event_name: "Purchase",
+      event_time: eventTime,
+      action_source: "website",
+      event_source_url: String(opts.sourceUrl || "https://nextcuan.my.id/checkout.html"),
+      user_data: userData,
+      custom_data: customData
+    };
+
+    const capiPayload = {
+      data: [eventPayload],
+      access_token: accessToken
+    };
+
+    // Tambahkan test_event_code jika ada (untuk uji coba di Meta Test Events)
+    const testCode = String(opts.testEventCode || "").trim();
+    if (testCode) capiPayload.test_event_code = testCode;
+
+    const apiVersion = "v19.0";
+    const url = "https://graph.facebook.com/" + apiVersion + "/" + pixelId + "/events";
+
+    const fetchOpts = {
+      method: "post",
+      contentType: "application/json",
+      payload: JSON.stringify(capiPayload),
+      muteHttpExceptions: true
+    };
+
+    const response = UrlFetchApp.fetch(url, fetchOpts);
+    const responseCode = response.getResponseCode();
+    const responseText = response.getContentText();
+
+    let parsed = null;
+    try { parsed = JSON.parse(responseText); } catch (e) {}
+
+    if (responseCode >= 200 && responseCode < 300) {
+      logMoota_("CAPI_PURCHASE_OK", JSON.stringify({
+        pixel_id: pixelId,
+        invoice: opts.invoice,
+        product_id: opts.productId,
+        value: opts.value,
+        events_received: (parsed && parsed.events_received) ? parsed.events_received : "?",
+        test_code: testCode || null
+      }));
+      return { ok: true, events_received: (parsed && parsed.events_received) || 0 };
+    } else {
+      const fbError = parsed && parsed.error ? JSON.stringify(parsed.error) : responseText.substring(0, 300);
+      logMoota_("CAPI_PURCHASE_ERROR", JSON.stringify({
+        pixel_id: pixelId,
+        invoice: opts.invoice,
+        http_code: responseCode,
+        error: fbError
+      }));
+      return { ok: false, http_code: responseCode, error: fbError };
+    }
+
+  } catch (e) {
+    logMoota_("CAPI_PURCHASE_EXCEPTION", String(e));
+    return { ok: false, error: String(e) };
+  }
+}
+
+/* =========================
    AUTO-PAYMENT SYSTEM (MOOTA WEBHOOK)
 ========================= */
 function handleMootaWebhook(mutations, cfg) {
@@ -3456,13 +3604,22 @@ function handleMootaWebhook(mutations, cfg) {
           const pId = orders[i][4];
           const pName = orders[i][5];
 
-          // 2. GET ACCESS URL
+          // 2. GET ACCESS URL + PIXEL CONFIG
           let accessUrl = "";
+          let capiPixelId = "";
+          let capiPixelToken = "";
+          let capiPixelTestCode = "";
           const pS = ss.getSheetByName("Access_Rules");
           if (pS) {
             const pData = pS.getDataRange().getValues();
             for (let k = 1; k < pData.length; k++) {
-              if (String(pData[k][0]) === String(pId)) { accessUrl = pData[k][3]; break; }
+              if (String(pData[k][0]) === String(pId)) {
+                accessUrl = pData[k][3];
+                capiPixelId = String(pData[k][8] || "").trim();
+                capiPixelToken = String(pData[k][9] || "").trim();
+                capiPixelTestCode = String(pData[k][10] || "").trim();
+                break;
+              }
             }
           }
 
@@ -3498,6 +3655,22 @@ function handleMootaWebhook(mutations, cfg) {
             `💰 *MOOTA PAYMENT RECEIVED* 💰\n\nInv: #${inv}\nAmt: Rp ${Number(nominalTransfer).toLocaleString('id-ID')}\nUser: ${uName}\nProduk: ${pName}\n\nStatus: Auto-Lunas by System.`,
             cfg
           );
+
+          // D) META CONVERSIONS API - Server-side Purchase event
+          // Dikirim ke Meta Graph API agar event Purchase tercatat di dashboard Meta Pixel.
+          // Ini diperlukan karena pembayaran via transfer bank tidak bisa ditembak dari browser.
+          sendMetaCAPIEvent_({
+            pixelId: capiPixelId,
+            accessToken: capiPixelToken,
+            testEventCode: capiPixelTestCode,
+            invoice: inv,
+            productId: pId,
+            productName: pName,
+            value: nominalTransfer,
+            email: uEmail,
+            phone: uWA,
+            sourceUrl: "https://nextcuan.my.id/checkout.html"
+          });
 
           foundMatch = true;
           matched.push(inv);
