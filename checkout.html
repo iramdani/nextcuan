@@ -643,7 +643,7 @@
                         content_name: p.title, 
                         content_ids: [p.id], 
                         content_type: 'product',
-                        value: p.harga, 
+                        value: Number(p.harga) || 0, 
                         currency: 'IDR' 
                     });
                 } else {
@@ -860,7 +860,7 @@
                 fbq('track', 'InitiateCheckout', {
                     content_ids: [document.getElementById('prod-id').value],
                     content_type: 'product',
-                    value: document.getElementById('prod-price').value,
+                    value: Number(document.getElementById('prod-price').value) || 0,
                     currency: 'IDR'
                 });
             }
@@ -905,6 +905,17 @@
                 if(r.status === 'success') {
                     // Advance to step 3
                     setStep(3);
+
+                    try {
+                        if(typeof fbq === 'function') {
+                            fbq('track', 'Purchase', {
+                                content_ids: [pData.id_produk],
+                                content_type: 'product',
+                                value: Number(r.tagihan) || Number(pData.harga) || 0,
+                                currency: 'IDR'
+                            });
+                        }
+                    } catch(e) { console.error(e); }
 
                     window.scrollTo({top: 0, behavior: 'smooth'}); 
                     
