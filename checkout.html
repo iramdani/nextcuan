@@ -957,7 +957,7 @@
                              `;
                          }
                          
-                         const waText = `Halo Admin! 👋\n\nSaya sudah klaim produk gratis:\n\n📦 *Produk:* ${pData.nama_produk}\n👤 *Nama:* ${pData.nama}\n\nTerima kasih!`;
+                         const waText = `Halo Admin! 👋\n\nSaya sudah klaim produk gratis:\n\n✅ *Produk:* ${pData.nama_produk}\n✅ *Nama:* ${pData.nama}\n\nTerima kasih!`;
                          const waBtn = document.getElementById('wa-btn');
                          if(waBtn) {
                              waBtn.href = `https://wa.me/${sysPayment.wa_admin}?text=${encodeURIComponent(waText)}`;
@@ -975,7 +975,7 @@
 
                         const siteNameElements = document.querySelectorAll('.dyn-site-name');
                         const dSiteName = siteNameElements.length > 0 ? siteNameElements[0].innerText : "Admin";
-                        const waText = `Halo ${dSiteName}! 👋\n\nSaya mau konfirmasi pesanan:\n\n📌 *Invoice:* #${r.invoice}\n🛒 *Produk:* ${pData.nama_produk}\n💰 *Total Bayar:* Rp ${Number(r.tagihan).toLocaleString('id-ID')}\n👤 *Atas Nama:* ${pData.nama}\n\nMohon dicek ya Min. Terima kasih!`;
+                        const waText = `Halo *${dSiteName}*! 👋\n\nSaya mau konfirmasi pesanan:\n\n✅ *Invoice:* #${r.invoice}\n✅ *Produk:* ${pData.nama_produk}\n✅ *Total Bayar:* Rp ${Number(r.tagihan).toLocaleString('id-ID')}\n✅ *Atas Nama:* ${pData.nama}\n\nMohon dicek ya Min. Terima kasih!`;
                         document.getElementById('wa-btn').href = `https://wa.me/${sysPayment.wa_admin}?text=${encodeURIComponent(waText)}`;
                     }
 
