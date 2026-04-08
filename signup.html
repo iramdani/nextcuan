@@ -160,14 +160,6 @@
                 </div>
                 
                 <div class="space-y-2 glass-form-group text-left">
-                    <label class="ml-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">Nomor WhatsApp</label>
-                    <div class="relative">
-                        <i data-lucide="phone" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        <input type="tel" id="whatsapp" class="glass-input w-full outline-none" style="padding-left: 2.75rem !important; padding-right: 1rem; padding-top: 1rem; padding-bottom: 1rem;" placeholder="08xxxxxxxxxx" required>
-                    </div>
-                </div>
-
-                <div class="space-y-2 glass-form-group text-left">
                     <label class="ml-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">Email</label>
                     <div class="relative">
                         <i data-lucide="mail" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
@@ -175,11 +167,19 @@
                     </div>
                 </div>
 
+                <div class="space-y-2 glass-form-group text-left">
+                    <label class="ml-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">Nomor WhatsApp</label>
+                    <div class="relative">
+                        <i data-lucide="phone" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="tel" id="whatsapp" class="glass-input w-full outline-none" style="padding-left: 2.75rem !important; padding-right: 1rem; padding-top: 1rem; padding-bottom: 1rem;" placeholder="8xxxxxxxxxx" pattern="[0-9]{8,15}" title="Masukkan nomor WhatsApp yang valid (hanya angka, 8-15 digit, misal: 812xxxxxxxx)" required>
+                    </div>
+                </div>
+
                 <button type="submit" id="btn-signup" class="btn-primary w-full py-4 text-xs tracking-widest mt-6">
-                    Mulai Gratis Sekarang
+                    Signup
                 </button>
             </form>
-            <div class="mt-5 text-center">
+            <div class="mt-8 text-center">
                 <p class="text-xs text-slate-400">Sudah punya akun? <a href="login.html" class="font-bold text-[#B6FF00] hover:text-white transition-colors">Masuk</a></p>
             </div>
             <div class="mt-6 text-center">
