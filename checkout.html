@@ -193,59 +193,27 @@
         .copy-flash { animation: copyFlash 0.3s ease; }
         @keyframes copyFlash { 0%,100% { background: #eef2ff; } 50% { background: #c7d2fe; } }
     </style>
-    <!-- Meta Pixel: Immediate init from cache + deferred reinit from product data -->
+    <!-- Meta Pixel Code -->
     <script>
-        window._pixelId = null;
+        !function(f,b,e,v,n,t,s)
+        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s)}(window, document,'script',
+        'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '2375693346243555');
+        fbq('track', 'PageView');
 
-        // Helper to inject the fbevents.js SDK (idempotent)
-        function _loadFbSdk() {
-            if (window._fbSdkLoaded) return;
-            window._fbSdkLoaded = true;
-            !function(f,b,e,v,n,t,s){
-                if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-                n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-                if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-                n.queue=[];t=b.createElement(e);t.async=!0;
-                t.src=v;s=b.getElementsByTagName(e)[0];
-                if(s&&s.parentNode)s.parentNode.insertBefore(t,s);
-                else document.head.appendChild(t);
-            }(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-        }
-
-        // Initialize Pixel with a given ID (only once per page)
-        function initPixel(id) {
-            if(!id || window._pixelId) return;
-            window._pixelId = id;
-            _loadFbSdk();
-            window.fbq('init', id);
-            window.fbq('track', 'PageView');
-        }
-
-        // ⚡ IMMEDIATE: Try to init from localStorage cache right now
-        // This runs synchronously in <head> so Meta Pixel Helper can detect it
-        (function() {
-            try {
-                var cached = JSON.parse(localStorage.getItem('cepat_global_settings') || '{}');
-                if (cached && cached.data && cached.data.pixel_id) {
-                    initPixel(cached.data.pixel_id);
-                }
-            } catch(e) {}
-
-            // Also check product-specific cache
-            // Structure: { data: { payment: { pixel_id: ... }, ... }, time, version }
-            try {
-                var urlId = new URLSearchParams(window.location.search).get('id');
-                var prodCacheRaw = localStorage.getItem('cepat_product_' + urlId);
-                if (prodCacheRaw) {
-                    var prodCache = JSON.parse(prodCacheRaw);
-                    var pixelFromProd = prodCache && prodCache.data && prodCache.data.payment && prodCache.data.payment.pixel_id;
-                    if (pixelFromProd && !window._pixelId) {
-                        initPixel(pixelFromProd);
-                    }
-                }
-            } catch(e) {}
-        })();
+        // initPixel() kept for backward compat — pixel is already initialized above
+        window._pixelId = '2375693346243555';
+        window.initPixel = function(id) { /* already initialized */ };
     </script>
+    <noscript><img height="1" width="1" style="display:none"
+        src="https://www.facebook.com/tr?id=2375693346243555&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Meta Pixel Code -->
 
 </head>
 <body class="bg-[#000018] text-white min-h-screen font-sans">
