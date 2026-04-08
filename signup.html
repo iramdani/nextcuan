@@ -155,28 +155,29 @@
                     <label class="ml-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">Nama Lengkap</label>
                     <div class="relative">
                         <i data-lucide="user" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        <input type="text" id="nama" class="glass-input w-full outline-none" style="padding-left: 2.75rem !important; padding-right: 1rem; padding-top: 1rem; padding-bottom: 1rem;" placeholder="Nama Anda" required>
+                        <input type="text" id="nama" class="glass-input w-full outline-none" style="padding-left: 2.75rem !important; padding-right: 1rem; padding-top: 1rem; padding-bottom: 1rem;" placeholder="Nama lengkap Anda" required>
                     </div>
                 </div>
                 
                 <div class="space-y-2 glass-form-group text-left">
-                    <label class="ml-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">Email</label>
+                    <label class="ml-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">Alamat Email</label>
                     <div class="relative">
                         <i data-lucide="mail" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        <input type="email" id="email" class="glass-input w-full outline-none" style="padding-left: 2.75rem !important; padding-right: 1rem; padding-top: 1rem; padding-bottom: 1rem;" placeholder="nama@email.com" required>
+                        <input type="email" id="email" class="glass-input w-full outline-none" style="padding-left: 2.75rem !important; padding-right: 1rem; padding-top: 1rem; padding-bottom: 1rem;" placeholder="email@aktif.com" required>
                     </div>
                 </div>
 
                 <div class="space-y-2 glass-form-group text-left">
                     <label class="ml-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">Nomor WhatsApp</label>
-                    <div class="relative">
-                        <i data-lucide="phone" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        <input type="tel" id="whatsapp" class="glass-input w-full outline-none" style="padding-left: 2.75rem !important; padding-right: 1rem; padding-top: 1rem; padding-bottom: 1rem;" placeholder="8xxxxxxxxxx" pattern="[0-9]{8,15}" title="Masukkan nomor WhatsApp yang valid (hanya angka, 8-15 digit, misal: 812xxxxxxxx)" required>
+                    <div class="relative flex items-center glass-input p-0 overflow-hidden">
+                        <span class="px-5 font-bold text-white border-r border-[#ffffff1a]">+62</span>
+                        <input type="tel" id="whatsapp" class="w-full bg-transparent outline-none flex-1 px-4 py-4" placeholder="81234567890" pattern="[0-9]{8,15}" title="Masukkan nomor WhatsApp yang valid (hanya angka, 8-15 digit, misal: 812xxxxxxxx)" required>
                     </div>
+                    <p class="text-[10px] text-slate-400 mt-2 ml-1" style="margin-top: 0.5rem !important;">Contoh: 81234567890 (tanpa angka 0 di depan)</p>
                 </div>
 
-                <button type="submit" id="btn-signup" class="btn-primary w-full py-4 text-xs tracking-widest mt-6">
-                    Signup
+                <button type="submit" id="btn-signup" class="btn-primary w-full py-4 text-xs font-bold tracking-widest mt-6 uppercase">
+                    DAFTAR
                 </button>
             </form>
             <div class="mt-8 text-center">
