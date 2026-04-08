@@ -855,16 +855,6 @@
                 showToast('Mohon lengkapi semua data dengan benar.', 'warning');
                 return;
             }
-            
-            if(typeof fbq === 'function') {
-                fbq('track', 'InitiateCheckout', {
-                    content_ids: [document.getElementById('prod-id').value],
-                    content_type: 'product',
-                    value: Number(document.getElementById('prod-price').value) || 0,
-                    currency: 'IDR'
-                });
-            }
-
             const btn = document.getElementById('btn-submit'); 
             const originalHTML = btn.innerHTML;
 
@@ -908,7 +898,7 @@
 
                     try {
                         if(typeof fbq === 'function') {
-                            fbq('track', 'Purchase', {
+                            fbq('track', 'InitiateCheckout', {
                                 content_ids: [pData.id_produk],
                                 content_type: 'product',
                                 value: Number(r.tagihan) || Number(pData.harga) || 0,
