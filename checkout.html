@@ -193,7 +193,7 @@
         .copy-flash { animation: copyFlash 0.3s ease; }
         @keyframes copyFlash { 0%,100% { background: #eef2ff; } 50% { background: #c7d2fe; } }
     </style>
-    <!-- Meta Pixel Code -->
+    <!-- Meta Pixel Code: Base pixel hardcoded for immediate detection -->
     <script>
         !function(f,b,e,v,n,t,s)
         {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -206,14 +206,24 @@
         fbq('init', '2375693346243555');
         fbq('track', 'PageView');
 
-        // initPixel() kept for backward compat — pixel is already initialized above
-        window._pixelId = '2375693346243555';
-        window.initPixel = function(id) { /* already initialized */ };
+        // Track which pixels are already initialized
+        window._initializedPixels = { '2375693346243555': true };
+
+        // initPixel(): initialize an ADDITIONAL pixel (e.g. per-product or affiliate custom pixel)
+        // If the ID is different from the base pixel, it will be initialized as a second pixel.
+        // All fbq('track') calls will then fire for ALL initialized pixels.
+        window.initPixel = function(id) {
+            if (!id || window._initializedPixels[id]) return;
+            window._initializedPixels[id] = true;
+            fbq('init', id);
+            fbq('track', 'PageView');
+        };
     </script>
     <noscript><img height="1" width="1" style="display:none"
         src="https://www.facebook.com/tr?id=2375693346243555&ev=PageView&noscript=1"
     /></noscript>
     <!-- End Meta Pixel Code -->
+
 
 </head>
 <body class="bg-[#000018] text-white min-h-screen font-sans">
