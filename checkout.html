@@ -622,18 +622,22 @@
             // 1. Coba inisialisasi awal dari cache global agar Pixel langsung terbaca
             try {
                 const g = JSON.parse(localStorage.getItem('cepat_global_settings') || '{}');
+                console.log("Global Cache Pixel:", g.data && g.data.pixel_id);
                 if(g.data && g.data.pixel_id) {
                     initPixel(g.data.pixel_id);
                 }
             } catch(e) {}
 
             // 2. Inisialisasi ulang/update dengan Pixel produk jika ada
+            console.log("Product Payment Data:", r.payment);
             if(r.payment && r.payment.pixel_id) {
+                console.log("Initialize Pixel with ID:", r.payment.pixel_id);
                 initPixel(r.payment.pixel_id);
             }
             
             // 3. Track AddToCart
             try {
+                console.log("Calling fbq track AddToCart");
                 if(typeof fbq === 'function') {
                     fbq('track', 'AddToCart', { 
                         content_name: p.title, 
@@ -642,8 +646,12 @@
                         value: p.harga, 
                         currency: 'IDR' 
                     });
+                } else {
+                    console.error("fbq is not a function!");
                 }
-            } catch(e) {}
+            } catch(e) {
+                console.error("fbq tracking error:", e);
+            }
 
             selectedPayment = 'bank';
             document.querySelector('input[value="bank"]').checked = true;

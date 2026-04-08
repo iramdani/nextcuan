@@ -1212,7 +1212,7 @@
 
                     <div class="flex justify-center mb-6">
                         <a href="https://akses.nextcuan.my.id/checkout.html?id=PRD-6D9574" id="btn-miliki-sekarang"
-                            class="btn-cta-responsive" onclick="fireAddToCart()">
+                            class="btn-cta-responsive" onclick="return fireAddToCart(event)">
                             MILIKI SEKARANG →
                         </a>
                     </div>
@@ -1267,7 +1267,7 @@
 
                     <div class="flex justify-center">
                         <a href="https://akses.nextcuan.my.id/checkout.html?id=PRD-6D9574" class="btn-cta-responsive"
-                            onclick="fireAddToCart()">
+                            onclick="return fireAddToCart(event)">
                             AMANKAN POSISIMU SEKARANG →
                         </a>
                     </div>
@@ -1525,8 +1525,8 @@
                             </li>
                         </ul>
 
-                        <a href="https://akses.nextcuan.my.id/checkout.html?id=PRD-UV2485"
-                            class="btn-primary w-full py-4 text-center block" onclick="fireAddToCart()">
+                        <a href="https://akses.nextcuan.my.id/checkout.html?id=PRD-6D9574"
+                            class="btn-primary w-full py-4 text-center block" onclick="return fireAddToCart(event)">
                             AMBIL PREMIUM BUNDLE →
                         </a>
                     </div>
@@ -1585,10 +1585,9 @@
                             </p>
                         </div>
 
-                        <!-- Final CTA Button -->
                         <div class="flex justify-center">
                             <a href="https://akses.nextcuan.my.id/checkout.html?id=PRD-6D9574" id="btn-final-cta"
-                                class="btn-cta-responsive" onclick="fireAddToCart()">
+                                class="btn-cta-responsive" onclick="return fireAddToCart(event)">
                                 Klik Untuk Mulai Buat Ebook Sekarang<br>
                                 <span class="text-sm font-semibold">- Sebelum Harga Naik!</span>
                             </a>
@@ -1644,7 +1643,7 @@
                     </div>
                     <div class="text-center mt-6">
                         <a href="https://akses.nextcuan.my.id/checkout.html?id=PRD-6D9574" id="btn-after-video"
-                            class="btn-cta-responsive" onclick="fireAddToCart()">
+                            class="btn-cta-responsive" onclick="return fireAddToCart(event)">
                             Mau Coba Sendiri? Dapatkan Sekarang →
                         </a>
                     </div>
@@ -1666,7 +1665,8 @@
             // =====================
             // META PIXEL ADD TO CART
             // =====================
-            window.fireAddToCart = function() {
+            window.fireAddToCart = function(e) {
+                const targetUrl = e.currentTarget ? e.currentTarget.href : null;
                 if (typeof fbq === 'function') {
                     fbq('track', 'AddToCart', {
                         content_ids: ['PRD-6D9574'],
@@ -1675,7 +1675,16 @@
                         value: 27000,
                         currency: 'IDR'
                     });
+                    
+                    if (targetUrl) {
+                        e.preventDefault();
+                        setTimeout(() => {
+                            window.location.href = targetUrl;
+                        }, 500);
+                        return false;
+                    }
                 }
+                return true;
             }
 
             // Smooth scroll for anchor links
