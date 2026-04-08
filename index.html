@@ -270,9 +270,9 @@
                 </div>
 
                 <!-- Right Side -->
-                <div class="flex items-center space-x-3">
-                    <a href="#" class="hidden sm:block btn-secondary px-5 py-2.5 rounded-lg text-sm">Masuk</a>
-                    <a href="#cta" class="btn-primary px-5 py-2.5 rounded-lg text-sm">Mulai Sekarang</a>
+                <div class="flex items-center space-x-3" id="nav-right-side">
+                    <a href="login.html" class="hidden sm:block btn-secondary px-5 py-2.5 rounded-lg text-sm" id="nav-login">Masuk</a>
+                    <a href="signup.html" class="btn-primary px-5 py-2.5 rounded-lg text-sm" id="nav-signup">Mulai Sekarang</a>
                     <!-- Hamburger (mobile only) -->
                     <button id="hamburger-btn" class="md:hidden flex items-center justify-center w-10 h-10 rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.04)] text-white transition hover:border-[#B6FF00] hover:text-[#B6FF00]" aria-label="Menu" onclick="toggleMobileMenu()">
                         <i data-lucide="menu" class="w-5 h-5" id="hamburger-icon"></i>
@@ -288,8 +288,9 @@
                     <a href="#solution" onclick="closeMobileMenu()" class="px-4 py-3 rounded-xl text-sm font-medium transition hover:bg-[rgba(182,255,0,0.08)] hover:text-[#B6FF00]" style="color: var(--color-text-muted);">Platform</a>
                     <a href="#how-it-works" onclick="closeMobileMenu()" class="px-4 py-3 rounded-xl text-sm font-medium transition hover:bg-[rgba(182,255,0,0.08)] hover:text-[#B6FF00]" style="color: var(--color-text-muted);">Cara Kerja</a>
                     <a href="#faq" onclick="closeMobileMenu()" class="px-4 py-3 rounded-xl text-sm font-medium transition hover:bg-[rgba(182,255,0,0.08)] hover:text-[#B6FF00]" style="color: var(--color-text-muted);">FAQ</a>
-                    <div class="pt-2 border-t border-[rgba(255,255,255,0.07)]">
-                        <a href="#" class="block px-4 py-3 rounded-xl text-sm font-semibold btn-secondary text-center mt-1">Masuk</a>
+                    <div class="pt-2 border-t border-[rgba(255,255,255,0.07)]" id="mobile-nav-actions">
+                        <a href="login.html" class="block px-4 py-3 rounded-xl text-sm font-semibold btn-secondary text-center mt-1">Masuk</a>
+                        <a href="signup.html" class="block px-4 py-3 rounded-xl text-sm font-semibold btn-primary text-center mt-2">Mulai Sekarang</a>
                     </div>
                 </div>
             </div>
@@ -323,14 +324,14 @@
                     </p>
 
                     <div class="flex flex-col sm:flex-row gap-4">
-                        <a href="#cta"
+                        <a href="signup.html" id="hero-signup"
                             class="btn-primary px-8 py-4 rounded-xl text-center text-lg inline-flex items-center justify-center space-x-2">
-                            <span>Mulai Sekarang</span>
+                            <span>Mulai Gratis Sekarang</span>
                             <i data-lucide="arrow-right" class="w-5 h-5"></i>
                         </a>
-                        <a href="#katalog"
+                        <a href="products.html"
                             class="btn-secondary px-8 py-4 rounded-xl text-center text-lg inline-flex items-center justify-center space-x-2">
-                            <span>Lihat Tools</span>
+                            <span>Jelajahi Tools Dulu</span>
                             <i data-lucide="grid-3x3" class="w-5 h-5"></i>
                         </a>
                     </div>
@@ -1305,12 +1306,12 @@
                 </p>
 
                 <div class="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-                    <a href="#"
+                    <a href="signup.html" id="cta-signup"
                         class="btn-primary px-10 py-4 rounded-xl text-lg inline-flex items-center justify-center space-x-2">
                         <span>Mulai Gratis Sekarang</span>
                         <i data-lucide="arrow-right" class="w-5 h-5"></i>
                     </a>
-                    <a href="#katalog"
+                    <a href="products.html"
                         class="btn-secondary px-10 py-4 rounded-xl text-lg inline-flex items-center justify-center space-x-2">
                         <span>Jelajahi Tools Dulu</span>
                         <i data-lucide="search" class="w-5 h-5"></i>
@@ -1667,6 +1668,44 @@
         window.addEventListener('load', () => { 
             if(window.lucide) { lucide.createIcons(); }
             loadPublicCatalog(); 
+            
+            // Add logged in UI logic
+            const isLogged = !!sessionStorage.getItem('user_email');
+            if(isLogged) {
+                // Update Desktop Navbar
+                const desktopNavActions = document.getElementById('nav-right-side');
+                if(desktopNavActions) {
+                    const hamburger = document.getElementById('hamburger-btn');
+                    desktopNavActions.innerHTML = '';
+                    
+                    const profileLink = document.createElement('a');
+                    profileLink.href = 'dashboard.html';
+                    profileLink.className = 'w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all bg-[#000018] group hover:bg-[#B6FF00] hover:scale-105';
+                    profileLink.style.borderColor = '#B6FF00';
+                    profileLink.innerHTML = '<i data-lucide="user" class="w-5 h-5 text-[#B6FF00] group-hover:text-[#000018] transition-colors"></i>';
+                    desktopNavActions.appendChild(profileLink);
+
+                    if(hamburger) desktopNavActions.appendChild(hamburger);
+                }
+
+                // Update Mobile Navbar
+                const mobileNavActions = document.getElementById('mobile-nav-actions');
+                if(mobileNavActions) {
+                    mobileNavActions.innerHTML = '<a href="dashboard.html" class="block px-4 py-3 rounded-xl text-sm font-semibold btn-primary text-center mt-1 flex items-center justify-center space-x-2"><i data-lucide="user" class="w-4 h-4"></i><span>Ke Dashboard</span></a>';
+                }
+                
+                // Update Hero & CTA links
+                const heroBtn = document.getElementById('hero-signup');
+                if(heroBtn) {
+                    heroBtn.href = 'dashboard.html';
+                    heroBtn.querySelector('span').innerText = 'Ke Dashboard';
+                }
+                const ctaBtn = document.getElementById('cta-signup');
+                if(ctaBtn) {
+                    ctaBtn.href = 'dashboard.html';
+                    ctaBtn.querySelector('span').innerText = 'Ke Dashboard';
+                }
+            }
         });
 
     </script>

@@ -28,20 +28,16 @@
             }
 
             function applyGlobalSettings(data) {
-                // Eksekusi Cepat Favicon
                 if(data.site_favicon) {
                     let link = document.querySelector("link[rel~='icon']");
                     if (!link) { link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link); }
                     link.href = data.site_favicon;
                 }
-                
-                // Auto Replace Text di Title Browser
                 if(data.site_name) {
-                    document.title = `Login Member - ${data.site_name}`;
+                    document.title = `Pendaftaran Member - ${data.site_name}`;
                 }
 
                 const updateDomElements = () => {
-                    // INJEKSI NAMA WEB
                     if(data.site_name) {
                         document.querySelectorAll('.dyn-site-name').forEach(el => {
                             el.innerText = data.site_name;
@@ -73,9 +69,7 @@
             try { cached = JSON.parse(cachedStr); } catch(e){}
             const now = Date.now();
 
-            if (cached && cached.data) {
-                applyGlobalSettings(cached.data);
-            }
+            if (cached && cached.data) applyGlobalSettings(cached.data);
 
             window.__CEPAT_GLOBAL_SETTINGS__ = {
                 key: CACHE_KEY,
@@ -100,23 +94,18 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'get_global_settings', cache_version: settingsVersion })
-                })
-                    .then(res => res.json())
-                    .then(r => {
-                        if(r.status === 'success') {
-                            syncGlobalSettingsCache(r.data, Date.now(), String(r.cache_version || settingsVersion || ''));
-                        }
-                    });
+                }).then(res => res.json()).then(r => {
+                    if(r.status === 'success') syncGlobalSettingsCache(r.data, Date.now(), String(r.cache_version || settingsVersion || ''));
+                });
             }).catch(e => console.error("Global Settings Sync Failed", e));
         })();
     </script>
     
     <script>
-        // Redirect ke dashboard jika sudah login
         if(sessionStorage.getItem('user_email')) window.location.href = 'dashboard.html';
     </script>
 
-    <title>Login Member</title>
+    <title>Pendaftaran Member</title>
     
     <link rel="preload" as="style" href="tailwind.css?v=2026_1">
     <link rel="stylesheet" href="tailwind.css?v=2026_1">
@@ -151,7 +140,7 @@
                 <i data-lucide="cpu" class="w-5 h-5"></i>
             </div>
             <div>
-                <p class="text-xs font-bold tracking-widest text-[#B6FF00] uppercase">SELAMAT DATANG DI</p>
+                <p class="text-xs font-bold tracking-widest text-[#B6FF00] uppercase">GABUNG BERSAMA KAMI DI</p>
                 <h1 class="text-xl font-extrabold tracking-tight text-white dyn-site-name">
                     <span class="opacity-0">Loading...</span>
                 </h1>
@@ -159,9 +148,25 @@
         </div>
 
         <div class="glass-card glow-primary p-8 md:p-10 rounded-[2rem]">
-            <p class="text-center text-slate-400 text-sm mb-8">Login untuk mengakses dashboard.</p>
+            <p class="text-center text-slate-400 text-sm mb-8">Buat akun untuk mengakses dashboard & program affiliate gratis.</p>
         
-            <form id="form-login" class="space-y-5">
+            <form id="form-signup" class="space-y-4">
+                <div class="space-y-2 glass-form-group text-left">
+                    <label class="ml-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">Nama Lengkap</label>
+                    <div class="relative">
+                        <i data-lucide="user" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" id="nama" class="glass-input w-full outline-none" style="padding-left: 2.75rem !important; padding-right: 1rem; padding-top: 1rem; padding-bottom: 1rem;" placeholder="Nama Anda" required>
+                    </div>
+                </div>
+                
+                <div class="space-y-2 glass-form-group text-left">
+                    <label class="ml-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">Nomor WhatsApp</label>
+                    <div class="relative">
+                        <i data-lucide="phone" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="tel" id="whatsapp" class="glass-input w-full outline-none" style="padding-left: 2.75rem !important; padding-right: 1rem; padding-top: 1rem; padding-bottom: 1rem;" placeholder="08xxxxxxxxxx" required>
+                    </div>
+                </div>
+
                 <div class="space-y-2 glass-form-group text-left">
                     <label class="ml-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">Email</label>
                     <div class="relative">
@@ -169,25 +174,13 @@
                         <input type="email" id="email" class="glass-input w-full outline-none" style="padding-left: 2.75rem !important; padding-right: 1rem; padding-top: 1rem; padding-bottom: 1rem;" placeholder="nama@email.com" required>
                     </div>
                 </div>
-                <div class="space-y-2 glass-form-group text-left">
-                    <div class="flex items-center justify-between">
-                        <label class="ml-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">Password</label>
-                        <button type="button" onclick="(function(m){m.classList.remove('hidden');m.classList.add('flex');})(document.getElementById('modal-forgot'))" class="text-[10px] font-bold text-[#B6FF00] hover:text-white uppercase tracking-wider">Lupa Password?</button>
-                    </div>
-                    <div class="relative">
-                        <i data-lucide="lock" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        <input type="password" id="pass" class="glass-input w-full outline-none" style="padding-left: 2.75rem !important; padding-right: 3rem; padding-top: 1rem; padding-bottom: 1rem;" placeholder="••••••••" required>
-                        <button type="button" id="toggle-pass" class="absolute right-3 top-1/2 -translate-y-1/2 text-[#B6FF00] hover:text-white p-2">
-                            <i data-lucide="eye" class="w-5 h-5"></i>
-                        </button>
-                    </div>
-                </div>
-                <button type="submit" id="btn-login" class="btn-primary w-full py-4 text-xs tracking-widest mt-4">
-                    Login
+
+                <button type="submit" id="btn-signup" class="btn-primary w-full py-4 text-xs tracking-widest mt-6">
+                    Mulai Gratis Sekarang
                 </button>
             </form>
-            <div class="mt-4 text-center">
-                <p class="text-xs text-slate-400">Belum punya akun? <a href="signup.html" class="font-bold text-[#B6FF00] hover:text-white transition-colors">Sign up sekarang</a></p>
+            <div class="mt-5 text-center">
+                <p class="text-xs text-slate-400">Sudah punya akun? <a href="login.html" class="font-bold text-[#B6FF00] hover:text-white transition-colors">Masuk</a></p>
             </div>
             <div class="mt-6 text-center">
                 <a href="index.html" class="text-slate-400 text-xs font-bold hover:text-[#B6FF00] transition-colors">&larr; Kembali ke Beranda</a>
@@ -196,26 +189,18 @@
       </div>
     </main>
 
-    <!-- Modal Forgot Password -->
-    <div id="modal-forgot" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md hidden p-4">
-        <div class="glass-card w-full max-w-md p-6 relative glow-primary text-left">
-            <button onclick="(function(m){m.classList.add('hidden');m.classList.remove('flex');})(document.getElementById('modal-forgot'))" class="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors">
-                <i data-lucide="x" class="w-5 h-5"></i>
-            </button>
+    <!-- Modal Success Registration -->
+    <div id="modal-success" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md hidden p-4">
+        <div class="glass-card w-full max-w-md p-8 relative glow-primary text-center">
+            <div class="mx-auto w-16 h-16 bg-[#B6FF00]/20 rounded-full flex items-center justify-center mb-6">
+                <i data-lucide="check-circle" class="w-8 h-8 text-[#B6FF00]"></i>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">Pendaftaran Berhasil!</h3>
+            <p class="text-sm text-slate-400 mb-8 leading-relaxed">Password dan akses link telah dikirim ke WhatsApp dan Email Anda. Silakan cek pesan masuk Anda.</p>
             
-            <h3 class="text-lg font-bold text-white mb-2">Lupa Password?</h3>
-            <p class="text-sm text-slate-400 mb-6">Masukkan email Anda. Kami akan mengirimkan password ke email yang terdaftar.</p>
-            
-            <form id="form-forgot" class="space-y-4">
-                <div class="relative glass-form-group">
-                    <i data-lucide="mail" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                    <input type="email" id="email-forgot" class="glass-input w-full outline-none" style="padding-left: 2.75rem !important; padding-right: 1rem; padding-top: 0.8rem; padding-bottom: 0.8rem;" placeholder="nama@email.com" required>
-                </div>
-                
-                <button type="submit" id="btn-forgot" class="btn-primary w-full py-3 text-xs tracking-widest mt-2">
-                    Kirim Password
-                </button>
-            </form>
+            <a href="login.html" class="btn-primary w-full py-3 text-xs tracking-widest inline-block focus:outline-none">
+                Masuk Member Area
+            </a>
         </div>
     </div>
 
@@ -241,104 +226,36 @@
         }
 
         document.addEventListener('DOMContentLoaded', ()=>{ lucide.createIcons(); });
-        const toggleBtn = document.getElementById('toggle-pass');
-        if(toggleBtn){
-            toggleBtn.addEventListener('click', ()=>{
-                const input = document.getElementById('pass');
-                const isPw = input.getAttribute('type') === 'password';
-                input.setAttribute('type', isPw ? 'text' : 'password');
-                toggleBtn.innerHTML = isPw ? '<i data-lucide="eye-off" class="w-5 h-5"></i>' : '<i data-lucide="eye" class="w-5 h-5"></i>';
-                lucide.createIcons({ root: toggleBtn });
-            });
-        }
 
-        document.getElementById('form-login').onsubmit = async (e) => {
+        document.getElementById('form-signup').onsubmit = async (e) => {
             e.preventDefault();
-            const btn = document.getElementById('btn-login'); 
+            const btn = document.getElementById('btn-signup'); 
             const originalText = btn.innerHTML;
-            btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Memverifikasi...'; btn.disabled = true; lucide.createIcons({ root: btn });
+            btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Memproses...'; btn.disabled = true; lucide.createIcons({ root: btn });
 
             try {
                 if(typeof SCRIPT_URL === 'undefined') throw new Error("Config.js tidak terpanggil!");
                 const res = await fetch(SCRIPT_URL, { 
-                    method: 'POST', body: JSON.stringify({ action: 'login_and_dashboard', email: document.getElementById('email').value, password: document.getElementById('pass').value })
+                    method: 'POST', 
+                    body: JSON.stringify({ 
+                        action: 'register_free_member', 
+                        nama: document.getElementById('nama').value,
+                        email: document.getElementById('email').value, 
+                        whatsapp: document.getElementById('whatsapp').value
+                    })
                 });
                 const r = await res.json();
                 
                 if(r.status === 'success') {
-                    const role = String((r.data && r.data.role) || 'member').toLowerCase();
-                    const nama = String((r.data && r.data.nama) || 'Member');
-                    const email = String((r.data && r.data.email) || '');
-                    const uid = String((r.data && r.data.id) || '');
-
-                    // Unified session contract
-                    sessionStorage.setItem('auth_v1', 'true');
-                    sessionStorage.setItem('auth_role', role);
-                    sessionStorage.setItem('auth_name', nama);
-                    if (email) sessionStorage.setItem('auth_email', email);
-                    if (uid) sessionStorage.setItem('auth_user_id', uid);
-
-                    // Legacy compatibility keys
-                    sessionStorage.setItem('user_email', r.data.email);
-                    sessionStorage.setItem('user_nama', r.data.nama);
-                    sessionStorage.setItem('user_id', r.data.id);
-
-                    showToast("Login Berhasil! Mengalihkan...", "success");
-
-                    const bootAt = Date.now();
-                    if (r.dashboard) {
-                        const combined = {
-                            ...r.dashboard.products,
-                            pages: r.dashboard.pages,
-                            settings: r.dashboard.settings,
-                            user: r.dashboard.user,
-                            affiliate_pixels: r.dashboard.affiliate_pixels
-                        };
-                        localStorage.setItem('cepat_dashboard_data_' + r.data.email, JSON.stringify({ data: combined, time: bootAt }));
-                        sessionStorage.setItem('dashboard_bootstrap_time', String(bootAt));
-                        if (r.dashboard.settings) {
-                            localStorage.setItem('cepat_global_settings', JSON.stringify({ data: r.dashboard.settings, time: bootAt }));
-                        }
-                    }
-
-                    // Redirect setelah toast terlihat sebentar
-                    const minDelay = new Promise(resolve => setTimeout(resolve, 800));
-                    minDelay.then(() => {
-                        window.location.href = 'dashboard.html';
-                    });
+                    showToast(r.message, "success");
+                    document.getElementById('modal-success').classList.remove('hidden');
+                    document.getElementById('modal-success').classList.add('flex');
                 } else { 
                     showToast(r.message, "error"); 
                     btn.innerHTML = originalText; btn.disabled = false; lucide.createIcons({ root: btn });
                 }
             } catch (err) { 
                 showToast('Gagal koneksi server!', 'error'); 
-                btn.innerHTML = originalText; btn.disabled = false; lucide.createIcons({ root: btn });
-            }
-        };
-
-        document.getElementById('form-forgot').onsubmit = async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('btn-forgot');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Mengirim...'; btn.disabled = true; lucide.createIcons({ root: btn });
-
-            try {
-                if(typeof SCRIPT_URL === 'undefined') throw new Error("Config.js tidak terpanggil!");
-                const res = await fetch(SCRIPT_URL, { 
-                    method: 'POST', body: JSON.stringify({ action: 'forgot_password', email: document.getElementById('email-forgot').value })
-                });
-                const r = await res.json();
-                
-                if(r.status === 'success') {
-                    showToast(r.message, "success");
-                    document.getElementById('modal-forgot').classList.add('hidden');
-                    document.getElementById('email-forgot').value = '';
-                } else {
-                    showToast(r.message, "error");
-                }
-            } catch (err) {
-                showToast('Gagal koneksi server!', 'error');
-            } finally {
                 btn.innerHTML = originalText; btn.disabled = false; lucide.createIcons({ root: btn });
             }
         };

@@ -848,6 +848,7 @@ function doPost(e) {
       case "get_product": return jsonRes(getProductDetail(data, cfg));
       case "get_products": return jsonRes(getProducts(data, cfg));
       case "create_order": return jsonRes(createOrder(data, cfg));
+      case "register_free_member": return jsonRes(registerFreeMember(data, cfg));
       case "update_order_status": return jsonRes(updateOrderStatus(data, cfg));
       case "login": return jsonRes(loginUser(data));
       case "login_and_dashboard": return jsonRes(loginAndDashboard(data));
@@ -1812,6 +1813,101 @@ Jika ada pertanyaan, silakan balas pesan ini. Terima kasih! 🙏`;
     } // End of Else (Paid)
 
     return { status: "success", invoice: inv, tagihan: hargaTotalUnik, is_new_user: isNew };
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
+/* =========================
+   REGISTER FREE MEMBER
+========================= */
+function registerFreeMember(d, cfg) {
+  try {
+    cfg = cfg || getSettingsMap_();
+    
+    // Require admin session ONLY if explicitly passed or needed by your security model. 
+    // Usually signup is public, so no admin check here.
+
+    const uS = mustSheet_("Users");
+    const uData = uS.getDataRange().getValues();
+
+    const email = String(d.email || "").trim().toLowerCase();
+    if (!email) return { status: "error", message: "Email wajib diisi" };
+    
+    const nama = String(d.nama || "").trim();
+    if (!nama) return { status: "error", message: "Nama lengkap wajib diisi" };
+
+    const waRaw = String(d.whatsapp || "").trim();
+    const waNormalized = normalizePhone_(waRaw);
+
+    const siteName = getCfgFrom_(cfg, "site_name") || "Sistem Premium";
+    const siteUrl = String(getCfgFrom_(cfg, "site_url") || "").trim();
+    const loginUrl = siteUrl ? (siteUrl + "/login.html") : "Link Login Belum Disetting";
+
+    let isNew = true;
+    let pass = Math.random().toString(36).slice(-6);
+
+    for (let j = 1; j < uData.length; j++) {
+      if (String(uData[j][1]).toLowerCase() === email) {
+        isNew = false;
+        break;
+      }
+    }
+
+    if (!isNew) {
+      return { status: "error", message: "Email ini sudah terdaftar. Silakan login ke akun Anda." };
+    }
+
+    let newUserId = "u-" + Math.floor(100000 + Math.random() * 900000);
+    let unique = false;
+    while (!unique) {
+      unique = true;
+      for (let k = 1; k < uData.length; k++) {
+        if (String(uData[k][0]) === newUserId) {
+          unique = false;
+          newUserId = "u-" + Math.floor(100000 + Math.random() * 900000);
+          break;
+        }
+      }
+    }
+
+    const waForSheet = waNormalized || waRaw;
+    
+    // Save New User
+    uS.appendRow([newUserId, email, hashPassword_(pass), nama, "member", "Active", toISODate_(), "'" + waForSheet]);
+
+    // Send notifications
+    const waText = `Halo ${nama}, selamat datang di ${siteName}! 🎉\n\nPendaftaran akun Anda berhasil. Sekarang Anda telah bergabung dan bisa mulai menggunakan fasilitas platform kami.\n\n🔐 *INFORMASI AKUN ANDA*\n🌐 Link Login: ${loginUrl}\n✉️ Email: ${email}\n🔑 Password: ${pass}\n\nSilakan login ke Member Area untuk menjelajahi fitur dan program affiliate kami.\n\nTerima kasih atas kepercayaannya!\n*Tim ${siteName}*`;
+    sendWA(waForSheet, waText, cfg);
+
+    const emailHtml = `
+      <div style="font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; color: #334155; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+          <h2 style="color: #017A6B; margin-top: 0;">Selamat Datang! 🎉</h2>
+          <p>Halo <b style="color: #000018;">${nama}</b>,</p>
+          <p>Selamat! Pendaftaran akun Anda di <b style="color: #000018;">${siteName}</b> telah berhasil. Silakan login ke Member Area untuk menjelajahi fitur dan program affiliate kami.</p>
+          
+          <div style="text-align: center; margin: 35px 0;">
+              <a href="${loginUrl}" style="background-color: #B6FF00; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">Masuk ke Member Area</a>
+          </div>
+
+          <div style="background-color: #f8fafc; border-left: 4px solid #017A6B; padding: 15px 20px; border-radius: 8px; margin: 25px 0;">
+              <h3 style="color: #000018; margin: 0 0 10px 0; font-size: 16px;">🔐 Informasi Akun Anda</h3>
+              <p style="margin: 0; font-size: 14px;"><b>Link Login:</b> <a href="${loginUrl}" style="color: #017A6B; text-decoration: none;">${loginUrl}</a><br>
+              <b>Email:</b> ${email}<br>
+              <b>Password:</b> <code style="background-color: #e2e8f0; padding: 2px 6px; border-radius: 4px; color: #000018;">${pass}</code></p>
+          </div>
+          
+          <p style="margin-bottom: 0;">Salam hangat,<br><b style="color: #000018;">Tim ${siteName}</b></p>
+      </div>`;
+    sendEmail(email, "Pendaftaran Berhasil! Selamat Datang di " + siteName, emailHtml, cfg);
+
+    // Notify Admin optionally
+    const adminWA = getCfgFrom_(cfg, "wa_admin");
+    if(adminWA) {
+      sendWA(adminWA, "🚀 *MEMBER GRATIS BARU!* 🚀\n\n👤 *Nama:* " + nama + "\n✉️ *Email:* " + email + "\n📱 *WA:* " + waForSheet + "\n\nTelah mendaftar affiliate/member gratis.", cfg);
+    }
+
+    return { status: "success", message: "Pendaftaran berhasil! Silakan cek WhatsApp / Email Anda untuk detail akun." };
   } catch (e) {
     return { status: "error", message: e.toString() };
   }
