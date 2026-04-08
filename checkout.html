@@ -619,20 +619,29 @@
         function renderCheckoutUI(r) {
             const p = r.data; sysPayment = r.payment;
             
+            // 1. Coba inisialisasi awal dari cache global agar Pixel langsung terbaca
             try {
-                let pxId = sysPayment.pixel_id;
-                if(!pxId) {
-                    const g = JSON.parse(localStorage.getItem('cepat_global_settings') || '{}');
-                    if(g.data && g.data.pixel_id) pxId = g.data.pixel_id;
+                const g = JSON.parse(localStorage.getItem('cepat_global_settings') || '{}');
+                if(g.data && g.data.pixel_id) {
+                    initPixel(g.data.pixel_id);
                 }
-                if(pxId) {
-                    initPixel(pxId);
-                    setTimeout(() => {
-                        fbq('track', 'AddToCart', { 
-                            content_name: p.title, content_ids: [p.id], content_type: 'product',
-                            value: p.harga, currency: 'IDR' 
-                        });
-                    }, 500);
+            } catch(e) {}
+
+            // 2. Inisialisasi ulang/update dengan Pixel produk jika ada
+            if(r.payment && r.payment.pixel_id) {
+                initPixel(r.payment.pixel_id);
+            }
+            
+            // 3. Track AddToCart
+            try {
+                if(typeof fbq === 'function') {
+                    fbq('track', 'AddToCart', { 
+                        content_name: p.title, 
+                        content_ids: [p.id], 
+                        content_type: 'product',
+                        value: p.harga, 
+                        currency: 'IDR' 
+                    });
                 }
             } catch(e) {}
 

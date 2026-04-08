@@ -23,7 +23,7 @@ function getScriptConfig(key) {
     const p = PropertiesService.getScriptProperties();
     const v = p.getProperty(String(key || ""));
     if (v !== null && v !== undefined && String(v) !== "") return String(v);
-  } catch (e) {}
+  } catch (e) { }
   return SCRIPT_CONFIG[key] || "";
 }
 
@@ -59,11 +59,11 @@ function normalizePublicCacheState_(state) {
   const source = state && typeof state === "object" ? state : {};
   const fallback = createDefaultPublicCacheState_();
   const normalized = {};
-  PUBLIC_CACHE_SCOPES.forEach(function(scope) {
+  PUBLIC_CACHE_SCOPES.forEach(function (scope) {
     const value = Number(source[scope] || 0);
     normalized[scope] = value > 0 ? value : fallback[scope];
   });
-  normalized.last_updated = Math.max.apply(null, PUBLIC_CACHE_SCOPES.map(function(scope) {
+  normalized.last_updated = Math.max.apply(null, PUBLIC_CACHE_SCOPES.map(function (scope) {
     return Number(normalized[scope] || 0);
   }));
   return normalized;
@@ -83,7 +83,7 @@ function readPublicCacheState_() {
     const fallback = normalizePublicCacheState_(null);
     try {
       PropertiesService.getScriptProperties().setProperty(PUBLIC_CACHE_STATE_PROPERTY, JSON.stringify(fallback));
-    } catch (err) {}
+    } catch (err) { }
     return fallback;
   }
 }
@@ -96,19 +96,19 @@ function writePublicCacheState_(state) {
 
 function bumpPublicCacheState_(scopes) {
   const validScopes = Array.isArray(scopes)
-    ? scopes.map(function(scope) { return String(scope || "").trim().toLowerCase(); }).filter(function(scope, index, arr) {
-        return PUBLIC_CACHE_SCOPES.indexOf(scope) !== -1 && arr.indexOf(scope) === index;
-      })
+    ? scopes.map(function (scope) { return String(scope || "").trim().toLowerCase(); }).filter(function (scope, index, arr) {
+      return PUBLIC_CACHE_SCOPES.indexOf(scope) !== -1 && arr.indexOf(scope) === index;
+    })
     : [];
   if (!validScopes.length) return readPublicCacheState_();
 
   const next = readPublicCacheState_();
   let seed = Date.now();
-  validScopes.forEach(function(scope, index) {
+  validScopes.forEach(function (scope, index) {
     const previous = Number(next[scope] || 0);
     next[scope] = Math.max(seed + index, previous + 1);
   });
-  next.last_updated = Math.max.apply(null, PUBLIC_CACHE_SCOPES.map(function(scope) {
+  next.last_updated = Math.max.apply(null, PUBLIC_CACHE_SCOPES.map(function (scope) {
     return Number(next[scope] || 0);
   }));
   return writePublicCacheState_(next);
@@ -235,7 +235,7 @@ function getSecret_(name, cfg) {
     const p = PropertiesService.getScriptProperties();
     const v = p.getProperty(k);
     if (v !== null && v !== undefined && String(v).trim() !== "") return String(v).trim();
-  } catch (e) {}
+  } catch (e) { }
   return String(getCfgFrom_(cfg || getSettingsMap_(), k) || "").trim();
 }
 
@@ -251,7 +251,7 @@ function isDebugAllowed_() {
 function hashPassword_(plain) {
   const input = String(plain || "");
   const digest = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, input, Utilities.Charset.UTF_8);
-  const hex = digest.map(function(b){
+  const hex = digest.map(function (b) {
     const v = (b < 0 ? b + 256 : b);
     return ("0" + v.toString(16)).slice(-2);
   }).join("");
@@ -287,7 +287,7 @@ function persistAdminSession_(token, session) {
   getAdminSessionPropertyStore_().setProperty(ADMIN_SESSION_PROPERTY_PREFIX + key, serialized);
   try {
     CacheService.getScriptCache().put(ADMIN_SESSION_CACHE_PREFIX + key, serialized, ADMIN_SESSION_CACHE_TTL_SECONDS);
-  } catch (e) {}
+  } catch (e) { }
 }
 
 function revokeAdminSession_(token) {
@@ -296,7 +296,7 @@ function revokeAdminSession_(token) {
   getAdminSessionPropertyStore_().deleteProperty(ADMIN_SESSION_PROPERTY_PREFIX + key);
   try {
     CacheService.getScriptCache().remove(ADMIN_SESSION_CACHE_PREFIX + key);
-  } catch (e) {}
+  } catch (e) { }
 }
 
 function createAdminSession_(sessionData) {
@@ -324,7 +324,7 @@ function getAdminSession_(token) {
   let cached = null;
   try {
     cached = CacheService.getScriptCache().get(ADMIN_SESSION_CACHE_PREFIX + key);
-  } catch (e) {}
+  } catch (e) { }
   try {
     const parsed = cached ? JSON.parse(cached) : null;
     if (parsed && typeof parsed === "object") {
@@ -332,11 +332,11 @@ function getAdminSession_(token) {
       if (!getAdminSessionPropertyStore_().getProperty(propKey)) {
         try {
           getAdminSessionPropertyStore_().setProperty(propKey, cached);
-        } catch (e) {}
+        } catch (e) { }
       }
       return parsed;
     }
-  } catch (e) {}
+  } catch (e) { }
 
   const stored = getAdminSessionPropertyStore_().getProperty(ADMIN_SESSION_PROPERTY_PREFIX + key);
   if (!stored) return null;
@@ -345,7 +345,7 @@ function getAdminSession_(token) {
     if (parsed && typeof parsed === "object") {
       try {
         CacheService.getScriptCache().put(ADMIN_SESSION_CACHE_PREFIX + key, stored, ADMIN_SESSION_CACHE_TTL_SECONDS);
-      } catch (e) {}
+      } catch (e) { }
       return parsed;
     }
   } catch (e) {
@@ -358,7 +358,7 @@ function validateAdminSessionAccess_(session, options) {
   const opts = options || {};
   const actionName = String(opts.actionName || "aksi admin").trim();
   const allowedRoles = Array.isArray(opts.allowedRoles) && opts.allowedRoles.length
-    ? opts.allowedRoles.map(function(role) { return String(role || "").trim().toLowerCase(); })
+    ? opts.allowedRoles.map(function (role) { return String(role || "").trim().toLowerCase(); })
     : ["admin"];
   if (!session || typeof session !== "object") {
     throw new Error("Sesi admin tidak valid. Silakan login ulang.");
@@ -491,7 +491,7 @@ function normalizeMootaSignature_(raw) {
 
 function computeMootaSignatureHex_(payloadString, secretToken) {
   const computed = Utilities.computeHmacSha256Signature(String(payloadString || ""), String(secretToken || ""));
-  return computed.map(function(chr) {
+  return computed.map(function (chr) {
     const value = chr < 0 ? chr + 256 : chr;
     return ("0" + value.toString(16)).slice(-2);
   }).join("").toLowerCase();
@@ -689,7 +689,7 @@ function fetchImageKitFiles_(privateKey, limit) {
     const code = res.getResponseCode();
     const text = res.getContentText();
     let data = null;
-    try { data = JSON.parse(text); } catch (e) {}
+    try { data = JSON.parse(text); } catch (e) { }
 
     if (code >= 200 && code < 300 && Array.isArray(data)) {
       return { ok: true, files: data };
@@ -751,10 +751,10 @@ function doPost(e) {
     const payloadString = e.postData.contents;
     let data = null;
     try {
-       data = JSON.parse(payloadString);
-    } catch(err) {
-       // Ignore JSON parse error, maybe it was not JSON but handled above or invalid
-       return jsonRes({ status: "error", message: "Invalid JSON format" });
+      data = JSON.parse(payloadString);
+    } catch (err) {
+      // Ignore JSON parse error, maybe it was not JSON but handled above or invalid
+      return jsonRes({ status: "error", message: "Invalid JSON format" });
     }
 
     // ====================================================================
@@ -821,7 +821,7 @@ function doPost(e) {
       });
 
       const isMootaTest = String((e.parameter && e.parameter.test_mode) || "").trim() === "1"
-        || data.some(function(item) {
+        || data.some(function (item) {
           return item && (item.is_test === true || String(item.description || "").toUpperCase() === "MOOTA TEST");
         });
       if (isMootaTest) {
@@ -1026,7 +1026,7 @@ function testMootaConfig(d, cfg) {
     const code = res.getResponseCode();
     const text = res.getContentText();
     let data = null;
-    try { data = JSON.parse(text); } catch (e) {}
+    try { data = JSON.parse(text); } catch (e) { }
 
     if (code >= 200 && code < 300 && data && data.status === "success") {
       return {
@@ -1069,7 +1069,7 @@ function getIkFiles(d, cfg) {
   const result = fetchImageKitFiles_(ikCfg.privateKey, 20);
   if (!result.ok) return { status: "error", message: result.message };
 
-  const files = result.files.map(function(f) {
+  const files = result.files.map(function (f) {
     return {
       name: f.name,
       url: f.url,
@@ -1550,6 +1550,7 @@ function createOrder(d, cfg) {
 
     const oS = mustSheet_("Orders");
     const uS = mustSheet_("Users");
+    const uData = uS.getDataRange().getValues();
 
     const inv = "INV-" + Math.floor(10000 + Math.random() * 90000);
     const email = String(d.email || "").trim().toLowerCase();
@@ -1573,44 +1574,62 @@ function createOrder(d, cfg) {
     const aff = (d.affiliate && String(d.affiliate).trim() !== "") ? String(d.affiliate).trim() : "-";
 
     const hargaDasar = toNumberSafe_(d.harga);
-    
+
     // MODIFIED: Allow 0 price (Free Product)
     const isZeroPrice = hargaDasar === 0;
     if (!isZeroPrice && hargaDasar <= 0) return { status: "error", message: "Harga tidak valid" };
 
     let komisiNominal = 0;
-    
+
     // Validate product status + lookup commission
     const pId = String(d.id_produk || "").trim();
     if (pId) {
-        const rules = mustSheet_("Access_Rules").getDataRange().getValues();
-        for (let i = 1; i < rules.length; i++) {
-            if (String(rules[i][0]) === pId) {
-                // Guard: always reject order if product is not Active
-                if (String(rules[i][5]).trim() !== "Active") {
-                    return { status: "error", message: "Produk ini tidak aktif dan tidak bisa di-order." };
-                }
-                // Commission only relevant when there's an affiliate
-                if (aff !== "-") {
-                    komisiNominal = Number(rules[i][11] || 0);
-                }
+      const rules = mustSheet_("Access_Rules").getDataRange().getValues();
+      for (let i = 1; i < rules.length; i++) {
+        if (String(rules[i][0]) === pId) {
+          // Guard: always reject order if product is not Active
+          if (String(rules[i][5]).trim() !== "Active") {
+            return { status: "error", message: "Produk ini tidak aktif dan tidak bisa di-order." };
+          }
+          // Commission only relevant when there's an affiliate
+          if (aff !== "-") {
+            komisiNominal = Number(rules[i][11] || 0);
+
+            // --- ANTI SELF-AFFILIATE CHECK ---
+            // If buyer's email or phone matches the affiliate's email/phone, set commission to 0
+            let affEmail = "";
+            let affWA = "";
+            for (let j = 1; j < uData.length; j++) {
+              if (String(uData[j][0]) === aff) {
+                affEmail = String(uData[j][1]).toLowerCase().trim();
+                affWA = normalizePhone_(String(uData[j][7])); // Col 8 is WhatsApp
                 break;
+              }
             }
+
+            if (email === affEmail || (waNormalized && affWA && waNormalized === affWA)) {
+              Logger.log("Self-affiliate detected for " + email + " against affiliate " + aff + ". Commission set to 0.");
+              komisiNominal = 0;
+            }
+          }
+          break;
         }
+      }
     }
 
-    const kodeUnik = isZeroPrice ? 0 : (Math.floor(Math.random() * 900) + 100);
+    const kodeUnik = isZeroPrice ? 0 : (Math.floor(Math.random() * 299) + 1);
     const hargaTotalUnik = hargaDasar + kodeUnik;
 
     // Cek atau Buat User Baru
     let isNew = true;
     let pass = Math.random().toString(36).slice(-6);
 
-    const uData = uS.getDataRange().getValues();
+    // uData already fetched above
+    let existingUserRow = -1;
     for (let j = 1; j < uData.length; j++) {
       if (String(uData[j][1]).toLowerCase() === email) {
         isNew = false;
-        pass = String(uData[j][2]);
+        existingUserRow = j;
         break;
       }
     }
@@ -1618,17 +1637,17 @@ function createOrder(d, cfg) {
       // Generate Friendly Unique ID (u-XXXXXX)
       let newUserId = "u-" + Math.floor(100000 + Math.random() * 900000);
       let unique = false;
-      while(!unique) {
-          unique = true;
-          for(let k=1; k<uData.length; k++) {
-              if(String(uData[k][0]) === newUserId) {
-                  unique = false;
-                  newUserId = "u-" + Math.floor(100000 + Math.random() * 900000);
-                  break;
-              }
+      while (!unique) {
+        unique = true;
+        for (let k = 1; k < uData.length; k++) {
+          if (String(uData[k][0]) === newUserId) {
+            unique = false;
+            newUserId = "u-" + Math.floor(100000 + Math.random() * 900000);
+            break;
           }
+        }
       }
-      uS.appendRow([newUserId, email, hashPassword_(pass), d.nama, "member", "Active", toISODate_(), "-"]);
+      uS.appendRow([newUserId, email, hashPassword_(pass), d.nama, "member", "Active", toISODate_(), "'" + (waNormalized || waRaw)]);
     }
 
     const orderStatus = isZeroPrice ? "Lunas" : "Pending";
@@ -1653,55 +1672,60 @@ function createOrder(d, cfg) {
     // ==========================================
     // NOTIFIKASI (LOGIC CABANG: GRATIS vs BAYAR)
     // ==========================================
-    
+
     const adminWA = getCfgFrom_(cfg, "wa_admin");
 
     if (isZeroPrice) {
-       // --- SKENARIO PRODUK GRATIS (AUTO LUNAS) ---
-       
-       // 1. Ambil Link Akses
-       let accessUrl = "";
-       const pS = mustSheet_("Access_Rules");
-       const pData = pS.getDataRange().getValues();
-       for (let k = 1; k < pData.length; k++) {
-         if (String(pData[k][0]) === String(d.id_produk)) { accessUrl = pData[k][3]; break; }
-       }
-       
-       // 2. WA ke User (use normalized number)
-       const waText = `Halo ${d.nama}, selamat datang di ${siteName}! 🎉\n\nSukses! Akses Anda untuk produk *${d.nama_produk}* telah aktif (GRATIS).\n\n🚀 *Klik link berikut untuk akses materi:*\n${accessUrl}\n\n🔐 *AKUN MEMBER AREA*\n🌐 Link: ${loginUrl}\n✉️ Email: ${email}\n🔑 Password: ${pass}\n\nTerima kasih!\n*Tim ${siteName}*`;
-       sendWA(waForSheet, waText, cfg);
+      // --- SKENARIO PRODUK GRATIS (AUTO LUNAS) ---
 
-       // 3. Email ke User
-       const emailHtml = `
+      // 1. Ambil Link Akses
+      let accessUrl = "";
+      const pS = mustSheet_("Access_Rules");
+      const pData = pS.getDataRange().getValues();
+      for (let k = 1; k < pData.length; k++) {
+        if (String(pData[k][0]) === String(d.id_produk)) { accessUrl = pData[k][3]; break; }
+      }
+
+      const waPassText = isNew ? pass : "_(gunakan password saat anda pertama kali daftar / yang sudah anda ubah)_";
+      const emailPassHtml = isNew ? `<code style="background-color: #e2e8f0; padding: 2px 6px; border-radius: 4px; color: #000018;">${pass}</code>` : `<i style="color: #64748b; font-size: 13px;">(gunakan password saat anda pertama kali daftar / yang sudah anda ubah)</i>`;
+
+      // 2. WA ke User (use normalized number)
+      const waText = `Halo ${d.nama}, selamat datang di ${siteName}! 🎉\n\nSukses! Akses Anda untuk produk *${d.nama_produk}* telah aktif (GRATIS).\n\n🚀 *Klik link berikut untuk akses produk:*\n${accessUrl}\n\n🔐 *AKUN MEMBER AREA*\n🌐 Link: ${loginUrl}\n✉️ Email: ${email}\n🔑 Password: ${waPassText}\n\nAnda juga bisa mengakses seluruh produk Anda melalui Member Area kami.\n\nTerima kasih!\n*Tim ${siteName}*`;
+      sendWA(waForSheet, waText, cfg);
+
+      // 3. Email ke User
+      const emailHtml = `
        <div style="font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; color: #334155; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
           <h2 style="color: #017A6B; margin-top: 0;">Akses Produk Gratis Dibuka! 🎁</h2>
           <p>Halo <b style="color: #000018;">${d.nama}</b>,</p>
           <p>Selamat! Anda telah berhasil mendapatkan akses ke produk <b style="color: #000018;">${d.nama_produk}</b> secara GRATIS.</p>
           
           <div style="text-align: center; margin: 35px 0;">
-              <a href="${accessUrl}" style="background-color: #B6FF00; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">Akses Materi Sekarang</a>
+              <a href="${accessUrl}" style="background-color: #B6FF00; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">Akses Produk Sekarang</a>
           </div>
 
           <div style="background-color: #f8fafc; border-left: 4px solid #017A6B; padding: 15px 20px; border-radius: 8px; margin: 25px 0;">
               <h3 style="color: #000018; margin: 0 0 10px 0; font-size: 16px;">🔐 Akun Member Area</h3>
               <p style="margin: 0; font-size: 14px;"><b>Link:</b> <a href="${loginUrl}" style="color: #017A6B; text-decoration: none;">${loginUrl}</a><br>
               <b>Email:</b> ${email}<br>
-              <b>Password:</b> <code style="background-color: #e2e8f0; padding: 2px 6px; border-radius: 4px; color: #000018;">${pass}</code></p>
+              <b>Password:</b> ${emailPassHtml}</p>
           </div>
           
           <p style="margin-bottom: 0;">Salam hangat,<br><b style="color: #000018;">Tim ${siteName}</b></p>
        </div>`;
-       sendEmail(email, `Akses Gratis! Produk ${d.nama_produk}`, emailHtml, cfg);
+      sendEmail(email, `Akses Gratis! Produk ${d.nama_produk}`, emailHtml, cfg);
 
-       // 4. Notif Admin
-       sendWA(adminWA, `🎁 *ORDER GRATIS BARU!* 🎁\n\n📌 *Invoice:* #${inv}\n📦 *Produk:* ${d.nama_produk}\n👤 *User:* ${d.nama}\n\nStatus: Lunas (Auto)`, cfg);
+      // 4. Notif Admin
+      sendWA(adminWA, `🎁 *ORDER GRATIS BARU!* 🎁\n\n📌 *Invoice:* #${inv}\n📦 *Produk:* ${d.nama_produk}\n👤 *User:* ${d.nama}\n\nStatus: Lunas (Auto)`, cfg);
 
     } else {
-       // --- SKENARIO BERBAYAR (PENDING) ---
+      // --- SKENARIO BERBAYAR (PENDING) ---
 
-       // --> NOTIFIKASI PEMBELI (WHATSAPP)
-    const waBuyerText =
-`Halo *${d.nama}*, salam hangat dari ${siteName}! 👋
+      const waPassTextPaid = isNew ? pass : "_(gunakan password saat anda pertama kali daftar / yang sudah anda ubah)_";
+
+      // --> NOTIFIKASI PEMBELI (WHATSAPP)
+      const waBuyerText =
+        `Halo *${d.nama}*, salam hangat dari ${siteName}! 👋
 
 Terima kasih telah melakukan pemesanan. Berikut rincian pesanan Anda:
 
@@ -1724,15 +1748,17 @@ Silakan selesaikan pembayaran ke rekening berikut:
 🔐 *INFORMASI AKUN MEMBER*
 🌐 *Link Login:* ${loginUrl}
 ✉️ *Email:* ${email}
-🔑 *Password:* ${pass}
+🔑 *Password:* ${waPassTextPaid}
 
 *(Akses materi otomatis terbuka di akun ini setelah pembayaran divalidasi)*.
 
-Jika ada pertanyaan, silakan balas pesan ini. Terima kasih! 🙏`;
-    sendWA(waForSheet, waBuyerText, cfg);
+*Harap tunggu 2-15 menit agar pesanan otomatis divalidasi.*
 
-    // --> NOTIFIKASI PEMBELI (EMAIL) (template asli lu)
-    const emailBuyerHtml = `
+Jika ada pertanyaan, silakan balas pesan ini. Terima kasih! 🙏`;
+      sendWA(waForSheet, waBuyerText, cfg);
+
+      // --> NOTIFIKASI PEMBELI (EMAIL) (template asli lu)
+      const emailBuyerHtml = `
     <div style="font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; color: #334155; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
         <h2 style="color: #017A6B; margin-top: 0; margin-bottom: 5px;">Menunggu Pembayaran Anda ⏳</h2>
         <p style="font-size: 16px; margin-top: 0;">Halo <b style="color: #000018;">${d.nama}</b>,</p>
@@ -1770,7 +1796,7 @@ Jika ada pertanyaan, silakan balas pesan ini. Terima kasih! 🙏`;
             </tr>
             <tr>
                 <td style="padding: 12px 10px; border-bottom: 1px solid #e2e8f0; color: #64748b;"><b>Password</b></td>
-                <td style="padding: 12px 10px; border-bottom: 1px solid #e2e8f0;"><code style="background: #f1f5f9; padding: 4px 8px; border-radius: 4px; color: #000018; font-weight: bold;">${pass}</code></td>
+                <td style="padding: 12px 10px; border-bottom: 1px solid #e2e8f0;">${isNew ? `<code style="background: #f1f5f9; padding: 4px 8px; border-radius: 4px; color: #000018; font-weight: bold;">${pass}</code>` : `<i style="color: #64748b; font-size: 13px;">(gunakan password saat anda pertama kali daftar / yang sudah anda ubah)</i>`}</td>
             </tr>
         </table>
 
@@ -1778,11 +1804,11 @@ Jika ada pertanyaan, silakan balas pesan ini. Terima kasih! 🙏`;
         <p style="margin-bottom: 0;">Salam hangat,<br><b style="color: #000018;">Tim ${siteName}</b></p>
     </div>
     `;
-    sendEmail(email, `Menunggu Pembayaran: Pesanan #${inv} - ${siteName}`, emailBuyerHtml, cfg);
+      sendEmail(email, `Menunggu Pembayaran: Pesanan #${inv} - ${siteName}`, emailBuyerHtml, cfg);
 
-    // --> NOTIFIKASI ADMIN
-    const affMsg = aff !== "-" ? `\n🤝 *Affiliate:* ${aff}\n💸 *Potensi Komisi:* Rp ${Number(komisiNominal).toLocaleString('id-ID')}` : "";
-    sendWA(adminWA, `🚨 *PESANAN BARU MASUK!* 🚨\n\n📌 *Invoice:* #${inv}\n📦 *Produk:* ${d.nama_produk}\n👤 *Customer:* ${d.nama}\n💳 *Nilai Unik:* Rp ${Number(hargaTotalUnik).toLocaleString('id-ID')}${affMsg}\n\nSilakan pantau pembayaran dari customer ini.`, cfg);
+      // --> NOTIFIKASI ADMIN
+      const affMsg = aff !== "-" ? `\n🤝 *Affiliate:* ${aff}\n💸 *Potensi Komisi:* Rp ${Number(komisiNominal).toLocaleString('id-ID')}` : "";
+      sendWA(adminWA, `🚨 *PESANAN BARU MASUK!* 🚨\n\n📌 *Invoice:* #${inv}\n📦 *Produk:* ${d.nama_produk}\n👤 *Customer:* ${d.nama}\n💳 *Nilai Unik:* Rp ${Number(hargaTotalUnik).toLocaleString('id-ID')}${affMsg}\n\nSilakan pantau pembayaran dari customer ini.`, cfg);
     } // End of Else (Paid)
 
     return { status: "success", invoice: inv, tagihan: hargaTotalUnik, is_new_user: isNew };
@@ -1821,7 +1847,7 @@ function updateOrderStatus(d, cfg) {
         pId = r[i][4];
         pName = r[i][5];
         orderFound = true;
-        Logger.log(traceId + " Order FOUND: row=" + (i+1) + " uWA=" + JSON.stringify(uWA) + " type=" + typeof uWA + " uEmail=" + uEmail);
+        Logger.log(traceId + " Order FOUND: row=" + (i + 1) + " uWA=" + JSON.stringify(uWA) + " type=" + typeof uWA + " uEmail=" + uEmail);
         break;
       }
     }
@@ -1848,7 +1874,7 @@ function updateOrderStatus(d, cfg) {
 
       // STEP 1: Send WA to customer
       Logger.log(traceId + " Sending WA to: " + uWA);
-      const waResult = sendWA(uWA, `🎉 *PEMBAYARAN TERVERIFIKASI!* 🎉\n\nHalo *${uName}*, kabar baik!\n\nPembayaran Anda untuk produk *${pName}* telah kami terima dan akses Anda kini *Telah Aktif*.\n\n🚀 *Klik link berikut untuk mengakses materi Anda:*\n${accessUrl}\n\nAnda juga bisa mengakses seluruh produk Anda melalui Member Area kami.\n\nTerima kasih atas kepercayaannya!\n*Tim ${siteName}*`, cfg);
+      const waResult = sendWA(uWA, `🎉 *PEMBAYARAN TERVERIFIKASI!* 🎉\n\nHalo *${uName}*, kabar baik!\n\nPembayaran Anda untuk produk *${pName}* (Invoice: #${d.id}) telah kami terima dan akses Anda kini *Telah Aktif*.\n\n🚀 *Klik link berikut untuk mengakses produk Anda:*\n${accessUrl}\n\nAnda juga bisa mengakses seluruh produk Anda melalui Member Area kami.\n\nTerima kasih atas kepercayaannya!\n*Tim ${siteName}*`, cfg);
       Logger.log(traceId + " WA Result: " + JSON.stringify(waResult));
 
       // STEP 2: Send Email to customer
@@ -1861,7 +1887,7 @@ function updateOrderStatus(d, cfg) {
           <p>Terima kasih! Pembayaran Anda telah berhasil kami verifikasi. Akses penuh untuk produk <b style="color: #000018;">${pName}</b> sekarang sudah aktif dan dapat Anda gunakan.</p>
 
           <div style="text-align: center; margin: 35px 0;">
-              <a href="${accessUrl}" style="background-color: #B6FF00; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; display: inline-block;">Akses Materi Sekarang</a>
+              <a href="${accessUrl}" style="background-color: #B6FF00; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; display: inline-block;">Akses Produk Sekarang</a>
           </div>
 
           <p>Sebagai alternatif, Anda selalu bisa menemukan semua produk yang Anda miliki dengan masuk ke Member Area menggunakan akun yang telah kami kirimkan sebelumnya.</p>
@@ -1889,7 +1915,7 @@ function updateOrderStatus(d, cfg) {
 function getAffiliatePixel_(userId, productId) {
   const s = ss.getSheetByName("Affiliate_Pixels");
   if (!s) return null;
-  
+
   const d = s.getDataRange().getValues();
   for (let i = 1; i < d.length; i++) {
     if (String(d[i][0]) === String(userId) && String(d[i][1]) === String(productId)) {
@@ -1915,15 +1941,15 @@ function getProductDetail(d, cfg) {
 
     for (let i = 1; i < rules.length; i++) {
       if (String(rules[i][0]) === pId && String(rules[i][5]).trim() === "Active") {
-        productData = { 
-            id: pId, 
-            title: normalizePlainText_(rules[i][1]), 
-            desc: normalizeProductDescription_(rules[i][2]), 
-            harga: rules[i][4],
-            pixel_id: rules[i][8] || "",
-            pixel_token: rules[i][9] || "",
-            pixel_test_code: rules[i][10] || "",
-            commission: rules[i][11] || 0
+        productData = {
+          id: pId,
+          title: normalizePlainText_(rules[i][1]),
+          desc: normalizeProductDescription_(rules[i][2]),
+          harga: rules[i][4],
+          pixel_id: rules[i][8] || "",
+          pixel_token: rules[i][9] || "",
+          pixel_test_code: rules[i][10] || "",
+          commission: rules[i][11] || 0
         };
         break;
       }
@@ -1933,13 +1959,13 @@ function getProductDetail(d, cfg) {
     // --> CHECK AFFILIATE PIXEL OVERRIDE
     const affRef = d.ref || d.aff_id;
     if (affRef) {
-        const affPixel = getAffiliatePixel_(affRef, pId);
-        if (affPixel && affPixel.pixel_id) {
-            productData.pixel_id = affPixel.pixel_id;
-            productData.pixel_token = affPixel.pixel_token;
-            productData.pixel_test_code = affPixel.pixel_test_code;
-            productData.is_affiliate_pixel = true;
-        }
+      const affPixel = getAffiliatePixel_(affRef, pId);
+      if (affPixel && affPixel.pixel_id) {
+        productData.pixel_id = affPixel.pixel_id;
+        productData.pixel_token = affPixel.pixel_token;
+        productData.pixel_test_code = affPixel.pixel_test_code;
+        productData.is_affiliate_pixel = true;
+      }
     }
 
     const paymentInfo = {
@@ -1972,28 +1998,28 @@ function getProductDetail(d, cfg) {
 ========================= */
 function getProducts(d, cfg, cachedOrders) {
   cfg = cfg || getSettingsMap_();
-  
+
   // OPTIMIZATION: Only fetch sheets if needed, reuse cached if passed
   const rules = getCachedData_("access_rules", () => {
-     return mustSheet_("Access_Rules").getDataRange().getValues();
+    return mustSheet_("Access_Rules").getDataRange().getValues();
   }, 3600); // 1 hour cache for rules
 
   const orders = cachedOrders || mustSheet_("Orders").getDataRange().getValues();
   const users = mustSheet_("Users").getDataRange().getValues(); // Often changes, might need real-time
-  
+
   let email = String(d.email || "").trim().toLowerCase();
   let targetMode = false;
 
   // Support fetching products for a specific user (Bio Page)
   if (d.target_user_id) {
-      targetMode = true;
-      const tUid = String(d.target_user_id).trim();
-      for (let j = 1; j < users.length; j++) {
-          if (String(users[j][0]) === tUid) {
-              email = String(users[j][1]).trim().toLowerCase();
-              break;
-          }
+    targetMode = true;
+    const tUid = String(d.target_user_id).trim();
+    for (let j = 1; j < users.length; j++) {
+      if (String(users[j][0]) === tUid) {
+        email = String(users[j][1]).trim().toLowerCase();
+        break;
       }
+    }
   }
 
   let lunasIds = [], totalKomisi = 0, uId = "";
@@ -2006,19 +2032,19 @@ function getProducts(d, cfg, cachedOrders) {
     for (let x = 1; x < orders.length; x++) {
       const r = orders[x];
       if (String(r[1]).toLowerCase() === email && String(r[7]) === "Lunas") lunasIds.push(String(r[4]));
-      
+
       // Check for Partners (Referrals) - Only calculate if not in target mode (optional, but keeps it clean)
       if (!targetMode && String(r[9]) === uId) {
-          if (String(r[7]) === "Lunas") totalKomisi += Number(r[10] || 0);
-          
-          partners.push({
-              invoice: r[0],
-              name: r[2],
-              product: r[5],
-              status: r[7],
-              date: r[8] ? String(r[8]).substring(0, 10) : "-",
-              commission: r[10] || 0
-          });
+        if (String(r[7]) === "Lunas") totalKomisi += Number(r[10] || 0);
+
+        partners.push({
+          invoice: r[0],
+          name: r[2],
+          product: r[5],
+          status: r[7],
+          date: r[8] ? String(r[8]).substring(0, 10) : "-",
+          commission: r[10] || 0
+        });
       }
     }
   }
@@ -2087,99 +2113,99 @@ function getDashboardData(d) {
   try {
     const dashboardCacheVersion = publicCacheVersionToken_("dashboard");
     const cfg = getSettingsMap_();
-    
+
     // 1. Get User ID & Admin ID from Users Sheet
     const email = String(d.email || "").trim().toLowerCase();
     const users = mustSheet_("Users").getDataRange().getValues();
     let userId = "";
     let userNama = "";
     let adminId = "";
-    
-    for(let i=1; i<users.length; i++) {
-        // Check for Admin (fallback upline)
-        if(String(users[i][4]).toLowerCase() === "admin" && !adminId) {
-            adminId = String(users[i][0]);
-        }
-        // Check for Current User
-        if(String(users[i][1]).toLowerCase() === email) {
-            userId = String(users[i][0]);
-            userNama = String(users[i][3]);
-        }
+
+    for (let i = 1; i < users.length; i++) {
+      // Check for Admin (fallback upline)
+      if (String(users[i][4]).toLowerCase() === "admin" && !adminId) {
+        adminId = String(users[i][0]);
+      }
+      // Check for Current User
+      if (String(users[i][1]).toLowerCase() === email) {
+        userId = String(users[i][0]);
+        userNama = String(users[i][3]);
+      }
     }
-    
+
     // 1b. Find Upline (Sponsor) from Orders History
     let uplineId = "";
     const orders = mustSheet_("Orders").getDataRange().getValues();
-    
-    if(userId) {
-        // Search from oldest order (top) to find the first referrer
-        for(let k=1; k<orders.length; k++) {
-             if(String(orders[k][1]).toLowerCase() === email) {
-                 const aff = String(orders[k][9] || "").trim();
-                 if(aff && aff !== "-" && aff !== "" && aff !== "GUEST") {
-                     uplineId = aff;
-                     break; // Found the first sponsor
-                 }
-             }
+
+    if (userId) {
+      // Search from oldest order (top) to find the first referrer
+      for (let k = 1; k < orders.length; k++) {
+        if (String(orders[k][1]).toLowerCase() === email) {
+          const aff = String(orders[k][9] || "").trim();
+          if (aff && aff !== "-" && aff !== "" && aff !== "GUEST") {
+            uplineId = aff;
+            break; // Found the first sponsor
+          }
         }
+      }
     }
     // Default to Admin if no upline found
-    if(!uplineId) uplineId = adminId;
+    if (!uplineId) uplineId = adminId;
 
     // 1c. Get Upline Name
     let uplineName = "Admin";
-    if(uplineId) {
-         for(let m=1; m<users.length; m++) {
-             if(String(users[m][0]) === uplineId) {
-                 uplineName = String(users[m][3]);
-                 break;
-             }
-         }
+    if (uplineId) {
+      for (let m = 1; m < users.length; m++) {
+        if (String(users[m][0]) === uplineId) {
+          uplineName = String(users[m][3]);
+          break;
+        }
+      }
     }
-    
+
     // 2. Get Products (reuse existing logic + pass cached orders)
     const productsData = getProducts(d, cfg, orders);
     const dashboardProducts = productsData && typeof productsData === "object" ? Object.assign({}, productsData) : {};
     delete dashboardProducts.cache_version;
-    
+
     // 3. Get Global Pages (Affiliate Tools - ADMIN owned)
     const globalPages = getAllPages({ ...d, owner_id: "" });
-    
+
     // 4. Get My Pages (User owned)
     let myPages = { data: [] };
-    if(userId) {
-        myPages = getAllPages({ ...d, owner_id: userId, only_mine: true });
+    if (userId) {
+      myPages = getAllPages({ ...d, owner_id: userId, only_mine: true });
     }
-    
+
     // 5. Get Affiliate Pixels (User specific)
     let myPixels = [];
-    if(userId) {
-        const s = ss.getSheetByName("Affiliate_Pixels");
-        if (s) {
-            const data = s.getDataRange().getValues();
-            for (let i = 1; i < data.length; i++) {
-                if (String(data[i][0]) === userId) {
-                    myPixels.push({
-                        product_id: data[i][1],
-                        pixel_id: data[i][2],
-                        pixel_token: data[i][3],
-                        pixel_test_code: data[i][4]
-                    });
-                }
-            }
+    if (userId) {
+      const s = ss.getSheetByName("Affiliate_Pixels");
+      if (s) {
+        const data = s.getDataRange().getValues();
+        for (let i = 1; i < data.length; i++) {
+          if (String(data[i][0]) === userId) {
+            myPixels.push({
+              product_id: data[i][1],
+              pixel_id: data[i][2],
+              pixel_token: data[i][3],
+              pixel_test_code: data[i][4]
+            });
+          }
         }
+      }
     }
-    
+
     return {
       status: "success",
       cache_version: dashboardCacheVersion,
       data: {
         user: { id: userId, nama: userNama, upline_id: uplineId, upline_name: uplineName },
-        settings: { 
-            site_name: getCfgFrom_(cfg, "site_name"),
-            site_logo: sanitizeAssetUrl_(getCfgFrom_(cfg, "site_logo")),
-            site_favicon: sanitizeAssetUrl_(getCfgFrom_(cfg, "site_favicon")),
-            wa_admin: getCfgFrom_(cfg, "wa_admin")
+        settings: {
+          site_name: getCfgFrom_(cfg, "site_name"),
+          site_logo: sanitizeAssetUrl_(getCfgFrom_(cfg, "site_logo")),
+          site_favicon: sanitizeAssetUrl_(getCfgFrom_(cfg, "site_favicon")),
+          wa_admin: getCfgFrom_(cfg, "wa_admin")
         },
         products: dashboardProducts,
         pages: globalPages.data || [],
@@ -2244,15 +2270,15 @@ function getPageContent(d) {
     const r = mustSheet_("Pages").getDataRange().getValues();
     for (let i = 1; i < r.length; i++) {
       if (String(r[i][1]) === String(d.slug)) {
-          return withPublicCacheVersion_({ 
-              status: "success", 
-              title: r[i][2], 
-              content: r[i][3],
-              pixel_id: r[i][7] || "",
-              pixel_token: r[i][8] || "",
-              pixel_test_code: r[i][9] || "",
-              theme_mode: r[i][10] || "light"
-          }, "pages");
+        return withPublicCacheVersion_({
+          status: "success",
+          title: r[i][2],
+          content: r[i][3],
+          pixel_id: r[i][7] || "",
+          pixel_token: r[i][8] || "",
+          pixel_test_code: r[i][9] || "",
+          theme_mode: r[i][10] || "light"
+        }, "pages");
       }
     }
     return { status: "error" };
@@ -2271,14 +2297,14 @@ function getAllPages(d) {
     for (let i = 1; i < r.length; i++) {
       if (String(r[i][4]) === "Active") {
         // Kolom 7 (index 6) adalah Owner ID. Jika kosong, anggap milik ADMIN (Global)
-        const pageOwner = String(r[i][6] || "ADMIN").trim(); 
+        const pageOwner = String(r[i][6] || "ADMIN").trim();
 
         if (onlyMine) {
-            // Mode "Halaman Saya": Hanya tampilkan milik user ini
-            if (pageOwner === filterOwner) data.push(r[i]);
+          // Mode "Halaman Saya": Hanya tampilkan milik user ini
+          if (pageOwner === filterOwner) data.push(r[i]);
         } else {
-            // Mode Default (Global): Tampilkan halaman ADMIN (untuk affiliate link)
-            if (pageOwner === "ADMIN") data.push(r[i]);
+          // Mode Default (Global): Tampilkan halaman ADMIN (untuk affiliate link)
+          if (pageOwner === "ADMIN") data.push(r[i]);
         }
       }
     }
@@ -2411,24 +2437,32 @@ function runAuthTests() {
     // Test 4: Admin password has no hidden characters
     const passStr = adminRow.pass;
     const hasHidden = passStr.length !== passStr.trim().length;
-    results.push({ test: "Admin password has no trailing/leading spaces", pass: !hasHidden, 
-      detail: "Raw length: " + passStr.length + ", Trimmed: " + passStr.trim().length });
+    results.push({
+      test: "Admin password has no trailing/leading spaces", pass: !hasHidden,
+      detail: "Raw length: " + passStr.length + ", Trimmed: " + passStr.trim().length
+    });
 
     // Test 5: Admin email has no hidden characters
     const emailStr = adminRow.email;
     const emailHasHidden = emailStr.length !== emailStr.trim().length;
-    results.push({ test: "Admin email has no trailing/leading spaces", pass: !emailHasHidden,
-      detail: "Raw length: " + emailStr.length + ", Trimmed: " + emailStr.trim().length });
+    results.push({
+      test: "Admin email has no trailing/leading spaces", pass: !emailHasHidden,
+      detail: "Raw length: " + emailStr.length + ", Trimmed: " + emailStr.trim().length
+    });
 
     // Test 6: loginUser works for admin (should succeed — tests email+pass)
     const loginResult = loginUser({ email: adminRow.email.trim(), password: adminRow.pass.trim() });
-    results.push({ test: "loginUser() succeeds for admin credentials", pass: loginResult.status === "success",
-      detail: JSON.stringify(loginResult) });
+    results.push({
+      test: "loginUser() succeeds for admin credentials", pass: loginResult.status === "success",
+      detail: JSON.stringify(loginResult)
+    });
 
     // Test 7: adminLogin works for admin (should succeed — tests email+pass+role)
     const adminResult = adminLogin({ email: adminRow.email.trim(), password: adminRow.pass.trim() });
-    results.push({ test: "adminLogin() succeeds for admin credentials", pass: adminResult.status === "success",
-      detail: JSON.stringify(adminResult) });
+    results.push({
+      test: "adminLogin() succeeds for admin credentials", pass: adminResult.status === "success",
+      detail: JSON.stringify(adminResult)
+    });
 
     const adminSessionToken = adminResult && adminResult.data ? String(adminResult.data.session_token || "") : "";
     const adminSession = adminSessionToken ? getAdminSession_(adminSessionToken) : null;
@@ -2468,25 +2502,33 @@ function runAuthTests() {
   if (memberRow) {
     // Test 9: loginUser works for member
     const memberResult = loginUser({ email: memberRow.email.trim(), password: memberRow.pass.trim() });
-    results.push({ test: "loginUser() succeeds for member credentials", pass: memberResult.status === "success",
-      detail: JSON.stringify(memberResult) });
+    results.push({
+      test: "loginUser() succeeds for member credentials", pass: memberResult.status === "success",
+      detail: JSON.stringify(memberResult)
+    });
 
     // Test 10: adminLogin rejects member (should fail — not admin role)
     const memberAdminResult = adminLogin({ email: memberRow.email.trim(), password: memberRow.pass.trim() });
-    results.push({ test: "adminLogin() correctly rejects member user", pass: memberAdminResult.status === "error",
-      detail: JSON.stringify(memberAdminResult) });
+    results.push({
+      test: "adminLogin() correctly rejects member user", pass: memberAdminResult.status === "error",
+      detail: JSON.stringify(memberAdminResult)
+    });
   }
 
   // Test 11: Empty credentials rejected
   const emptyResult = adminLogin({ email: "", password: "" });
-  results.push({ test: "adminLogin() rejects empty credentials", pass: emptyResult.status === "error",
-    detail: emptyResult.message });
+  results.push({
+    test: "adminLogin() rejects empty credentials", pass: emptyResult.status === "error",
+    detail: emptyResult.message
+  });
 
   // Test 12: Wrong password rejected
   if (adminRow) {
     const wrongPassResult = adminLogin({ email: adminRow.email, password: "wrongpass123" });
-    results.push({ test: "adminLogin() rejects wrong password", pass: wrongPassResult.status === "error",
-      detail: wrongPassResult.message });
+    results.push({
+      test: "adminLogin() rejects wrong password", pass: wrongPassResult.status === "error",
+      detail: wrongPassResult.message
+    });
   }
 
   const passed = results.filter(r => r.pass).length;
@@ -2534,7 +2576,7 @@ function runMootaValidationTests() {
     }
   ];
 
-  const results = cases.map(function(item) {
+  const results = cases.map(function (item) {
     const errors = validateMootaConfigFormat_(item.input);
     const pass = JSON.stringify(errors) === JSON.stringify(item.expectedErrors);
     return {
@@ -2546,7 +2588,7 @@ function runMootaValidationTests() {
     };
   });
 
-  const passed = results.filter(function(result) { return result.pass; }).length;
+  const passed = results.filter(function (result) { return result.pass; }).length;
   const failed = results.length - passed;
 
   return {
@@ -2650,7 +2692,7 @@ function runMootaSignatureTests() {
     }
   ];
 
-  const results = cases.map(function(item) {
+  const results = cases.map(function (item) {
     const pass = JSON.stringify(item.actual) === JSON.stringify(item.expected);
     return {
       test: item.test,
@@ -2660,7 +2702,7 @@ function runMootaSignatureTests() {
     };
   });
 
-  const passed = results.filter(function(result) { return result.pass; }).length;
+  const passed = results.filter(function (result) { return result.pass; }).length;
   const failed = results.length - passed;
 
   return {
@@ -2742,10 +2784,10 @@ function saveProduct(d) {
     const rekomendasi = String(d.rekomendasi || "false") === "true";
     const hargaCoret = String(d.harga_coret || "").trim();
     const hidden = String(d.hidden || "false") === "true";
-    
+
     // Ensure we have enough columns (16 columns needed)
     if (s.getMaxColumns() < 16) s.insertColumnsAfter(s.getMaxColumns(), 16 - s.getMaxColumns());
-    
+
     const dataRow = [productId, productTitle, productDesc, productUrl, d.harga, productStatus, landingPageUrl, imageUrl, pixelId, pixelToken, pixelTestCode, commission, category, rekomendasi, hargaCoret, hidden];
     const isEdit = String(d.is_edit) === "true";
 
@@ -2764,7 +2806,7 @@ function saveProduct(d) {
       const r = s.getDataRange().getValues();
       for (let i = 1; i < r.length; i++) {
         if (String(r[i][0]).trim() === productId) {
-           return { status: "error", message: "ID Produk sudah digunakan. Mohon refresh halaman." };
+          return { status: "error", message: "ID Produk sudah digunakan. Mohon refresh halaman." };
         }
       }
       s.appendRow(dataRow);
@@ -2809,18 +2851,18 @@ function savePage(d) {
 
     // 1. Cek Unik Slug (Global Check)
     for (let i = 1; i < r.length; i++) {
-        const rowSlug = String(r[i][1]).trim();
-        const rowId = String(r[i][0]).trim();
-        
-        if (rowSlug === slug) {
-            // Jika slug sama, pastikan ini adalah halaman yang sama (sedang diedit)
-            // Jika ID beda, berarti slug sudah dipakai orang lain
-            if (isEdit && rowId === id) {
-                // Ini halaman kita sendiri, lanjut
-            } else {
-                return { status: "error", message: "Slug URL sudah digunakan. Pilih slug lain." };
-            }
+      const rowSlug = String(r[i][1]).trim();
+      const rowId = String(r[i][0]).trim();
+
+      if (rowSlug === slug) {
+        // Jika slug sama, pastikan ini adalah halaman yang sama (sedang diedit)
+        // Jika ID beda, berarti slug sudah dipakai orang lain
+        if (isEdit && rowId === id) {
+          // Ini halaman kita sendiri, lanjut
+        } else {
+          return { status: "error", message: "Slug URL sudah digunakan. Pilih slug lain." };
         }
+      }
     }
 
     // Check if columns exist
@@ -2832,9 +2874,9 @@ function savePage(d) {
         if (String(r[i][0]).trim() === id) {
           // Hanya izinkan edit jika owner cocok (atau admin bisa edit semua)
           const existingOwner = String(r[i][6] || "ADMIN").trim();
-          
-           if (existingOwner !== ownerId && ownerId !== "ADMIN") { 
-              return { status: "error", message: "Anda tidak memiliki izin mengedit halaman ini." };
+
+          if (existingOwner !== ownerId && ownerId !== "ADMIN") {
+            return { status: "error", message: "Anda tidak memiliki izin mengedit halaman ini." };
           }
 
           s.getRange(i + 1, 1, 1, 4).setValues([[d.id, slug, d.title, d.content]]);
@@ -2868,9 +2910,9 @@ function deletePage(d) {
         // Security Check: Only Owner or Admin can delete
         const pageOwner = String(r[i][6] || "ADMIN").trim();
         if (pageOwner !== ownerId && ownerId !== "ADMIN") {
-            return { status: "error", message: "Anda tidak memiliki izin menghapus halaman ini." };
+          return { status: "error", message: "Anda tidak memiliki izin menghapus halaman ini." };
         }
-        
+
         s.deleteRow(i + 1);
         return withPublicCacheState_({ status: "success", message: "Halaman berhasil dihapus" }, bumpPublicCacheState_(["pages", "dashboard"]));
       }
@@ -2886,18 +2928,18 @@ function checkSlug(d) {
     const s = mustSheet_("Pages");
     const slug = String(d.slug).trim();
     const excludeId = String(d.exclude_id || "").trim(); // For edit mode
-    
+
     const r = s.getDataRange().getValues();
     for (let i = 1; i < r.length; i++) {
       const rowSlug = String(r[i][1]).trim();
       const rowId = String(r[i][0]).trim();
-      
+
       if (rowSlug === slug) {
-          if (excludeId && rowId === excludeId) {
-              // Same page, it's fine
-          } else {
-              return { status: "success", available: false, message: "Slug URL sudah digunakan" };
-          }
+        if (excludeId && rowId === excludeId) {
+          // Same page, it's fine
+        } else {
+          return { status: "success", available: false, message: "Slug URL sudah digunakan" };
+        }
       }
     }
     return { status: "success", available: true, message: "Slug URL tersedia" };
@@ -3106,14 +3148,14 @@ function updateUserProfile(d) {
     // 1. Verify User & Check duplicate email if changed
     for (let i = 1; i < r.length; i++) {
       const rowEmail = String(r[i][1]).trim().toLowerCase();
-      
+
       // Find current user
       if (rowEmail === currentEmail) {
         if (!verifyPassword_(password, String(r[i][2] || ""))) return { status: "error", message: "Password salah!" };
         userRowIndex = i + 1;
         currentData = r[i];
-      } 
-      
+      }
+
       // Check if new email is already taken by SOMEONE ELSE
       if (rowEmail === newEmail && rowEmail !== currentEmail) {
         return { status: "error", message: "Email baru sudah digunakan oleh pengguna lain." };
@@ -3139,7 +3181,7 @@ function updateUserProfile(d) {
         }
       }
     } else {
-       // Just update name in Orders if email same
+      // Just update name in Orders if email same
       const oS = mustSheet_("Orders");
       const oR = oS.getDataRange().getValues();
       for (let j = 1; j < oR.length; j++) {
@@ -3167,7 +3209,7 @@ function saveAffiliatePixel(d) {
       s = ss.insertSheet(sName);
       s.appendRow(["user_id", "product_id", "pixel_id", "pixel_token", "pixel_test_code"]);
     }
-    
+
     // 1. Get User ID from Email (Secure way: use login token if available, but here we trust email for now as it's backend call from trusted client logic)
     // Ideally we should use session token, but current system uses email.
     const email = String(d.email || "").trim().toLowerCase();
@@ -3176,16 +3218,16 @@ function saveAffiliatePixel(d) {
     const uS = mustSheet_("Users");
     const uR = uS.getDataRange().getValues();
     let userId = "";
-    
+
     for (let i = 1; i < uR.length; i++) {
-      if (String(uR[i][1]).toLowerCase() === email) { 
-        userId = String(uR[i][0]); 
-        break; 
+      if (String(uR[i][1]).toLowerCase() === email) {
+        userId = String(uR[i][0]);
+        break;
       }
     }
-    
+
     if (!userId) return { status: "error", message: "User tidak ditemukan" };
-    
+
     const productId = String(d.product_id).trim();
     const pixelId = String(d.pixel_id || "").trim();
     const pixelToken = String(d.pixel_token || "").trim();
@@ -3206,7 +3248,7 @@ function saveAffiliatePixel(d) {
     if (!found) {
       s.appendRow([userId, productId, pixelId, pixelToken, pixelTest]);
     }
-    
+
     return { status: "success", message: "Pixel berhasil disimpan" };
   } catch (e) {
     return { status: "error", message: e.toString() };
@@ -3276,7 +3318,7 @@ function handleMootaWebhook(mutations, cfg) {
         continue;
       }
 
-        debugLog.push(`CHECKING Amount=${nominalTransfer}`);
+      debugLog.push(`CHECKING Amount=${nominalTransfer}`);
 
       let foundMatch = false;
       // Collect pending orders info for debugging if no match
@@ -3285,7 +3327,7 @@ function handleMootaWebhook(mutations, cfg) {
       // Iterate Orders to find match
       for (let i = 1; i < orders.length; i++) {
         const statusOrder = String(orders[i][7] || "").trim();
-        
+
         // Hanya proses yang statusnya Pending
         if (statusOrder !== "Pending") continue;
 
@@ -3301,12 +3343,12 @@ function handleMootaWebhook(mutations, cfg) {
 
         const tagihanOrder = Math.round(toNumberSafe_(orders[i][6])); // Round to integer
         pendingOrders.push({ inv: orders[i][0], tagihan: tagihanOrder });
-        
+
         // MATCHING LOGIC: Exact Amount (Rounded integers)
         if (tagihanOrder === nominalTransfer) {
-          debugLog.push(`  MATCH FOUND Row ${i+1}: Inv=${orders[i][0]}`);
-          logMoota_("MATCH", "Inv=" + orders[i][0] + " Amount=" + nominalTransfer + " Row=" + (i+1));
-          
+          debugLog.push(`  MATCH FOUND Row ${i + 1}: Inv=${orders[i][0]}`);
+          logMoota_("MATCH", "Inv=" + orders[i][0] + " Amount=" + nominalTransfer + " Row=" + (i + 1));
+
           // 1. UPDATE SHEET STATUS
           s.getRange(i + 1, 8).setValue("Lunas");
           orders[i][7] = "Lunas"; // Prevent double matching
@@ -3329,14 +3371,14 @@ function handleMootaWebhook(mutations, cfg) {
           }
 
           // 3. SEND NOTIFICATIONS
-          
+
           // LOG: Debug WA target before sending (diagnose Lunas WA failures)
           logWA_("DEBUG_MOOTA_LUNAS", String(uWA), "raw=" + JSON.stringify(uWA) + " type=" + typeof uWA + " normalized=" + normalizePhone_(uWA) + " | Inv=" + inv);
 
           // A) WA Customer
           sendWA(
             uWA,
-            `🎉 *PEMBAYARAN DITERIMA!* 🎉\n\nHalo *${uName}*, pembayaran Anda sebesar Rp ${Number(nominalTransfer).toLocaleString('id-ID')} telah berhasil diverifikasi otomatis.\n\nPesanan *${pName}* (Invoice: #${inv}) kini *AKTIF*.\n\n🚀 *AKSES MATERI:* \n${accessUrl}\n\nTerima kasih!\n*Tim ${siteName}*`,
+            `🎉 *PEMBAYARAN TERVERIFIKASI!* 🎉\n\nHalo *${uName}*, kabar baik!\n\nPembayaran Anda sebesar Rp ${Number(nominalTransfer).toLocaleString('id-ID')} telah berhasil diverifikasi otomatis.\n\nProduk *${pName}* (Invoice: #${inv}) kini *Telah Aktif*.\n\n🚀 *Klik link berikut untuk mengakses produk Anda:*\n${accessUrl}\n\nAnda juga bisa mengakses seluruh produk Anda melalui Member Area kami.\n\nTerima kasih atas kepercayaannya!\n*Tim ${siteName}*`,
             cfg
           );
 
@@ -3348,7 +3390,7 @@ function handleMootaWebhook(mutations, cfg) {
                 <p>Pembayaran invoice <b style="color: #000018;">#${inv}</b> sebesar <b style="color: #000018;">Rp ${Number(nominalTransfer).toLocaleString('id-ID')}</b> telah diterima.</p>
                 <p>Silakan akses produk <b style="color: #000018;">${pName}</b> melalui tombol di bawah ini:</p>
                 <div style="text-align: center; margin: 35px 0;">
-                    <a href="${accessUrl}" style="background-color: #B6FF00; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; display: inline-block;">Akses Materi</a>
+                    <a href="${accessUrl}" style="background-color: #B6FF00; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; display: inline-block;">Akses Produk Sekarang</a>
                 </div>
                 <p style="margin-bottom: 0;">Terima kasih,<br><b style="color: #000018;">Tim ${siteName}</b></p>
             </div>`;
@@ -3371,7 +3413,7 @@ function handleMootaWebhook(mutations, cfg) {
         const pendingInfo = pendingOrders.map(o => o.inv + "=" + o.tagihan).join(", ");
         debugLog.push(`NO MATCH for Amount=${nominalTransfer} | Pending orders: ${pendingInfo}`);
         logMoota_("NO_MATCH", "Amount=" + nominalTransfer + " | Pending orders: " + pendingInfo);
-        
+
         // Alert admin about unmatched payment (only for significant amounts)
         if (adminWA && nominalTransfer >= 10000) {
           sendWA(
@@ -3387,18 +3429,18 @@ function handleMootaWebhook(mutations, cfg) {
       ? "PROCESSED: " + matched.join(", ")
       : "NO_MATCHING_ORDER";
     logMoota_("RESULT", resultSummary + " | Logs: " + debugLog.join(" | "));
-      
+
     return ContentService.createTextOutput(JSON.stringify({
-       status: "success", 
-       processed: matched, 
-       logs: debugLog 
+      status: "success",
+      processed: matched,
+      logs: debugLog
     })).setMimeType(ContentService.MimeType.JSON);
 
   } catch (e) {
     logMoota_("ERROR", e.toString());
     return ContentService.createTextOutput(JSON.stringify({
-       status: "error", 
-       message: e.toString() 
+      status: "error",
+      message: e.toString()
     })).setMimeType(ContentService.MimeType.JSON);
   }
 }
@@ -3413,12 +3455,12 @@ function forgotPassword(d) {
     const email = String(d.email).trim().toLowerCase();
     const cfg = getSettingsMap_();
     const siteName = getCfgFrom_(cfg, "site_name") || "Sistem Premium";
-    
+
     let found = false;
     let nama = "";
     let rowIndex = -1;
     let tempPass = "";
-    
+
     for (let i = 1; i < r.length; i++) {
       if (String(r[i][1]).trim().toLowerCase() === email) {
         rowIndex = i + 1;
@@ -3427,14 +3469,14 @@ function forgotPassword(d) {
         break;
       }
     }
-    
-    if (found) {
-        // Send Email
-        const subject = `Lupa Password - ${siteName}`;
-        tempPass = Math.random().toString(36).slice(-10);
-        s.getRange(rowIndex, 3).setValue(hashPassword_(tempPass));
 
-        const body = `
+    if (found) {
+      // Send Email
+      const subject = `Lupa Password - ${siteName}`;
+      tempPass = Math.random().toString(36).slice(-10);
+      s.getRange(rowIndex, 3).setValue(hashPassword_(tempPass));
+
+      const body = `
           <div style="font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; color: #334155; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
             <h2 style="color: #017A6B; margin-top: 0;">Reset Password Akun 🔐</h2>
             <p>Halo <b style="color: #000018;">${nama}</b>,</p>
@@ -3454,11 +3496,11 @@ function forgotPassword(d) {
             <p style="margin-bottom: 0;">Salam hangat,<br><b style="color: #000018;">Tim ${siteName}</b></p>
           </div>
         `;
-        
-        sendEmail(email, subject, body, cfg);
-        return { status: "success", message: "Password telah dikirim ke email anda." };
+
+      sendEmail(email, subject, body, cfg);
+      return { status: "success", message: "Password telah dikirim ke email anda." };
     }
-    
+
     return { status: "error", message: "Email tidak ditemukan." };
   } catch (e) {
     return { status: "error", message: e.toString() };
@@ -3477,13 +3519,13 @@ function getAdminOrders(d) {
     const data = o.slice(1).reverse();
     const start = (page - 1) * limit;
     const end = start + limit;
-    
+
     return {
       status: "success",
       data: data.slice(start, end),
       has_more: data.length > end
     };
-  } catch(e) {
+  } catch (e) {
     return { status: "error", message: e.toString() };
   }
 }
@@ -3497,13 +3539,13 @@ function getAdminUsers(d) {
     const data = u.slice(1).reverse();
     const start = (page - 1) * limit;
     const end = start + limit;
-    
+
     return {
       status: "success",
       data: data.slice(start, end),
       has_more: data.length > end
     };
-  } catch(e) {
+  } catch (e) {
     return { status: "error", message: e.toString() };
   }
 }
@@ -3537,10 +3579,10 @@ function testEmailDelivery(d) {
   try {
     const email = String(d.email || "").trim();
     if (!email) return { status: "error", message: "Email target wajib diisi" };
-    
+
     const cfg = getSettingsMap_();
     const siteName = getCfgFrom_(cfg, "site_name") || "Sistem Premium";
-    
+
     const testHtml = '<div style="font-family: sans-serif; padding: 20px; max-width: 500px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px;">' +
       '<h2 style="color: #4f46e5;">✅ Test Email Berhasil!</h2>' +
       '<p>Ini adalah email test dari sistem <b>' + siteName + '</b>.</p>' +
@@ -3548,7 +3590,7 @@ function testEmailDelivery(d) {
       '<p><b>Quota Tersisa:</b> ' + MailApp.getRemainingDailyQuota() + ' email</p>' +
       '<p>Jika Anda menerima email ini, berarti sistem email berfungsi normal.</p>' +
       '</div>';
-    
+
     const result = sendEmail(email, "[TEST] Email Test - " + siteName, testHtml, cfg);
     return { status: "success", message: "Test email sent", result: result };
   } catch (e) {
@@ -3560,7 +3602,7 @@ function testMootaWebhook() {
   try {
     const cfg = getSettingsMap_();
     const orders = mustSheet_("Orders").getDataRange().getValues();
-    
+
     // Find a Pending order to simulate
     var testAmount = 0;
     var testInv = "";
@@ -3571,11 +3613,11 @@ function testMootaWebhook() {
         break;
       }
     }
-    
+
     if (!testAmount) {
       return { status: "warning", message: "Tidak ada order Pending untuk di-test. Buat order test terlebih dahulu." };
     }
-    
+
     // DRY RUN: simulate matching only, DO NOT actually update status
     return {
       status: "success",
@@ -3596,7 +3638,7 @@ function getSystemHealth() {
   try {
     const cfg = getSettingsMap_();
     const emailQuota = MailApp.getRemainingDailyQuota();
-    
+
     // Count pending orders
     const orders = mustSheet_("Orders").getDataRange().getValues();
     var pendingCount = 0;
@@ -3610,13 +3652,13 @@ function getSystemHealth() {
         }
       }
     }
-    
+
     // Check config
     const mootaCfg = resolveMootaConfig_({}, cfg);
     const mootaToken = mootaCfg.token;
     const mootaGasUrl = normalizeMootaUrl_(mootaCfg.gasUrl || getCurrentWebAppUrl_());
     const fonnteToken = getSecret_("fonnte_token", cfg);
-    
+
     // Email log stats
     var emailLogCount = 0, emailFailCount = 0;
     var emailSheet = ss.getSheetByName("Email_Logs");
@@ -3627,7 +3669,7 @@ function getSystemHealth() {
         if (String(eLogs[j][1]) === "FAILED" || String(eLogs[j][1]) === "QUOTA_EXCEEDED") emailFailCount++;
       }
     }
-    
+
     // Moota log stats
     var mootaLogCount = 0, mootaNoMatch = 0;
     var mootaSheet = ss.getSheetByName("Moota_Logs");
@@ -3638,7 +3680,7 @@ function getSystemHealth() {
         if (String(mLogs[k][1]) === "NO_MATCH") mootaNoMatch++;
       }
     }
-    
+
     // WA log stats
     var waSentCount = 0, waFailCount = 0, waRejectedCount = 0, waLogCount = 0;
     var waSheet = ss.getSheetByName("WA_Logs");
@@ -3652,7 +3694,7 @@ function getSystemHealth() {
         else if (wStatus === "HTTP_ERROR" || wStatus === "EXCEPTION" || wStatus === "NO_TOKEN") waFailCount++;
       }
     }
-    
+
     return {
       status: "success",
       health: {
@@ -3705,11 +3747,11 @@ function testWADelivery(d) {
   try {
     var target = String(d.target || d.whatsapp || "").trim();
     if (!target) return { status: "error", message: "Nomor WhatsApp target wajib diisi (parameter: target)" };
-    
+
     var cfg = getSettingsMap_();
     var siteName = getCfgFrom_(cfg, "site_name") || "Sistem Premium";
     var testMessage = "✅ *TEST WA BERHASIL!*\n\nIni adalah pesan test dari sistem *" + siteName + "*.\n\nWaktu: " + new Date().toLocaleString("id-ID", { timeZone: "Asia/Jakarta" }) + "\n\nJika Anda menerima pesan ini, berarti koneksi WhatsApp via Fonnte berfungsi normal.";
-    
+
     var result = sendWA(target, testMessage, cfg);
     return { status: "success", message: "Test WA sent to " + target, result: result };
   } catch (e) {
@@ -3733,7 +3775,7 @@ function testLunasNotification(d) {
     var r = s.getDataRange().getValues();
     var siteName = getCfgFrom_(cfg, "site_name") || "Sistem Premium";
     var targetInv = String(d.invoice || d.id || "").trim();
-    
+
     // Find order (specific or latest pending)
     var orderRow = null;
     var orderRowIdx = -1;
@@ -3744,18 +3786,18 @@ function testLunasNotification(d) {
         if (String(r[i][7]).trim() === "Pending") { orderRow = r[i]; orderRowIdx = i; break; }
       }
     }
-    
+
     if (!orderRow) {
       return { status: "error", message: targetInv ? "Invoice " + targetInv + " tidak ditemukan" : "Tidak ada order Pending. Buat order test dulu." };
     }
-    
+
     var inv = orderRow[0];
     var uEmail = orderRow[1];
     var uName = orderRow[2];
     var uWA = orderRow[3];
     var pId = orderRow[4];
     var pName = orderRow[5];
-    
+
     // Debug: capture raw data from sheet
     var debugInfo = {
       invoice: inv,
@@ -3769,7 +3811,7 @@ function testLunasNotification(d) {
       product: pName,
       current_status: orderRow[7]
     };
-    
+
     // Get access URL
     var accessUrl = "";
     var pData = pS.getDataRange().getValues();
@@ -3777,7 +3819,7 @@ function testLunasNotification(d) {
       if (String(pData[k][0]) === String(pId)) { accessUrl = pData[k][3]; break; }
     }
     debugInfo.access_url = accessUrl;
-    
+
     // SEND WA (same message as real Lunas flow)
     logWA_("TEST_LUNAS", String(uWA), "Testing Lunas notification for " + inv + " | WA raw=" + JSON.stringify(uWA) + " type=" + typeof uWA);
     var waResult = sendWA(
@@ -3785,7 +3827,7 @@ function testLunasNotification(d) {
       "🎉 *[TEST] PEMBAYARAN TERVERIFIKASI!* 🎉\n\nHalo *" + uName + "*, ini adalah TEST notifikasi Lunas.\n\nProduk *" + pName + "* (Invoice: #" + inv + ")\n\n🚀 *AKSES MATERI:*\n" + accessUrl + "\n\nIni pesan test. Jika terkirim berarti notifikasi Lunas berfungsi normal.\n*Tim " + siteName + "*",
       cfg
     );
-    
+
     // SEND EMAIL (same template as real Lunas flow)
     var emailHtml = '<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px;border:1px solid #e2e8f0;border-radius:8px;">' +
       '<h2 style="color:#10b981;">[TEST] Akses Terbuka! 🎉</h2>' +
@@ -3797,7 +3839,7 @@ function testLunasNotification(d) {
       '<p>Jika Anda menerima email ini, notifikasi Lunas berfungsi normal.</p>' +
       '<p>Tim <b>' + siteName + '</b></p></div>';
     var emailResult = sendEmail(uEmail, "[TEST] Akses Terbuka - " + siteName, emailHtml, cfg);
-    
+
     return {
       status: "success",
       message: "Test Lunas notification sent for " + inv,
