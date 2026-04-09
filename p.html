@@ -242,7 +242,7 @@
         .gate-divider span { font-size: 0.75rem; color: #475569; font-weight: 600; }
     </style>
 </head>
-<body class="bg-white text-slate-800 min-h-screen flex flex-col m-0 p-0 relative cms-theme-light">
+<body class="bg-[#000018] text-white min-h-screen flex flex-col m-0 p-0 relative cms-theme-dark">
 
 
     <a id="cms-back-button" href="/" class="cms-back-button" aria-label="Kembali ke halaman sebelumnya">
@@ -254,8 +254,8 @@
     </a>
 
 
-    <div id="loader" class="flex-1 flex flex-col items-center justify-center min-h-screen bg-[#f8f9fa]">
-        <div class="animate-spin w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full mb-4"></div>
+    <div id="loader" class="flex-1 flex flex-col items-center justify-center min-h-screen bg-[#000018]">
+        <div class="animate-spin w-10 h-10 border-4 border-[#B6FF00] border-t-transparent rounded-full mb-4"></div>
         <p class="text-slate-400 font-bold uppercase tracking-widest text-xs animate-pulse">Menyiapkan Tampilan...</p>
     </div>
     
@@ -323,7 +323,7 @@
                 </div>`;
             container.classList.remove('hidden');
             document.body.classList.remove('bg-white', 'text-slate-800', 'cms-theme-light');
-            document.body.classList.add('bg-slate-900', 'text-slate-100', 'cms-theme-dark');
+            document.body.classList.add('bg-[#000018]', 'text-white', 'cms-theme-dark');
         }
 
         function showBuyGate(product) {
@@ -358,7 +358,7 @@
                 </div>`;
             container.classList.remove('hidden');
             document.body.classList.remove('bg-white', 'text-slate-800', 'cms-theme-light');
-            document.body.classList.add('bg-slate-900', 'text-slate-100', 'cms-theme-dark');
+            document.body.classList.add('bg-[#000018]', 'text-white', 'cms-theme-dark');
         }
 
         async function checkAccessAndRender(data) {
@@ -569,16 +569,11 @@
             
             // Apply Theme Mode
             if (data.theme_mode === 'dark') {
-                document.body.classList.remove('bg-white', 'text-slate-800');
-                document.body.classList.remove('cms-theme-light');
-                document.body.classList.add('bg-slate-900', 'text-slate-100');
-                document.body.classList.add('cms-theme-dark');
-            } else {
-                // Default Light
-                document.body.classList.remove('bg-slate-900', 'text-slate-100');
-                document.body.classList.remove('cms-theme-dark');
-                document.body.classList.add('bg-white', 'text-slate-800');
-                document.body.classList.add('cms-theme-light');
+                document.body.classList.remove('bg-white', 'text-slate-800', 'cms-theme-light');
+                document.body.classList.add('bg-[#000018]', 'text-white', 'cms-theme-dark');
+            } else if (data.theme_mode === 'light') {
+                document.body.classList.remove('bg-[#000018]', 'text-white', 'cms-theme-dark', 'bg-slate-900', 'text-slate-100');
+                document.body.classList.add('bg-white', 'text-slate-800', 'cms-theme-light');
             }
             
             // Re-init Icons

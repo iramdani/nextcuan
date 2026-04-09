@@ -2459,13 +2459,12 @@ function checkPageAccess(d) {
     // 3. Cek order yang sudah lunas untuk produk ini
     const orders = mustSheet_("Orders").getDataRange().getValues();
     for (let i = 1; i < orders.length; i++) {
-      const orderProductId = String(orders[i][3] || "").trim();
+      const orderProductId = String(orders[i][4] || "").trim(); // Index 4 is id_produk
       const orderStatus = String(orders[i][7] || "").trim();
-      const orderUserId = String(orders[i][1] || "").trim();
-      const orderEmail = String(orders[i][2] || "").trim().toLowerCase();
+      const orderEmail = String(orders[i][1] || "").trim().toLowerCase(); // Index 1 is email
 
       if (
-        (orderUserId === userId || orderEmail === email) &&
+        orderEmail === email &&
         orderProductId === protectedProductId &&
         orderStatus === "Lunas"
       ) {

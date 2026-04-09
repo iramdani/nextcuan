@@ -2168,7 +2168,7 @@
             document.getElementById('list-pages').innerHTML = cachedPages.map(p => {
                 const isProtected = String(p[11] || '').trim();
                 const protectBadge = isProtected
-                    ? `<span class="inline-flex items-center gap-1 text-[9px] font-bold bg-[rgba(239,68,68,0.15)] text-[#ef4444] border border-[rgba(239,68,68,0.3)] px-1.5 py-0.5 rounded-full uppercase tracking-wider ml-2"><i data-lucide="lock" class="w-3 h-3"></i>Protected</span>`
+                    ? `<span class="inline-flex items-center justify-center w-6 h-6 ml-4 rounded-full border border-slate-600/60 bg-slate-800/50 text-slate-400" title="Protected Page" style="vertical-align: middle;"><i data-lucide="lock" class="w-3 h-3"></i></span>`
                     : '';
                 return `
                 <tr class="hover:bg-[rgba(255,255,255,0.05)] transition-colors border-b border-[rgba(255,255,255,0.05)] last:border-0">
