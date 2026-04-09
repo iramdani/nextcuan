@@ -4218,7 +4218,7 @@ function testLunasNotification(d) {
       '<p>Halo <b>' + uName + '</b>,</p>' +
       '<p>Ini adalah TEST notifikasi Lunas untuk produk <b>' + pName + '</b>.</p>' +
       '<div style="text-align:center;margin:30px 0;">' +
-      '<a href="' + accessUrl + '" style="background-color:#4f46e5;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:bold;">Akses Materi</a>' +
+      '<a href="' + accessUrl + '" style="background-color:#4f46e5;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:bold;">Akses Produk</a>' +
       '</div>' +
       '<p>Jika Anda menerima email ini, notifikasi Lunas berfungsi normal.</p>' +
       '<p>Tim <b>' + siteName + '</b></p></div>';
