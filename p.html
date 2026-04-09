@@ -61,7 +61,7 @@
             }
 
             function applyGlobalSettings(data) {
-                // Eksekusi Cepat Favicon
+                // Eksekusi Favicon
                 if(data.site_favicon) {
                     let link = document.querySelector("link[rel~='icon']");
                     if (!link) { link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link); }
@@ -72,8 +72,8 @@
                 if(data.site_name) {
                     // Simpan nama brand ke window object agar bisa dipakai saat merender konten CMS
                     window.brandNameGlobal = data.site_name; 
-                    if(document.title.includes('Cepat')) {
-                        document.title = document.title.replace(/Cepat/gi, data.site_name);
+                    if(document.title.includes('NextCuan')) {
+                        document.title = document.title.replace(/NextCuan/gi, data.site_name);
                     }
                 }
             }
@@ -97,7 +97,14 @@
             };
         })();
     </script>
-    <title>Memuat Halaman... - Cepat</title>
+    <title>Memuat Halaman... - NextCuan</title>
+    <!-- Social Share Meta Tags -->
+    <meta property="og:title" content="Memuat Halaman... - NextCuan">
+    <meta property="og:description" content="Harap tunggu sebentar, halaman sedang disiapkan...">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Memuat Halaman... - NextCuan">
+    <meta name="twitter:description" content="Harap tunggu sebentar, halaman sedang disiapkan...">
     <link rel="preload" as="style" href="tailwind.css?v=2026_1">
     <link rel="stylesheet" href="tailwind.css?v=2026_1">
     <script defer src="assets/vendor/lucide.min.js?v=0.577.0"></script>
@@ -554,7 +561,14 @@
         async function renderHTML(data) {
             // Gunakan brandNameGlobal jika ada, kalau tidak fallback ke string kosong
             const brandSufix = window.brandNameGlobal ? ` - ${window.brandNameGlobal}` : '';
-            document.title = data.title + brandSufix;
+            const fullTitle = data.title + brandSufix;
+            document.title = fullTitle;
+            
+            // Update Meta Tags for social sharing
+            const ogTitle = document.querySelector('meta[property="og:title"]');
+            if(ogTitle) ogTitle.content = fullTitle;
+            const twTitle = document.querySelector('meta[name="twitter:title"]');
+            if(twTitle) twTitle.content = fullTitle;
             
             // Inject Pixel jika ada
             if(data.pixel_id) {
