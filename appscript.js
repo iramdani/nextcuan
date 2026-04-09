@@ -878,6 +878,7 @@ function doPost(e) {
       case "check_slug": return jsonRes(checkSlug(data));
       case "save_affiliate_pixel": return jsonRes(saveAffiliatePixel(data));
       case "get_admin_orders": return jsonRes(getAdminOrders(data));
+      case "delete_order": return jsonRes(deleteOrder(data));
       case "get_admin_users": return jsonRes(getAdminUsers(data));
 
       // DIAGNOSTIC & MONITORING ACTIONS
@@ -3798,6 +3799,26 @@ function getAdminOrders(d) {
     return { status: "error", message: e.toString() };
   }
 }
+
+function deleteOrder(d) {
+  try {
+    requireAdminSession_(d, { actionName: "delete_order" });
+    const s = mustSheet_("Orders");
+    const r = s.getDataRange().getValues();
+    const id = String(d.id).trim(); // Invoice ID
+
+    for (let i = 1; i < r.length; i++) {
+      if (String(r[i][0]).trim() === id) {
+        s.deleteRow(i + 1);
+        return { status: "success", message: "Order berhasil dihapus" };
+      }
+    }
+    return { status: "error", message: "Invoice " + id + " tidak ditemukan" };
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
 
 function getAdminUsers(d) {
   try {

@@ -42,6 +42,34 @@
             animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* SweetAlert2 Dark Theme Override */
+        .swal2-popup {
+            background: #000028 !important;
+            color: #fff !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+            border-radius: 1.5rem !important;
+        }
+        .swal2-title, .swal2-html-container, .swal2-content {
+            color: #fff !important;
+        }
+        .swal2-confirm {
+            background-color: #ef4444 !important; /* Red for delete */
+            border-radius: 0.75rem !important;
+            padding: 0.75rem 1.5rem !important;
+            font-weight: bold !important;
+        }
+        .swal2-cancel {
+            background-color: rgba(255,255,255,0.05) !important;
+            color: #94a3b8 !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+            border-radius: 0.75rem !important;
+            padding: 0.75rem 1.5rem !important;
+            font-weight: bold !important;
+        }
+        .swal2-success-circular-line-left, .swal2-success-circular-line-right, .swal2-success-fix {
+            background-color: transparent !important;
+        }
     </style>
 </head>
 <body class="bg-[#000018] text-white font-sans">
