@@ -1399,7 +1399,7 @@
                     <div>
                         <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Produk yang Dibutuhkan</label>
                         <select id="pg-protected-product" class="w-full p-3 glass-input rounded-xl outline-none focus:border-[#ef4444] focus:ring-1 focus:ring-[#ef4444] text-sm font-medium text-white bg-[rgba(0,0,0,0.4)] transition-all">
-                            <option value="" class="bg-[#000018] text-slate-400">-- Tidak Diproteksi (Akses Bebas) --</option>
+                            <option value="" style="background: #0f172a; color: #94a3b8;">-- Tidak Diproteksi (Akses Bebas) --</option>
                         </select>
                         <p class="text-[11px] text-slate-500 mt-2">Halaman hanya bisa diakses user yang sudah membeli produk ini dan memiliki status Lunas.</p>
                     </div>
@@ -2150,7 +2150,7 @@
                 const sel = document.getElementById('pg-protected-product');
                 if (!sel) return;
                 const currentVal = sel.value;
-                sel.innerHTML = '<option value="" class="bg-[#000018] text-slate-400">-- Tidak Diproteksi (Akses Bebas) --</option>';
+                sel.innerHTML = '<option value="" style="background: #0f172a; color: #94a3b8;">-- Tidak Diproteksi (Akses Bebas) --</option>';
                 (cachedProducts || []).forEach(function(prod) {
                     const pid = String(prod[0] || '').trim();
                     const ptitle = String(prod[1] || '').trim();
@@ -2158,7 +2158,8 @@
                     const opt = document.createElement('option');
                     opt.value = pid;
                     opt.textContent = ptitle + ' (' + pid + ')';
-                    opt.className = 'bg-[#000018] text-white';
+                    opt.style.background = '#0f172a';
+                    opt.style.color = '#f1f5f9';
                     sel.appendChild(opt);
                 });
                 if (currentVal) sel.value = currentVal;
@@ -2167,7 +2168,7 @@
             document.getElementById('list-pages').innerHTML = cachedPages.map(p => {
                 const isProtected = String(p[11] || '').trim();
                 const protectBadge = isProtected
-                    ? `<span class="inline-flex items-center gap-1 text-[9px] font-bold bg-[rgba(239,68,68,0.15)] text-[#ef4444] border border-[rgba(239,68,68,0.3)] px-2 py-1 rounded-full uppercase tracking-wider ml-2"><i data-lucide="lock" class="w-2.5 h-2.5"></i>Protected</span>`
+                    ? `<span class="inline-flex items-center gap-1 text-[9px] font-bold bg-[rgba(239,68,68,0.15)] text-[#ef4444] border border-[rgba(239,68,68,0.3)] px-1.5 py-0.5 rounded-full uppercase tracking-wider ml-2"><i data-lucide="lock" class="w-3 h-3"></i>Protected</span>`
                     : '';
                 return `
                 <tr class="hover:bg-[rgba(255,255,255,0.05)] transition-colors border-b border-[rgba(255,255,255,0.05)] last:border-0">

@@ -185,8 +185,8 @@
             margin: 0 auto 1.5rem;
             font-size: 2rem;
         }
-        .gate-icon.lock { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.25); }
-        .gate-icon.login { background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.25); }
+        .gate-icon.lock { background: rgba(182,255,0,0.12); border: 1px solid rgba(182,255,0,0.25); }
+        .gate-icon.login { background: rgba(182,255,0,0.12); border: 1px solid rgba(182,255,0,0.25); }
         .gate-title { font-size: 1.5rem; font-weight: 800; color: #f1f5f9; margin-bottom: 0.75rem; }
         .gate-desc { font-size: 0.875rem; color: #94a3b8; line-height: 1.75; margin-bottom: 2rem; }
         .gate-btn-primary {
@@ -205,10 +205,10 @@
             border: none;
             margin-bottom: 0.75rem;
         }
-        .gate-btn-primary.indigo { background: linear-gradient(135deg,#6366f1,#4f46e5); color: white; box-shadow: 0 8px 25px rgba(99,102,241,0.35); }
-        .gate-btn-primary.indigo:hover { box-shadow: 0 12px 35px rgba(99,102,241,0.5); transform: translateY(-1px); }
-        .gate-btn-primary.green { background: linear-gradient(135deg,#10b981,#059669); color: white; box-shadow: 0 8px 25px rgba(16,185,129,0.35); }
-        .gate-btn-primary.green:hover { box-shadow: 0 12px 35px rgba(16,185,129,0.5); transform: translateY(-1px); }
+        .gate-btn-primary.indigo { background: #B6FF00; color: #000; box-shadow: 0 8px 25px rgba(182,255,0,0.25); }
+        .gate-btn-primary.indigo:hover { box-shadow: 0 12px 35px rgba(182,255,0,0.4); transform: translateY(-1px); }
+        .gate-btn-primary.green { background: linear-gradient(135deg,#017A6B,#015C51); color: white; box-shadow: 0 8px 25px rgba(1,122,107,0.35); }
+        .gate-btn-primary.green:hover { box-shadow: 0 12px 35px rgba(1,122,107,0.5); transform: translateY(-1px); }
         .gate-btn-secondary {
             display: inline-flex;
             align-items: center;
@@ -284,11 +284,12 @@
                 const emailFromSession = sessionStorage.getItem('user_email')
                     || sessionStorage.getItem('auth_email')
                     || '';
-                if (emailFromSession) {
+                if (emailFromSession || sessionStorage.getItem('auth_v1') === 'true') {
                     return {
                         email: emailFromSession,
                         nama: sessionStorage.getItem('user_nama') || sessionStorage.getItem('auth_name') || '',
-                        id: sessionStorage.getItem('user_id') || sessionStorage.getItem('auth_user_id') || ''
+                        id: sessionStorage.getItem('user_id') || sessionStorage.getItem('auth_user_id') || '',
+                        isAdmin: sessionStorage.getItem('auth_role') === 'admin'
                     };
                 }
                 // 2. Fallback: localStorage cepat_user_session
@@ -309,10 +310,10 @@
                 <div class="gate-overlay">
                     <div class="gate-card">
                         <div class="gate-icon login">
-                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#B6FF00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                         </div>
                         <h1 class="gate-title">Halaman Khusus Member</h1>
-                        <p class="gate-desc">Halaman ini hanya bisa diakses oleh member yang sudah login.<br>Silakan login terlebih dahulu untuk melanjutkan.</p>
+                        <p class="gate-desc">Halaman ini hanya bisa diakses oleh member yang sudah login dan membeli produk ini.<br>Silakan login terlebih dahulu untuk melanjutkan.</p>
                         <button onclick="window.location.href='login.html?redirect=' + encodeURIComponent(window.location.href)" class="gate-btn-primary indigo">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
                             Login Sekarang
@@ -338,7 +339,7 @@
                 <div class="gate-overlay">
                     <div class="gate-card">
                         <div class="gate-icon lock">
-                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#B6FF00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                         </div>
                         <h1 class="gate-title">Konten Premium</h1>
                         <p class="gate-desc">Anda sudah login, tapi halaman ini memerlukan akses khusus.<br>Dapatkan akses dengan memiliki produk berikut:</p>
@@ -371,8 +372,14 @@
 
             // Ada proteksi – cek session user
             const userSession = getUserSession();
-            if (!userSession || !userSession.email) {
+            if (!userSession || (!userSession.email && !userSession.isAdmin)) {
                 showLoginGate();
+                return;
+            }
+
+            // Jika admin, bypass pengecekan server secara instan
+            if (userSession.isAdmin) {
+                await renderHTML(data);
                 return;
             }
 

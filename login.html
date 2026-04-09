@@ -112,8 +112,11 @@
     </script>
     
     <script>
-        // Redirect ke dashboard jika sudah login
-        if(sessionStorage.getItem('user_email')) window.location.href = 'dashboard.html';
+        // Redirect ke tujuan awal atau dashboard jika sudah login
+        if(sessionStorage.getItem('user_email')) {
+            const redirectParams = new URLSearchParams(window.location.search);
+            window.location.href = redirectParams.get('redirect') || 'dashboard.html';
+        }
     </script>
 
     <title>Login Member</title>
@@ -304,7 +307,8 @@
                     // Redirect setelah toast terlihat sebentar
                     const minDelay = new Promise(resolve => setTimeout(resolve, 800));
                     minDelay.then(() => {
-                        window.location.href = 'dashboard.html';
+                        const redirectParams = new URLSearchParams(window.location.search);
+                        window.location.href = redirectParams.get('redirect') || 'dashboard.html';
                     });
                 } else { 
                     showToast(r.message, "error"); 
