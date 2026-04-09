@@ -38,3 +38,10 @@
 
 /SECURITY.md
   X-Robots-Tag: noindex, nofollow
+
+# --- PROTECT INTERNAL REFERENCE PAGES ---
+/pages/*
+  X-Robots-Tag: noindex, nofollow
+  Content-Type: text/plain; charset=utf-8
+  # Uncomment the line below if you want to completely block web access (404)
+  # status: 404

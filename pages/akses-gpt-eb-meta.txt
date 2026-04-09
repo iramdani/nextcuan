@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akses GPT Ebook Builder - Next Cuan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            900: '#000018',
+                            800: '#0a0a24',
+                            700: '#111827',
+                        },
+                        primary: '#B6FF00',
+                        secondary: '#017A6B',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --color-bg: #000018;
+            --color-surface: rgba(255, 255, 255, 0.03);
+            --color-primary: #B6FF00;
+            --color-secondary: #017A6B;
+            --color-text: #f5f5f7;
+            --color-text-muted: #9ca3af;
+            --color-border: rgba(182, 255, 0, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000018 !important;
+            color: var(--color-text);
+            overflow-x: hidden;
+        }
+
+        .hero-blob-1 {
+            position: absolute;
+            top: -10%;
+            right: -5%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(182, 255, 0, 0.08) 0%, transparent 70%);
+            filter: blur(80px);
+        }
+
+        .hero-blob-2 {
+            position: absolute;
+            bottom: 20%;
+            left: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(1, 122, 107, 0.08) 0%, transparent 70%);
+            filter: blur(70px);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #B6FF00 0%, #9ae600 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--color-border);
+            transition: all 0.3s ease;
+        }
+        
+        .glass-card:hover {
+            border-color: rgba(182, 255, 0, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(182, 255, 0, 0.1);
+        }
+
+        .btn-primary {
+            background: #B6FF00 !important;
+            color: #000018 !important;
+            font-weight: 800;
+            text-decoration: none !important;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(182, 255, 0, 0.2);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(182, 255, 0, 0.4);
+            filter: brightness(1.05);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.05);
+            color: var(--color-text);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-decoration: none !important;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+            background: rgba(182, 255, 0, 0.05);
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%;
+            height: 0;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+            background: #000;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            border: 0;
+        }
+
+        #mobile-menu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        #mobile-menu.open {
+            max-height: 400px;
+        }
+        
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bonus-btn-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .bonus-item-btn {
+            background: #B6FF00;
+            color: #000018;
+            padding: 14px 20px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        .bonus-item-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(182, 255, 0, 0.3);
+            background: #c4ff33;
+        }
+
+        .bonus-item-btn i {
+            width: 18px;
+            height: 18px;
+        }
+
+        .access-wrapper {
+            background-color: #000018;
+            min-height: 100vh;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Background Elements -->
+    <div class="hero-bg">
+        <div class="hero-blob-1"></div>
+        <div class="hero-blob-2"></div>
+    </div>
+
+    <div class="access-wrapper">
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-card border-b" style="border-color: rgba(182, 255, 0, 0.08);">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-center">
+            <!-- Logo Center -->
+            <a href="index.html" class="hover:opacity-80 transition-opacity">
+                <img src="https://ik.imagekit.io/iramdani/NextCuan_Logo_Transparent_Horizontal-3__1__n8uCKrYMC.png"
+                    alt="Next Cuan Logo" class="h-10 w-auto object-contain">
+            </a>
+        </div>
+    </nav>
+
+    <!-- MAIN ACCESS SECTION -->
+    <section class="pt-32 pb-16 relative z-10">
+        <div class="max-w-3xl mx-auto px-4 md:px-6 text-center">
+            <h1 class="text-4xl md:text-5xl font-black mb-6">
+                Akses <span class="gradient-text">GPT Ebook Builder</span>
+            </h1>
+            <p class="text-lg text-gray-300 mb-10">
+                Pilih platform favoritmu di bawah ini untuk mulai menggunakan Ebook Builder:
+            </p>
+
+            <div class="glass-card rounded-3xl p-6 md:p-10 mb-12">
+                <div class="bg-yellow-500/10 border border-yellow-500/20 text-yellow-200 p-4 rounded-xl mb-8 flex items-start gap-4 text-left">
+                    <i data-lucide="info" class="w-6 h-6 text-yellow-400 flex-shrink-0 mt-0.5"></i>
+                    <div>
+                        <p class="font-semibold mb-1">Penting!</p>
+                        <p class="text-sm">Kamu akan dimintai lisensi saat buka GPT EBOOK BUILDER ini. Silahkan masukkan kode lisensi berikut:</p>
+                        <div class="mt-3 inline-block bg-black/50 border border-[rgba(255,255,255,0.1)] px-4 py-2 rounded-lg font-mono text-xl text-[#B6FF00] tracking-wider select-all">
+                            bismillahdulu
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid sm:grid-cols-2 gap-6">
+                    <a href="https://chatgpt.com/g/g-68aff11f18148191b4baf93c823582b0-customgpt-storybook-ebook-builder-id" target="_blank" class="btn-primary py-4 px-6 rounded-2xl flex flex-col items-center justify-center gap-2 group">
+                        <i data-lucide="bot" class="w-8 h-8"></i>
+                        <span class="text-lg font-bold">GPT Ebook Builder</span>
+                        <span class="text-xs opacity-80 font-medium">(Gunakan ChatGPT)</span>
+                    </a>
+                    
+                    <a href="https://gemini.google.com/gem/1VdUjH60SMknu0og9qN9k0P8fYz8M3XwK?usp=sharing" target="_blank" class="glass-card py-4 px-6 rounded-2xl flex flex-col items-center justify-center gap-2 hover:border-[#B6FF00] hover:bg-[#B6FF00]/10 transition-all border-[#B6FF00]/30 text-[#B6FF00]">
+                        <i data-lucide="sparkles" class="w-8 h-8"></i>
+                        <span class="text-lg font-bold">Gemini Ebook Builder</span>
+                        <span class="text-xs opacity-80 font-medium">(Gunakan Gemini Google)</span>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="space-y-12 mt-16 text-left">
+                <div>
+                    <h3 class="font-black mb-4 flex items-center gap-2">
+                        <i data-lucide="youtube" class="text-red-500 w-6 h-6 flex-shrink-0"></i>
+                        Tutorial Penggunaan - 10 Menit Jadi Ebook
+                    </h3>
+                    <div class="video-container">
+                        <iframe src="https://www.youtube.com/embed/PKkFXBfuPrs" title="Tutorial Penggunaan - 10 Menit jadi ebook" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="font-black mb-4 flex items-center gap-2">
+                        <i data-lucide="layout-template" class="text-blue-400 w-6 h-6 flex-shrink-0"></i>
+                        Cara Bikin Cover / Mockup Ebook
+                    </h3>
+                    <div class="video-container">
+                        <iframe src="https://www.youtube.com/embed/fHWJccIhRYE" title="Cara bikin cover atau mockup ebook" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                </div>
+
+                <!-- Add-on Bundling Section -->
+                <div class="glass-card rounded-2xl p-8 border-[#B6FF00]/20 bg-[#B6FF00]/5 mt-12 overflow-hidden relative group">
+                    <div class="absolute top-0 right-0 p-4">
+                        <span class="bg-[#B6FF00] text-[#000018] text-[10px] font-black px-2 py-1 rounded uppercase tracking-tighter shadow-lg shadow-[#B6FF00]/20">Bonus Add-on</span>
+                    </div>
+                    <div class="text-center">
+                        <h3 class="text-2xl md:text-3xl font-black mb-4 text-white uppercase tracking-tight">Bundling 2 Ebook Meta Ads</h3>
+                        <p class="text-gray-300 text-base leading-relaxed mb-8 max-w-xl mx-auto">
+                            Lengkapi senjata jualanmu dengan strategi Meta Ads (FB/IG) yang efektif untuk menjangkau ribuan pembeli potensial ebookmu.
+                        </p>
+                        <a href="https://drive.google.com/drive/folders/1ddRbTIoo9PABpeAXcV-Rr7DR4U_exLbd?usp=drive_link" target="_blank" class="btn-primary w-full md:w-auto py-4 px-12 rounded-xl flex items-center justify-center gap-3 mx-auto transition-all">
+                            <i data-lucide="book-open" class="w-6 h-6"></i>
+                            <span class="text-xl">Akses Ebook Meta Ads</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- WHATS NEXT SECTION -->
+    <section class="py-20 relative z-10 border-t border-[rgba(255,255,255,0.05)] bg-[rgba(0,0,24,0.3)]">
+        <div class="max-w-3xl mx-auto px-4 md:px-6">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl md:text-4xl font-black mb-4">WHATS NEXT?</h2>
+            </div>
+            
+            <div class="glass-card rounded-3xl p-6 md:p-10 text-center">
+                <p class="text-lg leading-relaxed text-gray-300 mb-6">
+                    Ibarat perang nih ya...
+                </p>
+                <p class="text-lg leading-relaxed text-gray-300 mb-6 font-medium">
+                    <span class="text-[#B6FF00]">GTP EBOOK BUILDER hanyalah salah satu senjata</span> yang kita gunakan di medan perang. Perlu senjata lain untuk melengkapi dan menjadikannya kekuatan yang lebih besar.
+                </p>
+                <p class="text-lg leading-relaxed text-gray-300 mb-2">
+                    Disini Kamu udah bisa membuat produk digital sendiri. Sekarang tinggal <span class="text-white font-bold inline-block border-b-2 border-[#B6FF00]">bagaimana cara kita menjualnya</span>.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- BONUS PRODUK SECTION -->
+    <section class="py-20 relative z-10 border-t border-[rgba(255,255,255,0.05)]">
+        <div class="max-w-3xl mx-auto px-4 md:px-6">
+            <div class="text-center mb-10">
+                <div class="inline-block px-4 py-1.5 bg-[#B6FF00]/10 border border-[#B6FF00]/30 rounded-full mb-3">
+                    <span class="font-bold tracking-widest text-[#B6FF00] text-xs">🎁 BONUS PRODUK 🎁</span>
+                </div>
+                <h2 class="text-3xl md:text-4xl font-black mt-2">Dapatkan Senjata Tambahanmu</h2>
+            </div>
+
+            <div class="bonus-btn-list mb-16">
+                <a href="https://chat.whatsapp.com/F5RJIpzwp97B4GubKR2xGA" target="_blank" class="bonus-item-btn">
+                    <div class="flex items-center gap-4">
+                        <i data-lucide="message-circle"></i>
+                        <span>Grup WhatsApp Sharing Digital Marketing</span>
+                    </div>
+                    <i data-lucide="chevron-right"></i>
+                </a>
+
+                <a href="https://drive.google.com/drive/folders/1Gl3zcwFe20n1x7-8_luqeF1mHn5dELYQ?usp=sharing" target="_blank" class="bonus-item-btn">
+                    <div class="flex items-center gap-4">
+                        <i data-lucide="pen-tool"></i>
+                        <span>Kelas Copywriting</span>
+                    </div>
+                    <i data-lucide="chevron-right"></i>
+                </a>
+
+                <a href="https://drive.google.com/drive/folders/1-_utq6KVG40t9vZWvG8yCXrxWOtFf_h5?usp=sharing" target="_blank" class="bonus-item-btn">
+                    <div class="flex items-center gap-4">
+                        <i data-lucide="magnet"></i>
+                        <span>Magic Hook - 300+ Template Hook</span>
+                    </div>
+                    <i data-lucide="chevron-right"></i>
+                </a>
+
+                <a href="https://chatgpt.com/g/g-68e14c31d70081918936d37b59c9bcf6-genmock" target="_blank" class="bonus-item-btn">
+                    <div class="flex items-center gap-4">
+                        <i data-lucide="image"></i>
+                        <span>GenMock - Bikin Cover Keren</span>
+                    </div>
+                    <i data-lucide="chevron-right"></i>
+                </a>
+
+                <a href="https://drive.google.com/file/d/1FGFEQHqCRZrqvdiMI_tw-N11CmlfoZtY/view?usp=sharing" target="_blank" class="bonus-item-btn">
+                    <div class="flex items-center gap-4">
+                        <i data-lucide="book-open"></i>
+                        <span>Ebook JADI KAPAN? Jualan Produk Digital</span>
+                    </div>
+                    <i data-lucide="chevron-right"></i>
+                </a>
+            </div>
+
+            <div class="glass-card rounded-3xl p-6 md:p-10 border-[#B6FF00]/15 relative mb-16">
+                <div class="mb-8 p-5 md:p-8 rounded-2xl bg-[#B6FF00]/5 border border-[#B6FF00]/10 text-center">
+                    <p class="text-base md:text-lg text-gray-300 leading-relaxed">
+                        Silahkan tonton <strong class="text-white">ROADMAP 1 JUTA PERTAMA DARI PRODUK DIGITAL</strong> dibawah ini.<br>
+                        <span class="text-[#B6FF00] font-black mt-2 block tracking-wide">GRATIS... <span class="font-medium">buat Kamu yang serius mau cuan dari produk digital!</span></span>
+                    </p>
+                </div>
+
+                <div class="space-y-12">
+                    <div>
+                        <h4 class="font-black mb-4 text-center text-lg tracking-tight uppercase">ROADMAP 1 JUTA PERTAMA</h4>
+                        <div class="video-container">
+                            <iframe src="https://www.youtube.com/embed/Sq2MKBINCV8" title="ROADMAP 1 JUTA PERTAMA DARI PRODUK DIGITAL" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-black mb-4 text-center text-lg tracking-tight uppercase">WEBINAR PRODUK DIGITAL (PART 1)</h4>
+                        <div class="video-container">
+                            <iframe src="https://www.youtube.com/embed/DzTThyLJDOw" title="WEBINAR 2 JAM CARA BIKIN PRODUK DIGITAL PART 1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="font-black mb-4 text-center text-lg tracking-tight uppercase">WEBINAR PRODUK DIGITAL (PART 2)</h4>
+                        <div class="video-container">
+                            <iframe src="https://www.youtube.com/embed/jfYT7X5FgX4" title="WEBINAR 2 JAM CARA BIKIN PRODUK DIGITAL PART 2" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Affiliate & More -->
+            <div class="glass-card rounded-3xl p-6 md:p-10 border-[#B6FF00]/20 text-center relative overflow-hidden group">
+                <div class="absolute -top-12 -right-12 w-24 h-24 bg-[#B6FF00]/10 rounded-full blur-2xl group-hover:bg-[#B6FF00]/20 transition-all"></div>
+                
+                <div class="w-14 h-14 bg-[#B6FF00] rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-[#B6FF00]/20">
+                    <i data-lucide="share-2" class="text-[#000018] w-7 h-7"></i>
+                </div>
+
+                <h3 class="text-2xl md:text-3xl font-black mb-3 text-white">Program Affiliate Next Cuan</h3>
+                <p class="text-sm md:text-base text-gray-400 mb-8 leading-relaxed max-w-lg mx-auto">
+                    Daftarkan diri Anda sebagai Affiliate, bagikan produk yang telah Anda beli serta berbagai produk unggulan kami lainnya, dan dapatkan komisi menarik dari setiap penjualan yang berhasil!
+                </p>
+
+                <a href="https://akses.nextcuan.my.id" target="_blank" class="btn-primary w-full md:w-auto md:px-12 py-4 space-x-2 rounded-xl text-lg font-bold mx-auto border-2 border-transparent">
+                    <i data-lucide="layout-grid" class="w-5 h-5 flex-shrink-0"></i>
+                    <span>Dapatkan Produk Lainnya</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="py-12 border-t" style="border-color: var(--color-border);">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-8 mb-12">
+                <!-- Brand -->
+                <div class="md:col-span-1">
+                    <a href="https://akses.nextcuan.my.id" target="_blank"
+                        class="flex items-center space-x-2 mb-4 hover:opacity-80 transition-opacity">
+                        <img src="https://ik.imagekit.io/iramdani/NextCuan_Logo_Transparent_Horizontal-3__1__n8uCKrYMC.png"
+                            alt="Next Cuan Logo" class="h-10 w-auto object-contain">
+                    </a>
+                    <p class="text-sm mb-4" style="color: var(--color-text-muted);">
+                        Platform ekosistem digital untuk membangun income online di era AI.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);">
+                            <i data-lucide="instagram" class="w-5 h-5"></i>
+                        </a>
+                        <a href="#" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);">
+                            <i data-lucide="youtube" class="w-5 h-5"></i>
+                        </a>
+                        <a href="#" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);">
+                            <i data-lucide="twitter" class="w-5 h-5"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Products -->
+                <div>
+                    <h4 class="font-semibold mb-4">Products</h4>
+                    <ul class="space-y-2 text-sm" style="color: var(--color-text-muted);">
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">AI Content Generator</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Template Canva</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Produk Digital</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Automation Tools</a></li>
+                    </ul>
+                </div>
+
+                <!-- Resources -->
+                <div>
+                    <h4 class="font-semibold mb-4">Resources</h4>
+                    <ul class="space-y-2 text-sm" style="color: var(--color-text-muted);">
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Documentation</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Tutorials</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Blog</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Community</a></li>
+                    </ul>
+                </div>
+
+                <!-- Company -->
+                <div>
+                    <h4 class="font-semibold mb-4">Company</h4>
+                    <ul class="space-y-2 text-sm" style="color: var(--color-text-muted);">
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">About Us</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Contact</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="pt-8 border-t flex flex-col md:flex-row items-center justify-between text-sm"
+                style="border-color: var(--color-border); color: var(--color-text-muted);">
+                <p>&copy; 2024 Next Cuan. All rights reserved.</p>
+                <p class="mt-2 md:mt-0">Made with ❤️ in Indonesia</p>
+            </div>
+        </div>
+    </footer>
+
+    </div>
+    <!-- Scripts -->
+    <script>
+        // Init Lucide icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+<!-- 
+  File ini adalah referensi HTML yang disimpan dalam format .txt 
+  agar tidak langsung dieksekusi atau dikenali sebagai halaman web oleh browser.
+  Anda bisa membuka file ini di editor kode untuk melihat atau menyalin kodenya.
+-->
+
+<div class="success-page">
+    <h1>Terima Kasih!</h1>
+    <p>Pesanan Anda sedang kami proses.</p>
+    <button onclick="window.location.href='/'">Kembali ke Beranda</button>
+</div>
