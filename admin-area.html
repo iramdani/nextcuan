@@ -1388,6 +1388,23 @@
                     </div>
                 </div>
 
+                <!-- Protect Page Config -->
+                <div class="rounded-[1.5rem] border border-[rgba(239,68,68,0.3)] bg-[rgba(239,68,68,0.04)] p-5">
+                    <div class="flex items-center gap-3 mb-4">
+                        <i data-lucide="shield-alert" class="w-4 h-4 text-[#ef4444]"></i>
+                        <span class="text-xs font-bold text-[#ef4444] uppercase tracking-wider">Protect Halaman (Wajib Beli)</span>
+                        <span class="text-[10px] text-slate-500 font-medium">Opsional</span>
+                    </div>
+                    <p class="text-[11px] text-slate-400 mb-4 leading-relaxed">Pilih produk yang harus sudah dibeli user untuk membuka halaman ini. User yang belum beli akan diarahkan ke halaman pembelian. Admin selalu bisa akses.</p>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Produk yang Dibutuhkan</label>
+                        <select id="pg-protected-product" class="w-full p-3 glass-input rounded-xl outline-none focus:border-[#ef4444] focus:ring-1 focus:ring-[#ef4444] text-sm font-medium text-white bg-[rgba(0,0,0,0.4)] transition-all">
+                            <option value="" class="bg-[#000018] text-slate-400">-- Tidak Diproteksi (Akses Bebas) --</option>
+                        </select>
+                        <p class="text-[11px] text-slate-500 mt-2">Halaman hanya bisa diakses user yang sudah membeli produk ini dan memiliki status Lunas.</p>
+                    </div>
+                </div>
+
                 <div>
                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Konten HTML</label>
                     <textarea id="pg-content" rows="15" placeholder="<!-- Paste kode HTML Landing Page di sini -->" class="w-full p-6 glass-input text-emerald-400 rounded-[1.5rem] font-mono text-xs custom-scroll focus:border-[#B6FF00] outline-none transition-all" style="background: rgba(0,0,0,0.3) !important; color: white !important;"></textarea>
@@ -2128,9 +2145,33 @@
                 </div>`;
             }).join('');
 
-            document.getElementById('list-pages').innerHTML = cachedPages.map(p => `
+            // Populate protect dropdown with current products
+            (function(){
+                const sel = document.getElementById('pg-protected-product');
+                if (!sel) return;
+                const currentVal = sel.value;
+                sel.innerHTML = '<option value="" class="bg-[#000018] text-slate-400">-- Tidak Diproteksi (Akses Bebas) --</option>';
+                (cachedProducts || []).forEach(function(prod) {
+                    const pid = String(prod[0] || '').trim();
+                    const ptitle = String(prod[1] || '').trim();
+                    if (!pid) return;
+                    const opt = document.createElement('option');
+                    opt.value = pid;
+                    opt.textContent = ptitle + ' (' + pid + ')';
+                    opt.className = 'bg-[#000018] text-white';
+                    sel.appendChild(opt);
+                });
+                if (currentVal) sel.value = currentVal;
+            })();
+
+            document.getElementById('list-pages').innerHTML = cachedPages.map(p => {
+                const isProtected = String(p[11] || '').trim();
+                const protectBadge = isProtected
+                    ? `<span class="inline-flex items-center gap-1 text-[9px] font-bold bg-[rgba(239,68,68,0.15)] text-[#ef4444] border border-[rgba(239,68,68,0.3)] px-2 py-1 rounded-full uppercase tracking-wider ml-2"><i data-lucide="lock" class="w-2.5 h-2.5"></i>Protected</span>`
+                    : '';
+                return `
                 <tr class="hover:bg-[rgba(255,255,255,0.05)] transition-colors border-b border-[rgba(255,255,255,0.05)] last:border-0">
-                    <td class="px-8 py-5 font-bold text-white truncate text-sm">${p[2]}</td>
+                    <td class="px-8 py-5 font-bold text-white truncate text-sm">${p[2]}${protectBadge}</td>
                     <td class="px-8 py-5">
                         <a href="p.html?s=${p[1]}" target="_blank" class="font-mono text-[#B6FF00] hover:underline text-xs bg-[rgba(182,255,0,0.1)] border border-[rgba(182,255,0,0.2)] px-2 py-1 rounded">/p.html?s=${p[1]}</a>
                     </td>
@@ -2141,7 +2182,7 @@
                             <button onclick="deletePage('${p[0]}', '${String(p[2] || '').replace(/'/g, "\\'")}')" class="bg-[#ef4444]/10 text-[#ef4444] border border-[#ef4444]/30 hover:border-transparent hover:bg-[#ef4444] hover:text-white hover:shadow-[0_0_15px_rgba(239,68,68,0.4)] px-4 py-2 rounded-xl font-bold transition-all" title="Hapus Halaman"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                         </div>
                     </td>
-                </tr>`).join('');
+                </tr>`;}).join('');
 
             document.getElementById('set-site-name').value = r.settings.site_name || '';
             document.getElementById('set-site-tagline').value = r.settings.site_tagline || '';
@@ -2437,6 +2478,10 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             document.getElementById('pg-pixel-id').value = p[7] || '';
             document.getElementById('pg-pixel-token').value = p[8] || '';
             document.getElementById('pg-pixel-test').value = p[9] || '';
+
+            // Protect: set dropdown value
+            const sel = document.getElementById('pg-protected-product');
+            if (sel) sel.value = String(p[11] || '').trim();
             
             document.getElementById('pg-is-edit').value = 'true'; 
             document.getElementById('modal-page').classList.remove('hidden'); 
@@ -2773,7 +2818,14 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             
             (function(m){ m.classList.remove('hidden'); m.classList.add('flex'); })(document.getElementById('modal-prod')); 
         }
-        function openPageModal() { document.getElementById('form-page').reset(); document.getElementById('pg-is-edit').value = 'false'; (function(m){ m.classList.remove('hidden'); m.classList.add('flex'); })(document.getElementById('modal-page')); }
+        function openPageModal() {
+            document.getElementById('form-page').reset();
+            document.getElementById('pg-is-edit').value = 'false';
+            // Clear protect dropdown
+            const sel = document.getElementById('pg-protected-product');
+            if (sel) sel.value = '';
+            (function(m){ m.classList.remove('hidden'); m.classList.add('flex'); })(document.getElementById('modal-page'));
+        }
         function closeModal(id) { const m=document.getElementById(id); m.classList.add('hidden'); m.classList.remove('flex'); }
         async function revokeAdminSessionOnServer() {
             const token = String(sessionStorage.getItem('auth_session_token') || '');
@@ -2939,6 +2991,7 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
 
         document.getElementById('form-page').onsubmit = async (e) => { 
             e.preventDefault(); 
+            const sel = document.getElementById('pg-protected-product');
             const p = { 
                 action: 'save_page', 
                 id: document.getElementById('pg-id').value, 
@@ -2948,6 +3001,7 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                 meta_pixel_id: document.getElementById('pg-pixel-id').value,
                 meta_pixel_token: document.getElementById('pg-pixel-token').value,
                 meta_pixel_test_event: document.getElementById('pg-pixel-test').value,
+                protected_product_id: sel ? sel.value : '',
                 theme_mode: 'dark',
                 is_edit: document.getElementById('pg-is-edit').value === 'true' 
             }; 

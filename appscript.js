@@ -853,6 +853,7 @@ function doPost(e) {
       case "login": return jsonRes(loginUser(data));
       case "login_and_dashboard": return jsonRes(loginAndDashboard(data));
       case "get_page_content": return jsonRes(getPageContent(data));
+      case "check_page_access": return jsonRes(checkPageAccess(data));
       case "get_pages": return jsonRes(getAllPages(data));
       case "get_public_cache_state": return jsonRes(getPublicCacheState());
       case "admin_login": return jsonRes(adminLogin(data));
@@ -2391,6 +2392,7 @@ function getPageContent(d) {
     const r = mustSheet_("Pages").getDataRange().getValues();
     for (let i = 1; i < r.length; i++) {
       if (String(r[i][1]) === String(d.slug)) {
+        const protectedProductId = String(r[i][11] || "").trim();
         return withPublicCacheVersion_({
           status: "success",
           title: r[i][2],
@@ -2398,13 +2400,106 @@ function getPageContent(d) {
           pixel_id: r[i][7] || "",
           pixel_token: r[i][8] || "",
           pixel_test_code: r[i][9] || "",
-          theme_mode: r[i][10] || "light"
+          theme_mode: r[i][10] || "light",
+          protected_product_id: protectedProductId
         }, "pages");
       }
     }
     return { status: "error" };
   } catch (e) {
     return { status: "error" };
+  }
+}
+
+/* =========================
+   PAGE ACCESS GATE
+   Cek apakah user punya akses ke halaman protected
+========================= */
+function checkPageAccess(d) {
+  try {
+    const slug = String(d.slug || "").trim();
+    const email = String(d.email || "").trim().toLowerCase();
+
+    if (!slug) return { status: "error", message: "Slug wajib diisi." };
+    if (!email) return { status: "error", code: "NOT_LOGGED_IN", message: "Silakan login untuk mengakses halaman ini." };
+
+    // 1. Cari page
+    const pages = mustSheet_("Pages").getDataRange().getValues();
+    let pageRow = null;
+    for (let i = 1; i < pages.length; i++) {
+      if (String(pages[i][1]).trim() === slug) {
+        pageRow = pages[i];
+        break;
+      }
+    }
+    if (!pageRow) return { status: "error", code: "PAGE_NOT_FOUND", message: "Halaman tidak ditemukan." };
+
+    const protectedProductId = String(pageRow[11] || "").trim();
+
+    // Tidak ada proteksi, akses bebas
+    if (!protectedProductId) return { status: "success", code: "OPEN", message: "OK" };
+
+    // 2. Cek apakah user ada di database
+    const users = mustSheet_("Users").getDataRange().getValues();
+    let userRow = null;
+    for (let i = 1; i < users.length; i++) {
+      if (String(users[i][1]).trim().toLowerCase() === email) {
+        userRow = users[i];
+        break;
+      }
+    }
+    if (!userRow) return { status: "error", code: "NOT_LOGGED_IN", message: "Akun tidak ditemukan. Silakan login ulang." };
+
+    // Admin selalu punya akses
+    const userRole = String(userRow[4] || "").trim().toLowerCase();
+    if (userRole === "admin") return { status: "success", code: "ADMIN", message: "Akses admin diberikan." };
+
+    const userId = String(userRow[0] || "").trim();
+
+    // 3. Cek order yang sudah lunas untuk produk ini
+    const orders = mustSheet_("Orders").getDataRange().getValues();
+    for (let i = 1; i < orders.length; i++) {
+      const orderProductId = String(orders[i][3] || "").trim();
+      const orderStatus = String(orders[i][7] || "").trim();
+      const orderUserId = String(orders[i][1] || "").trim();
+      const orderEmail = String(orders[i][2] || "").trim().toLowerCase();
+
+      if (
+        (orderUserId === userId || orderEmail === email) &&
+        orderProductId === protectedProductId &&
+        orderStatus === "Lunas"
+      ) {
+        return { status: "success", code: "PURCHASED", message: "Akses diberikan." };
+      }
+    }
+
+    // Cek Access_Rules apakah produk itu valid
+    const products = mustSheet_("Access_Rules").getDataRange().getValues();
+    let productRow = null;
+    for (let i = 1; i < products.length; i++) {
+      if (String(products[i][0]).trim() === protectedProductId) {
+        productRow = products[i];
+        break;
+      }
+    }
+
+    const productTitle = productRow ? String(productRow[1] || "").trim() : "";
+    const productLpUrl = productRow ? String(productRow[6] || "").trim() : "";
+    const productPrice = productRow ? Number(productRow[4] || 0) : 0;
+
+    return {
+      status: "error",
+      code: "NOT_PURCHASED",
+      message: "Anda belum memiliki akses ke halaman ini.",
+      required_product: {
+        id: protectedProductId,
+        title: productTitle,
+        lp_url: productLpUrl,
+        price: productPrice
+      }
+    };
+  } catch (e) {
+    return { status: "error", code: "SERVER_ERROR", message: e.toString() };
   }
 }
 
@@ -2986,9 +3081,9 @@ function savePage(d) {
       }
     }
 
-    // Check if columns exist
+    // Check if columns exist (now need 12: id, slug, title, content, status, date, owner, pixel_id, pixel_token, pixel_test, theme_mode, protected_product_id)
     const maxCols = s.getMaxColumns();
-    if (maxCols < 11) s.insertColumnsAfter(maxCols, 11 - maxCols);
+    if (maxCols < 12) s.insertColumnsAfter(maxCols, 12 - maxCols);
 
     if (isEdit) {
       for (let i = 1; i < r.length; i++) {
@@ -3001,16 +3096,16 @@ function savePage(d) {
           }
 
           s.getRange(i + 1, 1, 1, 4).setValues([[d.id, slug, d.title, d.content]]);
-          // Update Meta Pixel Columns (Col 8, 9, 10) + Theme Mode (Col 11)
-          s.getRange(i + 1, 8, 1, 4).setValues([[d.meta_pixel_id || "", d.meta_pixel_token || "", d.meta_pixel_test_event || "", d.theme_mode || "light"]]);
+          // Update Meta Pixel Columns (Col 8, 9, 10) + Theme Mode (Col 11) + Protected Product ID (Col 12)
+          s.getRange(i + 1, 8, 1, 5).setValues([[d.meta_pixel_id || "", d.meta_pixel_token || "", d.meta_pixel_test_event || "", d.theme_mode || "light", String(d.protected_product_id || "").trim()]]);
           return withPublicCacheState_({ status: "success" }, bumpPublicCacheState_(["pages", "dashboard"]));
         }
       }
       return { status: "error", message: "ID Halaman tidak ditemukan" };
     } else {
       const newId = "PG-" + Date.now();
-      // Tambahkan Owner ID di kolom ke-7 (index 6) + Meta Pixel (7,8,9) + Theme Mode (10)
-      s.appendRow([newId, slug, d.title, d.content, "Active", toISODate_(), ownerId, d.meta_pixel_id || "", d.meta_pixel_token || "", d.meta_pixel_test_event || "", d.theme_mode || "light"]);
+      // Tambahkan Owner ID di kolom ke-7 (index 6) + Meta Pixel (7,8,9) + Theme Mode (10) + Protected Product ID (11)
+      s.appendRow([newId, slug, d.title, d.content, "Active", toISODate_(), ownerId, d.meta_pixel_id || "", d.meta_pixel_token || "", d.meta_pixel_test_event || "", d.theme_mode || "light", String(d.protected_product_id || "").trim()]);
       return withPublicCacheState_({ status: "success" }, bumpPublicCacheState_(["pages", "dashboard"]));
     }
   } catch (e) {

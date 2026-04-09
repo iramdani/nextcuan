@@ -153,6 +153,93 @@
             }
         }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Access Gate Styles */
+        .gate-overlay {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+            background: radial-gradient(ellipse at 20% 50%, rgba(15,23,42,0.9) 0%, rgba(2,6,23,1) 70%);
+        }
+        .gate-card {
+            background: rgba(10,10,30,0.85);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 2rem;
+            padding: 3rem 2.5rem;
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
+            animation: fadeIn 0.5s ease-out;
+        }
+        .gate-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+        }
+        .gate-icon.lock { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.25); }
+        .gate-icon.login { background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.25); }
+        .gate-title { font-size: 1.5rem; font-weight: 800; color: #f1f5f9; margin-bottom: 0.75rem; }
+        .gate-desc { font-size: 0.875rem; color: #94a3b8; line-height: 1.75; margin-bottom: 2rem; }
+        .gate-btn-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            padding: 1rem 2rem;
+            border-radius: 1rem;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+            margin-bottom: 0.75rem;
+        }
+        .gate-btn-primary.indigo { background: linear-gradient(135deg,#6366f1,#4f46e5); color: white; box-shadow: 0 8px 25px rgba(99,102,241,0.35); }
+        .gate-btn-primary.indigo:hover { box-shadow: 0 12px 35px rgba(99,102,241,0.5); transform: translateY(-1px); }
+        .gate-btn-primary.green { background: linear-gradient(135deg,#10b981,#059669); color: white; box-shadow: 0 8px 25px rgba(16,185,129,0.35); }
+        .gate-btn-primary.green:hover { box-shadow: 0 12px 35px rgba(16,185,129,0.5); transform: translateY(-1px); }
+        .gate-btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 0.85rem 2rem;
+            border-radius: 1rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: #64748b;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.08);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        .gate-btn-secondary:hover { color: #94a3b8; border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.04); }
+        .product-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 1rem;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        .product-card .product-label { font-size: 0.65rem; font-weight: 700; color: #64748b; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.35rem; }
+        .product-card .product-name { font-size: 1rem; font-weight: 700; color: #f1f5f9; margin-bottom: 0.25rem; }
+        .product-card .product-price { font-size: 0.85rem; font-weight: 600; color: #10b981; }
+        .gate-divider { display: flex; align-items: center; gap: 1rem; margin: 1.25rem 0; }
+        .gate-divider::before, .gate-divider::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.08); }
+        .gate-divider span { font-size: 0.75rem; color: #475569; font-weight: 600; }
     </style>
 </head>
 <body class="bg-white text-slate-800 min-h-screen flex flex-col m-0 p-0 relative cms-theme-light">
@@ -188,6 +275,135 @@
         const ref = urlParams.get('ref') || urlParams.get('aff_id');
         if(ref) {
             storage.setItem('cepat_affiliate', ref);
+        }
+
+        // === USER SESSION HELPERS ===
+        function getUserSession() {
+            try {
+                // 1. Cek sessionStorage (key dari login.html)
+                const emailFromSession = sessionStorage.getItem('user_email')
+                    || sessionStorage.getItem('auth_email')
+                    || '';
+                if (emailFromSession) {
+                    return {
+                        email: emailFromSession,
+                        nama: sessionStorage.getItem('user_nama') || sessionStorage.getItem('auth_name') || '',
+                        id: sessionStorage.getItem('user_id') || sessionStorage.getItem('auth_user_id') || ''
+                    };
+                }
+                // 2. Fallback: localStorage cepat_user_session
+                const raw = localStorage.getItem('cepat_user_session');
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (parsed && parsed.email) return parsed;
+                }
+            } catch(e) {}
+            return null;
+        }
+
+        // === ACCESS GATE VIEWS ===
+        function showLoginGate() {
+            document.getElementById('loader').style.display = 'none';
+            const container = document.getElementById('page-content');
+            container.innerHTML = `
+                <div class="gate-overlay">
+                    <div class="gate-card">
+                        <div class="gate-icon login">
+                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                        </div>
+                        <h1 class="gate-title">Halaman Khusus Member</h1>
+                        <p class="gate-desc">Halaman ini hanya bisa diakses oleh member yang sudah login.<br>Silakan login terlebih dahulu untuk melanjutkan.</p>
+                        <button onclick="window.location.href='login.html?redirect=' + encodeURIComponent(window.location.href)" class="gate-btn-primary indigo">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+                            Login Sekarang
+                        </button>
+                        <a href="/" class="gate-btn-secondary">Kembali ke Beranda</a>
+                    </div>
+                </div>`;
+            container.classList.remove('hidden');
+            document.body.classList.remove('bg-white', 'text-slate-800', 'cms-theme-light');
+            document.body.classList.add('bg-slate-900', 'text-slate-100', 'cms-theme-dark');
+        }
+
+        function showBuyGate(product) {
+            document.getElementById('loader').style.display = 'none';
+            const container = document.getElementById('page-content');
+            const productName = (product && product.title) ? product.title : 'Produk ini';
+            const productPrice = (product && product.price) ? 'Rp ' + Number(product.price).toLocaleString('id-ID') : '';
+            const lpUrl = (product && product.lp_url) ? product.lp_url : '';
+            const checkoutUrl = (product && product.id) ? ('checkout.html?id=' + product.id) : '';
+            const buyUrl = lpUrl || checkoutUrl || '#';
+
+            container.innerHTML = `
+                <div class="gate-overlay">
+                    <div class="gate-card">
+                        <div class="gate-icon lock">
+                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                        </div>
+                        <h1 class="gate-title">Konten Premium</h1>
+                        <p class="gate-desc">Anda sudah login, tapi halaman ini memerlukan akses khusus.<br>Dapatkan akses dengan memiliki produk berikut:</p>
+                        <div class="product-card">
+                            <div class="product-label">Produk yang Dibutuhkan</div>
+                            <div class="product-name">${productName}</div>
+                            ${productPrice ? '<div class="product-price">' + productPrice + '</div>' : ''}
+                        </div>
+                        <button onclick="window.location.href='${buyUrl}'" class="gate-btn-primary green">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                            Beli Sekarang &amp; Dapatkan Akses
+                        </button>
+                        <div class="gate-divider"><span>atau</span></div>
+                        <a href="dashboard.html" class="gate-btn-secondary">Cek di Member Area</a>
+                    </div>
+                </div>`;
+            container.classList.remove('hidden');
+            document.body.classList.remove('bg-white', 'text-slate-800', 'cms-theme-light');
+            document.body.classList.add('bg-slate-900', 'text-slate-100', 'cms-theme-dark');
+        }
+
+        async function checkAccessAndRender(data) {
+            const protectedProductId = String(data.protected_product_id || '').trim();
+
+            // Tidak ada proteksi – langsung render
+            if (!protectedProductId) {
+                await renderHTML(data);
+                return;
+            }
+
+            // Ada proteksi – cek session user
+            const userSession = getUserSession();
+            if (!userSession || !userSession.email) {
+                showLoginGate();
+                return;
+            }
+
+            // User sudah login – cek ke server
+            try {
+                if(typeof SCRIPT_URL === 'undefined') { await renderHTML(data); return; }
+                const endpoint = (window.CEPAT_API && typeof window.CEPAT_API.getEndpoint === 'function')
+                    ? window.CEPAT_API.getEndpoint()
+                    : SCRIPT_URL;
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'check_page_access', slug: slug, email: userSession.email })
+                });
+                const result = await res.json();
+
+                if (result.status === 'success') {
+                    // Akses diberikan
+                    await renderHTML(data);
+                } else if (result.code === 'NOT_LOGGED_IN') {
+                    showLoginGate();
+                } else if (result.code === 'NOT_PURCHASED') {
+                    showBuyGate(result.required_product);
+                } else {
+                    // Error server atau lain-lain – tampilkan login gate sebagai fallback
+                    showLoginGate();
+                }
+            } catch(e) {
+                // Gagal cek server – fallback: tampilkan konten (agar tidak blokir user saat offline)
+                await renderHTML(data);
+            }
         }
 
         function bindBackButton() {
@@ -390,7 +606,7 @@
             
             // JIKA ADA CACHE: Tampilkan landing page seketika (0 detik)
             if (cachedData) {
-                await renderHTML(cachedData);
+                await checkAccessAndRender(cachedData);
             }
 
             const isPageStale = !cachedAt || ((Date.now() - cachedAt) > PAGE_CACHE_AGE);
@@ -443,7 +659,7 @@
                         const nextPageVersion = String((r && r.cache_version) || currentPageVersion || '');
                         if (previousData !== freshData) {
                             storage.setItem(cacheKey, JSON.stringify({ data: r, time: Date.now(), version: nextPageVersion }));
-                            await renderHTML(r);
+                            await checkAccessAndRender(r);
                         } else if (cachedAt !== 0) {
                             storage.setItem(cacheKey, JSON.stringify({ data: cachedData, time: Date.now(), version: nextPageVersion || cachedPageVersion }));
                         }
