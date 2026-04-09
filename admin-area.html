@@ -2166,13 +2166,17 @@
             })();
 
             document.getElementById('list-pages').innerHTML = cachedPages.map(p => {
-                const isProtected = String(p[11] || '').trim();
                 const protectBadge = isProtected
-                    ? `<span class="inline-flex items-center justify-center w-6 h-6 ml-4 rounded-full border border-slate-600/60 bg-slate-800/50 text-slate-400" title="Protected Page" style="vertical-align: middle;"><i data-lucide="lock" class="w-3 h-3"></i></span>`
+                    ? `<span class="inline-flex items-center justify-center w-6 h-6 mr-3 rounded-full border border-slate-600/60 bg-slate-800/50 text-slate-400 flex-shrink-0" title="Protected Page"><i data-lucide="lock" class="w-3 h-3"></i></span>`
                     : '';
                 return `
                 <tr class="hover:bg-[rgba(255,255,255,0.05)] transition-colors border-b border-[rgba(255,255,255,0.05)] last:border-0">
-                    <td class="px-8 py-5 font-bold text-white truncate text-sm">${p[2]}${protectBadge}</td>
+                    <td class="px-8 py-5">
+                        <div class="flex items-center min-w-0 max-w-[200px] md:max-w-xs">
+                            ${protectBadge}
+                            <span class="font-bold text-white truncate text-sm flex-1">${p[2]}</span>
+                        </div>
+                    </td>
                     <td class="px-8 py-5">
                         <a href="p.html?s=${p[1]}" target="_blank" class="font-mono text-[#B6FF00] hover:underline text-xs bg-[rgba(182,255,0,0.1)] border border-[rgba(182,255,0,0.2)] px-2 py-1 rounded">/p.html?s=${p[1]}</a>
                     </td>

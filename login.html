@@ -285,6 +285,12 @@
                     sessionStorage.setItem('user_email', r.data.email);
                     sessionStorage.setItem('user_nama', r.data.nama);
                     sessionStorage.setItem('user_id', r.data.id);
+                    localStorage.setItem('cepat_user_session', JSON.stringify({
+                        email: r.data.email, 
+                        nama: r.data.nama, 
+                        id: r.data.id,
+                        isAdmin: role === 'admin'
+                    }));
 
                     showToast("Login Berhasil! Mengalihkan...", "success");
 
