@@ -421,8 +421,10 @@
                 const email = item[1];
                 const name = item[2];
                 const pname = item[5];
+                const price = Number(item[6] || 0).toLocaleString('id-ID');
                 const status = String(item[7] || '').trim();
                 const statusLower = status.toLowerCase();
+                const date = item[8] ? new Date(item[8]).toLocaleDateString('id-ID') : '-';
                 
                 let statusBadge = '';
                 if (statusLower === 'lunas') statusBadge = '<span class="px-3 py-1 inline-flex text-[10px] font-bold rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">Lunas</span>';
