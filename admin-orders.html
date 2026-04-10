@@ -436,12 +436,18 @@
                         date = String(item[8]);
                     }
                 }
-                let statusClass = 'bg-[rgba(100,116,139,0.1)] text-slate-400 border-[rgba(100,116,139,0.2)]';
-                if (statusLower === 'lunas') statusClass = 'bg-[rgba(16,185,129,0.15)] text-[#34d399] border-[rgba(16,185,129,0.3)]';
-                else if (statusLower === 'pending') statusClass = 'bg-[rgba(245,158,11,0.15)] text-[#fbbf24] border-[rgba(245,158,11,0.3)]';
-                else if (statusLower === 'batal' || statusLower === 'failed') statusClass = 'bg-[rgba(244,63,94,0.15)] text-[#fb7185] border-[rgba(244,63,94,0.3)]';
+                let bgColor, textColor, borderColor;
+                if (statusLower === 'lunas') {
+                    bgColor = 'rgba(16,185,129,0.15)'; textColor = '#34d399'; borderColor = 'rgba(16,185,129,0.3)';
+                } else if (statusLower === 'pending') {
+                    bgColor = 'rgba(245,158,11,0.15)'; textColor = '#fbbf24'; borderColor = 'rgba(245,158,11,0.3)';
+                } else if (statusLower === 'batal' || statusLower === 'failed') {
+                    bgColor = 'rgba(244,63,94,0.15)'; textColor = '#fb7185'; borderColor = 'rgba(244,63,94,0.3)';
+                } else {
+                    bgColor = 'rgba(100,116,139,0.1)'; textColor = '#94a3b8'; borderColor = 'rgba(100,116,139,0.2)';
+                }
                 
-                let statusBadge = `<span class="inline-block px-3 py-1.5 text-[10px] font-bold rounded-full border ${statusClass}">${status}</span>`;
+                let statusBadge = `<span class="inline-block px-3 py-1.5 text-[10px] font-bold rounded-full border" style="background-color: ${bgColor}; color: ${textColor}; border-color: ${borderColor};">${status}</span>`;
 
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-[rgba(255,255,255,0.02)] transition-colors group';
