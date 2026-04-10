@@ -2128,6 +2128,11 @@
         function renderOrders(orders, append = false) {
             const list = document.getElementById('list-orders');
             const html = orders.map(o => {
+                if (!o || !Array.isArray(o)) return '';
+                const inv = o[0] || '-';
+                const email = o[1] || '-';
+                const name = o[2] || '-';
+                const pname = o[5] || '-';
                 const status = String(o[7] || '').trim();
                 const statusLower = status.toLowerCase();
                 let statusClass = 'bg-slate-500/10 text-slate-400 border-slate-500/20';
@@ -2137,14 +2142,14 @@
 
                 return `
                 <tr class="hover:bg-[rgba(255,255,255,0.05)] transition-colors border-b border-[rgba(255,255,255,0.05)] last:border-0">
-                    <td class="px-8 py-5 font-mono font-bold text-[#B6FF00] text-xs" data-label="Invoice">${o[0]}</td>
+                    <td class="px-8 py-5 font-mono font-bold text-[#B6FF00] text-xs" data-label="Invoice">${inv}</td>
                     <td class="px-8 py-5" data-label="Customer">
                         <div class="flex flex-col">
-                            <p class="font-bold text-white text-sm">${o[2]}</p>
-                            <p class="text-xs text-slate-400 font-medium mt-0.5">${o[1]}</p>
+                            <p class="font-bold text-white text-sm">${name}</p>
+                            <p class="text-xs text-slate-400 font-medium mt-0.5">${email}</p>
                         </div>
                     </td>
-                    <td class="px-8 py-5 font-medium text-slate-400 truncate max-w-[200px] text-xs" data-label="Produk"><div>${o[5]}</div></td>
+                    <td class="px-8 py-5 font-medium text-slate-400 truncate max-w-[200px] text-xs" data-label="Produk"><div>${pname}</div></td>
                     <td class="px-8 py-5" data-label="Status">
                         <span class="inline-block px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusClass}">
                             ${status}

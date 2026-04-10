@@ -399,7 +399,7 @@
                 }
             } catch (error) {
                 console.error(error);
-                Swal.fire('Error', 'Gagal memuat data. Cek koneksi.', 'error');
+                Swal.fire('Error', 'Gagal memuat data. ' + (error.message || 'Cek koneksi.'), 'error');
             } finally {
                 setLoading(false);
             }
@@ -416,15 +416,26 @@
             }
 
             data.forEach(item => {
+                if (!item || !Array.isArray(item)) return;
                 // Mapping columns based on typical structure: [Inv, Email, Name, WA, Pid, Pname, Price, Status, Date, Aff, Comm]
-                const inv = item[0];
-                const email = item[1];
-                const name = item[2];
-                const pname = item[5];
+                const inv = item[0] || '-';
+                const email = item[1] || '-';
+                const name = item[2] || '-';
+                const pname = item[5] || '-';
                 const price = Number(item[6] || 0).toLocaleString('id-ID');
                 const status = String(item[7] || '').trim();
                 const statusLower = status.toLowerCase();
-                const date = item[8] ? new Date(item[8]).toLocaleDateString('id-ID') : '-';
+                
+                let date = '-';
+                if (item[8]) {
+                    try {
+                        const d = new Date(item[8]);
+                        if (!isNaN(d.getTime())) date = d.toLocaleDateString('id-ID');
+                        else date = String(item[8]);
+                    } catch (e) {
+                        date = String(item[8]);
+                    }
+                }
                 
                 let statusBadge = '';
                 if (statusLower === 'lunas') statusBadge = '<span class="px-3 py-1 inline-flex text-[10px] font-bold rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">Lunas</span>';
