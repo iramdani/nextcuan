@@ -617,7 +617,6 @@
                 color: #64748b; 
                 letter-spacing: 0.1em;
             }
-            .mobile-responsive-table td > div, .mobile-responsive-table td > span, .mobile-responsive-table td > p { width: 100%; }
             .mobile-responsive-table td.text-right { text-align: left !important; }
             .mobile-responsive-table td.text-right > div { justify-content: flex-start !important; }
             .mobile-responsive-table td br { display: none; }
@@ -2135,10 +2134,10 @@
                 const pname = o[5] || '-';
                 const status = String(o[7] || '').trim();
                 const statusLower = status.toLowerCase();
-                let statusClass = 'bg-slate-500/10 text-slate-400 border-slate-500/20';
-                if (statusLower === 'lunas') statusClass = 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30';
-                else if (statusLower === 'pending') statusClass = 'bg-amber-500/15 text-amber-400 border-amber-500/30';
-                else if (statusLower === 'batal' || statusLower === 'failed') statusClass = 'bg-rose-500/15 text-rose-400 border-rose-500/30';
+                let statusClass = 'bg-[rgba(100,116,139,0.1)] text-slate-400 border-[rgba(100,116,139,0.2)]';
+                if (statusLower === 'lunas') statusClass = 'bg-[rgba(16,185,129,0.15)] text-[#34d399] border-[rgba(16,185,129,0.3)]';
+                else if (statusLower === 'pending') statusClass = 'bg-[rgba(245,158,11,0.15)] text-[#fbbf24] border-[rgba(245,158,11,0.3)]';
+                else if (statusLower === 'batal' || statusLower === 'failed') statusClass = 'bg-[rgba(244,63,94,0.15)] text-[#fb7185] border-[rgba(244,63,94,0.3)]';
 
                 return `
                 <tr class="hover:bg-[rgba(255,255,255,0.05)] transition-colors border-b border-[rgba(255,255,255,0.05)] last:border-0">
@@ -2149,7 +2148,7 @@
                             <p class="text-xs text-slate-400 font-medium mt-0.5">${email}</p>
                         </div>
                     </td>
-                    <td class="px-8 py-5 font-medium text-slate-400 truncate max-w-[200px] text-xs" data-label="Produk"><div>${pname}</div></td>
+                    <td class="px-8 py-5 font-medium text-slate-400 text-xs md:truncate md:max-w-[200px]" data-label="Produk"><div class="whitespace-normal break-words leading-relaxed">${pname}</div></td>
                     <td class="px-8 py-5" data-label="Status">
                         <span class="inline-block px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusClass}">
                             ${status}
