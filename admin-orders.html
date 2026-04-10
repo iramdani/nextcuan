@@ -76,33 +76,36 @@
             .responsive-table thead { display: none; }
             .responsive-table, .responsive-table tbody, .responsive-table tr, .responsive-table td { display: block; width: 100% !important; }
             .responsive-table tr { 
-                margin-bottom: 1.5rem; 
-                border: 1px solid rgba(255,255,255,0.08); 
-                padding: 1.25rem; 
+                margin-bottom: 2rem; 
+                border: 1px solid rgba(255,255,255,0.1); 
+                padding: 1.5rem; 
                 border-radius: 1.5rem; 
                 background: rgba(255,255,255,0.02);
-                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
             }
             .responsive-table td { 
                 display: flex; 
-                justify-content: space-between; 
-                align-items: center; 
-                padding: 0.75rem 0 !important; 
+                flex-direction: column; /* Stacked: Label atas, Isi bawah */
+                align-items: flex-start; 
+                gap: 0.25rem;
+                padding: 1rem 0 !important; 
                 border-bottom: 1px solid rgba(255,255,255,0.05) !important; 
                 text-align: left !important;
-                min-height: 3rem;
+                min-height: auto;
             }
             .responsive-table td:last-child { border-bottom: none !important; }
             .responsive-table td::before { 
                 content: attr(data-label); 
                 font-weight: 800; 
-                font-size: 10px; 
+                font-size: 9px; 
                 text-transform: uppercase; 
                 color: #64748b; 
-                letter-spacing: 0.05em;
-                margin-right: 1rem;
+                letter-spacing: 0.1em;
+                margin-right: 0;
+                margin-bottom: 0.25rem;
             }
-            .responsive-table td.text-right { text-align: right !important; justify-content: space-between; }
+            .responsive-table td > div, .responsive-table td > span, .responsive-table td > p { width: 100%; text-align: left !important; }
+            .responsive-table td.text-right { text-align: left !important; }
         }
 
         /* Desktop Optimization (Integrated Mode) */
@@ -418,28 +421,30 @@
                 const email = item[1];
                 const name = item[2];
                 const pname = item[5];
-                const price = Number(item[6]).toLocaleString('id-ID');
-                const status = item[7];
-                const date = item[8] ? new Date(item[8]).toLocaleDateString('id-ID') : '-';
+                const status = String(item[7] || '').trim();
+                const statusLower = status.toLowerCase();
                 
                 let statusBadge = '';
-                if (status === 'Lunas') statusBadge = '<span class="px-3 py-1 inline-flex text-[10px] font-bold rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Lunas</span>';
-                else if (status === 'Pending') statusBadge = '<span class="px-3 py-1 inline-flex text-[10px] font-bold rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">Pending</span>';
-                else statusBadge = '<span class="px-3 py-1 inline-flex text-[10px] font-bold rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20">Batal</span>';
+                if (statusLower === 'lunas') statusBadge = '<span class="px-3 py-1 inline-flex text-[10px] font-bold rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">Lunas</span>';
+                else if (statusLower === 'pending') statusBadge = '<span class="px-3 py-1 inline-flex text-[10px] font-bold rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30">Pending</span>';
+                else if (statusLower === 'batal' || statusLower === 'failed') statusBadge = '<span class="px-3 py-1 inline-flex text-[10px] font-bold rounded-full bg-rose-500/15 text-rose-400 border border-rose-500/30">Batal</span>';
+                else statusBadge = `<span class="px-3 py-1 inline-flex text-[10px] font-bold rounded-full bg-slate-500/15 text-slate-400 border border-slate-500/30">${status}</span>`;
 
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-[rgba(255,255,255,0.02)] transition-colors group';
                 tr.innerHTML = `
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-mono font-bold text-[#B6FF00]" data-label="Invoice">${inv}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-400" data-label="Tanggal">${date}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-400" data-label="Tanggal"><div>${date}</div></td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-white" data-label="Pelanggan">
-                        <div class="font-bold">${name}</div>
-                        <div class="text-[11px] text-slate-400 mt-1">${email}</div>
+                        <div class="flex flex-col">
+                            <div class="font-bold">${name}</div>
+                            <div class="text-[11px] text-slate-400 mt-1">${email}</div>
+                        </div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-300" data-label="Produk">${pname}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white font-mono font-bold" data-label="Total">Rp ${price}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-300" data-label="Produk"><div>${pname}</div></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white font-mono font-bold" data-label="Total"><div>Rp ${price}</div></td>
                     <td class="px-6 py-4 whitespace-nowrap" data-label="Status">
-                        ${statusBadge}
+                        <div>${statusBadge}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium" data-label="Aksi">
                         <div class="flex items-center justify-end gap-2">

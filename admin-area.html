@@ -598,11 +598,28 @@
         @media (max-width: 768px) {
             .mobile-responsive-table thead { display: none; }
             .mobile-responsive-table, .mobile-responsive-table tbody, .mobile-responsive-table tr, .mobile-responsive-table td { display: block; width: 100% !important; min-width: 0 !important; }
-            .mobile-responsive-table tr { margin-bottom: 1rem; border: 1px solid rgba(255,255,255,0.1); padding: 1.25rem; border-radius: 1.5rem; background: rgba(255,255,255,0.03); }
-            .mobile-responsive-table td { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0 !important; border-bottom: 1px solid rgba(255,255,255,0.05) !important; text-align: left !important; }
+            .mobile-responsive-table tr { margin-bottom: 1.5rem; border: 1px solid rgba(255,255,255,0.1); padding: 1.25rem; border-radius: 1.5rem; background: rgba(255,255,255,0.03); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+            .mobile-responsive-table td { 
+                display: flex; 
+                flex-direction: column; /* Stacked: Label di atas, Isi di bawah */
+                align-items: flex-start; 
+                gap: 0.25rem;
+                padding: 0.75rem 0 !important; 
+                border-bottom: 1px solid rgba(255,255,255,0.05) !important; 
+                text-align: left !important; 
+            }
             .mobile-responsive-table td:last-child { border-bottom: none !important; }
-            .mobile-responsive-table td::before { content: attr(data-label); font-weight: 700; font-size: 10px; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.05em; }
-            .mobile-responsive-table td.text-right { text-align: right !important; justify-content: space-between; }
+            .mobile-responsive-table td::before { 
+                content: attr(data-label); 
+                font-weight: 800; 
+                font-size: 9px; 
+                text-transform: uppercase; 
+                color: #64748b; 
+                letter-spacing: 0.1em;
+            }
+            .mobile-responsive-table td > div, .mobile-responsive-table td > span, .mobile-responsive-table td > p { width: 100%; }
+            .mobile-responsive-table td.text-right { text-align: left !important; }
+            .mobile-responsive-table td.text-right > div { justify-content: flex-start !important; }
             .mobile-responsive-table td br { display: none; }
         }
     </style>
@@ -2111,31 +2128,36 @@
         function renderOrders(orders, append = false) {
             const list = document.getElementById('list-orders');
             const html = orders.map(o => {
-                const status = o[7];
+                const status = String(o[7] || '').trim();
+                const statusLower = status.toLowerCase();
                 let statusClass = 'bg-slate-500/10 text-slate-400 border-slate-500/20';
-                if (status === 'Lunas') statusClass = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
-                else if (status === 'Pending') statusClass = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
-                else if (status === 'Batal' || status === 'Failed') statusClass = 'bg-rose-500/10 text-rose-400 border-rose-500/20';
+                if (statusLower === 'lunas') statusClass = 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30';
+                else if (statusLower === 'pending') statusClass = 'bg-amber-500/15 text-amber-400 border-amber-500/30';
+                else if (statusLower === 'batal' || statusLower === 'failed') statusClass = 'bg-rose-500/15 text-rose-400 border-rose-500/30';
 
                 return `
                 <tr class="hover:bg-[rgba(255,255,255,0.05)] transition-colors border-b border-[rgba(255,255,255,0.05)] last:border-0">
                     <td class="px-8 py-5 font-mono font-bold text-[#B6FF00] text-xs" data-label="Invoice">${o[0]}</td>
                     <td class="px-8 py-5" data-label="Customer">
-                        <p class="font-bold text-white text-sm">${o[2]}</p>
-                        <p class="text-xs text-slate-400 font-medium mt-0.5">${o[1]}</p>
+                        <div class="flex flex-col">
+                            <p class="font-bold text-white text-sm">${o[2]}</p>
+                            <p class="text-xs text-slate-400 font-medium mt-0.5">${o[1]}</p>
+                        </div>
                     </td>
-                    <td class="px-8 py-5 font-medium text-slate-400 truncate max-w-[200px] text-xs" data-label="Produk">${o[5]}</td>
+                    <td class="px-8 py-5 font-medium text-slate-400 truncate max-w-[200px] text-xs" data-label="Produk"><div>${o[5]}</div></td>
                     <td class="px-8 py-5" data-label="Status">
-                        <span class="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusClass}">
+                        <span class="inline-block px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusClass}">
                             ${status}
                         </span>
                     </td>
                     <td class="px-8 py-5 text-right flex justify-end gap-2" data-label="Aksi">
-                        ${status==='Pending'
-                            ? `<button onclick="setLunas('${o[0]}')" class="text-[#B6FF00] border border-[rgba(182,255,0,0.2)] bg-[rgba(182,255,0,0.1)] font-bold uppercase text-[10px] hover:bg-[rgba(182,255,0,0.2)] px-3 py-1.5 rounded-lg transition-colors">Aktifkan</button>`
-                            : (status==='Lunas'
-                                ? `<button onclick="setPending('${o[0]}')" class="text-[#ef4444] border border-[#ef4444]/20 bg-[#ef4444]/10 font-bold uppercase text-[10px] hover:bg-[#ef4444]/20 px-3 py-1.5 rounded-lg transition-colors">Non Aktifkan</button>`
-                                : '-')}
+                        <div class="flex gap-2">
+                            ${statusLower==='pending'
+                                ? `<button onclick="setLunas('${o[0]}')" class="text-[#B6FF00] border border-[rgba(182,255,0,0.2)] bg-[rgba(182,255,0,0.1)] font-bold uppercase text-[10px] hover:bg-[rgba(182,255,0,0.2)] px-3 py-1.5 rounded-lg transition-colors">Aktifkan</button>`
+                                : (statusLower==='lunas'
+                                    ? `<button onclick="setPending('${o[0]}')" class="text-[#ef4444] border border-[#ef4444]/20 bg-[#ef4444]/10 font-bold uppercase text-[10px] hover:bg-[#ef4444]/20 px-3 py-1.5 rounded-lg transition-colors">Non Aktifkan</button>`
+                                    : '-')}
+                        </div>
                     </td>
                 </tr>`;
             }).join('');
