@@ -70,6 +70,47 @@
         .swal2-success-circular-line-left, .swal2-success-circular-line-right, .swal2-success-fix {
             background-color: transparent !important;
         }
+
+        /* Responsive Table Optimization */
+        @media (max-width: 1024px) {
+            .responsive-table thead { display: none; }
+            .responsive-table, .responsive-table tbody, .responsive-table tr, .responsive-table td { display: block; width: 100% !important; }
+            .responsive-table tr { 
+                margin-bottom: 1.5rem; 
+                border: 1px solid rgba(255,255,255,0.08); 
+                padding: 1.25rem; 
+                border-radius: 1.5rem; 
+                background: rgba(255,255,255,0.02);
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            }
+            .responsive-table td { 
+                display: flex; 
+                justify-content: space-between; 
+                align-items: center; 
+                padding: 0.75rem 0 !important; 
+                border-bottom: 1px solid rgba(255,255,255,0.05) !important; 
+                text-align: left !important;
+                min-height: 3rem;
+            }
+            .responsive-table td:last-child { border-bottom: none !important; }
+            .responsive-table td::before { 
+                content: attr(data-label); 
+                font-weight: 800; 
+                font-size: 10px; 
+                text-transform: uppercase; 
+                color: #64748b; 
+                letter-spacing: 0.05em;
+                margin-right: 1rem;
+            }
+            .responsive-table td.text-right { text-align: right !important; justify-content: space-between; }
+        }
+
+        /* Desktop Optimization (Integrated Mode) */
+        .iframe-mode main {
+            max-width: 100% !important;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+        }
     </style>
 </head>
 <body class="bg-[#000018] text-white font-sans">
@@ -132,6 +173,7 @@
         // Hide header if inside iframe (integrated mode)
         if (window.self !== window.top) {
             document.getElementById('main-header').style.display = 'none';
+            document.body.classList.add('iframe-mode');
         }
     </script>
 
@@ -159,8 +201,8 @@
 
         <!-- Table Container -->
         <div class="glass-card rounded-xl shadow-none border border-[rgba(255,255,255,0.05)] overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-[rgba(255,255,255,0.05)]">
+            <div class="overflow-x-auto custom-scroll">
+                <table class="min-w-full divide-y divide-[rgba(255,255,255,0.05)] responsive-table">
                     <thead class="bg-[rgba(255,255,255,0.02)]">
                         <tr>
                             <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-[rgba(255,255,255,0.05)]">Invoice</th>
@@ -381,27 +423,29 @@
                 const date = item[8] ? new Date(item[8]).toLocaleDateString('id-ID') : '-';
                 
                 let statusBadge = '';
-                if (status === 'Lunas') statusBadge = '<span class="px-3 py-1 inline-flex text-[10px] font-bold rounded-full bg-[rgba(182,255,0,0.1)] text-[#B6FF00] border border-[rgba(182,255,0,0.2)]">Lunas</span>';
-                else if (status === 'Pending') statusBadge = '<span class="px-3 py-1 inline-flex text-[10px] font-bold rounded-full bg-[rgba(245,158,11,0.1)] text-[#f59e0b] border border-[rgba(245,158,11,0.2)]">Pending</span>';
-                else statusBadge = '<span class="px-3 py-1 inline-flex text-[10px] font-bold rounded-full bg-[rgba(239,68,68,0.1)] text-[#ef4444] border border-[rgba(239,68,68,0.2)]">Batal</span>';
+                if (status === 'Lunas') statusBadge = '<span class="px-3 py-1 inline-flex text-[10px] font-bold rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Lunas</span>';
+                else if (status === 'Pending') statusBadge = '<span class="px-3 py-1 inline-flex text-[10px] font-bold rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">Pending</span>';
+                else statusBadge = '<span class="px-3 py-1 inline-flex text-[10px] font-bold rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20">Batal</span>';
 
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-[rgba(255,255,255,0.02)] transition-colors group';
                 tr.innerHTML = `
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-mono font-bold text-[#B6FF00]">${inv}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-400">${date}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-mono font-bold text-[#B6FF00]" data-label="Invoice">${inv}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-400" data-label="Tanggal">${date}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white" data-label="Pelanggan">
                         <div class="font-bold">${name}</div>
                         <div class="text-[11px] text-slate-400 mt-1">${email}</div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-300">${pname}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white font-mono font-bold">Rp ${price}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-300" data-label="Produk">${pname}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white font-mono font-bold" data-label="Total">Rp ${price}</td>
+                    <td class="px-6 py-4 whitespace-nowrap" data-label="Status">
                         ${statusBadge}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button onclick="editOrder('${inv}')" class="text-slate-400 hover:text-[#B6FF00] mr-3 transition-colors bg-[rgba(255,255,255,0.05)] p-2 rounded-lg"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
-                        <button onclick="deleteOrder('${inv}')" class="text-slate-400 hover:text-[#ef4444] transition-colors bg-[rgba(255,255,255,0.05)] p-2 rounded-lg"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium" data-label="Aksi">
+                        <div class="flex items-center justify-end gap-2">
+                            <button onclick="editOrder('${inv}')" class="text-slate-400 hover:text-[#B6FF00] transition-colors bg-[rgba(255,255,255,0.05)] p-2 rounded-lg" title="Edit"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                            <button onclick="deleteOrder('${inv}')" class="text-slate-400 hover:text-[#ef4444] transition-colors bg-[rgba(255,255,255,0.05)] p-2 rounded-lg" title="Hapus"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </div>
                     </td>
                 `;
                 tbody.appendChild(tr);

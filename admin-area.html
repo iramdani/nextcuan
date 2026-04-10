@@ -593,6 +593,18 @@
 
         /* Glass Utilities */
         .glass-panel { background: rgba(10,10,30,0.65); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; }
+        
+        /* Mobile Table Optimization */
+        @media (max-width: 768px) {
+            .mobile-responsive-table thead { display: none; }
+            .mobile-responsive-table, .mobile-responsive-table tbody, .mobile-responsive-table tr, .mobile-responsive-table td { display: block; width: 100% !important; min-width: 0 !important; }
+            .mobile-responsive-table tr { margin-bottom: 1rem; border: 1px solid rgba(255,255,255,0.1); padding: 1.25rem; border-radius: 1.5rem; background: rgba(255,255,255,0.03); }
+            .mobile-responsive-table td { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0 !important; border-bottom: 1px solid rgba(255,255,255,0.05) !important; text-align: left !important; }
+            .mobile-responsive-table td:last-child { border-bottom: none !important; }
+            .mobile-responsive-table td::before { content: attr(data-label); font-weight: 700; font-size: 10px; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.05em; }
+            .mobile-responsive-table td.text-right { text-align: right !important; justify-content: space-between; }
+            .mobile-responsive-table td br { display: none; }
+        }
     </style>
 <script src='https://cdn.jsdelivr.net/npm/chart.js'></script>
 </head>
@@ -822,7 +834,7 @@
                             <button class="text-xs font-bold text-[#B6FF00] hover:text-white transition-colors">LIHAT SEMUA</button>
                         </div>
                         <div class="overflow-x-auto custom-scroll p-0">
-                            <table class="w-full text-left text-sm min-w-[700px] border-collapse bg-transparent">
+                            <table class="w-full text-left text-sm border-collapse bg-transparent mobile-responsive-table">
                                 <thead class="bg-[rgba(255,255,255,0.05)] text-slate-400 text-xs font-semibold uppercase tracking-wider border-b border-[rgba(255,255,255,0.1)]">
                                     <tr>
                                         <th class="px-8 py-5">Invoice</th>
@@ -2098,27 +2110,35 @@
 
         function renderOrders(orders, append = false) {
             const list = document.getElementById('list-orders');
-            const html = orders.map(o => `
+            const html = orders.map(o => {
+                const status = o[7];
+                let statusClass = 'bg-slate-500/10 text-slate-400 border-slate-500/20';
+                if (status === 'Lunas') statusClass = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+                else if (status === 'Pending') statusClass = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+                else if (status === 'Batal' || status === 'Failed') statusClass = 'bg-rose-500/10 text-rose-400 border-rose-500/20';
+
+                return `
                 <tr class="hover:bg-[rgba(255,255,255,0.05)] transition-colors border-b border-[rgba(255,255,255,0.05)] last:border-0">
-                    <td class="px-8 py-5 font-mono font-bold text-[#B6FF00] text-xs">${o[0]}</td>
-                    <td class="px-8 py-5">
+                    <td class="px-8 py-5 font-mono font-bold text-[#B6FF00] text-xs" data-label="Invoice">${o[0]}</td>
+                    <td class="px-8 py-5" data-label="Customer">
                         <p class="font-bold text-white text-sm">${o[2]}</p>
                         <p class="text-xs text-slate-400 font-medium mt-0.5">${o[1]}</p>
                     </td>
-                    <td class="px-8 py-5 font-medium text-slate-400 truncate max-w-[200px] text-xs">${o[5]}</td>
-                    <td class="px-8 py-5">
-                        <span class="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${o[7]==='Lunas'?'bg-[rgba(1,122,107,0.2)] text-[#017A6B] border-[rgba(1,122,107,0.4)]':'bg-[rgba(255,255,255,0.1)] text-slate-400 border-[rgba(255,255,255,0.2)]'}">
-                            ${o[7]}
+                    <td class="px-8 py-5 font-medium text-slate-400 truncate max-w-[200px] text-xs" data-label="Produk">${o[5]}</td>
+                    <td class="px-8 py-5" data-label="Status">
+                        <span class="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusClass}">
+                            ${status}
                         </span>
                     </td>
-                    <td class="px-8 py-5 text-right flex justify-end gap-2">
-                        ${o[7]==='Pending'
+                    <td class="px-8 py-5 text-right flex justify-end gap-2" data-label="Aksi">
+                        ${status==='Pending'
                             ? `<button onclick="setLunas('${o[0]}')" class="text-[#B6FF00] border border-[rgba(182,255,0,0.2)] bg-[rgba(182,255,0,0.1)] font-bold uppercase text-[10px] hover:bg-[rgba(182,255,0,0.2)] px-3 py-1.5 rounded-lg transition-colors">Aktifkan</button>`
-                            : (o[7]==='Lunas'
+                            : (status==='Lunas'
                                 ? `<button onclick="setPending('${o[0]}')" class="text-[#ef4444] border border-[#ef4444]/20 bg-[#ef4444]/10 font-bold uppercase text-[10px] hover:bg-[#ef4444]/20 px-3 py-1.5 rounded-lg transition-colors">Non Aktifkan</button>`
                                 : '-')}
                     </td>
-                </tr>`).join('');
+                </tr>`;
+            }).join('');
 
             if(append) list.insertAdjacentHTML('beforeend', html);
             else list.innerHTML = html;
