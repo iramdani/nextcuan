@@ -720,6 +720,9 @@
                 </button>
                 
                 <div class="px-4 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 mt-6">System</div>
+                <button onclick="openAdminProfileModal()" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-left hover:bg-[rgba(255,255,255,0.05)] transition-colors">
+                    <i data-lucide="user-cog" class="w-5 h-5"></i> Edit Profile
+                </button>
                 <button onclick="switchTab('settings')" id="nav-settings" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm">
                     <i data-lucide="settings" class="w-5 h-5"></i> Pengaturan
                 </button>
@@ -1419,6 +1422,85 @@
                     </div>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- MODAL ADMIN PROFILE -->
+    <div id="modal-admin-profile" class="fixed inset-0 z-[400] hidden">
+        <div class="absolute inset-0 bg-[#000018]/80 backdrop-blur-md" onclick="closeAdminProfileModal()"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-4">
+            <div class="bg-[#000018] rounded-3xl border border-[rgba(255,255,255,0.1)] shadow-2xl overflow-hidden fade-in-up">
+                <div class="p-6 border-b border-[rgba(255,255,255,0.05)] flex justify-between items-center bg-[rgba(255,255,255,0.02)]">
+                    <h3 class="font-bold text-lg text-white">Edit Profile Admin</h3>
+                    <button onclick="closeAdminProfileModal()" class="text-slate-400 hover:text-slate-300 transition-colors">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div class="p-4 bg-[rgba(182,255,0,0.1)] text-[#B6FF00] text-xs rounded-xl border border-[rgba(182,255,0,0.2)] flex gap-3">
+                        <i data-lucide="info" class="w-5 h-5 flex-shrink-0"></i>
+                        <p>Mengubah profil akan memperbarui data login Admin Anda. Pastikan data yang dimasukkan benar.</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nama Admin</label>
+                        <input type="text" id="admin-profile-name" class="w-full px-4 py-3 rounded-xl glass-input focus:border-[#B6FF00] focus:ring-[#B6FF00] transition-all font-medium text-white placeholder:text-slate-400 bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)]" placeholder="Nama Admin">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Email Admin</label>
+                        <input type="email" id="admin-profile-email" class="w-full px-4 py-3 rounded-xl glass-input focus:border-[#B6FF00] focus:ring-[#B6FF00] transition-all font-medium text-white placeholder:text-slate-400 bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)]" placeholder="email@admin.com">
+                    </div>
+                    <div class="pt-4 border-t border-[rgba(255,255,255,0.05)]">
+                        <button onclick="closeAdminProfileModal(); openAdminPasswordModal();" class="text-[#B6FF00] text-xs font-bold hover:underline flex items-center gap-1">
+                            <i data-lucide="key" class="w-3 h-3"></i> Ganti Password Saja?
+                        </button>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Konfirmasi Password Saat Ini</label>
+                        <input type="password" id="admin-profile-confirm-password" class="w-full px-4 py-3 rounded-xl glass-input focus:border-[#B6FF00] focus:ring-[#B6FF00] transition-all font-medium text-white placeholder:text-slate-400 bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)]" placeholder="Masukkan password untuk verifikasi">
+                    </div>
+                </div>
+                <div class="p-6 border-t border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.02)] flex justify-end gap-3">
+                    <button onclick="closeAdminProfileModal()" class="px-5 py-2.5 rounded-xl font-bold text-sm text-slate-400 hover:text-white transition-colors">Batal</button>
+                    <button onclick="saveAdminProfile()" id="btn-save-admin-profile" class="btn-primary px-6 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2">
+                        Simpan Perubahan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL ADMIN PASSWORD -->
+    <div id="modal-admin-password" class="fixed inset-0 z-[401] hidden">
+        <div class="absolute inset-0 bg-[#000018]/80 backdrop-blur-md" onclick="closeAdminPasswordModal()"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-4">
+            <div class="bg-[#000018] rounded-3xl border border-[rgba(255,255,255,0.1)] shadow-2xl overflow-hidden fade-in-up">
+                <div class="p-6 border-b border-[rgba(255,255,255,0.05)] flex justify-between items-center bg-[rgba(255,255,255,0.02)]">
+                    <h3 class="font-bold text-lg text-white">Ganti Password Admin</h3>
+                    <button onclick="closeAdminPasswordModal()" class="text-slate-400 hover:text-slate-300 transition-colors">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Password Lama</label>
+                        <input type="password" id="admin-input-password-lama" class="w-full px-4 py-3 rounded-xl glass-input focus:border-[#B6FF00] focus:ring-[#B6FF00] transition-all font-medium text-white placeholder:text-slate-400 bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)]" placeholder="Masukkan password saat ini">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Password Baru</label>
+                        <input type="password" id="admin-input-password-baru" class="w-full px-4 py-3 rounded-xl glass-input focus:border-[#B6FF00] focus:ring-[#B6FF00] transition-all font-medium text-white placeholder:text-slate-400 bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)]" placeholder="Minimal 6 karakter">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Konfirmasi Password Baru</label>
+                        <input type="password" id="admin-input-konfirmasi-password" class="w-full px-4 py-3 rounded-xl glass-input focus:border-[#B6FF00] focus:ring-[#B6FF00] transition-all font-medium text-white placeholder:text-slate-400 bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)]" placeholder="Ulangi password baru">
+                    </div>
+                </div>
+                <div class="p-6 border-t border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.02)] flex justify-end gap-3">
+                    <button onclick="closeAdminPasswordModal()" class="px-5 py-2.5 rounded-xl font-bold text-sm text-slate-400 hover:text-white transition-colors">Batal</button>
+                    <button onclick="prosesGantiAdminPassword()" id="btn-save-admin-pass" class="btn-primary px-6 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2">
+                        Update Password
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -3382,6 +3464,146 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
         // --- REAL SALES CHART IMPLEMENTATION END ---
 
         window.onload = () => { lucide.createIcons(); if(isAdminSessionActive()) init(); };
+
+        // --- ADMIN PROFILE & PASSWORD MANAGEMENT ---
+        function openAdminProfileModal() {
+            const adminName = sessionStorage.getItem('auth_name') || sessionStorage.getItem('adm_name') || 'Admin';
+            const adminEmail = sessionStorage.getItem('auth_email') || '';
+            document.getElementById('admin-profile-name').value = adminName;
+            document.getElementById('admin-profile-email').value = adminEmail;
+            document.getElementById('admin-profile-confirm-password').value = '';
+            document.getElementById('modal-admin-profile').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeAdminProfileModal() {
+            document.getElementById('modal-admin-profile').classList.add('hidden');
+        }
+
+        function openAdminPasswordModal() {
+            document.getElementById('admin-input-password-lama').value = '';
+            document.getElementById('admin-input-password-baru').value = '';
+            document.getElementById('admin-input-konfirmasi-password').value = '';
+            document.getElementById('modal-admin-password').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeAdminPasswordModal() {
+            document.getElementById('modal-admin-password').classList.add('hidden');
+        }
+
+        async function saveAdminProfile() {
+            const newName = document.getElementById('admin-profile-name').value.trim();
+            const newEmail = document.getElementById('admin-profile-email').value.trim();
+            const password = document.getElementById('admin-profile-confirm-password').value;
+            const btn = document.getElementById('btn-save-admin-profile');
+            const oriText = btn.innerHTML;
+
+            if(!newName || !newEmail || !password) {
+                showToast("Semua kolom wajib diisi untuk verifikasi!", "warning");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Memproses...';
+            lucide.createIcons();
+
+            try {
+                const currentEmail = sessionStorage.getItem('auth_email');
+                const endpoint = getApiEndpoint();
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(buildAdminAuthPayload({ 
+                        action: 'update_profile', 
+                        email: currentEmail,
+                        new_name: newName,
+                        new_email: newEmail,
+                        password: password
+                    }))
+                });
+                const r = await res.json();
+                
+                if(r.status === 'success') {
+                    showToast("Profil admin berhasil diperbarui!", "success");
+                    
+                    // Update Session Storage
+                    sessionStorage.setItem('auth_name', r.new_name);
+                    sessionStorage.setItem('auth_email', r.new_email);
+                    sessionStorage.setItem('adm_name', r.new_name);
+                    
+                    // Update UI
+                    document.getElementById('admin-name').innerText = r.new_name;
+                    
+                    closeAdminProfileModal();
+                    // Optional: Force reload data/session if email changed significantly
+                } else {
+                    showToast(r.message || "Gagal memperbarui profil admin", "error");
+                }
+            } catch(e) {
+                showToast("Terjadi kesalahan koneksi", "error");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = oriText;
+                lucide.createIcons();
+            }
+        }
+
+        async function prosesGantiAdminPassword() {
+            const passLama = document.getElementById('admin-input-password-lama').value;
+            const passBaru = document.getElementById('admin-input-password-baru').value;
+            const konfirmasi = document.getElementById('admin-input-konfirmasi-password').value;
+            const btn = document.getElementById('btn-save-admin-pass');
+            const oriText = btn.innerHTML;
+
+            if(!passLama || !passBaru || !konfirmasi) {
+                showToast("Semua kolom password wajib diisi!", "warning");
+                return;
+            }
+
+            if(passBaru.length < 6) {
+                showToast("Password minimal 6 karakter!", "warning");
+                return;
+            }
+
+            if(passBaru !== konfirmasi) {
+                showToast("Konfirmasi password baru tidak cocok!", "error");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Memproses...';
+            lucide.createIcons();
+
+            try {
+                const email = sessionStorage.getItem('auth_email');
+                const endpoint = getApiEndpoint();
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(buildAdminAuthPayload({ 
+                        action: 'change_password', 
+                        email: email,
+                        old_password: passLama,
+                        new_password: passBaru
+                    }))
+                });
+                const r = await res.json();
+                
+                if(r.status === 'success') {
+                    showToast("Password berhasil diganti!", "success");
+                    closeAdminPasswordModal();
+                } else {
+                    showToast(r.message || "Gagal mengganti password", "error");
+                }
+            } catch(e) {
+                showToast("Terjadi kesalahan koneksi", "error");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = oriText;
+                lucide.createIcons();
+            }
+        }
     </script>
 </body>
 </html>
