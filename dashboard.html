@@ -318,6 +318,15 @@
                                 <p class="text-xs text-slate-400 font-medium">Statistik pesanan affiliate Anda</p>
                             </div>
                         </div>
+                        <div>
+                            <select id="salesChartFilter" class="glass-input text-xs font-bold text-slate-300 py-2 pl-3 pr-8 rounded-xl cursor-pointer bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)] hover:border-[#B6FF00] transition-colors appearance-none" onchange="applySalesChartFilter()" style="outline: none;">
+                                <option value="1" class="bg-[#0a0a18] text-white">1 Hari</option>
+                                <option value="7" class="bg-[#0a0a18] text-white" selected>7 Hari</option>
+                                <option value="14" class="bg-[#0a0a18] text-white">14 Hari</option>
+                                <option value="30" class="bg-[#0a0a18] text-white">1 Bulan</option>
+                                <option value="all" class="bg-[#0a0a18] text-white">Lifetime</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="glass-card mb-10">
                         <div class="w-full h-[300px] relative">
@@ -1219,8 +1228,32 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             lucide.createIcons();
         }
 
+        let globalPartnersData = [];
+
+        function applySalesChartFilter() {
+            const filterEl = document.getElementById('salesChartFilter');
+            const range = filterEl ? filterEl.value : '7';
+            renderSalesChart(globalPartnersData, range);
+        }
+
+        function parsePartnerDate(dStr) {
+            const parts = dStr.split('/');
+            if(parts.length === 3) {
+                return new Date(parts[2], parts[1]-1, parts[0]);
+            }
+            return new Date(dStr);
+        }
+
+        function formatPartnerDate(dateObj) {
+            const d = String(dateObj.getDate()).padStart(2, '0');
+            const m = String(dateObj.getMonth()+1).padStart(2, '0');
+            const y = dateObj.getFullYear();
+            return `${d}/${m}/${y}`;
+        }
+
         let salesChartInstance = null;
-        function renderSalesChart(partners) {
+        function renderSalesChart(partners, range = '7') {
+            globalPartnersData = partners;
             const ctx = document.getElementById('salesOverviewChart');
             if(!ctx) return;
 
@@ -1228,35 +1261,65 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                 return;
             }
 
-            const dateMap = {};
+            const today = new Date();
+            today.setHours(0,0,0,0);
             
+            let startDate = new Date(today);
+            if(range !== 'all') {
+                const days = parseInt(range);
+                startDate.setDate(today.getDate() - (days - 1));
+            } else {
+                let earliest = today.getTime();
+                partners.forEach(p => {
+                    if(p.date) {
+                        const dStr = String(p.date).split(' ')[0];
+                        const pd = parsePartnerDate(dStr);
+                        if(!isNaN(pd) && pd.getTime() < earliest) earliest = pd.getTime();
+                    }
+                });
+                startDate = new Date(earliest);
+            }
+
+            const dateMap = {};
+            let curr = new Date(startDate);
+            while(curr <= today) {
+                const f = formatPartnerDate(curr);
+                dateMap[f] = { lunasVal: 0, lunasCount: 0, pendingVal: 0, pendingCount: 0, batalVal: 0, batalCount: 0 };
+                curr.setDate(curr.getDate() + 1);
+            }
+
             partners.forEach(p => {
                 if(!p.date) return;
-                let dateStr = String(p.date).split(' ')[0];
-                if(!dateMap[dateStr]) {
-                    dateMap[dateStr] = { lunas: 0, pending: 0, batal: 0 };
+                let dStr = String(p.date).split(' ')[0];
+                const pd = parsePartnerDate(dStr);
+                const mapKey = formatPartnerDate(pd);
+                
+                if(dateMap[mapKey]) {
+                    const stat = String(p.status).toLowerCase();
+                    const comm = Number(p.commission || 0);
+
+                    if(stat === 'lunas') {
+                        dateMap[mapKey].lunasVal += comm;
+                        dateMap[mapKey].lunasCount++;
+                    }
+                    else if(stat === 'pending') {
+                        dateMap[mapKey].pendingVal += comm;
+                        dateMap[mapKey].pendingCount++;
+                    }
+                    else if(stat === 'batal') {
+                        dateMap[mapKey].batalVal += comm;
+                        dateMap[mapKey].batalCount++;
+                    }
                 }
-                const stat = String(p.status).toLowerCase();
-                if(stat === 'lunas') dateMap[dateStr].lunas++;
-                else if(stat === 'pending') dateMap[dateStr].pending++;
-                else if(stat === 'batal') dateMap[dateStr].batal++;
             });
 
-            const sortedDates = Object.keys(dateMap).sort((a, b) => {
-                const partsA = a.split('/');
-                const partsB = b.split('/');
-                if(partsA.length === 3 && partsB.length === 3) {
-                    const da = new Date(partsA[2], partsA[1]-1, partsA[0]);
-                    const db = new Date(partsB[2], partsB[1]-1, partsB[0]);
-                    return da - db;
-                }
-                return new Date(a) - new Date(b);
-            });
-
-            const labels = sortedDates;
-            const dataLunas = labels.map(d => dateMap[d].lunas);
-            const dataPending = labels.map(d => dateMap[d].pending);
-            const dataBatal = labels.map(d => dateMap[d].batal);
+            const labels = Object.keys(dateMap);
+            const dataLunas = labels.map(d => dateMap[d].lunasVal);
+            const countLunas = labels.map(d => dateMap[d].lunasCount);
+            const dataPending = labels.map(d => dateMap[d].pendingVal);
+            const countPending = labels.map(d => dateMap[d].pendingCount);
+            const dataBatal = labels.map(d => dateMap[d].batalVal);
+            const countBatal = labels.map(d => dateMap[d].batalCount);
 
             if(salesChartInstance) {
                 salesChartInstance.destroy();
@@ -1273,6 +1336,7 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                         {
                             label: 'Lunas',
                             data: dataLunas,
+                            orders: countLunas,
                             borderColor: '#B6FF00',
                             backgroundColor: 'rgba(182, 255, 0, 0.1)',
                             borderWidth: 2,
@@ -1289,6 +1353,7 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                         {
                             label: 'Pending',
                             data: dataPending,
+                            orders: countPending,
                             borderColor: '#f59e0b',
                             backgroundColor: 'rgba(245, 158, 11, 0.05)',
                             borderWidth: 2,
@@ -1305,6 +1370,7 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                         {
                             label: 'Batal',
                             data: dataBatal,
+                            orders: countBatal,
                             borderColor: '#ef4444',
                             backgroundColor: 'rgba(239, 68, 68, 0.05)',
                             borderWidth: 2,
@@ -1334,9 +1400,7 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                                 usePointStyle: true,
                                 padding: 20,
                                 boxWidth: 8,
-                                font: {
-                                    weight: '600'
-                                }
+                                font: { weight: '600' }
                             }
                         },
                         tooltip: {
@@ -1351,6 +1415,13 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                             callbacks: {
                                 title: function(context) {
                                     return 'Tanggal: ' + context[0].label;
+                                },
+                                label: function(context) {
+                                    const val = context.raw || 0;
+                                    const ds = context.dataset;
+                                    const count = ds.orders[context.dataIndex];
+                                    let formattedVal = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val);
+                                    return `${ds.label}: ${formattedVal} (${count} Pesanan)`;
                                 }
                             }
                         }
@@ -1359,18 +1430,18 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                         y: {
                             beginAtZero: true,
                             ticks: {
-                                stepSize: 1,
-                                font: {
-                                    size: 11
-                                }
+                                callback: function(value) {
+                                    if(value >= 1000000) return 'Rp' + (value / 1000000) + 'jt';
+                                    if(value >= 1000) return 'Rp' + (value / 1000) + 'k';
+                                    return 'Rp' + value;
+                                },
+                                font: { size: 11 }
                             },
                             grid: {
                                 color: 'rgba(255, 255, 255, 0.03)',
                                 drawBorder: false
                             },
-                            border: {
-                                display: false
-                            }
+                            border: { display: false }
                         },
                         x: {
                             grid: {
@@ -1378,14 +1449,10 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                                 drawBorder: false
                             },
                             ticks: {
-                                font: {
-                                    size: 11
-                                },
+                                font: { size: 11 },
                                 maxTicksLimit: 7
                             },
-                            border: {
-                                display: false
-                            }
+                            border: { display: false }
                         }
                     }
                 }
