@@ -886,13 +886,13 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                             </div>` : ''}
 
                             <div class="flex gap-2 mt-auto">
-                                <a href="akses.html?id=${p.id}" class="flex-1 btn-primary text-xs flex justify-center items-center gap-2 px-3 py-3 whitespace-nowrap min-w-0">
-                                    <span class="truncate block">Akses Produk</span> <i data-lucide="arrow-right" class="w-4 h-4 shrink-0"></i>
+                                <a href="akses.html?id=${p.id}" class="flex-1 btn-primary text-xs flex justify-center items-center gap-1.5 px-3 py-2.5 whitespace-nowrap min-w-0">
+                                    <span class="truncate">Akses Produk</span> <i data-lucide="arrow-right" class="w-3.5 h-3.5 shrink-0"></i>
                                 </a>
-                                <button onclick="copyPromoLink('${p.id}')" class="btn-ghost aspect-square min-w-[40px] p-0 flex items-center justify-center shrink-0" title="Salin Link Affiliate">
+                                <button onclick="copyPromoLink('${p.id}')" class="btn-ghost aspect-square w-9 h-9 p-0 flex items-center justify-center shrink-0" title="Salin Link Affiliate">
                                     <i data-lucide="share-2" class="w-4 h-4 text-slate-300 group-hover:text-white"></i>
                                 </button>
-                                <button onclick="openPixelModal('${p.id}', '${p.title}')" data-pixel-btn="${p.id}" class="btn-ghost aspect-square min-w-[40px] p-0 flex items-center justify-center shrink-0 ${hasPixel ? '!border-[#B6FF00] !text-[#B6FF00]' : ''}" title="Konfigurasi Pixel">
+                                <button onclick="openPixelModal('${p.id}', '${p.title}')" data-pixel-btn="${p.id}" class="btn-ghost aspect-square w-9 h-9 p-0 flex items-center justify-center shrink-0 ${hasPixel ? '!border-[#B6FF00] !text-[#B6FF00]' : ''}" title="Konfigurasi Pixel">
                                     <i data-lucide="target" class="w-4 h-4 text-slate-300 group-hover:text-white"></i>
                                 </button>
                             </div>
@@ -952,13 +952,13 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                             </div>
                             
                             <div class="flex gap-2 mt-auto">
-                                <a href="${targetLink}" class="flex-1 btn-primary text-xs flex justify-center items-center gap-2 px-3 py-3 whitespace-nowrap min-w-0">
-                                    <span class="truncate block">Beli Sekarang</span> <i data-lucide="shopping-cart" class="w-4 h-4 shrink-0"></i>
+                                <a href="${targetLink}" class="flex-1 btn-primary text-xs flex justify-center items-center gap-1.5 px-3 py-2.5 whitespace-nowrap min-w-0">
+                                    <span class="truncate">Beli Sekarang</span> <i data-lucide="shopping-cart" class="w-3.5 h-3.5 shrink-0"></i>
                                 </a>
-                                <button onclick="copyPromoLink('${p.id}')" class="btn-ghost aspect-square min-w-[40px] p-0 flex items-center justify-center shrink-0" title="Salin Link Affiliate">
+                                <button onclick="copyPromoLink('${p.id}')" class="btn-ghost aspect-square w-9 h-9 p-0 flex items-center justify-center shrink-0" title="Salin Link Affiliate">
                                     <i data-lucide="share-2" class="w-4 h-4 text-slate-300 group-hover:text-white"></i>
                                 </button>
-                                <button onclick="openPixelModal('${p.id}', '${p.title}')" data-pixel-btn="${p.id}" class="btn-ghost aspect-square min-w-[40px] p-0 flex items-center justify-center shrink-0 ${hasPixel ? '!border-[#B6FF00] !text-[#B6FF00]' : ''}" title="Konfigurasi Pixel">
+                                <button onclick="openPixelModal('${p.id}', '${p.title}')" data-pixel-btn="${p.id}" class="btn-ghost aspect-square w-9 h-9 p-0 flex items-center justify-center shrink-0 ${hasPixel ? '!border-[#B6FF00] !text-[#B6FF00]' : ''}" title="Konfigurasi Pixel">
                                     <i data-lucide="target" class="w-4 h-4 text-slate-300 group-hover:text-white"></i>
                                 </button>
                             </div>
@@ -984,7 +984,7 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                     const uniqueProducts = [];
                     const seenProducts = new Set();
                     for(const p of allProducts) {
-                        if(!seenProducts.has(p.id) && !p.hidden) {
+                        if(!seenProducts.has(p.id) && p.active !== false) {
                             seenProducts.add(p.id);
                             uniqueProducts.push(p);
                         }
