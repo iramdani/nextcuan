@@ -92,6 +92,7 @@
     <link rel="stylesheet" href="tailwind.css?v=2026_1">
     <link rel="stylesheet" href="assets/theme.css?v=2026_1">
     <script defer src="assets/vendor/lucide.min.js?v=0.577.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; }
@@ -301,6 +302,26 @@
                                     <p class="text-center text-[10px] text-slate-500 mt-4">Minimal penarikan Rp 50.000 via WhatsApp Admin</p>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SALES OVERVIEW CHART -->
+                <section>
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-[rgba(182,255,0,0.1)] rounded-xl flex items-center justify-center border border-[rgba(182,255,0,0.2)]">
+                                <i data-lucide="line-chart" class="w-5 h-5 text-[#B6FF00]"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-bold text-white">Sales Overview</h2>
+                                <p class="text-xs text-slate-400 font-medium">Statistik pesanan affiliate Anda</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glass-card mb-10">
+                        <div class="w-full h-[300px] relative">
+                            <canvas id="salesOverviewChart"></canvas>
                         </div>
                     </div>
                 </section>
@@ -813,7 +834,10 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             }
 
             if (r.my_pages) renderMyPages(r.my_pages);
-            if (r.partners) renderPartners(r.partners);
+            if (r.partners) {
+                renderPartners(r.partners);
+                renderSalesChart(r.partners);
+            }
             if (r.total_komisi !== undefined) {
                 document.getElementById('display-saldo-komisi').innerText = 'Rp ' + Number(r.total_komisi).toLocaleString('id-ID');
             }
@@ -1193,6 +1217,179 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             }).join('');
             
             lucide.createIcons();
+        }
+
+        let salesChartInstance = null;
+        function renderSalesChart(partners) {
+            const ctx = document.getElementById('salesOverviewChart');
+            if(!ctx) return;
+
+            if(!partners || partners.length === 0) {
+                return;
+            }
+
+            const dateMap = {};
+            
+            partners.forEach(p => {
+                if(!p.date) return;
+                let dateStr = String(p.date).split(' ')[0];
+                if(!dateMap[dateStr]) {
+                    dateMap[dateStr] = { lunas: 0, pending: 0, batal: 0 };
+                }
+                const stat = String(p.status).toLowerCase();
+                if(stat === 'lunas') dateMap[dateStr].lunas++;
+                else if(stat === 'pending') dateMap[dateStr].pending++;
+                else if(stat === 'batal') dateMap[dateStr].batal++;
+            });
+
+            const sortedDates = Object.keys(dateMap).sort((a, b) => {
+                const partsA = a.split('/');
+                const partsB = b.split('/');
+                if(partsA.length === 3 && partsB.length === 3) {
+                    const da = new Date(partsA[2], partsA[1]-1, partsA[0]);
+                    const db = new Date(partsB[2], partsB[1]-1, partsB[0]);
+                    return da - db;
+                }
+                return new Date(a) - new Date(b);
+            });
+
+            const labels = sortedDates;
+            const dataLunas = labels.map(d => dateMap[d].lunas);
+            const dataPending = labels.map(d => dateMap[d].pending);
+            const dataBatal = labels.map(d => dateMap[d].batal);
+
+            if(salesChartInstance) {
+                salesChartInstance.destroy();
+            }
+
+            Chart.defaults.color = '#94a3b8';
+            Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+
+            salesChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Lunas',
+                            data: dataLunas,
+                            borderColor: '#B6FF00',
+                            backgroundColor: 'rgba(182, 255, 0, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: '#0a0a18',
+                            pointBorderColor: '#B6FF00',
+                            pointHoverBackgroundColor: '#B6FF00',
+                            pointHoverBorderColor: '#fff',
+                            pointHoverBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: 'Pending',
+                            data: dataPending,
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'rgba(245, 158, 11, 0.05)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: '#0a0a18',
+                            pointBorderColor: '#f59e0b',
+                            pointHoverBackgroundColor: '#f59e0b',
+                            pointHoverBorderColor: '#fff',
+                            pointHoverBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: 'Batal',
+                            data: dataBatal,
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.05)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: '#0a0a18',
+                            pointBorderColor: '#ef4444',
+                            pointHoverBackgroundColor: '#ef4444',
+                            pointHoverBorderColor: '#fff',
+                            pointHoverBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20,
+                                boxWidth: 8,
+                                font: {
+                                    weight: '600'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(10, 10, 24, 0.95)',
+                            titleColor: '#fff',
+                            bodyColor: '#cbd5e1',
+                            borderColor: 'rgba(255,255,255,0.1)',
+                            borderWidth: 1,
+                            padding: 12,
+                            boxPadding: 6,
+                            usePointStyle: true,
+                            callbacks: {
+                                title: function(context) {
+                                    return 'Tanggal: ' + context[0].label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1,
+                                font: {
+                                    size: 11
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.03)',
+                                drawBorder: false
+                            },
+                            border: {
+                                display: false
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false,
+                                drawBorder: false
+                            },
+                            ticks: {
+                                font: {
+                                    size: 11
+                                },
+                                maxTicksLimit: 7
+                            },
+                            border: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
         }
 
         function logout() {
