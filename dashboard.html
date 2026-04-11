@@ -319,16 +319,16 @@
                             </div>
                         </div>
                         <div>
-                            <select id="salesChartFilter" class="glass-input text-xs font-bold text-slate-300 py-2 pl-3 pr-8 rounded-xl cursor-pointer bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)] hover:border-[#B6FF00] transition-colors appearance-none" onchange="applySalesChartFilter()" style="outline: none;">
-                                <option value="1" class="bg-[#0a0a18] text-white">1 Hari</option>
-                                <option value="7" class="bg-[#0a0a18] text-white" selected>7 Hari</option>
-                                <option value="14" class="bg-[#0a0a18] text-white">14 Hari</option>
-                                <option value="30" class="bg-[#0a0a18] text-white">1 Bulan</option>
-                                <option value="all" class="bg-[#0a0a18] text-white">Lifetime</option>
+                            <select id="salesChartFilter" class="glass-input text-xs font-bold text-slate-300 py-2 pl-3 pr-8 rounded-xl cursor-pointer hover:border-[#B6FF00] transition-colors appearance-none" onchange="applySalesChartFilter()" style="outline: none; background-color: #0a0a18; border: 1px solid rgba(255,255,255,0.1);">
+                                <option value="1" style="background-color: #0a0a18; color: #ffffff;">1 Hari</option>
+                                <option value="7" style="background-color: #0a0a18; color: #ffffff;" selected>7 Hari</option>
+                                <option value="14" style="background-color: #0a0a18; color: #ffffff;">14 Hari</option>
+                                <option value="30" style="background-color: #0a0a18; color: #ffffff;">1 Bulan</option>
+                                <option value="all" style="background-color: #0a0a18; color: #ffffff;">Lifetime</option>
                             </select>
                         </div>
                     </div>
-                    <div class="glass-card mb-10">
+                    <div class="glass-card mb-10 p-4 sm:p-6" style="padding-top: 2rem;">
                         <div class="w-full h-[300px] relative">
                             <canvas id="salesOverviewChart"></canvas>
                         </div>
@@ -1389,6 +1389,14 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    layout: {
+                        padding: {
+                            top: 10,
+                            right: 20,
+                            bottom: 10,
+                            left: 10
+                        }
+                    },
                     interaction: {
                         mode: 'index',
                         intersect: false,
