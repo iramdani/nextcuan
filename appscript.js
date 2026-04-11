@@ -2159,12 +2159,21 @@ function getProducts(d, cfg, cachedOrders) {
       if (!targetMode && String(r[9]) === uId) {
         if (String(r[7]) === "Lunas") totalKomisi += Number(r[10] || 0);
 
+        let dtStr = "-";
+        if (r[8]) {
+          try {
+            dtStr = Utilities.formatDate(new Date(r[8]), Session.getScriptTimeZone(), "dd/MM/yyyy HH:mm");
+          } catch(e) {
+            dtStr = String(r[8]).substring(0, 10);
+          }
+        }
+
         partners.push({
           invoice: r[0],
           name: r[2],
           product: r[5],
           status: r[7],
-          date: r[8] ? String(r[8]).substring(0, 10) : "-",
+          date: dtStr,
           commission: r[10] || 0
         });
       }
