@@ -854,6 +854,7 @@
                                 <thead class="bg-[rgba(255,255,255,0.05)] text-slate-400 text-xs font-semibold uppercase tracking-wider border-b border-[rgba(255,255,255,0.1)]">
                                     <tr>
                                         <th class="px-8 py-5">Invoice</th>
+                                        <th class="px-8 py-5">Tanggal</th>
                                         <th class="px-8 py-5">Customer</th>
                                         <th class="px-8 py-5">Produk</th>
                                         <th class="px-8 py-5">Status</th>
@@ -2148,6 +2149,9 @@
                 return `
                 <tr class="hover:bg-[rgba(255,255,255,0.05)] transition-colors border-b border-[rgba(255,255,255,0.05)] last:border-0">
                     <td class="px-8 py-5 font-mono font-bold text-[#B6FF00] text-xs" data-label="Invoice">${inv}</td>
+                    <td class="px-6 py-5 text-slate-400 text-xs font-medium" data-label="Tanggal">
+                        ${o[8] ? new Date(o[8]).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }) : '-'}
+                    </td>
                     <td class="px-8 py-5" data-label="Customer">
                         <div class="flex flex-col">
                             <p class="font-bold text-white text-sm">${name}</p>
@@ -3393,13 +3397,12 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             for(let i = daysToLookBack - 1; i >= 0; i--) {
                 const d = new Date(now);
                 d.setDate(d.getDate() - i);
-                const dateStr = d.toISOString().split('T')[0];
+                // Fix UTC Shift: Use local year, month, date
+                const dateStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
                 dateMap[dateStr] = { revenue: 0, count: 0 };
             }
 
-            // Aggregate Orders (Assuming format: r[7] = Status, r[6] = Total Value, r[8] = Date)
-            // Wait, looking at the backend code: r[7] is Status ('Lunas'), r[6] is Total Value, r[8] is Date
-            // In get_admin_orders endpoint: r is returned as is
+            // Aggregate Orders
             cachedAdminOrdersForChart.forEach(order => {
                 if(order[7] !== 'Lunas') return;
                 
@@ -3407,7 +3410,8 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                 let dateObj = new Date(rawDate);
                 if(isNaN(dateObj.getTime())) return;
                 
-                let isoDate = dateObj.toISOString().split('T')[0];
+                // Fix UTC Shift: Use local year, month, date
+                let isoDate = dateObj.getFullYear() + '-' + String(dateObj.getMonth() + 1).padStart(2, '0') + '-' + String(dateObj.getDate()).padStart(2, '0');
                 let rev = parseFloat(order[6]) || 0;
 
                 if(dateMap[isoDate] !== undefined) {
