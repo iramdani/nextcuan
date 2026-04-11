@@ -857,6 +857,7 @@
                                         <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-[rgba(255,255,255,0.05)]">Tanggal</th>
                                         <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-[rgba(255,255,255,0.05)]">Customer</th>
                                         <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-[rgba(255,255,255,0.05)]">Produk</th>
+                                        <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-[rgba(255,255,255,0.05)]">Total</th>
                                         <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-[rgba(255,255,255,0.05)]">Status</th>
                                         <th class="px-6 py-4 text-right text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-[rgba(255,255,255,0.05)]">Aksi</th>
                                     </tr>
@@ -2150,7 +2151,7 @@
                 <tr class="hover:bg-[rgba(255,255,255,0.02)] transition-colors border-b border-[rgba(255,255,255,0.05)] last:border-0 group">
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-mono font-bold text-[#B6FF00]" data-label="Invoice">${inv}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-400" data-label="Tanggal">
-                        <div>${o[8] ? new Date(o[8]).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }) : '-'}</div>
+                        <div>${o[8] ? new Date(o[8]).toLocaleDateString('id-ID') : '-'}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-white" data-label="Pelanggan">
                         <div class="flex flex-col">
@@ -2159,6 +2160,9 @@
                         </div>
                     </td>
                     <td class="px-6 py-4 text-sm text-slate-300 md:whitespace-nowrap" data-label="Produk"><div class="whitespace-normal break-words leading-relaxed">${pname}</div></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white font-mono font-bold" data-label="Total">
+                        <div>Rp ${Number(o[6] || 0).toLocaleString('id-ID')}</div>
+                    </td>
                     <td class="px-6 py-4 whitespace-nowrap" data-label="Status">
                         <div>
                         <span class="inline-block px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider border" style="background-color: ${bgColor}; color: ${textColor}; border-color: ${borderColor};">
