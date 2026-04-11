@@ -328,9 +328,45 @@
                             </select>
                         </div>
                     </div>
-                    <div class="glass-card mb-10 p-4 sm:p-5 sm:pb-3">
-                        <div class="w-full h-[260px] relative">
-                            <canvas id="salesOverviewChart"></canvas>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-10">
+                        <!-- Chart Section -->
+                        <div class="glass-card lg:col-span-2 p-4 sm:p-5 sm:pb-3 flex flex-col h-full fade-in-up">
+                            <div class="w-full h-[260px] sm:h-[300px] lg:h-[260px] relative flex-1">
+                                <canvas id="salesOverviewChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <!-- Summary Cards Section -->
+                        <div class="flex flex-col gap-4 sm:gap-6 h-full lg:col-span-1 fade-in-up" style="animation-delay: 0.1s">
+                            <!-- Card 1: Total Revenue -->
+                            <div class="glass-card p-6 flex-1 flex flex-col justify-center relative overflow-hidden group">
+                                <div class="absolute right-0 top-0 w-32 h-32 bg-[rgba(1,122,107,0.05)] rounded-bl-[100px] pointer-events-none transition-transform group-hover:scale-110"></div>
+                                <div class="flex items-center gap-4 mb-3">
+                                    <div class="w-12 h-12 bg-[rgba(1,122,107,0.2)] text-[#017A6B] rounded-2xl flex items-center justify-center shrink-0 border border-[#017A6B]/30 shadow-lg shadow-[#017A6B]/10 group-hover:scale-105 transition-transform">
+                                        <i data-lucide="wallet" class="w-6 h-6"></i>
+                                    </div>
+                                    <div class="z-10 relative">
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Total Pendapatan</p>
+                                        <p class="text-[10px] text-slate-500 font-medium" id="chart-summary-date-revenue">7 Hari Terakhir</p>
+                                    </div>
+                                </div>
+                                <h3 id="chart-summary-revenue" class="text-2xl sm:text-3xl font-bold tracking-tight text-white mt-1 z-10 relative">Rp 0</h3>
+                            </div>
+                            
+                            <!-- Card 2: Total Orders -->
+                            <div class="glass-card p-6 flex-1 flex flex-col justify-center relative overflow-hidden group">
+                                <div class="absolute right-0 top-0 w-32 h-32 bg-[rgba(182,255,0,0.05)] rounded-bl-[100px] pointer-events-none transition-transform group-hover:scale-110"></div>
+                                <div class="flex items-center gap-4 mb-3">
+                                    <div class="w-12 h-12 bg-[rgba(182,255,0,0.1)] text-[#B6FF00] rounded-2xl flex items-center justify-center shrink-0 border border-[rgba(182,255,0,0.2)] shadow-lg shadow-[#B6FF00]/10 group-hover:scale-105 transition-transform">
+                                        <i data-lucide="shopping-bag" class="w-6 h-6"></i>
+                                    </div>
+                                    <div class="z-10 relative">
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Total Pesanan</p>
+                                        <p class="text-[10px] text-slate-500 font-medium" id="chart-summary-date-orders">7 Hari Terakhir</p>
+                                    </div>
+                                </div>
+                                <h3 id="chart-summary-orders" class="text-2xl sm:text-3xl font-bold tracking-tight text-white mt-1 z-10 relative">0 <span class="text-xs font-normal text-slate-400 tracking-normal">pesanan</span></h3>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -1332,12 +1368,36 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             });
 
             const labels = Object.keys(dateMap);
-            const dataLunas = labels.map(d => dateMap[d].lunasVal);
+            let totalRevenue = 0;
+            let totalOrders = 0;
+
+            const dataLunas = labels.map(d => {
+                totalRevenue += dateMap[d].lunasVal;
+                totalOrders += dateMap[d].lunasCount + dateMap[d].pendingCount + dateMap[d].batalCount;
+                return dateMap[d].lunasVal;
+            });
             const countLunas = labels.map(d => dateMap[d].lunasCount);
             const dataPending = labels.map(d => dateMap[d].pendingVal);
             const countPending = labels.map(d => dateMap[d].pendingCount);
             const dataBatal = labels.map(d => dateMap[d].batalVal);
             const countBatal = labels.map(d => dateMap[d].batalCount);
+
+            const revEl = document.getElementById('chart-summary-revenue');
+            const ordEl = document.getElementById('chart-summary-orders');
+            const revDateEl = document.getElementById('chart-summary-date-revenue');
+            const ordDateEl = document.getElementById('chart-summary-date-orders');
+
+            let rangeText = "";
+            if (range === '1') rangeText = "Hari Ini";
+            else if (range === '7') rangeText = "7 Hari Terakhir";
+            else if (range === '14') rangeText = "14 Hari Terakhir";
+            else if (range === '30') rangeText = "1 Bulan Terakhir";
+            else if (range === 'all') rangeText = "Semua Waktu";
+
+            if (revEl) revEl.innerText = `Rp ${totalRevenue.toLocaleString('id-ID')}`;
+            if (ordEl) ordEl.innerHTML = `${totalOrders.toLocaleString('id-ID')} <span class="text-xs font-normal text-slate-400 tracking-normal">pesanan</span>`;
+            if (revDateEl) revDateEl.innerText = rangeText;
+            if (ordDateEl) ordDateEl.innerText = rangeText;
 
             if(salesChartInstance) {
                 salesChartInstance.destroy();
