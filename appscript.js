@@ -2205,7 +2205,8 @@ function getProducts(d, cfg, cachedOrders) {
         category: rules[i][12] || "",
         rekomendasi: rules[i][13] === true || String(rules[i][13]).toUpperCase() === "TRUE",
         harga_coret: Number(rules[i][14] || 0) || 0,
-        hidden: isHidden
+        hidden: isHidden,
+        active: isActive
       });
       continue; // don't add to available if already owned
     }
@@ -2226,7 +2227,8 @@ function getProducts(d, cfg, cachedOrders) {
       category: rules[i][12] || "",
       rekomendasi: rules[i][13] === true || String(rules[i][13]).toUpperCase() === "TRUE",
       harga_coret: Number(rules[i][14] || 0) || 0,
-      hidden: isHidden
+      hidden: isHidden,
+      active: isActive
     };
 
     if (targetMode) {
