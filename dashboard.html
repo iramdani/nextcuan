@@ -328,44 +328,44 @@
                             </select>
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-10">
-                        <!-- Chart Section -->
-                        <div class="glass-card lg:col-span-2 p-4 sm:p-5 sm:pb-3 flex flex-col h-full fade-in-up">
-                            <div class="w-full h-[260px] sm:h-[300px] lg:h-[260px] relative flex-1">
-                                <canvas id="salesOverviewChart"></canvas>
-                            </div>
-                        </div>
-                        
-                        <!-- Summary Cards Section -->
-                        <div class="flex flex-col gap-4 sm:gap-6 h-full lg:col-span-1 fade-in-up" style="animation-delay: 0.1s">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-10 w-full min-w-0">
+                        <!-- Summary Cards Section (Mobile: Top & Grid, Desktop: Right & Column) -->
+                        <div class="grid grid-cols-2 lg:flex lg:flex-col gap-3 sm:gap-4 lg:gap-6 h-full lg:col-span-1 fade-in-up order-1 lg:order-2" style="animation-delay: 0.1s">
                             <!-- Card 1: Total Revenue -->
-                            <div class="glass-card p-6 flex-1 flex flex-col justify-center relative overflow-hidden group">
-                                <div class="absolute right-0 top-0 w-32 h-32 bg-[rgba(1,122,107,0.05)] rounded-bl-[100px] pointer-events-none transition-transform group-hover:scale-110"></div>
-                                <div class="flex items-center gap-4 mb-3">
-                                    <div class="w-12 h-12 bg-[rgba(1,122,107,0.2)] text-[#017A6B] rounded-2xl flex items-center justify-center shrink-0 border border-[#017A6B]/30 shadow-lg shadow-[#017A6B]/10 group-hover:scale-105 transition-transform">
-                                        <i data-lucide="wallet" class="w-6 h-6"></i>
+                            <div class="glass-card flex-1 flex flex-col justify-center relative overflow-hidden group p-4 sm:p-6 lg:p-6">
+                                <div class="absolute right-0 top-0 w-24 h-24 sm:w-32 sm:h-32 bg-[rgba(1,122,107,0.05)] rounded-bl-[100px] pointer-events-none transition-transform group-hover:scale-110"></div>
+                                <div class="flex items-center gap-2 sm:gap-4 mb-2 sm:mb-3">
+                                    <div class="w-8 h-8 sm:w-12 sm:h-12 bg-[rgba(1,122,107,0.2)] text-[#017A6B] rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0 border border-[#017A6B]/30 shadow-lg shadow-[#017A6B]/10 group-hover:scale-105 transition-transform">
+                                        <i data-lucide="wallet" class="w-4 h-4 sm:w-6 sm:h-6"></i>
                                     </div>
                                     <div class="z-10 relative">
-                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Total Pendapatan</p>
-                                        <p class="text-[10px] text-slate-500 font-medium" id="chart-summary-date-revenue">7 Hari Terakhir</p>
+                                        <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-tight mb-0.5">Pendapatan</p>
+                                        <p class="text-[8px] sm:text-[10px] text-slate-500 font-medium leading-tight" id="chart-summary-date-revenue">7 Hari</p>
                                     </div>
                                 </div>
-                                <h3 id="chart-summary-revenue" class="text-2xl sm:text-3xl font-bold tracking-tight text-white mt-1 z-10 relative">Rp 0</h3>
+                                <h3 id="chart-summary-revenue" class="text-base sm:text-2xl lg:text-3xl font-bold tracking-tight text-white mt-1 z-10 relative truncate">Rp 0</h3>
                             </div>
                             
                             <!-- Card 2: Total Orders -->
-                            <div class="glass-card p-6 flex-1 flex flex-col justify-center relative overflow-hidden group">
-                                <div class="absolute right-0 top-0 w-32 h-32 bg-[rgba(182,255,0,0.05)] rounded-bl-[100px] pointer-events-none transition-transform group-hover:scale-110"></div>
-                                <div class="flex items-center gap-4 mb-3">
-                                    <div class="w-12 h-12 bg-[rgba(182,255,0,0.1)] text-[#B6FF00] rounded-2xl flex items-center justify-center shrink-0 border border-[rgba(182,255,0,0.2)] shadow-lg shadow-[#B6FF00]/10 group-hover:scale-105 transition-transform">
-                                        <i data-lucide="shopping-bag" class="w-6 h-6"></i>
+                            <div class="glass-card flex-1 flex flex-col justify-center relative overflow-hidden group p-4 sm:p-6 lg:p-6">
+                                <div class="absolute right-0 top-0 w-24 h-24 sm:w-32 sm:h-32 bg-[rgba(182,255,0,0.05)] rounded-bl-[100px] pointer-events-none transition-transform group-hover:scale-110"></div>
+                                <div class="flex items-center gap-2 sm:gap-4 mb-2 sm:mb-3">
+                                    <div class="w-8 h-8 sm:w-12 sm:h-12 bg-[rgba(182,255,0,0.1)] text-[#B6FF00] rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0 border border-[rgba(182,255,0,0.2)] shadow-lg shadow-[#B6FF00]/10 group-hover:scale-105 transition-transform">
+                                        <i data-lucide="shopping-bag" class="w-4 h-4 sm:w-6 sm:h-6"></i>
                                     </div>
                                     <div class="z-10 relative">
-                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Total Pesanan</p>
-                                        <p class="text-[10px] text-slate-500 font-medium" id="chart-summary-date-orders">7 Hari Terakhir</p>
+                                        <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-tight mb-0.5">Pesanan</p>
+                                        <p class="text-[8px] sm:text-[10px] text-slate-500 font-medium leading-tight" id="chart-summary-date-orders">7 Hari</p>
                                     </div>
                                 </div>
-                                <h3 id="chart-summary-orders" class="text-2xl sm:text-3xl font-bold tracking-tight text-white mt-1 z-10 relative">0 <span class="text-xs font-normal text-slate-400 tracking-normal">pesanan</span></h3>
+                                <h3 id="chart-summary-orders" class="text-base sm:text-2xl lg:text-3xl font-bold tracking-tight text-white mt-1 z-10 relative">0 <span class="text-[9px] sm:text-xs font-normal text-slate-400 tracking-normal ml-0.5">pesanan</span></h3>
+                            </div>
+                        </div>
+
+                        <!-- Chart Section (Mobile: Bottom, Desktop: Left) -->
+                        <div class="glass-card lg:col-span-2 p-4 sm:p-5 sm:pb-3 flex flex-col h-full fade-in-up order-2 lg:order-1 min-w-0">
+                            <div class="w-full h-[220px] sm:h-[300px] lg:h-[260px] relative flex-1 min-w-0">
+                                <canvas id="salesOverviewChart"></canvas>
                             </div>
                         </div>
                     </div>
