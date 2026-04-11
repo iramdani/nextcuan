@@ -270,13 +270,13 @@
                                 <h2 class="text-3xl md:text-4xl font-bold tracking-tight mb-4 leading-tight text-white">Sebarkan & <br/><span class="text-[#B6FF00]">Hasilkan Cuan!</span></h2>
                                 <p class="text-slate-400 text-sm mb-8 max-w-md leading-relaxed">Dapatkan komisi menarik dari setiap penjualan produk melalui link referensi unik Anda.</p>
                                 
-                                <div class="flex flex-col sm:flex-row gap-3">
-                                    <div class="flex-1 glass-input px-5 py-3 rounded-xl flex items-center gap-3 backdrop-blur-sm group cursor-pointer hover:border-[#B6FF00] transition-all" onclick="copyAffLink()">
-                                        <i data-lucide="link" class="w-4 h-4 text-[#B6FF00] group-hover:text-white transition-colors"></i>
-                                        <code id="aff-link-display" class="text-xs font-mono text-slate-300 whitespace-nowrap overflow-hidden text-ellipsis">Memuat link...</code>
-                                        <i data-lucide="copy" class="w-4 h-4 text-slate-500 ml-auto group-hover:text-white transition-colors"></i>
+                                <div class="flex flex-col xl:flex-row gap-3 w-full">
+                                    <div class="flex-1 glass-input px-5 py-3 rounded-xl flex items-center gap-3 backdrop-blur-sm group cursor-pointer hover:border-[#B6FF00] transition-all min-w-0" onclick="copyAffLink()">
+                                        <i data-lucide="link" class="w-4 h-4 text-[#B6FF00] group-hover:text-white transition-colors shrink-0"></i>
+                                        <code id="aff-link-display" class="text-xs font-mono text-slate-300 whitespace-nowrap overflow-hidden text-ellipsis block min-w-0 w-full">Memuat link...</code>
+                                        <i data-lucide="copy" class="w-4 h-4 text-slate-500 ml-auto group-hover:text-white transition-colors shrink-0"></i>
                                     </div>
-                                    <button onclick="copyAffLink()" class="btn-primary px-6 py-3 text-xs uppercase tracking-wide whitespace-nowrap">
+                                    <button onclick="copyAffLink()" class="btn-primary px-6 py-3 text-xs uppercase tracking-wide whitespace-nowrap shrink-0">
                                         Salin Link
                                     </button>
                                 </div>
@@ -296,10 +296,10 @@
                                             <i data-lucide="wallet" class="w-6 h-6"></i>
                                         </div>
                                     </div>
-                                    <button onclick="requestWithdrawal()" class="w-full btn-primary px-6 py-4 rounded-xl font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 group">
-                                        Ajukan Penarikan <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                                    <button onclick="requestWithdrawal()" class="w-full btn-primary px-6 py-4 rounded-xl font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 group whitespace-nowrap">
+                                        Ajukan Penarikan <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform shrink-0"></i>
                                     </button>
-                                    <p class="text-center text-[10px] text-slate-500 mt-4">Minimal penarikan Rp 50.000 via WhatsApp Admin</p>
+                                    <p class="text-center text-[10px] text-slate-500 mt-4 leading-snug">Minimal penarikan Rp 50.000 via WhatsApp Admin</p>
                                 </div>
                             </div>
                         </div>
@@ -328,8 +328,8 @@
                             </select>
                         </div>
                     </div>
-                    <div class="glass-card mb-10 p-4 sm:p-6" style="padding-top: 2rem;">
-                        <div class="w-full h-[300px] relative">
+                    <div class="glass-card mb-10 p-5">
+                        <div class="w-full h-[320px] relative">
                             <canvas id="salesOverviewChart"></canvas>
                         </div>
                     </div>
