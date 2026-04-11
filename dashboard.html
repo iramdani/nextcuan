@@ -328,8 +328,8 @@
                             </select>
                         </div>
                     </div>
-                    <div class="glass-card mb-10 p-4 sm:p-5">
-                        <div class="w-full h-[400px] relative">
+                    <div class="glass-card mb-10 p-4 sm:p-5 sm:pb-3">
+                        <div class="w-full h-[260px] relative">
                             <canvas id="salesOverviewChart"></canvas>
                         </div>
                     </div>
@@ -886,14 +886,14 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                             </div>` : ''}
 
                             <div class="flex gap-2 mt-auto">
-                                <a href="akses.html?id=${p.id}" class="flex-1 btn-primary text-xs flex justify-center items-center gap-2 px-3 sm:px-4 py-3 whitespace-nowrap overflow-hidden">
-                                    <span class="truncate">Akses Produk</span> <i data-lucide="arrow-right" class="w-4 h-4 shrink-0"></i>
+                                <a href="akses.html?id=${p.id}" class="flex-1 btn-primary text-xs flex justify-center items-center gap-2 px-3 py-3 whitespace-nowrap min-w-0">
+                                    <span class="truncate block">Akses Produk</span> <i data-lucide="arrow-right" class="w-4 h-4 shrink-0"></i>
                                 </a>
-                                <button onclick="copyPromoLink('${p.id}')" class="btn-ghost w-10 h-10 p-0 flex items-center justify-center shrink-0" title="Salin Link Affiliate">
-                                    <i data-lucide="share-2" class="w-4 h-4"></i>
+                                <button onclick="copyPromoLink('${p.id}')" class="btn-ghost aspect-square min-w-[40px] p-0 flex items-center justify-center shrink-0" title="Salin Link Affiliate">
+                                    <i data-lucide="share-2" class="w-4 h-4 text-slate-300 group-hover:text-white"></i>
                                 </button>
-                                <button onclick="openPixelModal('${p.id}', '${p.title}')" data-pixel-btn="${p.id}" class="btn-ghost w-10 h-10 p-0 flex items-center justify-center shrink-0 ${hasPixel ? '!border-[#B6FF00] !text-[#B6FF00]' : ''}" title="Konfigurasi Pixel">
-                                    <i data-lucide="target" class="w-4 h-4"></i>
+                                <button onclick="openPixelModal('${p.id}', '${p.title}')" data-pixel-btn="${p.id}" class="btn-ghost aspect-square min-w-[40px] p-0 flex items-center justify-center shrink-0 ${hasPixel ? '!border-[#B6FF00] !text-[#B6FF00]' : ''}" title="Konfigurasi Pixel">
+                                    <i data-lucide="target" class="w-4 h-4 text-slate-300 group-hover:text-white"></i>
                                 </button>
                             </div>
                         </div>
@@ -952,14 +952,14 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                             </div>
                             
                             <div class="flex gap-2 mt-auto">
-                                <a href="${targetLink}" class="flex-1 btn-primary text-xs flex justify-center items-center gap-2 px-3 sm:px-4 py-3 whitespace-nowrap overflow-hidden">
-                                    <span class="truncate">Beli Sekarang</span> <i data-lucide="shopping-cart" class="w-4 h-4 shrink-0"></i>
+                                <a href="${targetLink}" class="flex-1 btn-primary text-xs flex justify-center items-center gap-2 px-3 py-3 whitespace-nowrap min-w-0">
+                                    <span class="truncate block">Beli Sekarang</span> <i data-lucide="shopping-cart" class="w-4 h-4 shrink-0"></i>
                                 </a>
-                                <button onclick="copyPromoLink('${p.id}')" class="btn-ghost w-10 h-10 p-0 flex items-center justify-center shrink-0" title="Salin Link Affiliate">
-                                    <i data-lucide="share-2" class="w-4 h-4"></i>
+                                <button onclick="copyPromoLink('${p.id}')" class="btn-ghost aspect-square min-w-[40px] p-0 flex items-center justify-center shrink-0" title="Salin Link Affiliate">
+                                    <i data-lucide="share-2" class="w-4 h-4 text-slate-300 group-hover:text-white"></i>
                                 </button>
-                                <button onclick="openPixelModal('${p.id}', '${p.title}')" data-pixel-btn="${p.id}" class="btn-ghost w-10 h-10 p-0 flex items-center justify-center shrink-0 ${hasPixel ? '!border-[#B6FF00] !text-[#B6FF00]' : ''}" title="Konfigurasi Pixel">
-                                    <i data-lucide="target" class="w-4 h-4"></i>
+                                <button onclick="openPixelModal('${p.id}', '${p.title}')" data-pixel-btn="${p.id}" class="btn-ghost aspect-square min-w-[40px] p-0 flex items-center justify-center shrink-0 ${hasPixel ? '!border-[#B6FF00] !text-[#B6FF00]' : ''}" title="Konfigurasi Pixel">
+                                    <i data-lucide="target" class="w-4 h-4 text-slate-300 group-hover:text-white"></i>
                                 </button>
                             </div>
                         </div>
@@ -975,10 +975,22 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                     let baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
                     if(baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
 
-                    // Use the same available products list for affiliate links
-                    // Note: r.available is reversed above, but here we can use original order or reversed.
-                    // Let's use the same list to be consistent.
-                    affiliateContainer.innerHTML = r.available.map(p => {
+                    // Combine unpurchased and purchased products for links
+                    let allProducts = [];
+                    if (r.owned) allProducts.push(...r.owned);
+                    if (r.available) allProducts.push(...r.available);
+                    
+                    // Filter duplicates based on ID
+                    const uniqueProducts = [];
+                    const seenProducts = new Set();
+                    for(const p of allProducts) {
+                        if(!seenProducts.has(p.id) && !p.hidden) {
+                            seenProducts.add(p.id);
+                            uniqueProducts.push(p);
+                        }
+                    }
+
+                    affiliateContainer.innerHTML = uniqueProducts.map(p => {
                         let targetUrl = p.lp_url;
                         if (!targetUrl) {
                             targetUrl = `${baseUrl}/checkout.html?id=${p.id}`;
@@ -1397,10 +1409,10 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                     maintainAspectRatio: false,
                     layout: {
                         padding: {
-                            top: 10,
-                            right: 20,
-                            bottom: 10,
-                            left: 10
+                            top: 5,
+                            bottom: 5,
+                            left: 0,
+                            right: 15
                         }
                     },
                     interaction: {
