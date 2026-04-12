@@ -859,6 +859,7 @@
                         </div>
                         <div>
                             <select id="sales-chart-filter" class="glass-input text-xs font-bold text-slate-300 py-2 pl-4 pr-8 rounded-xl cursor-pointer hover:border-[#B6FF00] transition-colors appearance-none" onchange="renderSalesChart(this.value)" style="outline: none; background-color: #0a0a18; border: 1px solid rgba(255,255,255,0.1);">
+                                <option value="1" style="background-color: #0a0a18; color: #ffffff;">Hari Ini</option>
                                 <option value="7" style="background-color: #0a0a18; color: #ffffff;" selected>7 Hari Terakhir</option>
                                 <option value="14" style="background-color: #0a0a18; color: #ffffff;">14 Hari Terakhir</option>
                                 <option value="30" style="background-color: #0a0a18; color: #ffffff;">30 Hari Terakhir</option>
@@ -3776,13 +3777,18 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             const now = new Date();
             const dateMap = {};
 
-            // Initialize date map for the period
+            // Initialize date map for the period (Hari Ini starts at 1)
+            let periodEnd = 0;
             if (periodDays !== 'all') {
-                for(let i = daysToLookBack - 1; i >= 0; i--) {
+                for(let i = daysToLookBack - 1; i >= periodEnd; i--) {
                     const d = new Date(now);
                     d.setDate(d.getDate() - i);
                     const dateStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-                    dateMap[dateStr] = { revenue: 0, count: 0 };
+                    dateMap[dateStr] = { 
+                        lunas: { rev: 0, count: 0 },
+                        pending: { rev: 0, count: 0 },
+                        batal: { rev: 0, count: 0 }
+                    };
                 }
             }
 
@@ -3794,6 +3800,9 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             cachedAdminOrdersForChart.forEach(order => {
                 let status = String(order[7] || '').trim().toLowerCase();
                 let isLunas = status === 'lunas';
+                let isPending = status === 'pending';
+                let isBatal = status === 'batal' || status === 'gagal';
+                
                 let rev = parseFloat(order[6]) || 0;
                 let komisi = parseFloat(order[10]) || 0;
                 
@@ -3830,26 +3839,37 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
 
                 if(isWithinPeriod) {
                     sumOrders++;
-                    if(status === 'lunas') {
+                    if(isLunas) {
                         sumRev += rev;
                         sumLunas++;
                         sumKomisi += komisi;
-                    } else if(status === 'pending') {
+                    } else if(isPending) {
                         sumPending++;
-                    } else if(status === 'batal' || status === 'gagal') {
+                    } else if(isBatal) {
                         sumBatal++;
                     }
                 }
 
-                if(!isLunas) return;
+                // Add to chart map even if period is all, and ensure map keys exist
+                if(periodDays === 'all' && !dateMap[isoDate]) {
+                    dateMap[isoDate] = { 
+                        lunas: { rev: 0, count: 0 },
+                        pending: { rev: 0, count: 0 },
+                        batal: { rev: 0, count: 0 }
+                    };
+                }
 
-                if(dateMap[isoDate] !== undefined) {
-                    dateMap[isoDate].revenue += rev;
-                    dateMap[isoDate].count += 1;
-                } else if(periodDays === 'all') {
-                    if(!dateMap[isoDate]) dateMap[isoDate] = { revenue: 0, count: 0 };
-                    dateMap[isoDate].revenue += rev;
-                    dateMap[isoDate].count += 1;
+                if(dateMap[isoDate]) {
+                    if (isLunas) {
+                        dateMap[isoDate].lunas.rev += rev;
+                        dateMap[isoDate].lunas.count += 1;
+                    } else if (isPending) {
+                        dateMap[isoDate].pending.rev += rev;
+                        dateMap[isoDate].pending.count += 1;
+                    } else if (isBatal) {
+                        dateMap[isoDate].batal.rev += rev;
+                        dateMap[isoDate].batal.count += 1;
+                    }
                 }
             });
 
@@ -3893,12 +3913,26 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             // Format Labels & Data Arrays for Chart
             const sortedDates = Object.keys(dateMap).sort();
             const labels = [];
-            const dataRev = [];
+            
+            const dataRevLunas = [];
+            const dataCountLunas = [];
+            const dataRevPending = [];
+            const dataCountPending = [];
+            const dataRevBatal = [];
+            const dataCountBatal = [];
             
             sortedDates.forEach(dt => {
                 const dObj = new Date(dt);
                 labels.push(dObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }));
-                dataRev.push(dateMap[dt].revenue);
+                
+                dataRevLunas.push(dateMap[dt].lunas.rev);
+                dataCountLunas.push(dateMap[dt].lunas.count);
+                
+                dataRevPending.push(dateMap[dt].pending.rev);
+                dataCountPending.push(dateMap[dt].pending.count);
+                
+                dataRevBatal.push(dateMap[dt].batal.rev);
+                dataCountBatal.push(dateMap[dt].batal.count);
             });
 
             if(adminSalesChartInstance) {
@@ -3909,43 +3943,93 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                 type: 'line',
                 data: {
                     labels: labels,
-                    datasets: [{
-                        label: 'Total Penjualan',
-                        data: dataRev,
-                        borderColor: '#B6FF00',
-                        backgroundColor: 'rgba(182,255,0, 0.1)',
-                        borderWidth: 3,
-                        pointBackgroundColor: '#000018',
-                        pointBorderColor: '#B6FF00',
-                        pointBorderWidth: 2,
-                        pointRadius: 4,
-                        pointHoverRadius: 6,
-                        fill: true,
-                        tension: 0.4
-                    }]
+                    datasets: [
+                        {
+                            label: 'Lunas',
+                            data: dataRevLunas,
+                            orderCountData: dataCountLunas, // Custom property for tooltip
+                            borderColor: '#10b981', // Emerald text-[#10b981]
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            borderWidth: 3,
+                            pointBackgroundColor: '#000018',
+                            pointBorderColor: '#10b981',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Pending',
+                            data: dataRevPending,
+                            orderCountData: dataCountPending, // Custom property for tooltip
+                            borderColor: '#f59e0b', // Amber text-[#f59e0b]
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            borderWidth: 3,
+                            pointBackgroundColor: '#000018',
+                            pointBorderColor: '#f59e0b',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Batal',
+                            data: dataRevBatal,
+                            orderCountData: dataCountBatal, // Custom property for tooltip
+                            borderColor: '#ef4444', // Red text-[#ef4444]
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            borderWidth: 3,
+                            pointBackgroundColor: '#000018',
+                            pointBorderColor: '#ef4444',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            fill: true,
+                            tension: 0.4
+                        }
+                    ]
                 },
                 options: {
+                    layout: { 
+                        padding: { right: 0, left: 0 } 
+                    },
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { display: false },
+                        legend: { 
+                            display: true, 
+                            position: 'top', 
+                            align: 'end',
+                            labels: {
+                                color: '#94a3b8',
+                                font: { family: "'Inter', sans-serif", size: 11, weight: 'bold' },
+                                boxWidth: 10,
+                                boxHeight: 10,
+                                usePointStyle: true
+                            }
+                        },
                         tooltip: {
                             backgroundColor: 'rgba(5, 5, 20, 0.95)',
                             titleFont: { family: "'Inter', sans-serif", size: 13 },
-                            bodyFont: { family: "'Inter', sans-serif", size: 14, weight: 'bold' },
+                            bodyFont: { family: "'Inter', sans-serif", size: 13 },
                             padding: 12,
                             cornerRadius: 8,
-                            displayColors: false,
+                            displayColors: true,
                             borderColor: 'rgba(255,255,255,0.1)',
                             borderWidth: 1,
                             callbacks: {
                                 label: function(context) {
                                     let label = context.dataset.label || '';
-                                    if (label) { label += ': '; }
-                                    if (context.parsed.y !== null) {
-                                        label += new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumSignificantDigits: 3 }).format(context.parsed.y);
-                                    }
-                                    return label;
+                                    let revStr = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumSignificantDigits: 3 }).format(context.parsed.y);
+                                    let countStr = context.dataset.orderCountData[context.dataIndex];
+                                    
+                                    // Returning an array creates a multi-line tooltip string per dataset!
+                                    return [
+                                        label + ' Pendapatan: ' + revStr,
+                                        label + ' Pesanan: ' + countStr
+                                    ];
                                 }
                             }
                         }
