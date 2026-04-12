@@ -867,21 +867,20 @@
                             </select>
                         </div>
                     </div>
-                    <div class="flex flex-col lg:flex-row gap-6 mb-10 fade-in-up">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10 fade-in-up">
                         <!-- Left Stacked Cards -->
-                        <div class="w-full lg:w-[380px] flex-shrink-0">
-                            <div class="grid grid-cols-2 gap-4 h-full content-start">
-                                <!-- Pendapatan -->
-                                <div class="glass-card hover:glow-primary flex flex-col justify-center relative overflow-hidden group p-4 sm:p-5 min-w-0 border-[rgba(182,255,0,0.1)]">
-                                    <div class="absolute right-0 top-0 w-16 h-16 bg-[rgba(182,255,0,0.05)] rounded-bl-3xl pointer-events-none transition-transform group-hover:scale-110"></div>
-                                    <div class="flex items-center gap-3 mb-2">
-                                        <div class="w-8 h-8 bg-[rgba(182,255,0,0.1)] text-[#B6FF00] rounded-lg flex items-center justify-center shrink-0 border border-[rgba(182,255,0,0.2)]">
-                                            <i data-lucide="wallet" class="w-4 h-4"></i>
-                                        </div>
-                                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-tight z-10">Pendapatan</p>
+                        <div class="grid grid-cols-2 gap-4 h-full content-start">
+                            <!-- Pendapatan -->
+                            <div class="glass-card hover:glow-primary flex flex-col justify-center relative overflow-hidden group p-4 sm:p-5 min-w-0 border-[rgba(182,255,0,0.1)]">
+                                <div class="absolute right-0 top-0 w-16 h-16 bg-[rgba(182,255,0,0.05)] rounded-bl-3xl pointer-events-none transition-transform group-hover:scale-110"></div>
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="w-8 h-8 bg-[rgba(182,255,0,0.1)] text-[#B6FF00] rounded-lg flex items-center justify-center shrink-0 border border-[rgba(182,255,0,0.2)]">
+                                        <i data-lucide="wallet" class="w-4 h-4"></i>
                                     </div>
-                                    <h3 id="chart-sum-revenue" class="text-base sm:text-lg font-bold tracking-tight text-[#B6FF00] z-10 relative truncate">Rp 0</h3>
+                                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-tight z-10">Pendapatan</p>
                                 </div>
+                                <h3 id="chart-sum-revenue" class="text-base sm:text-lg font-bold tracking-tight text-[#B6FF00] z-10 relative truncate">Rp 0</h3>
+                            </div>
                             <!-- Pesanan -->
                             <div class="glass-card hover:glow-primary flex flex-col justify-center relative overflow-hidden group p-4 sm:p-5 min-w-0">
                                 <div class="absolute right-0 top-0 w-16 h-16 bg-[rgba(1,122,107,0.05)] rounded-bl-3xl pointer-events-none transition-transform group-hover:scale-110"></div>
@@ -934,16 +933,15 @@
                                 <h3 id="chart-sum-komisi" class="text-base sm:text-lg font-bold tracking-tight text-[#0ea5e9] z-10 relative truncate">Rp 0</h3>
                             </div>
                         </div>
-                    </div>
                         
-                    <!-- Right Chart -->
-                        <div class="flex-grow glass-card p-0 flex flex-col relative w-full h-[300px] sm:h-[400px] lg:h-auto min-h-[400px] overflow-hidden">
-                             <div id="sales-chart-loader" class="absolute inset-0 bg-[#000018]/80 backdrop-blur-sm z-10 flex items-center justify-center hidden rounded-[2rem]">
-                                 <div class="w-8 h-8 border-4 border-[rgba(182,255,0,0.3)] border-t-[#B6FF00] rounded-full animate-spin"></div>
-                             </div>
-                             <div class="w-full h-full relative" style="min-height: 250px;">
-                                 <canvas id="salesChartCanvas"></canvas>
-                             </div>
+                        <!-- Right Chart -->
+                        <div class="lg:col-span-2 glass-card p-0 flex flex-col relative w-full h-[300px] sm:h-[400px] lg:h-full overflow-hidden">
+                            <div id="sales-chart-loader" class="absolute inset-0 bg-[#000018]/80 backdrop-blur-sm z-10 flex items-center justify-center hidden rounded-[2rem]">
+                                <div class="w-8 h-8 border-4 border-[rgba(182,255,0,0.3)] border-t-[#B6FF00] rounded-full animate-spin"></div>
+                            </div>
+                            <div class="w-full h-full relative" style="min-height: 250px;">
+                                <canvas id="salesChartCanvas"></canvas>
+                            </div>
                         </div>
                     </div>
                     <!-- DATA SALES CHART SECTION END -->
