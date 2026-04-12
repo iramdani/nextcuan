@@ -850,6 +850,7 @@ function doPost(e) {
       case "create_order": return jsonRes(createOrder(data, cfg));
       case "register_free_member": return jsonRes(registerFreeMember(data, cfg));
       case "update_order_status": return jsonRes(updateOrderStatus(data, cfg));
+      case "give_product_access": return jsonRes(giveProductAccess(data, cfg));
       case "login": return jsonRes(loginUser(data));
       case "login_and_dashboard": return jsonRes(loginAndDashboard(data));
       case "get_page_content": return jsonRes(getPageContent(data));
@@ -2029,6 +2030,118 @@ function updateOrderStatus(d, cfg) {
 
     return { status: "error", message: "Order tidak ditemukan" };
   } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
+/* =========================
+   GIVE PRODUCT ACCESS (MANUAL DARI ADMIN)
+========================= */
+function giveProductAccess(d, cfg) {
+  try {
+    requireAdminSession_(d, { actionName: "give_product_access" });
+    cfg = cfg || getSettingsMap_();
+
+    const uS = mustSheet_("Users");
+    const uData = uS.getDataRange().getValues();
+    const email = String(d.email || "").trim().toLowerCase();
+    
+    if (!email) return { status: "error", message: "Email wajib diisi" };
+    
+    let uName = "";
+    let uWA = "";
+    let userFound = false;
+    
+    for (let j = 1; j < uData.length; j++) {
+      if (String(uData[j][1]).toLowerCase() === email) {
+        uName = uData[j][3];
+        uWA = String(uData[j][7] || "").trim(); // WhatsApp column
+        userFound = true;
+        break;
+      }
+    }
+    
+    if (!userFound) {
+      return { status: "error", message: "Member dengan email tersebut tidak ditemukan di sistem." };
+    }
+
+    const pId = String(d.id_produk || "").trim();
+    if (!pId) return { status: "error", message: "Produk belum diisi" };
+    
+    const rules = mustSheet_("Access_Rules").getDataRange().getValues();
+    let pName = "";
+    let accessUrl = "";
+    let productFound = false;
+    for (let i = 1; i < rules.length; i++) {
+        if (String(rules[i][0]) === pId) {
+            pName = normalizePlainText_(rules[i][1]);
+            accessUrl = rules[i][3];
+            productFound = true;
+            break;
+        }
+    }
+    
+    if (!productFound) return { status: "error", message: "Produk tidak ditemukan." };
+
+    const inv = "ACC-" + Math.floor(10000 + Math.random() * 90000); // Use ACC- to indicate direct access
+    const oS = mustSheet_("Orders");
+    
+    // Check if user already has access to this product
+    const ordersData = oS.getDataRange().getValues();
+    for (let i = 1; i < ordersData.length; i++) {
+        if (String(ordersData[i][1]).trim().toLowerCase() === email && String(ordersData[i][4]) === pId && String(ordersData[i][7]).toLowerCase() === "lunas") {
+            return { status: "error", message: "Member ini sudah memiliki akses Lunas untuk produk tersebut." };
+        }
+    }
+
+    // append to Orders
+    oS.appendRow([
+      inv,
+      email,
+      uName,
+      "'" + uWA,
+      pId,
+      pName,
+      0, // Harga 0 karena diberikan akses khusus
+      "Lunas",
+      toISODate_(),
+      "-", // affiliate
+      0, // komisi
+      "TRUE" // exclude_statistic, agar tidak masuk omset
+    ]);
+
+    const siteName = getCfgFrom_(cfg, "site_name") || "Sistem Premium";
+    const siteUrl = String(getCfgFrom_(cfg, "site_url") || "").trim();
+    const loginUrl = siteUrl ? (siteUrl + "/login.html") : "Link Login Belum Disetting";
+    
+    // WA ke User
+    const waText = `Halo ${uName}, selamat datang kembali di ${siteName}! 🎉\n\nAkses Anda untuk produk *${pName}* telah kami berikan secara langsung.\n\n🚀 *Klik link berikut untuk akses produk:*\n${accessUrl}\n\n🔐 *AKUN MEMBER AREA*\n🌐 Link: ${loginUrl}\n✉️ Email: ${email}\n🔑 Password: _(gunakan password yang sudah anda miliki)_\n\nAnda juga bisa mengakses seluruh produk Anda melalui Member Area kami.\n\nTerima kasih!\n*Tim ${siteName}*`;
+    if (uWA) sendWA(uWA, waText, cfg);
+    
+    // 3. Email ke User
+    const emailHtml = `
+     <div style="font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; color: #334155; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+        <h2 style="color: #017A6B; margin-top: 0;">Akses Produk Tambahan Dibuka! 🎁</h2>
+        <p>Halo <b style="color: #000018;">${uName}</b>,</p>
+        <p>Selamat! Anda telah mendapatkan akses tambahan ke produk <b style="color: #000018;">${pName}</b> tanpa biaya tambahan.</p>
+        
+        <div style="text-align: center; margin: 35px 0;">
+            <a href="${accessUrl}" style="background-color: #B6FF00; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">Akses Produk Sekarang</a>
+        </div>
+
+        <div style="background-color: #f8fafc; border-left: 4px solid #017A6B; padding: 15px 20px; border-radius: 8px; margin: 25px 0;">
+            <p style="margin: 0; font-size: 14px;">Gunakan <b>Email</b> dan <b>Password</b> Anda yang lama untuk login ke Member Area: <a href="${loginUrl}" style="color: #017A6B; text-decoration: none;">${loginUrl}</a>.</p>
+        </div>
+        
+        <p style="margin-bottom: 0;">Salam hangat,<br><b style="color: #000018;">Tim ${siteName}</b></p>
+     </div>`;
+    sendEmail(email, `Akses Tambahan! Produk ${pName}`, emailHtml, cfg);
+
+    // BUMP CACHE & REPORT
+    const cacheState = bumpPublicCacheState_(["dashboard"]);
+    return withPublicCacheState_({ status: "success", message: "Akses produk berhasil diberikan ke member." }, cacheState);
+    
+  } catch(e) {
     return { status: "error", message: e.toString() };
   }
 }

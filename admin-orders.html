@@ -197,9 +197,14 @@
                 </button>
             </div>
             
-            <button id="btn-add-order" onclick="openModal('create')" class="w-full sm:w-auto bg-[#B6FF00] hover:bg-[#a3e600] text-black px-4 py-2 rounded-lg shadow-[0_0_15px_rgba(182,255,0,0.3)] transition-all font-bold text-sm flex items-center justify-center gap-2 relative z-10">
-                <i data-lucide="plus" class="w-4 h-4"></i> Tambah Order
-            </button>
+            <div class="flex gap-2 w-full sm:w-auto relative z-10">
+                <button id="btn-give-access" onclick="openAccessModal()" class="w-full sm:w-auto bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)] text-[#B6FF00] border border-[#B6FF00]/30 px-4 py-2 rounded-lg transition-all font-bold text-sm flex items-center justify-center gap-2">
+                    <i data-lucide="key" class="w-4 h-4"></i> Beri Akses
+                </button>
+                <button id="btn-add-order" onclick="openModal('create')" class="w-full sm:w-auto bg-[#B6FF00] hover:bg-[#a3e600] text-black px-4 py-2 rounded-lg shadow-[0_0_15px_rgba(182,255,0,0.3)] transition-all font-bold text-sm flex items-center justify-center gap-2">
+                    <i data-lucide="plus" class="w-4 h-4"></i> Tambah Order
+                </button>
+            </div>
         </div>
 
         <!-- Table Container -->
@@ -316,6 +321,44 @@
                         Simpan Order
                     </button>
                     <button type="button" onclick="closeModal()" class="btn-ghost mt-3 w-full inline-flex justify-center sm:mt-0 sm:w-auto">
+                        Batal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Beri Akses -->
+    <div id="accessModal" class="fixed inset-0 z-[60] hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-[#000018]/80 backdrop-blur-sm transition-opacity" aria-hidden="true" onclick="closeAccessModal()"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom glass-card border border-[rgba(255,255,255,0.1)] rounded-2xl text-left overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.5)] transform transition-all sm:my-8 sm:align-middle sm:max-w-md w-full">
+                <div class="px-6 pt-6 pb-4 border-b border-[rgba(255,255,255,0.05)]">
+                    <h3 class="text-xl font-bold text-white tracking-tight flex items-center gap-2">
+                        <i data-lucide="key" class="w-5 h-5 text-[#B6FF00]"></i> Beri Akses Produk
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-2">Berikan akses produk langsung ke member yang sudah terdaftar tanpa membuat tagihan/order baru.</p>
+                </div>
+                <div class="px-6 py-5 space-y-4">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-0.5">Email Member</label>
+                        <input type="email" id="accessEmail" class="glass-input w-full rounded-xl py-3 px-4 text-sm text-white focus:outline-none transition-all placeholder-slate-500" placeholder="email@member.com">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-0.5">Pilih Produk</label>
+                        <select id="accessProductName" onchange="onAccessProductSelect(this)" class="glass-input w-full rounded-xl py-3 px-4 text-sm text-white focus:outline-none transition-all [&>option]:bg-[#000018]">
+                            <option value="">Pilih Produk Aktif...</option>
+                        </select>
+                        <input type="hidden" id="accessProductId">
+                    </div>
+                </div>
+                <div class="px-6 py-4 bg-[rgba(0,0,0,0.2)] border-t border-[rgba(255,255,255,0.05)] sm:flex sm:flex-row-reverse gap-3">
+                    <button id="btn-process-access" type="button" onclick="processGiveAccess()" class="btn-primary w-full inline-flex justify-center sm:w-auto">
+                        Berikan Akses
+                    </button>
+                    <button type="button" onclick="closeAccessModal()" class="btn-ghost mt-3 w-full inline-flex justify-center sm:mt-0 sm:w-auto">
                         Batal
                     </button>
                 </div>
@@ -604,6 +647,70 @@
 
         function closeModal() {
             document.getElementById('orderModal').classList.add('hidden');
+        }
+
+        // ACCESS MODAL
+        function openAccessModal() {
+            document.getElementById('accessEmail').value = '';
+            document.getElementById('accessProductId').value = '';
+            
+            const select = document.getElementById('accessProductName');
+            if (select) {
+                select.innerHTML = '<option value="">Pilih Produk Aktif...</option>';
+                activeProductsList.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p[1]; 
+                    opt.text = p[1];
+                    opt.dataset.id = p[0];
+                    select.appendChild(opt);
+                });
+            }
+            
+            document.getElementById('accessModal').classList.remove('hidden');
+        }
+
+        function closeAccessModal() {
+            document.getElementById('accessModal').classList.add('hidden');
+        }
+
+        function onAccessProductSelect(selectEl) {
+            const selectedOpt = selectEl.options[selectEl.selectedIndex];
+            document.getElementById('accessProductId').value = selectedOpt.dataset.id || '';
+        }
+
+        async function processGiveAccess() {
+            const email = document.getElementById('accessEmail').value;
+            const id_produk = document.getElementById('accessProductId').value;
+            
+            if (!email || !id_produk) {
+                Swal.fire('Validasi', 'Email dan Produk wajib diisi!', 'warning');
+                return;
+            }
+
+            setLoading(true);
+            try {
+                const res = await fetch(getApiUrl(), {
+                    method: 'POST',
+                    body: JSON.stringify(buildAdminAuthPayload({
+                        action: 'give_product_access',
+                        email: email,
+                        id_produk: id_produk
+                    }))
+                });
+                const json = await res.json();
+                
+                if (json.status === 'success') {
+                    Swal.fire('Sukses', json.message || 'Akses berhasil diberikan!', 'success');
+                    closeAccessModal();
+                    fetchOrders(1); // Refresh tabel utk info invoice akses baru
+                } else {
+                    Swal.fire('Gagal', json.message, 'error');
+                }
+            } catch (e) {
+                Swal.fire('Error', e.toString(), 'error');
+            } finally {
+                setLoading(false);
+            }
         }
 
         // CRUD ACTIONS
