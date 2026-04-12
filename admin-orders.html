@@ -323,13 +323,12 @@
                     <button type="button" onclick="closeModal()" class="btn-ghost mt-3 w-full inline-flex justify-center sm:mt-0 sm:w-auto">
                         Batal
                     </button>
-                </div>
             </div>
         </div>
     </div>
 
     <!-- Modal Beri Akses -->
-    <div id="accessModal" class="fixed inset-0 z-[60] hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div id="accessModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div class="fixed inset-0 bg-[#000018]/80 backdrop-blur-sm transition-opacity" aria-hidden="true" onclick="closeAccessModal()"></div>
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
@@ -667,6 +666,7 @@
             }
             
             document.getElementById('accessModal').classList.remove('hidden');
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
         function closeAccessModal() {
