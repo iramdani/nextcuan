@@ -1597,6 +1597,20 @@
             else sessionStorage.removeItem('auth_session_token');
             sessionStorage.removeItem('auth_expires_at');
 
+            // Legacy compatibility for Member Area & CMS
+            sessionStorage.setItem('user_email', email);
+            sessionStorage.setItem('user_nama', name);
+            sessionStorage.setItem('user_id', id);
+
+            // Persist to localStorage for tab persistence
+            localStorage.setItem('cepat_user_session', JSON.stringify({
+                email: email,
+                nama: name,
+                id: id,
+                isAdmin: role === 'admin',
+                token: sessionToken
+            }));
+
             // Backward compatibility (legacy admin keys)
             sessionStorage.setItem('adm_v10', 'true');
             sessionStorage.setItem('adm_name', name);
@@ -1612,6 +1626,12 @@
             sessionStorage.removeItem('auth_expires_at');
             sessionStorage.removeItem('adm_v10');
             sessionStorage.removeItem('adm_name');
+            
+            // Clear legacy & persistent session
+            sessionStorage.removeItem('user_email');
+            sessionStorage.removeItem('user_nama');
+            sessionStorage.removeItem('user_id');
+            localStorage.removeItem('cepat_user_session');
         }
 
         function getAdminSessionMeta() {
@@ -3525,7 +3545,30 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
         }
         // --- REAL SALES CHART IMPLEMENTATION END ---
 
-        window.onload = () => { lucide.createIcons(); if(isAdminSessionActive()) init(); };
+        window.onload = () => { 
+            lucide.createIcons(); 
+            
+            // Session Restoration for Admin
+            if (!sessionStorage.getItem('auth_session_token')) {
+                const raw = localStorage.getItem('cepat_user_session');
+                if (raw) {
+                    try {
+                        const parsed = JSON.parse(raw);
+                        if (parsed && parsed.isAdmin && parsed.token) {
+                            setUnifiedSession({
+                                id: parsed.id,
+                                role: 'admin',
+                                name: parsed.nama,
+                                email: parsed.email,
+                                session_token: parsed.token
+                            });
+                        }
+                    } catch(e) {}
+                }
+            }
+
+            if(isAdminSessionActive()) init(); 
+        };
 
         // --- ADMIN PROFILE & PASSWORD MANAGEMENT ---
         function openAdminProfileModal() {
@@ -3593,6 +3636,17 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                     sessionStorage.setItem('auth_name', r.new_name);
                     sessionStorage.setItem('auth_email', r.new_email);
                     sessionStorage.setItem('adm_name', r.new_name);
+
+                    // Sync to persistent localStorage
+                    const rawSess = localStorage.getItem('cepat_user_session');
+                    if (rawSess) {
+                        try {
+                            const sess = JSON.parse(rawSess);
+                            sess.nama = r.new_name;
+                            sess.email = r.new_email;
+                            localStorage.setItem('cepat_user_session', JSON.stringify(sess));
+                        } catch(e) {}
+                    }
                     
                     // Update UI
                     document.getElementById('admin-name').innerText = r.new_name;

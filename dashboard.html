@@ -645,6 +645,25 @@
         /* Deprecated/Removed Functions */
         /* openPasswordModal & closePasswordModal moved to bottom script to match new modal ID */
 
+        // Session Restoration Logic
+        (function restoreSession() {
+            if (!sessionStorage.getItem('user_email')) {
+                const raw = localStorage.getItem('cepat_user_session');
+                if (raw) {
+                    try {
+                        const parsed = JSON.parse(raw);
+                        if (parsed && parsed.email) {
+                            sessionStorage.setItem('user_email', parsed.email);
+                            sessionStorage.setItem('user_nama', parsed.nama || '');
+                            sessionStorage.setItem('user_id', parsed.id || '');
+                            if (parsed.isAdmin) sessionStorage.setItem('auth_role', 'admin');
+                            sessionStorage.setItem('auth_v1', 'true');
+                        }
+                    } catch (e) {}
+                }
+            }
+        })();
+
         let userEmail = sessionStorage.getItem('user_email');
         let userNama = sessionStorage.getItem('user_nama');
         const userId = sessionStorage.getItem('user_id'); 
@@ -1746,6 +1765,17 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                     // Update Session Storage
                     sessionStorage.setItem('user_nama', r.new_name);
                     sessionStorage.setItem('user_email', r.new_email);
+                    
+                    // Sync to persistent localStorage
+                    const rawSess = localStorage.getItem('cepat_user_session');
+                    if (rawSess) {
+                        try {
+                            const sess = JSON.parse(rawSess);
+                            sess.nama = r.new_name;
+                            sess.email = r.new_email;
+                            localStorage.setItem('cepat_user_session', JSON.stringify(sess));
+                        } catch(e) {}
+                    }
                     
                     // Update UI (Header Name)
                     if(document.getElementById('header-name')) {
