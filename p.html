@@ -426,9 +426,11 @@
             if (!button || button.dataset.bound === 'true') return;
             button.dataset.bound = 'true';
             button.addEventListener('click', function (event) {
+                event.preventDefault();
                 if (window.history.length > 1) {
-                    event.preventDefault();
                     window.history.back();
+                } else {
+                    window.close();
                 }
             });
         }
