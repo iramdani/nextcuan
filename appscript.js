@@ -1657,6 +1657,7 @@ function createOrder(d, cfg) {
 
     // Simpan order (struktur kolom sama dengan script lu)
     // Store WA number as text (prefix with apostrophe prevents Google Sheets from converting to Number)
+    const waForSheet = waNormalized || waRaw;
     const isExcluded = d.exclude_statistic === true ? "TRUE" : "FALSE";
     oS.appendRow([
       inv,
