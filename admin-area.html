@@ -623,6 +623,16 @@
         }
     </style>
 <script src='https://cdn.jsdelivr.net/npm/chart.js'></script>
+
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-GZM06L9YDH"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-GZM06L9YDH');
+</script>
 </head>
 <body class="antialiased relative h-screen w-screen overflow-hidden flex">
 
@@ -3760,8 +3770,8 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                                 font: { family: "'Plus Jakarta Sans', sans-serif", size: 12 }, 
                                 color: '#64748b',
                                 callback: function(value) {
-                                    if(value >= 1000000) return 'Rp ' + (value/1000000).toFixed(1).replace(/.0$/, '') + 'jt';
-                                    if(value >= 1000) return 'Rp ' + (value/1000).toFixed(1).replace(/.0$/, '') + 'k';
+                                    if(value >= 1000000) return 'Rp ' + (value/1000000).toFixed(1).replace(/\.0$/, '') + 'jt';
+                                    if(value >= 1000) return 'Rp ' + (value/1000).toFixed(1).replace(/\.0$/, '') + 'k';
                                     return 'Rp ' + value;
                                 },
                                 maxTicksLimit: 6
