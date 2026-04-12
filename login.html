@@ -113,9 +113,30 @@
     
     <script>
         // Redirect ke tujuan awal atau dashboard jika sudah login
-        if(sessionStorage.getItem('user_email')) {
+        const checkExistingSession = () => {
+            if(sessionStorage.getItem('user_email')) return true;
+            try {
+                const raw = localStorage.getItem('cepat_user_session');
+                if(raw) {
+                    const sess = JSON.parse(raw);
+                    if(sess && sess.email) return true;
+                }
+            } catch(e) {}
+            return false;
+        };
+        
+        if(checkExistingSession()) {
             const redirectParams = new URLSearchParams(window.location.search);
-            window.location.href = redirectParams.get('redirect') || 'dashboard.html';
+            // Detect if admin
+            let target = 'dashboard.html';
+            try {
+                const raw = localStorage.getItem('cepat_user_session');
+                if(raw) {
+                    const sess = JSON.parse(raw);
+                    if(sess && sess.isAdmin) target = 'admin-area.html';
+                }
+            } catch(e) {}
+            window.location.href = redirectParams.get('redirect') || target;
         }
     </script>
 

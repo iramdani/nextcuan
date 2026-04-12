@@ -1677,10 +1677,24 @@
             if(window.lucide) { lucide.createIcons(); }
             loadPublicCatalog(); 
             
-            // Add logged in UI logic
-            const isLogged = !!sessionStorage.getItem('user_email');
-            if(isLogged) {
-                const userNama = sessionStorage.getItem('user_nama') || sessionStorage.getItem('auth_name') || 'User';
+            // Advanced Session Detection (Sync with Cross-Tab persistence)
+            const getSession = () => {
+                const sEmail = sessionStorage.getItem('user_email') || sessionStorage.getItem('auth_email');
+                if(sEmail) return { 
+                    email: sEmail, 
+                    nama: userSess.nama || 'User',
+                    isAdmin: sessionStorage.getItem('auth_role') === 'admin'
+                };
+                try {
+                    const raw = localStorage.getItem('cepat_user_session');
+                    if(raw) return JSON.parse(raw);
+                } catch(e) {}
+                return null;
+            };
+
+            const userSess = getSession();
+            if(userSess && userSess.email) {
+                const userNama = userSess.nama || 'User';
                 const words = userNama.trim().split(/\s+/);
                 const initials = words.length >= 2 
                     ? (words[0][0] + words[1][0]).toUpperCase() 
@@ -1693,7 +1707,7 @@
                     desktopNavActions.innerHTML = '';
                     
                     const profileLink = document.createElement('a');
-                    profileLink.href = 'dashboard.html';
+                    profileLink.href = userSess.isAdmin ? 'admin-area.html' : 'dashboard.html';
                     profileLink.className = 'w-10 h-10 rounded-full flex items-center justify-center transition-all bg-[#B6FF00] text-[#000018] font-black text-sm tracking-tighter hover:scale-105';
                     profileLink.innerHTML = initials;
                     desktopNavActions.appendChild(profileLink);
@@ -1704,18 +1718,18 @@
                 // Update Mobile Navbar
                 const mobileNavActions = document.getElementById('mobile-nav-actions');
                 if(mobileNavActions) {
-                    mobileNavActions.innerHTML = '<a href="dashboard.html" class="block px-4 py-3 rounded-xl text-sm font-semibold btn-primary text-center mt-1 flex items-center justify-center space-x-2"><div class="w-6 h-6 rounded-full bg-[#000018] text-[#B6FF00] flex items-center justify-center text-[10px] font-black">' + initials + '</div><span>Ke Member Area</span></a>';
+                    const targetUrl = userSess.isAdmin ? 'admin-area.html' : 'dashboard.html'; mobileNavActions.innerHTML = `<a href="${targetUrl}" class="block px-4 py-3 rounded-xl text-sm font-semibold btn-primary text-center mt-1 flex items-center justify-center space-x-2"><div class="w-6 h-6 rounded-full bg-[#000018] text-[#B6FF00] flex items-center justify-center text-[10px] font-black">' + initials + '</div><span>Ke Member Area</span></a>';
                 }
                 
                 // Update Hero & CTA links
                 const heroBtn = document.getElementById('hero-signup');
                 if(heroBtn) {
-                    heroBtn.href = 'dashboard.html';
+                    const targetDashboard = userSess.isAdmin ? 'admin-area.html' : 'dashboard.html'; heroBtn.href = targetDashboard;
                     heroBtn.querySelector('span').innerText = 'Ke Dashboard';
                 }
                 const ctaBtn = document.getElementById('cta-signup');
                 if(ctaBtn) {
-                    ctaBtn.href = 'dashboard.html';
+                    const targetDashboard = userSess.isAdmin ? 'admin-area.html' : 'dashboard.html'; ctaBtn.href = targetDashboard;
                     ctaBtn.querySelector('span').innerText = 'Ke Dashboard';
                 }
             }
