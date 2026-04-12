@@ -3899,11 +3899,11 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                 if (sortedProducts.length > 0) {
                     let html = '';
                     sortedProducts.forEach(p => {
-                        html += \`<tr class="hover:bg-[rgba(255,255,255,0.02)] transition-colors group">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-white" data-label="Produk"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded bg-[rgba(182,255,0,0.1)] flex items-center justify-center text-[#B6FF00] border border-[rgba(182,255,0,0.2)]"><i data-lucide="package" class="w-4 h-4"></i></div>\${p.name}</div></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-300 text-left md:text-center font-bold" data-label="Terjual">\${p.count}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-[#B6FF00] text-left md:text-right font-bold tracking-wider font-mono" data-label="Total Pendapatan (IDR)">Rp \${nf.format(p.rev)}</td>
-                        </tr>\`;
+                        html += `<tr class="hover:bg-[rgba(255,255,255,0.02)] transition-colors group">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-white" data-label="Produk"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded bg-[rgba(182,255,0,0.1)] flex items-center justify-center text-[#B6FF00] border border-[rgba(182,255,0,0.2)]"><i data-lucide="package" class="w-4 h-4"></i></div>${p.name}</div></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-300 text-left md:text-center font-bold" data-label="Terjual">${p.count}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-[#B6FF00] text-left md:text-right font-bold tracking-wider font-mono" data-label="Total Pendapatan (IDR)">Rp ${nf.format(p.rev)}</td>
+                        </tr>`;
                     });
                     productListEl.innerHTML = html;
                     if(typeof lucide !== 'undefined') lucide.createIcons();
