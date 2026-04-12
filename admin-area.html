@@ -867,81 +867,83 @@
                             </select>
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-10 fade-in-up">
-                        <!-- Left Stacked Cards -->
-                        <div class="lg:col-span-1 grid grid-cols-2 lg:grid-cols-1 gap-4 h-full content-start">
-                            <!-- Pendapatan -->
-                            <div class="glass-card hover:glow-primary flex flex-col justify-center relative overflow-hidden group p-4 sm:p-5 min-w-0 border-[rgba(182,255,0,0.1)]">
-                                <div class="absolute right-0 top-0 w-16 h-16 bg-[rgba(182,255,0,0.05)] rounded-bl-3xl pointer-events-none transition-transform group-hover:scale-110"></div>
-                                <div class="flex items-center gap-3 mb-2">
-                                    <div class="w-8 h-8 bg-[rgba(182,255,0,0.1)] text-[#B6FF00] rounded-lg flex items-center justify-center shrink-0 border border-[rgba(182,255,0,0.2)]">
-                                        <i data-lucide="wallet" class="w-4 h-4"></i>
-                                    </div>
-                                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-tight z-10">Pendapatan</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10 fade-in-up">
+                        <!-- Card 1: Pendapatan -->
+                        <div class="glass-card hover:glow-primary flex flex-col justify-center relative overflow-hidden group p-4 sm:p-5 min-w-0 border-[rgba(182,255,0,0.1)]">
+                            <div class="absolute right-0 top-0 w-16 h-16 bg-[rgba(182,255,0,0.05)] rounded-bl-3xl pointer-events-none transition-transform group-hover:scale-110"></div>
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="w-8 h-8 bg-[rgba(182,255,0,0.1)] text-[#B6FF00] rounded-lg flex items-center justify-center shrink-0 border border-[rgba(182,255,0,0.2)]">
+                                    <i data-lucide="wallet" class="w-4 h-4"></i>
                                 </div>
-                                <h3 id="chart-sum-revenue" class="text-base sm:text-lg font-bold tracking-tight text-[#B6FF00] z-10 relative truncate">Rp 0</h3>
+                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-tight z-10">Pendapatan</p>
                             </div>
-                            <!-- Pesanan -->
-                            <div class="glass-card hover:glow-primary flex flex-col justify-center relative overflow-hidden group p-4 sm:p-5 min-w-0">
-                                <div class="absolute right-0 top-0 w-16 h-16 bg-[rgba(1,122,107,0.05)] rounded-bl-3xl pointer-events-none transition-transform group-hover:scale-110"></div>
-                                <div class="flex items-center gap-3 mb-2">
-                                    <div class="w-8 h-8 bg-[rgba(1,122,107,0.2)] text-[#017A6B] rounded-lg flex items-center justify-center shrink-0 border border-[#017A6B]/30">
-                                        <i data-lucide="shopping-bag" class="w-4 h-4"></i>
-                                    </div>
-                                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-tight z-10">Pesanan</p>
-                                </div>
-                                <h3 id="chart-sum-orders" class="text-base sm:text-lg font-bold tracking-tight text-white z-10 relative truncate">0</h3>
-                            </div>
-                            <!-- Lunas -->
-                            <div class="glass-card hover:glow-primary flex flex-col justify-center relative overflow-hidden group p-4 sm:p-5 min-w-0 border-[rgba(16,185,129,0.15)] bg-[rgba(16,185,129,0.02)]">
-                                <div class="flex items-center gap-3 mb-2">
-                                    <div class="w-8 h-8 bg-[rgba(16,185,129,0.15)] text-[#10b981] rounded-lg flex items-center justify-center shrink-0 border border-[#10b981]/30">
-                                        <i data-lucide="check-circle" class="w-4 h-4"></i>
-                                    </div>
-                                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-tight z-10">Lunas</p>
-                                </div>
-                                <h3 id="chart-sum-lunas" class="text-base sm:text-lg font-bold tracking-tight text-[#10b981] z-10 relative truncate">Rp 0</h3>
-                            </div>
-                            <!-- Pending -->
-                            <div class="glass-card hover:glow-primary flex flex-col justify-center relative overflow-hidden group p-4 sm:p-5 min-w-0 border-[rgba(245,158,11,0.15)] bg-[rgba(245,158,11,0.02)]">
-                                <div class="flex items-center gap-3 mb-2">
-                                    <div class="w-8 h-8 bg-[rgba(245,158,11,0.15)] text-[#f59e0b] rounded-lg flex items-center justify-center shrink-0 border border-[#f59e0b]/30">
-                                        <i data-lucide="clock" class="w-4 h-4"></i>
-                                    </div>
-                                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-tight z-10">Pending</p>
-                                </div>
-                                <h3 id="chart-sum-pending" class="text-base sm:text-lg font-bold tracking-tight text-[#f59e0b] z-10 relative truncate">Rp 0</h3>
-                            </div>
-                            <!-- Batal -->
-                            <div class="glass-card hover:glow-primary flex flex-col justify-center relative overflow-hidden group p-4 sm:p-5 min-w-0 border-[rgba(239,68,68,0.15)] bg-[rgba(239,68,68,0.02)]">
-                                <div class="flex items-center gap-3 mb-2">
-                                    <div class="w-8 h-8 bg-[rgba(239,68,68,0.15)] text-[#ef4444] rounded-lg flex items-center justify-center shrink-0 border border-[#ef4444]/30">
-                                        <i data-lucide="x-circle" class="w-4 h-4"></i>
-                                    </div>
-                                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-tight z-10">Batal</p>
-                                </div>
-                                <h3 id="chart-sum-batal" class="text-base sm:text-lg font-bold tracking-tight text-[#ef4444] z-10 relative truncate">Rp 0</h3>
-                            </div>
-                            <!-- Komisi -->
-                            <div class="glass-card hover:glow-primary flex flex-col justify-center relative overflow-hidden group p-4 sm:p-5 min-w-0 border-[rgba(14,165,233,0.15)] bg-[rgba(14,165,233,0.02)]">
-                                <div class="flex items-center gap-3 mb-2">
-                                    <div class="w-8 h-8 bg-[rgba(14,165,233,0.15)] text-[#0ea5e9] rounded-lg flex items-center justify-center shrink-0 border border-[#0ea5e9]/30">
-                                        <i data-lucide="coins" class="w-4 h-4"></i>
-                                    </div>
-                                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-tight z-10">Komisi</p>
-                                </div>
-                                <h3 id="chart-sum-komisi" class="text-base sm:text-lg font-bold tracking-tight text-[#0ea5e9] z-10 relative truncate">Rp 0</h3>
-                            </div>
+                            <h3 id="chart-sum-revenue" class="text-base sm:text-lg font-bold tracking-tight text-[#B6FF00] z-10 relative truncate">Rp 0</h3>
                         </div>
-                        
-                        <!-- Right Chart -->
-                        <div class="lg:col-span-3 glass-card p-0 flex flex-col relative w-full h-[300px] sm:h-[400px] lg:h-full overflow-hidden">
+
+                        <!-- Card 2: Pesanan -->
+                        <div class="glass-card hover:glow-primary flex flex-col justify-center relative overflow-hidden group p-4 sm:p-5 min-w-0">
+                            <div class="absolute right-0 top-0 w-16 h-16 bg-[rgba(1,122,107,0.05)] rounded-bl-3xl pointer-events-none transition-transform group-hover:scale-110"></div>
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="w-8 h-8 bg-[rgba(1,122,107,0.2)] text-[#017A6B] rounded-lg flex items-center justify-center shrink-0 border border-[#017A6B]/30">
+                                    <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                                </div>
+                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-tight z-10">Pesanan</p>
+                            </div>
+                            <h3 id="chart-sum-orders" class="text-base sm:text-lg font-bold tracking-tight text-white z-10 relative truncate">0</h3>
+                        </div>
+
+                        <!-- Right Chart (Spans 2 columns and 3 rows on LG) -->
+                        <div class="lg:col-span-2 lg:row-span-3 glass-card p-0 flex flex-col relative w-full h-[300px] md:h-auto min-h-[300px] overflow-hidden">
                             <div id="sales-chart-loader" class="absolute inset-0 bg-[#000018]/80 backdrop-blur-sm z-10 flex items-center justify-center hidden rounded-[2rem]">
                                 <div class="w-8 h-8 border-4 border-[rgba(182,255,0,0.3)] border-t-[#B6FF00] rounded-full animate-spin"></div>
                             </div>
                             <div class="w-full h-full relative" style="min-height: 250px;">
                                 <canvas id="salesChartCanvas"></canvas>
                             </div>
+                        </div>
+
+                        <!-- Card 3: Lunas -->
+                        <div class="glass-card hover:glow-primary flex flex-col justify-center relative overflow-hidden group p-4 sm:p-5 min-w-0 border-[rgba(182,255,0,0.15)] bg-[rgba(182,255,0,0.02)]">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="w-8 h-8 bg-[rgba(182,255,0,0.15)] text-[#B6FF00] rounded-lg flex items-center justify-center shrink-0 border border-[#B6FF00]/30">
+                                    <i data-lucide="check-circle" class="w-4 h-4"></i>
+                                </div>
+                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-tight z-10">Lunas</p>
+                            </div>
+                            <h3 id="chart-sum-lunas" class="text-base sm:text-lg font-bold tracking-tight text-[#B6FF00] z-10 relative truncate">0</h3>
+                        </div>
+
+                        <!-- Card 4: Pending -->
+                        <div class="glass-card hover:glow-primary flex flex-col justify-center relative overflow-hidden group p-4 sm:p-5 min-w-0 border-[rgba(245,158,11,0.15)] bg-[rgba(245,158,11,0.02)]">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="w-8 h-8 bg-[rgba(245,158,11,0.15)] text-[#f59e0b] rounded-lg flex items-center justify-center shrink-0 border border-[#f59e0b]/30">
+                                    <i data-lucide="clock" class="w-4 h-4"></i>
+                                </div>
+                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-tight z-10">Pending</p>
+                            </div>
+                            <h3 id="chart-sum-pending" class="text-base sm:text-lg font-bold tracking-tight text-[#f59e0b] z-10 relative truncate">0</h3>
+                        </div>
+
+                        <!-- Card 5: Batal -->
+                        <div class="glass-card hover:glow-primary flex flex-col justify-center relative overflow-hidden group p-4 sm:p-5 min-w-0 border-[rgba(239,68,68,0.15)] bg-[rgba(239,68,68,0.02)]">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="w-8 h-8 bg-[rgba(239,68,68,0.15)] text-[#ef4444] rounded-lg flex items-center justify-center shrink-0 border border-[#ef4444]/30">
+                                    <i data-lucide="x-circle" class="w-4 h-4"></i>
+                                </div>
+                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-tight z-10">Batal</p>
+                            </div>
+                            <h3 id="chart-sum-batal" class="text-base sm:text-lg font-bold tracking-tight text-[#ef4444] z-10 relative truncate">0</h3>
+                        </div>
+
+                        <!-- Card 6: Komisi -->
+                        <div class="glass-card hover:glow-primary flex flex-col justify-center relative overflow-hidden group p-4 sm:p-5 min-w-0 border-[rgba(14,165,233,0.15)] bg-[rgba(14,165,233,0.02)]">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="w-8 h-8 bg-[rgba(14,165,233,0.15)] text-[#0ea5e9] rounded-lg flex items-center justify-center shrink-0 border border-[#0ea5e9]/30">
+                                    <i data-lucide="coins" class="w-4 h-4"></i>
+                                </div>
+                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-tight z-10">Komisi</p>
+                            </div>
+                            <h3 id="chart-sum-komisi" class="text-base sm:text-lg font-bold tracking-tight text-[#0ea5e9] z-10 relative truncate">Rp 0</h3>
                         </div>
                     </div>
                     <!-- DATA SALES CHART SECTION END -->
