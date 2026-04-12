@@ -320,7 +320,8 @@
                         email: r.data.email, 
                         nama: r.data.nama, 
                         id: r.data.id,
-                        isAdmin: role === 'admin'
+                        isAdmin: role === 'admin',
+                        token: r.data.session_token || r.data.token || ''
                     }));
 
                     showToast("Login Berhasil! Mengalihkan...", "success");

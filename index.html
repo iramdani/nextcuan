@@ -5,6 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Next Cuan - Platform AI & Digital Tools untuk Income Online</title>
+    <link rel="icon" type="image/webp" href="https://ik.imagekit.io/iramdani/logo/NextCuan_Fav.webp">
+    <link rel="shortcut icon" href="https://ik.imagekit.io/iramdani/logo/NextCuan_Fav.webp">
+    <script src="site.config.js"></script>
+    <script src="config.js?v=2026_1"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
@@ -1679,59 +1683,79 @@
             
             // Advanced Session Detection (Sync with Cross-Tab persistence)
             const getSession = () => {
-                const sEmail = sessionStorage.getItem('user_email') || sessionStorage.getItem('auth_email');
-                if(sEmail) return { 
-                    email: sEmail, 
-                    nama: userSess.nama || 'User',
-                    isAdmin: sessionStorage.getItem('auth_role') === 'admin'
-                };
+                let session = null;
+                
+                // 1. Try LocalStorage (Persistence)
                 try {
                     const raw = localStorage.getItem('cepat_user_session');
-                    if(raw) return JSON.parse(raw);
+                    if(raw) {
+                        const parsed = JSON.parse(raw);
+                        if(parsed && (parsed.email || parsed.id)) {
+                            session = parsed;
+                        }
+                    }
                 } catch(e) {}
-                return null;
+                
+                // 2. Try SessionStorage (Higher priority for fresh data) and merge
+                const sEmail = sessionStorage.getItem('auth_email') || sessionStorage.getItem('user_email');
+                if(sEmail) {
+                    if(!session) session = { email: sEmail };
+                    session.email = sEmail;
+                    session.nama = sessionStorage.getItem('auth_name') || sessionStorage.getItem('user_nama') || session.nama || 'User';
+                    const sRole = sessionStorage.getItem('auth_role');
+                    if(sRole) session.isAdmin = (sRole === 'admin');
+                    const sToken = sessionStorage.getItem('auth_session_token');
+                    if(sToken) session.token = sToken;
+                }
+                
+                return session;
             };
 
             const userSess = getSession();
+            // Debugging log for user console
+            window.__AUTH_DEBUG__ = userSess;
+            console.log('[NextCuan] Session:', userSess ? userSess.email : 'None');
+
             if(userSess && userSess.email) {
+                const isAdmin = userSess.isAdmin === true || String(userSess.isAdmin) === 'true';
+                const targetArea = isAdmin ? 'admin-area.html' : 'dashboard.html';
                 const userNama = userSess.nama || 'User';
+                
                 const words = userNama.trim().split(/\s+/);
                 const initials = words.length >= 2 
                     ? (words[0][0] + words[1][0]).toUpperCase() 
                     : userNama.substring(0, 2).toUpperCase();
 
-                // Update Desktop Navbar
-                const desktopNavActions = document.getElementById('nav-right-side');
-                if(desktopNavActions) {
-                    const hamburger = document.getElementById('hamburger-btn');
-                    desktopNavActions.innerHTML = '';
-                    
-                    const profileLink = document.createElement('a');
-                    profileLink.href = userSess.isAdmin ? 'admin-area.html' : 'dashboard.html';
-                    profileLink.className = 'w-10 h-10 rounded-full flex items-center justify-center transition-all bg-[#B6FF00] text-[#000018] font-black text-sm tracking-tighter hover:scale-105';
-                    profileLink.innerHTML = initials;
-                    desktopNavActions.appendChild(profileLink);
-
-                    if(hamburger) desktopNavActions.appendChild(hamburger);
+                // Desktop Navbar Update
+                const navRight = document.getElementById('nav-right-side');
+                if(navRight) {
+                    const hmb = document.getElementById('hamburger-btn');
+                    navRight.innerHTML = `
+                        <a href="${targetArea}" class="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-[#B6FF00] text-[#000018] font-black text-sm hover:scale-110 shadow-[0_0_20px_rgba(182,255,0,0.4)]" title="Ke Dashboard">
+                            ${initials}
+                        </a>`;
+                    if(hmb) navRight.appendChild(hmb);
                 }
 
-                // Update Mobile Navbar
-                const mobileNavActions = document.getElementById('mobile-nav-actions');
-                if(mobileNavActions) {
-                    const targetUrl = userSess.isAdmin ? 'admin-area.html' : 'dashboard.html'; mobileNavActions.innerHTML = `<a href="${targetUrl}" class="block px-4 py-3 rounded-xl text-sm font-semibold btn-primary text-center mt-1 flex items-center justify-center space-x-2"><div class="w-6 h-6 rounded-full bg-[#000018] text-[#B6FF00] flex items-center justify-center text-[10px] font-black">' + initials + '</div><span>Ke Member Area</span></a>';
+                // Mobile Navbar Update
+                const mobNav = document.getElementById('mobile-nav-actions');
+                if(mobNav) {
+                    mobNav.innerHTML = `
+                        <a href="${targetArea}" class="block px-4 py-3 rounded-xl text-sm font-bold bg-[#B6FF00] text-[#000018] text-center mt-2 flex items-center justify-center space-x-2">
+                            <div class="w-6 h-6 rounded-full bg-[#000018] text-[#B6FF00] flex items-center justify-center text-[10px] font-black">${initials}</div>
+                            <span>Ke ${isAdmin ? 'Admin Area' : 'Dashboard'}</span>
+                        </a>`;
                 }
                 
-                // Update Hero & CTA links
-                const heroBtn = document.getElementById('hero-signup');
-                if(heroBtn) {
-                    const targetDashboard = userSess.isAdmin ? 'admin-area.html' : 'dashboard.html'; heroBtn.href = targetDashboard;
-                    heroBtn.querySelector('span').innerText = 'Ke Dashboard';
-                }
-                const ctaBtn = document.getElementById('cta-signup');
-                if(ctaBtn) {
-                    const targetDashboard = userSess.isAdmin ? 'admin-area.html' : 'dashboard.html'; ctaBtn.href = targetDashboard;
-                    ctaBtn.querySelector('span').innerText = 'Ke Dashboard';
-                }
+                // Hero & CTA buttons update
+                ['hero-signup', 'cta-signup'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if(el) {
+                        el.href = targetArea;
+                        const span = el.querySelector('span');
+                        if(span) span.innerText = isAdmin ? 'Ke Admin Area' : 'Ke Dashboard';
+                    }
+                });
             }
         });
 
