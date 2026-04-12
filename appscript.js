@@ -1657,7 +1657,7 @@ function createOrder(d, cfg) {
 
     // Simpan order (struktur kolom sama dengan script lu)
     // Store WA number as text (prefix with apostrophe prevents Google Sheets from converting to Number)
-    const waForSheet = waNormalized || waRaw;
+    const isExcluded = d.exclude_statistic === true ? "TRUE" : "FALSE";
     oS.appendRow([
       inv,
       email,
@@ -1669,7 +1669,8 @@ function createOrder(d, cfg) {
       orderStatus,
       toISODate_(),
       aff,
-      komisiNominal
+      komisiNominal,
+      isExcluded
     ]);
 
     // ==========================================
@@ -2950,7 +2951,10 @@ function getAdminData(d, cfg) {
     const pg = mustSheet_("Pages").getDataRange().getValues();
 
     let rev = 0;
+    let validOrderCount = 0;
     for (let i = 1; i < o.length; i++) {
+      if (String(o[i][11]) === "TRUE") continue;
+      validOrderCount++;
       if (String(o[i][7]) === "Lunas") rev += Number(o[i][6] || 0);
     }
 
@@ -2969,7 +2973,7 @@ function getAdminData(d, cfg) {
       status: "success",
       role: session.role,
       session_expires_at: session.expires_at,
-      stats: { users: u.length - 1, orders: o.length - 1, rev: rev },
+      stats: { users: u.length - 1, orders: validOrderCount, rev: rev },
       orders: o.slice(1).reverse().slice(0, 20),
       products: p.slice(1).map(normalizeProductRow_),
       pages: pg.slice(1),
