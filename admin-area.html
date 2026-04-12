@@ -748,7 +748,6 @@
                 </button>
                 <button onclick="switchTab('stats')" id="nav-stats" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm">
                     <i data-lucide="bar-chart-2" class="w-5 h-5"></i> Statistik
-                    <span class="ml-auto text-[9px] font-bold px-2 py-0.5 rounded-full bg-[rgba(182,255,0,0.15)] text-[#B6FF00] border border-[rgba(182,255,0,0.2)]">GA4</span>
                 </button>
                 
                 <div class="px-4 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 mt-6">System</div>
@@ -1260,90 +1259,90 @@
                     </div>
 
                     <!-- KPI Cards Row 1 -->
-                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                        <div class="glass-card p-5 rounded-2xl border-[rgba(255,255,255,0.05)] hover:glow-primary transition-all">
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Pengguna</span>
-                                <div class="w-8 h-8 rounded-lg bg-[rgba(182,255,0,0.1)] flex items-center justify-center">
-                                    <i data-lucide="users" class="w-4 h-4 text-[#B6FF00]"></i>
-                                </div>
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4 lg:mb-6">
+                        <div class="glass-card p-5 rounded-2xl border-[rgba(255,255,255,0.05)] hover:glow-primary transition-all flex items-start justify-between gap-2">
+                            <div class="flex-1 min-w-0">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">Total Pengguna</span>
+                                <div id="ga-total-users" class="text-2xl sm:text-3xl font-bold text-white mt-1">-</div>
+                                <div id="ga-users-change" class="text-xs text-slate-400 mt-1.5 flex items-center gap-1 flex-wrap">vs periode sebelumnya</div>
                             </div>
-                            <div id="ga-total-users" class="text-3xl font-bold text-white">-</div>
-                            <div id="ga-users-change" class="text-xs text-slate-400 mt-1">vs periode sebelumnya</div>
+                            <div class="w-10 h-10 rounded-xl bg-[rgba(182,255,0,0.1)] flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="users" class="w-5 h-5 text-[#B6FF00]"></i>
+                            </div>
                         </div>
-                        <div class="glass-card p-5 rounded-2xl border-[rgba(255,255,255,0.05)] hover:glow-primary transition-all">
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Sesi</span>
-                                <div class="w-8 h-8 rounded-lg bg-[rgba(1,122,107,0.15)] flex items-center justify-center">
-                                    <i data-lucide="activity" class="w-4 h-4 text-[#017A6B]"></i>
-                                </div>
+                        <div class="glass-card p-5 rounded-2xl border-[rgba(255,255,255,0.05)] hover:glow-primary transition-all flex items-start justify-between gap-2">
+                            <div class="flex-1 min-w-0">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">Sesi</span>
+                                <div id="ga-sessions" class="text-2xl sm:text-3xl font-bold text-white mt-1">-</div>
+                                <div id="ga-sessions-change" class="text-xs text-slate-400 mt-1.5 flex items-center gap-1 flex-wrap">vs periode sebelumnya</div>
                             </div>
-                            <div id="ga-sessions" class="text-3xl font-bold text-white">-</div>
-                            <div id="ga-sessions-change" class="text-xs text-slate-400 mt-1">vs periode sebelumnya</div>
+                            <div class="w-10 h-10 rounded-xl bg-[rgba(1,122,107,0.15)] flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="activity" class="w-5 h-5 text-[#017A6B]"></i>
+                            </div>
                         </div>
-                        <div class="glass-card p-5 rounded-2xl border-[rgba(255,255,255,0.05)] hover:glow-primary transition-all">
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Tampilan Halaman</span>
-                                <div class="w-8 h-8 rounded-lg bg-[rgba(99,102,241,0.15)] flex items-center justify-center">
-                                    <i data-lucide="eye" class="w-4 h-4 text-indigo-400"></i>
-                                </div>
+                        <div class="glass-card p-5 rounded-2xl border-[rgba(255,255,255,0.05)] hover:glow-primary transition-all flex items-start justify-between gap-2">
+                            <div class="flex-1 min-w-0">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">Pageviews</span>
+                                <div id="ga-pageviews" class="text-2xl sm:text-3xl font-bold text-white mt-1">-</div>
+                                <div id="ga-pageviews-change" class="text-xs text-slate-400 mt-1.5 flex items-center gap-1 flex-wrap">vs periode sebelumnya</div>
                             </div>
-                            <div id="ga-pageviews" class="text-3xl font-bold text-white">-</div>
-                            <div id="ga-pageviews-change" class="text-xs text-slate-400 mt-1">vs periode sebelumnya</div>
+                            <div class="w-10 h-10 rounded-xl bg-[rgba(99,102,241,0.15)] flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="eye" class="w-5 h-5 text-indigo-400"></i>
+                            </div>
                         </div>
-                        <div class="glass-card p-5 rounded-2xl border-[rgba(255,255,255,0.05)] hover:glow-primary transition-all">
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Bounce Rate</span>
-                                <div class="w-8 h-8 rounded-lg bg-[rgba(245,158,11,0.15)] flex items-center justify-center">
-                                    <i data-lucide="trending-down" class="w-4 h-4 text-amber-400"></i>
-                                </div>
+                        <div class="glass-card p-5 rounded-2xl border-[rgba(255,255,255,0.05)] hover:glow-primary transition-all flex items-start justify-between gap-2">
+                            <div class="flex-1 min-w-0">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">Bounce Rate</span>
+                                <div id="ga-bounce" class="text-2xl sm:text-3xl font-bold text-white mt-1">-</div>
+                                <div id="ga-bounce-change" class="text-xs text-slate-400 mt-1.5 flex items-center gap-1 flex-wrap">vs periode sebelumnya</div>
                             </div>
-                            <div id="ga-bounce" class="text-3xl font-bold text-white">-</div>
-                            <div id="ga-bounce-change" class="text-xs text-slate-400 mt-1">vs periode sebelumnya</div>
+                            <div class="w-10 h-10 rounded-xl bg-[rgba(245,158,11,0.15)] flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="trending-down" class="w-5 h-5 text-amber-400"></i>
+                            </div>
                         </div>
                     </div>
 
                     <!-- KPI Cards Row 2 -->
-                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                        <div class="glass-card p-5 rounded-2xl border-[rgba(255,255,255,0.05)]">
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Pengguna Baru</span>
-                                <div class="w-8 h-8 rounded-lg bg-[rgba(16,185,129,0.15)] flex items-center justify-center">
-                                    <i data-lucide="user-plus" class="w-4 h-4 text-emerald-400"></i>
-                                </div>
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6 lg:mb-8">
+                        <div class="glass-card p-5 rounded-2xl border-[rgba(255,255,255,0.05)] hover:glow-primary transition-all flex items-start justify-between gap-2">
+                            <div class="flex-1 min-w-0">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">Pengguna Baru</span>
+                                <div id="ga-new-users" class="text-2xl sm:text-3xl font-bold text-white mt-1">-</div>
+                                <div class="text-xs text-slate-400 mt-1.5">pertama kali</div>
                             </div>
-                            <div id="ga-new-users" class="text-3xl font-bold text-white">-</div>
-                            <div class="text-xs text-slate-400 mt-1">pengguna pertama kali</div>
+                            <div class="w-10 h-10 rounded-xl bg-[rgba(16,185,129,0.15)] flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="user-plus" class="w-5 h-5 text-emerald-400"></i>
+                            </div>
                         </div>
-                        <div class="glass-card p-5 rounded-2xl border-[rgba(255,255,255,0.05)]">
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Avg. Durasi Sesi</span>
-                                <div class="w-8 h-8 rounded-lg bg-[rgba(139,92,246,0.15)] flex items-center justify-center">
-                                    <i data-lucide="clock" class="w-4 h-4 text-violet-400"></i>
-                                </div>
+                        <div class="glass-card p-5 rounded-2xl border-[rgba(255,255,255,0.05)] hover:glow-primary transition-all flex items-start justify-between gap-2">
+                            <div class="flex-1 min-w-0">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">Durasi Sesi</span>
+                                <div id="ga-avg-duration" class="text-2xl sm:text-3xl font-bold text-white mt-1">-</div>
+                                <div class="text-xs text-slate-400 mt-1.5">rata-rata waktu</div>
                             </div>
-                            <div id="ga-avg-duration" class="text-3xl font-bold text-white">-</div>
-                            <div class="text-xs text-slate-400 mt-1">menit:detik rata-rata</div>
+                            <div class="w-10 h-10 rounded-xl bg-[rgba(139,92,246,0.15)] flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="clock" class="w-5 h-5 text-violet-400"></i>
+                            </div>
                         </div>
-                        <div class="glass-card p-5 rounded-2xl border-[rgba(255,255,255,0.05)]">
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Pengguna Kembali</span>
-                                <div class="w-8 h-8 rounded-lg bg-[rgba(14,165,233,0.15)] flex items-center justify-center">
-                                    <i data-lucide="repeat" class="w-4 h-4 text-sky-400"></i>
-                                </div>
+                        <div class="glass-card p-5 rounded-2xl border-[rgba(255,255,255,0.05)] hover:glow-primary transition-all flex items-start justify-between gap-2">
+                            <div class="flex-1 min-w-0">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">Pengguna Kembali</span>
+                                <div id="ga-returning-users" class="text-2xl sm:text-3xl font-bold text-white mt-1">-</div>
+                                <div class="text-xs text-slate-400 mt-1.5">returning visitors</div>
                             </div>
-                            <div id="ga-returning-users" class="text-3xl font-bold text-white">-</div>
-                            <div class="text-xs text-slate-400 mt-1">returning visitors</div>
+                            <div class="w-10 h-10 rounded-xl bg-[rgba(14,165,233,0.15)] flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="repeat" class="w-5 h-5 text-sky-400"></i>
+                            </div>
                         </div>
-                        <div class="glass-card p-5 rounded-2xl border-[rgba(255,255,255,0.05)]">
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Halaman/Sesi</span>
-                                <div class="w-8 h-8 rounded-lg bg-[rgba(244,63,94,0.15)] flex items-center justify-center">
-                                    <i data-lucide="layers" class="w-4 h-4 text-rose-400"></i>
-                                </div>
+                        <div class="glass-card p-5 rounded-2xl border-[rgba(255,255,255,0.05)] hover:glow-primary transition-all flex items-start justify-between gap-2">
+                            <div class="flex-1 min-w-0">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">Halaman/Sesi</span>
+                                <div id="ga-pages-per-session" class="text-2xl sm:text-3xl font-bold text-white mt-1">-</div>
+                                <div class="text-xs text-slate-400 mt-1.5">rata-rata tayang</div>
                             </div>
-                            <div id="ga-pages-per-session" class="text-3xl font-bold text-white">-</div>
-                            <div class="text-xs text-slate-400 mt-1">rata-rata halaman/sesi</div>
+                            <div class="w-10 h-10 rounded-xl bg-[rgba(244,63,94,0.15)] flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="layers" class="w-5 h-5 text-rose-400"></i>
+                            </div>
                         </div>
                     </div>
 
