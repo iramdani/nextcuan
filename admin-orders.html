@@ -388,7 +388,7 @@
                 const json = await res.json();
                 if (json.status === 'success') {
                     // product is at index 0..n where 0 is id, 1 is name, 4 is price, 5 is status (Active), 15 is hidden
-                    activeProductsList = json.products.filter(p => String(p[5] || '').trim() === 'Active' && String(p[15] || 'false') !== 'true');
+                    activeProductsList = json.products.filter(p => String(p[5] || '').trim() === 'Active');
                     populateProductDropdown();
                 }
             } catch (e) {
