@@ -2865,7 +2865,7 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             if (t === 'admin-orders') {
                 const iframe = document.getElementById('iframe-admin-orders');
                 if (iframe && !iframe.getAttribute('src')) {
-                    iframe.src = iframe.getAttribute('data-src');
+                    iframe.src = iframe.getAttribute('data-src') + '?v=' + new Date().getTime();
                 }
             }
 
