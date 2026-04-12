@@ -746,6 +746,10 @@
                 <button onclick="switchTab('media')" id="nav-media" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm">
                     <i data-lucide="image" class="w-5 h-5"></i> Media Center
                 </button>
+                <button onclick="switchTab('stats')" id="nav-stats" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm">
+                    <i data-lucide="bar-chart-2" class="w-5 h-5"></i> Statistik
+                    <span class="ml-auto text-[9px] font-bold px-2 py-0.5 rounded-full bg-[rgba(182,255,0,0.15)] text-[#B6FF00] border border-[rgba(182,255,0,0.2)]">GA4</span>
+                </button>
                 
                 <div class="px-4 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 mt-6">System</div>
                 <button onclick="openAdminProfileModal()" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-left hover:bg-[rgba(255,255,255,0.05)] transition-colors">
@@ -1220,6 +1224,235 @@
                             </form>
                         </div>
                     </div>
+                </div>
+
+                <!-- STATISTIK TAB -->
+                <div id="tab-stats" class="tab-content">
+
+                    <!-- Header & Refresh -->
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-[rgba(182,255,0,0.1)] border border-[rgba(182,255,0,0.2)] flex items-center justify-center">
+                                    <i data-lucide="bar-chart-2" class="w-5 h-5 text-[#B6FF00]"></i>
+                                </div>
+                                Statistik Website
+                            </h2>
+                            <p class="text-slate-400 text-sm mt-1 ml-13">Sinkronisasi langsung dari Google Analytics 4 &bull; <span id="ga-last-updated" class="text-[#B6FF00]">Memuat...</span></p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <select id="ga-period" onchange="loadGAStats()" class="glass-input rounded-xl px-4 py-2.5 text-sm font-semibold text-white outline-none focus:border-[#B6FF00] cursor-pointer">
+                                <option value="7">7 Hari Terakhir</option>
+                                <option value="14">14 Hari Terakhir</option>
+                                <option value="30" selected>30 Hari Terakhir</option>
+                                <option value="90">90 Hari Terakhir</option>
+                            </select>
+                            <button onclick="loadGAStats(true)" class="flex items-center gap-2 bg-[rgba(182,255,0,0.1)] text-[#B6FF00] px-4 py-2.5 rounded-xl font-bold text-xs uppercase hover:bg-[rgba(182,255,0,0.2)] transition-all border border-[rgba(182,255,0,0.2)]">
+                                <i data-lucide="refresh-cw" class="w-4 h-4" id="ga-refresh-icon"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Alert Banner -->
+                    <div id="ga-alert" class="hidden mb-6 rounded-2xl border border-[rgba(182,255,0,0.2)] bg-[rgba(182,255,0,0.05)] px-5 py-4 text-sm text-slate-300 flex items-start gap-3">
+                        <i data-lucide="info" class="w-5 h-5 text-[#B6FF00] flex-shrink-0 mt-0.5"></i>
+                        <div id="ga-alert-msg"></div>
+                    </div>
+
+                    <!-- KPI Cards Row 1 -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                        <div class="glass-card p-5 rounded-2xl border-[rgba(255,255,255,0.05)] hover:glow-primary transition-all">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Pengguna</span>
+                                <div class="w-8 h-8 rounded-lg bg-[rgba(182,255,0,0.1)] flex items-center justify-center">
+                                    <i data-lucide="users" class="w-4 h-4 text-[#B6FF00]"></i>
+                                </div>
+                            </div>
+                            <div id="ga-total-users" class="text-3xl font-bold text-white">-</div>
+                            <div id="ga-users-change" class="text-xs text-slate-400 mt-1">vs periode sebelumnya</div>
+                        </div>
+                        <div class="glass-card p-5 rounded-2xl border-[rgba(255,255,255,0.05)] hover:glow-primary transition-all">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Sesi</span>
+                                <div class="w-8 h-8 rounded-lg bg-[rgba(1,122,107,0.15)] flex items-center justify-center">
+                                    <i data-lucide="activity" class="w-4 h-4 text-[#017A6B]"></i>
+                                </div>
+                            </div>
+                            <div id="ga-sessions" class="text-3xl font-bold text-white">-</div>
+                            <div id="ga-sessions-change" class="text-xs text-slate-400 mt-1">vs periode sebelumnya</div>
+                        </div>
+                        <div class="glass-card p-5 rounded-2xl border-[rgba(255,255,255,0.05)] hover:glow-primary transition-all">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Tampilan Halaman</span>
+                                <div class="w-8 h-8 rounded-lg bg-[rgba(99,102,241,0.15)] flex items-center justify-center">
+                                    <i data-lucide="eye" class="w-4 h-4 text-indigo-400"></i>
+                                </div>
+                            </div>
+                            <div id="ga-pageviews" class="text-3xl font-bold text-white">-</div>
+                            <div id="ga-pageviews-change" class="text-xs text-slate-400 mt-1">vs periode sebelumnya</div>
+                        </div>
+                        <div class="glass-card p-5 rounded-2xl border-[rgba(255,255,255,0.05)] hover:glow-primary transition-all">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Bounce Rate</span>
+                                <div class="w-8 h-8 rounded-lg bg-[rgba(245,158,11,0.15)] flex items-center justify-center">
+                                    <i data-lucide="trending-down" class="w-4 h-4 text-amber-400"></i>
+                                </div>
+                            </div>
+                            <div id="ga-bounce" class="text-3xl font-bold text-white">-</div>
+                            <div id="ga-bounce-change" class="text-xs text-slate-400 mt-1">vs periode sebelumnya</div>
+                        </div>
+                    </div>
+
+                    <!-- KPI Cards Row 2 -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                        <div class="glass-card p-5 rounded-2xl border-[rgba(255,255,255,0.05)]">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Pengguna Baru</span>
+                                <div class="w-8 h-8 rounded-lg bg-[rgba(16,185,129,0.15)] flex items-center justify-center">
+                                    <i data-lucide="user-plus" class="w-4 h-4 text-emerald-400"></i>
+                                </div>
+                            </div>
+                            <div id="ga-new-users" class="text-3xl font-bold text-white">-</div>
+                            <div class="text-xs text-slate-400 mt-1">pengguna pertama kali</div>
+                        </div>
+                        <div class="glass-card p-5 rounded-2xl border-[rgba(255,255,255,0.05)]">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Avg. Durasi Sesi</span>
+                                <div class="w-8 h-8 rounded-lg bg-[rgba(139,92,246,0.15)] flex items-center justify-center">
+                                    <i data-lucide="clock" class="w-4 h-4 text-violet-400"></i>
+                                </div>
+                            </div>
+                            <div id="ga-avg-duration" class="text-3xl font-bold text-white">-</div>
+                            <div class="text-xs text-slate-400 mt-1">menit:detik rata-rata</div>
+                        </div>
+                        <div class="glass-card p-5 rounded-2xl border-[rgba(255,255,255,0.05)]">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Pengguna Kembali</span>
+                                <div class="w-8 h-8 rounded-lg bg-[rgba(14,165,233,0.15)] flex items-center justify-center">
+                                    <i data-lucide="repeat" class="w-4 h-4 text-sky-400"></i>
+                                </div>
+                            </div>
+                            <div id="ga-returning-users" class="text-3xl font-bold text-white">-</div>
+                            <div class="text-xs text-slate-400 mt-1">returning visitors</div>
+                        </div>
+                        <div class="glass-card p-5 rounded-2xl border-[rgba(255,255,255,0.05)]">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Halaman/Sesi</span>
+                                <div class="w-8 h-8 rounded-lg bg-[rgba(244,63,94,0.15)] flex items-center justify-center">
+                                    <i data-lucide="layers" class="w-4 h-4 text-rose-400"></i>
+                                </div>
+                            </div>
+                            <div id="ga-pages-per-session" class="text-3xl font-bold text-white">-</div>
+                            <div class="text-xs text-slate-400 mt-1">rata-rata halaman/sesi</div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Row -->
+                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
+                        <!-- Visitor Trend Chart (wider) -->
+                        <div class="glass-card p-6 rounded-2xl border-[rgba(255,255,255,0.05)] xl:col-span-2">
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <h3 class="font-bold text-white text-sm">Tren Pengunjung</h3>
+                                    <p class="text-xs text-slate-400 mt-0.5">Pengguna & Sesi harian</p>
+                                </div>
+                                <div class="flex gap-2">
+                                    <span class="flex items-center gap-1.5 text-[10px] text-slate-400"><span class="w-3 h-1 rounded bg-[#B6FF00] inline-block"></span>Pengguna</span>
+                                    <span class="flex items-center gap-1.5 text-[10px] text-slate-400"><span class="w-3 h-1 rounded bg-[#017A6B] inline-block"></span>Sesi</span>
+                                </div>
+                            </div>
+                            <div class="relative h-52">
+                                <canvas id="ga-chart-visitors"></canvas>
+                                <div id="ga-chart-visitors-loader" class="absolute inset-0 flex items-center justify-center">
+                                    <div class="w-6 h-6 border-2 border-[#B6FF00]/30 border-t-[#B6FF00] rounded-full animate-spin"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Device Breakdown -->
+                        <div class="glass-card p-6 rounded-2xl border-[rgba(255,255,255,0.05)]">
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <h3 class="font-bold text-white text-sm">Perangkat</h3>
+                                    <p class="text-xs text-slate-400 mt-0.5">Device breakdown</p>
+                                </div>
+                            </div>
+                            <div class="relative h-40">
+                                <canvas id="ga-chart-devices"></canvas>
+                                <div id="ga-chart-devices-loader" class="absolute inset-0 flex items-center justify-center">
+                                    <div class="w-6 h-6 border-2 border-[#B6FF00]/30 border-t-[#B6FF00] rounded-full animate-spin"></div>
+                                </div>
+                            </div>
+                            <div id="ga-device-legend" class="mt-4 space-y-2 text-xs"></div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Panels -->
+                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
+                        <!-- Top Pages -->
+                        <div class="glass-card p-6 rounded-2xl border-[rgba(255,255,255,0.05)] xl:col-span-2">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-bold text-white text-sm flex items-center gap-2">
+                                    <i data-lucide="file-bar-chart" class="w-4 h-4 text-[#B6FF00]"></i>
+                                    Halaman Terpopuler
+                                </h3>
+                            </div>
+                            <div class="space-y-1" id="ga-top-pages">
+                                <div class="text-slate-400 text-xs italic text-center py-6">Memuat data...</div>
+                            </div>
+                        </div>
+
+                        <!-- Traffic Sources -->
+                        <div class="glass-card p-6 rounded-2xl border-[rgba(255,255,255,0.05)]">
+                            <h3 class="font-bold text-white text-sm flex items-center gap-2 mb-4">
+                                <i data-lucide="share-2" class="w-4 h-4 text-[#017A6B]"></i>
+                                Sumber Traffic
+                            </h3>
+                            <div id="ga-traffic-sources" class="space-y-3">
+                                <div class="text-slate-400 text-xs italic text-center py-4">Memuat data...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Geographic & Channel -->
+                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                        <!-- Top Countries -->
+                        <div class="glass-card p-6 rounded-2xl border-[rgba(255,255,255,0.05)]">
+                            <h3 class="font-bold text-white text-sm flex items-center gap-2 mb-4">
+                                <i data-lucide="map-pin" class="w-4 h-4 text-[#B6FF00]"></i>
+                                Asal Pengunjung (Negara)
+                            </h3>
+                            <div id="ga-top-countries" class="space-y-2">
+                                <div class="text-slate-400 text-xs italic text-center py-4">Memuat data...</div>
+                            </div>
+                        </div>
+
+                        <!-- Top Cities -->
+                        <div class="glass-card p-6 rounded-2xl border-[rgba(255,255,255,0.05)]">
+                            <h3 class="font-bold text-white text-sm flex items-center gap-2 mb-4">
+                                <i data-lucide="building-2" class="w-4 h-4 text-[#017A6B]"></i>
+                                Kota Terbanyak
+                            </h3>
+                            <div id="ga-top-cities" class="space-y-2">
+                                <div class="text-slate-400 text-xs italic text-center py-4">Memuat data...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GA Integration Notice -->
+                    <div class="mt-6 rounded-2xl border border-[rgba(255,255,255,0.06)] bg-[rgba(0,0,0,0.25)] p-5 flex flex-col sm:flex-row gap-4 items-start">
+                        <div class="w-10 h-10 flex-shrink-0 rounded-xl bg-[rgba(234,88,12,0.15)] border border-[rgba(234,88,12,0.25)] flex items-center justify-center">
+                            <svg width="20" height="20" viewBox="0 0 192 192" fill="none"><rect width="192" height="192" rx="96" fill="#E37400"/><path d="M120 148H72V80l24-36 24 36v68z" fill="white"/><path d="M72 148H24v-44l24-36 24 36v44z" fill="white" opacity="0.7"/><path d="M168 148h-48V72l24 0 24 36v40z" fill="white" opacity="0.5"/></svg>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-bold text-white mb-1">Google Analytics 4 &bull; <span class="font-mono text-[#B6FF00] text-xs">G-GZM06L9YDH</span></p>
+                            <p class="text-xs text-slate-400 leading-relaxed">Data statistik diambil langsung dari Google Analytics 4 via GA4 Data API. Data diperbarui setiap kali kamu klik Refresh atau pindah ke tab ini. Untuk akurasi maksimal, pastikan tag GA4 terpasang di semua halaman website.</p>
+                        </div>
+                        <a href="https://analytics.google.com" target="_blank" class="flex-shrink-0 flex items-center gap-2 text-xs font-bold text-[#B6FF00] bg-[rgba(182,255,0,0.1)] border border-[rgba(182,255,0,0.2)] px-4 py-2.5 rounded-xl hover:bg-[rgba(182,255,0,0.2)] transition-all whitespace-nowrap">
+                            <i data-lucide="external-link" class="w-3 h-3"></i> Buka GA
+                        </a>
+                    </div>
+
                 </div>
 
 
@@ -2876,10 +3109,11 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); 
             document.getElementById('tab-'+t).classList.add('active'); 
             document.getElementById('nav-'+t).classList.add('active'); 
-            const titles = { 'orders': 'Dashboard', 'admin-orders': 'Manajemen Pesanan', 'members': 'Data Member', 'products': 'Produk & Layanan', 'pages': 'Halaman CMS', 'media': 'Media Center', 'settings': 'Pengaturan Sistem' };
+            const titles = { 'orders': 'Dashboard', 'admin-orders': 'Manajemen Pesanan', 'members': 'Data Member', 'products': 'Produk & Layanan', 'pages': 'Halaman CMS', 'media': 'Media Center', 'settings': 'Pengaturan Sistem', 'stats': 'Statistik' };
             document.getElementById('tab-title').innerText = titles[t] || 'Dashboard';
             lucide.createIcons();
-            if(t === 'media') loadMediaFiles(); 
+            if(t === 'media') loadMediaFiles();
+            if(t === 'stats') loadGAStats(); 
             
             // Lazy load Admin Orders
             if (t === 'admin-orders') {
@@ -3720,6 +3954,393 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                 lucide.createIcons();
             }
         }
+
+        // ================================================================
+        // GOOGLE ANALYTICS 4 STATISTICS MODULE
+        // Measurement ID: G-GZM06L9YDH
+        // ================================================================
+
+        let gaVisitorChart = null;
+        let gaDeviceChart = null;
+        let gaStatsLoaded = false;
+
+        const GA_COLORS = {
+            primary: '#B6FF00',
+            secondary: '#017A6B',
+            indigo: '#818cf8',
+            amber: '#fbbf24',
+            emerald: '#34d399',
+            violet: '#a78bfa',
+            sky: '#38bdf8',
+            rose: '#fb7185'
+        };
+
+        function formatGANumber(n) {
+            if (n == null || isNaN(n)) return '-';
+            if (n >= 1000000) return (n / 1000000).toFixed(1) + 'jt';
+            if (n >= 1000) return (n / 1000).toFixed(1) + 'rb';
+            return String(Math.round(n));
+        }
+
+        function formatDuration(seconds) {
+            if (!seconds || isNaN(seconds)) return '-';
+            const m = Math.floor(seconds / 60);
+            const s = Math.round(seconds % 60);
+            return `${m}:${String(s).padStart(2, '0')}`;
+        }
+
+        function formatPct(val, total) {
+            if (!total) return '0%';
+            return ((val / total) * 100).toFixed(1) + '%';
+        }
+
+        function renderChangeChip(change, unit = '') {
+            if (change == null || isNaN(change)) return '<span class="text-slate-400 text-xs">vs periode sebelumnya</span>';
+            const positive = change >= 0;
+            const arrow = positive ? '▲' : '▼';
+            const color = positive ? 'text-emerald-400' : 'text-rose-400';
+            return `<span class="${color} text-xs font-bold">${arrow} ${Math.abs(change).toFixed(1)}${unit}%</span> <span class="text-slate-500 text-xs">vs sebelumnya</span>`;
+        }
+
+        function renderBarRow(label, value, maxValue, colorClass = 'bg-[#B6FF00]', extra = '') {
+            const pct = maxValue ? Math.max(3, (value / maxValue) * 100) : 3;
+            return `
+            <div class="flex items-center gap-3 py-1.5">
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between mb-1 gap-2">
+                        <span class="text-xs text-white font-medium truncate">${label}</span>
+                        <span class="text-xs font-bold text-slate-300 flex-shrink-0">${formatGANumber(value)}${extra}</span>
+                    </div>
+                    <div class="h-1.5 bg-[rgba(255,255,255,0.06)] rounded-full overflow-hidden">
+                        <div class="${colorClass} h-full rounded-full transition-all duration-700" style="width:${pct}%"></div>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        function showGAAlert(msg) {
+            const el = document.getElementById('ga-alert');
+            const msgEl = document.getElementById('ga-alert-msg');
+            if (el && msgEl) { msgEl.innerHTML = msg; el.classList.remove('hidden'); }
+        }
+        function hideGAAlert() {
+            const el = document.getElementById('ga-alert');
+            if (el) el.classList.add('hidden');
+        }
+
+        function setGALoaders(show) {
+            ['ga-chart-visitors-loader', 'ga-chart-devices-loader'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = show ? 'flex' : 'none';
+            });
+        }
+
+        function renderGAVisitorChart(labels, usersData, sessionsData) {
+            const ctx = document.getElementById('ga-chart-visitors');
+            if (!ctx) return;
+            if (gaVisitorChart) { gaVisitorChart.destroy(); gaVisitorChart = null; }
+            gaVisitorChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [
+                        {
+                            label: 'Pengguna',
+                            data: usersData,
+                            borderColor: '#B6FF00',
+                            backgroundColor: 'rgba(182,255,0,0.08)',
+                            borderWidth: 2,
+                            pointRadius: 3,
+                            pointBackgroundColor: '#B6FF00',
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Sesi',
+                            data: sessionsData,
+                            borderColor: '#017A6B',
+                            backgroundColor: 'rgba(1,122,107,0.06)',
+                            borderWidth: 2,
+                            pointRadius: 3,
+                            pointBackgroundColor: '#017A6B',
+                            fill: true,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: { duration: 800 },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(0,0,24,0.92)',
+                            borderColor: 'rgba(255,255,255,0.1)',
+                            borderWidth: 1,
+                            titleColor: '#fff',
+                            bodyColor: '#94a3b8',
+                            padding: 12
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255,255,255,0.04)' },
+                            ticks: { color: '#64748b', font: { size: 10 }, maxTicksLimit: 8 }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255,255,255,0.04)' },
+                            ticks: { color: '#64748b', font: { size: 10 }, callback: v => formatGANumber(v) },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderGADeviceChart(deviceData) {
+            const ctx = document.getElementById('ga-chart-devices');
+            const legend = document.getElementById('ga-device-legend');
+            if (!ctx) return;
+            if (gaDeviceChart) { gaDeviceChart.destroy(); gaDeviceChart = null; }
+
+            const labels = deviceData.map(d => d.label);
+            const values = deviceData.map(d => d.value);
+            const total = values.reduce((a, b) => a + b, 0);
+            const colors = ['#B6FF00', '#017A6B', '#818cf8', '#fbbf24', '#34d399'];
+
+            gaDeviceChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: colors.slice(0, labels.length).map(c => c + 'cc'),
+                        borderColor: colors.slice(0, labels.length),
+                        borderWidth: 2,
+                        hoverOffset: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(0,0,24,0.92)',
+                            borderColor: 'rgba(255,255,255,0.1)',
+                            borderWidth: 1,
+                            callbacks: {
+                                label: ctx => ` ${ctx.label}: ${formatGANumber(ctx.raw)} (${formatPct(ctx.raw, total)})`
+                            }
+                        }
+                    }
+                }
+            });
+
+            if (legend) {
+                legend.innerHTML = deviceData.map((d, i) => `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-sm flex-shrink-0" style="background:${colors[i]}"></span>
+                            <span class="text-slate-300">${d.label}</span>
+                        </div>
+                        <span class="text-white font-bold">${formatPct(d.value, total)}</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function renderGAStats(data) {
+            // --- KPI: Row 1 ---
+            document.getElementById('ga-total-users').textContent = formatGANumber(data.totalUsers);
+            document.getElementById('ga-users-change').innerHTML = renderChangeChip(data.usersChange);
+            document.getElementById('ga-sessions').textContent = formatGANumber(data.sessions);
+            document.getElementById('ga-sessions-change').innerHTML = renderChangeChip(data.sessionsChange);
+            document.getElementById('ga-pageviews').textContent = formatGANumber(data.pageviews);
+            document.getElementById('ga-pageviews-change').innerHTML = renderChangeChip(data.pageviewsChange);
+            document.getElementById('ga-bounce').textContent = data.bounceRate != null ? parseFloat(data.bounceRate).toFixed(1) + '%' : '-';
+            document.getElementById('ga-bounce-change').innerHTML = renderChangeChip(data.bounceChange);
+
+            // --- KPI: Row 2 ---
+            document.getElementById('ga-new-users').textContent = formatGANumber(data.newUsers);
+            document.getElementById('ga-avg-duration').textContent = formatDuration(data.avgSessionDuration);
+            document.getElementById('ga-returning-users').textContent = formatGANumber(data.returningUsers);
+            const pps = data.sessions && data.pageviews ? (data.pageviews / data.sessions).toFixed(2) : '-';
+            document.getElementById('ga-pages-per-session').textContent = pps;
+
+            // --- Last updated ---
+            const updated = document.getElementById('ga-last-updated');
+            if (updated) updated.textContent = 'Diperbarui ' + new Date().toLocaleTimeString('id-ID');
+
+            // --- Visitor Chart ---
+            if (data.dailyTrend && data.dailyTrend.length) {
+                const labels = data.dailyTrend.map(d => {
+                    const dt = new Date(d.date);
+                    return dt.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+                });
+                const usersData = data.dailyTrend.map(d => d.users);
+                const sessionsData = data.dailyTrend.map(d => d.sessions);
+                renderGAVisitorChart(labels, usersData, sessionsData);
+                document.getElementById('ga-chart-visitors-loader').style.display = 'none';
+            }
+
+            // --- Device Chart ---
+            if (data.devices && data.devices.length) {
+                renderGADeviceChart(data.devices);
+                document.getElementById('ga-chart-devices-loader').style.display = 'none';
+            }
+
+            // --- Top Pages ---
+            const tpEl = document.getElementById('ga-top-pages');
+            if (tpEl && data.topPages && data.topPages.length) {
+                const maxViews = Math.max(...data.topPages.map(p => p.views));
+                tpEl.innerHTML = data.topPages.map(p =>
+                    renderBarRow(p.page || '/', p.views, maxViews, 'bg-[#B6FF00]')
+                ).join('');
+            } else if (tpEl) {
+                tpEl.innerHTML = '<div class="text-slate-400 text-xs italic text-center py-4">Tidak ada data halaman.</div>';
+            }
+
+            // --- Traffic Sources ---
+            const tsEl = document.getElementById('ga-traffic-sources');
+            if (tsEl && data.trafficSources && data.trafficSources.length) {
+                const maxSrc = Math.max(...data.trafficSources.map(s => s.sessions));
+                const srcColors = ['bg-[#B6FF00]', 'bg-[#017A6B]', 'bg-indigo-400', 'bg-amber-400', 'bg-rose-400', 'bg-sky-400'];
+                tsEl.innerHTML = data.trafficSources.map((s, i) =>
+                    renderBarRow(s.source || 'direct', s.sessions, maxSrc, srcColors[i % srcColors.length])
+                ).join('');
+            } else if (tsEl) {
+                tsEl.innerHTML = '<div class="text-slate-400 text-xs italic text-center py-4">Tidak ada data sumber traffic.</div>';
+            }
+
+            // --- Top Countries ---
+            const tcEl = document.getElementById('ga-top-countries');
+            if (tcEl && data.topCountries && data.topCountries.length) {
+                const maxC = Math.max(...data.topCountries.map(c => c.users));
+                tcEl.innerHTML = data.topCountries.map(c =>
+                    renderBarRow(`${c.flag || '🌏'} ${c.country}`, c.users, maxC, 'bg-[#B6FF00]')
+                ).join('');
+            } else if (tcEl) {
+                tcEl.innerHTML = '<div class="text-slate-400 text-xs italic text-center py-4">Tidak ada data negara.</div>';
+            }
+
+            // --- Top Cities ---
+            const tciEl = document.getElementById('ga-top-cities');
+            if (tciEl && data.topCities && data.topCities.length) {
+                const maxCi = Math.max(...data.topCities.map(c => c.users));
+                tciEl.innerHTML = data.topCities.map(c =>
+                    renderBarRow(c.city, c.users, maxCi, 'bg-[#017A6B]')
+                ).join('');
+            } else if (tciEl) {
+                tciEl.innerHTML = '<div class="text-slate-400 text-xs italic text-center py-4">Tidak ada data kota.</div>';
+            }
+
+            lucide.createIcons();
+        }
+
+        function renderGASetupNotice() {
+            // Show a friendly notice explaining how to enable the feature
+            showGAAlert(`
+                <div>
+                    <p class="font-bold text-white mb-2">⚠️ Konfigurasi Backend Diperlukan</p>
+                    <p class="text-slate-300 text-sm mb-3">Untuk menampilkan data Google Analytics langsung di sini, backend (Google Apps Script) perlu dikonfigurasi dengan Google Analytics Data API. Langkah-langkah:</p>
+                    <ol class="list-decimal list-inside space-y-1.5 text-slate-400 text-xs">
+                        <li>Buka <a href="https://console.cloud.google.com" target="_blank" class="text-[#B6FF00] underline">Google Cloud Console</a> — aktifkan <strong class="text-white">Google Analytics Data API</strong></li>
+                        <li>Buat Service Account, download JSON key-nya</li>
+                        <li>Di Google Analytics → Admin → Property → Property Access Management — tambahkan email service account dengan peran <em>Viewer</em></li>
+                        <li>Di Google Apps Script, tambahkan action <code class="bg-[rgba(182,255,0,0.1)] px-1 rounded text-[#B6FF00]">get_ga_stats</code> yang memanggil Google Analytics Data API</li>
+                        <li>Isi <strong class="text-white">GA4 Property ID</strong> di Pengaturan Sistem</li>
+                    </ol>
+                    <p class="mt-3 text-slate-400 text-xs">Sementara itu, kamu bisa memantau statistik langsung di <a href="https://analytics.google.com" target="_blank" class="text-[#B6FF00] underline">Google Analytics Dashboard</a>. Tag GA4 <code class="bg-[rgba(182,255,0,0.1)] px-1 rounded text-[#B6FF00]">G-GZM06L9YDH</code> sudah aktif di website kamu.</p>
+                </div>
+            `);
+            setGALoaders(false);
+
+            // Reset all KPI fields to show em dash
+            ['ga-total-users','ga-sessions','ga-pageviews','ga-bounce','ga-new-users','ga-avg-duration','ga-returning-users','ga-pages-per-session'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = '—';
+            });
+            ['ga-users-change','ga-sessions-change','ga-pageviews-change','ga-bounce-change'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.innerHTML = '<span class="text-slate-500 text-xs">Belum terhubung</span>';
+            });
+            ['ga-top-pages','ga-traffic-sources','ga-top-countries','ga-top-cities'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.innerHTML = '<div class="text-slate-500 text-xs italic text-center py-4">Konfigurasi backend diperlukan</div>';
+            });
+
+            const updated = document.getElementById('ga-last-updated');
+            if (updated) updated.textContent = 'Perlu konfigurasi';
+        }
+
+        async function loadGAStats(forceRefresh = false) {
+            const statsTab = document.getElementById('tab-stats');
+            if (!statsTab || !statsTab.classList.contains('active')) return;
+
+            hideGAAlert();
+            setGALoaders(true);
+
+            const refreshIcon = document.getElementById('ga-refresh-icon');
+            if (refreshIcon) refreshIcon.classList.add('animate-spin');
+
+            const days = parseInt(document.getElementById('ga-period')?.value || '30');
+
+            try {
+                const endpoint = getApiEndpoint();
+                if (!endpoint) throw new Error('API endpoint tidak tersedia');
+
+                const payload = buildAdminAuthPayload({
+                    action: 'get_ga_stats',
+                    ga_days: days
+                });
+
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const rawText = await res.text();
+                let data = {};
+                try { data = JSON.parse(rawText); } catch (_) {}
+
+                if (!res.ok) {
+                    throw new Error(data.message || `HTTP ${res.status}`);
+                }
+
+                if (data.status === 'not_configured' || data.status === 'setup_required') {
+                    renderGASetupNotice();
+                    return;
+                }
+
+                if (data.status !== 'success') {
+                    throw new Error(data.message || 'Gagal memuat statistik GA4');
+                }
+
+                renderGAStats(data.data || data);
+                gaStatsLoaded = true;
+
+            } catch (err) {
+                const msg = err && err.message ? err.message : 'Gagal memuat data';
+
+                // If action not found → show setup notice
+                if (msg.includes('Unknown action') || msg.includes('not_configured') || msg.includes('404') || msg.includes('not supported')) {
+                    renderGASetupNotice();
+                } else {
+                    setGALoaders(false);
+                    showGAAlert(`<strong class="text-rose-400">Gagal memuat data:</strong> ${msg}.<br><span class="text-slate-400 text-xs">Pastikan backend mendukung action <code class="text-[#B6FF00]">get_ga_stats</code> dan GA4 sudah dikonfigurasi.</span>`);
+                    const updated = document.getElementById('ga-last-updated');
+                    if (updated) updated.textContent = 'Gagal dimuat';
+                }
+            } finally {
+                if (refreshIcon) refreshIcon.classList.remove('animate-spin');
+                setGALoaders(false);
+            }
+        }
+
     </script>
 </body>
 </html>

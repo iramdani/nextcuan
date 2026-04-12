@@ -882,6 +882,7 @@ function doPost(e) {
       case "get_admin_orders": return jsonRes(getAdminOrders(data));
       case "delete_order": return jsonRes(deleteOrder(data));
       case "get_admin_users": return jsonRes(getAdminUsers(data));
+      case "get_ga_stats": return jsonRes(getGAStats(data, cfg));
 
       // DIAGNOSTIC & MONITORING ACTIONS
       case "get_email_logs":
@@ -4365,4 +4366,108 @@ function testLunasNotification(d) {
   } catch (e) {
     return { status: "error", message: e.toString() };
   }
+}
+
+
+/* =========================
+   GOOGLE ANALYTICS 4 STATS
+   Measurement ID: G-GZM06L9YDH
+   Requires: Script Properties:
+     - ga4_property_id: e.g., "123456789" (numeric Property ID from GA4)
+     - ga4_service_account_key: full JSON from Google Cloud service account
+========================= */
+function getGAStats(data, cfg) {
+  try {
+    requireAdminSession_(data, { actionName: "get_ga_stats" });
+    cfg = cfg || getSettingsMap_();
+
+    var propertyId = PropertiesService.getScriptProperties().getProperty("ga4_property_id")
+      || getCfgFrom_(cfg, "ga4_property_id")
+      || "";
+    var serviceAccountKeyJson = PropertiesService.getScriptProperties().getProperty("ga4_service_account_key") || "";
+
+    if (!propertyId || !serviceAccountKeyJson) {
+      return {
+        status: "not_configured",
+        message: "GA4 belum dikonfigurasi. Simpan ga4_property_id dan ga4_service_account_key di Script Properties Google Apps Script."
+      };
+    }
+
+    var serviceAccount;
+    try { serviceAccount = JSON.parse(serviceAccountKeyJson); } catch (e) {
+      return { status: "error", message: "Format ga4_service_account_key tidak valid (harus JSON service account)." };
+    }
+
+    var days = Math.min(Math.max(parseInt(data.ga_days || 30), 1), 365);
+    var startDate = days + "daysAgo";
+    var endDate = "today";
+    var prevStart = (days * 2) + "daysAgo";
+    var prevEnd = (days + 1) + "daysAgo";
+
+    var oauthToken = getGA4ServiceAccountToken_(serviceAccount);
+    if (!oauthToken) {
+      return { status: "error", message: "Gagal mendapatkan OAuth token. Pastikan service account punya akses Viewer ke properti GA4." };
+    }
+
+    var gaBase = "https://analyticsdata.googleapis.com/v1beta/properties/" + propertyId;
+    var hdrs = { "Authorization": "Bearer " + oauthToken, "Content-Type": "application/json" };
+
+    function gaPost(endpoint, payload) {
+      var res = UrlFetchApp.fetch(gaBase + endpoint, { method: "post", headers: hdrs, payload: JSON.stringify(payload), muteHttpExceptions: true });
+      var code = res.getResponseCode();
+      var body = {};
+      try { body = JSON.parse(res.getContentText()); } catch(e) {}
+      if (code !== 200) { throw new Error((body.error && body.error.message) ? body.error.message : ("GA4 API HTTP " + code)); }
+      return body;
+    }
+
+    var summaryData = gaPost(":runReport", {
+      dateRanges: [{ startDate: startDate, endDate: endDate }, { startDate: prevStart, endDate: prevEnd }],
+      metrics: [{ name: "totalUsers" }, { name: "sessions" }, { name: "screenPageViews" }, { name: "bounceRate" }, { name: "newUsers" }, { name: "averageSessionDuration" }]
+    });
+
+    function mv(rows, ri, mi) { try { return parseFloat((rows[ri] && rows[ri].metricValues && rows[ri].metricValues[mi]) ? rows[ri].metricValues[mi].value : 0) || 0; } catch(e) { return 0; } }
+    function pct(cur, prev) { return prev > 0 ? Math.round((cur - prev) / prev * 1000) / 10 : null; }
+
+    var rows = summaryData.rows || [];
+    var totalUsers = mv(rows,0,0), sessions = mv(rows,0,1), pageviews = mv(rows,0,2);
+    var bounceRate = mv(rows,0,3)*100, newUsers = mv(rows,0,4), avgDur = mv(rows,0,5);
+    var prevU = mv(rows,1,0), prevS = mv(rows,1,1), prevPv = mv(rows,1,2), prevBr = mv(rows,1,3)*100;
+
+    var trendData = gaPost(":runReport", { dateRanges: [{ startDate: startDate, endDate: endDate }], dimensions: [{ name: "date" }], metrics: [{ name: "totalUsers" }, { name: "sessions" }], orderBys: [{ dimension: { dimensionName: "date" } }], limit: 90 });
+    var dailyTrend = (trendData.rows||[]).map(function(r) { var d = r.dimensionValues[0].value; return { date: d.substring(0,4)+"-"+d.substring(4,6)+"-"+d.substring(6,8), users: parseFloat(r.metricValues[0].value)||0, sessions: parseFloat(r.metricValues[1].value)||0 }; });
+
+    var pagesData = gaPost(":runReport", { dateRanges: [{ startDate: startDate, endDate: endDate }], dimensions: [{ name: "pagePathPlusQueryString" }], metrics: [{ name: "screenPageViews" }], orderBys: [{ metric: { metricName: "screenPageViews" }, desc: true }], limit: 10 });
+    var topPages = (pagesData.rows||[]).map(function(r) { return { page: r.dimensionValues[0].value, views: parseFloat(r.metricValues[0].value)||0 }; });
+
+    var devData = gaPost(":runReport", { dateRanges: [{ startDate: startDate, endDate: endDate }], dimensions: [{ name: "deviceCategory" }], metrics: [{ name: "totalUsers" }], orderBys: [{ metric: { metricName: "totalUsers" }, desc: true }] });
+    var devices = (devData.rows||[]).map(function(r) { var l=r.dimensionValues[0].value; return { label: l.charAt(0).toUpperCase()+l.slice(1), value: parseFloat(r.metricValues[0].value)||0 }; });
+
+    var srcData = gaPost(":runReport", { dateRanges: [{ startDate: startDate, endDate: endDate }], dimensions: [{ name: "sessionDefaultChannelGrouping" }], metrics: [{ name: "sessions" }], orderBys: [{ metric: { metricName: "sessions" }, desc: true }], limit: 8 });
+    var trafficSources = (srcData.rows||[]).map(function(r) { return { source: r.dimensionValues[0].value, sessions: parseFloat(r.metricValues[0].value)||0 }; });
+
+    var ctrData = gaPost(":runReport", { dateRanges: [{ startDate: startDate, endDate: endDate }], dimensions: [{ name: "country" }], metrics: [{ name: "totalUsers" }], orderBys: [{ metric: { metricName: "totalUsers" }, desc: true }], limit: 8 });
+    var flagMap = { "Indonesia":"🇮🇩","Malaysia":"🇲🇾","Singapore":"🇸🇬","United States":"🇺🇸","India":"🇮🇳","Philippines":"🇵🇭","Thailand":"🇹🇭","Vietnam":"🇻🇳","Australia":"🇦🇺","Japan":"🇯🇵","United Kingdom":"🇬🇧" };
+    var topCountries = (ctrData.rows||[]).map(function(r) { var c=r.dimensionValues[0].value; return { country: c, users: parseFloat(r.metricValues[0].value)||0, flag: flagMap[c]||"🌏" }; });
+
+    var cityData = gaPost(":runReport", { dateRanges: [{ startDate: startDate, endDate: endDate }], dimensions: [{ name: "city" }], metrics: [{ name: "totalUsers" }], orderBys: [{ metric: { metricName: "totalUsers" }, desc: true }], limit: 8 });
+    var topCities = (cityData.rows||[]).filter(function(r) { return r.dimensionValues[0].value !== "(not set)"; }).map(function(r) { return { city: r.dimensionValues[0].value, users: parseFloat(r.metricValues[0].value)||0 }; });
+
+    return { status: "success", data: { totalUsers: totalUsers, sessions: sessions, pageviews: pageviews, bounceRate: bounceRate, newUsers: newUsers, returningUsers: Math.max(0,totalUsers-newUsers), avgSessionDuration: avgDur, usersChange: pct(totalUsers,prevU), sessionsChange: pct(sessions,prevS), pageviewsChange: pct(pageviews,prevPv), bounceChange: pct(bounceRate,prevBr), dailyTrend: dailyTrend, topPages: topPages, devices: devices, trafficSources: trafficSources, topCountries: topCountries, topCities: topCities, period: { days: days, measurementId: "G-GZM06L9YDH" } } };
+  } catch (e) {
+    return { status: "error", message: "getGAStats: " + e.toString() };
+  }
+}
+
+function getGA4ServiceAccountToken_(serviceAccount) {
+  try {
+    var now = Math.floor(Date.now() / 1000);
+    var header = Utilities.base64EncodeWebSafe(JSON.stringify({ alg: "RS256", typ: "JWT" })).replace(/=+$/, "");
+    var claimSet = Utilities.base64EncodeWebSafe(JSON.stringify({ iss: serviceAccount.client_email, scope: "https://www.googleapis.com/auth/analytics.readonly", aud: "https://oauth2.googleapis.com/token", iat: now, exp: now + 3600 })).replace(/=+$/, "");
+    var toSign = header + "." + claimSet;
+    var sig = Utilities.base64EncodeWebSafe(Utilities.computeRsaSha256Signature(toSign, serviceAccount.private_key)).replace(/=+$/, "");
+    var res = UrlFetchApp.fetch("https://oauth2.googleapis.com/token", { method: "post", contentType: "application/x-www-form-urlencoded", payload: "grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=" + toSign + "." + sig, muteHttpExceptions: true });
+    var tokenData = JSON.parse(res.getContentText());
+    return tokenData.access_token || null;
+  } catch (e) { Logger.log("getGA4ServiceAccountToken_ error: " + e); return null; }
 }
