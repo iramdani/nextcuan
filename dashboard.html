@@ -332,24 +332,43 @@
                                 </div>
                             </div>
 
-                            <div class="glass-card p-6 relative overflow-hidden group">
-                                <div class="absolute inset-0 bg-gradient-to-br from-[#B6FF00]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                <div class="relative z-10">
-                                    <div class="flex justify-between items-start mb-6">
+                            <div class="space-y-4">
+                                <!-- Card: Total Komisi Lifetime -->
+                                <div class="glass-card p-5 relative overflow-hidden group">
+                                    <div class="absolute inset-0 bg-gradient-to-br from-[#B6FF00]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    <div class="relative z-10 flex justify-between items-center">
                                         <div>
-                                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Komisi</p>
-                                            <div class="text-3xl font-bold tracking-tight text-[#B6FF00]" id="display-saldo-komisi">
-                                                <div class="h-8 w-32 skeleton rounded bg-white/10"></div>
+                                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Komisi (Lifetime)</p>
+                                            <div class="text-2xl font-bold tracking-tight text-white/90" id="display-komisi-lifetime">
+                                                <div class="h-6 w-24 skeleton rounded bg-white/10"></div>
                                             </div>
                                         </div>
-                                        <div class="p-3 bg-[#017A6B]/20 rounded-2xl text-[#017A6B] ring-1 ring-[#017A6B]/20">
-                                            <i data-lucide="wallet" class="w-6 h-6"></i>
+                                        <div class="p-2.5 bg-[#017A6B]/10 rounded-xl text-[#017A6B]/80 border border-[#017A6B]/20">
+                                            <i data-lucide="trending-up" class="w-5 h-5"></i>
                                         </div>
                                     </div>
-                                    <button onclick="requestWithdrawal()" class="w-full btn-primary px-6 py-4 rounded-xl font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 group whitespace-nowrap">
-                                        Ajukan Penarikan <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform shrink-0"></i>
-                                    </button>
-                                    <p class="text-center text-[10px] text-slate-500 mt-4 leading-snug">Minimal penarikan Rp 50.000 via WhatsApp Admin</p>
+                                </div>
+
+                                <!-- Card: Available to Withdraw -->
+                                <div class="glass-card p-6 relative overflow-hidden group border-[#B6FF00]/20 shadow-[0_0_20px_rgba(182,255,0,0.05)]">
+                                    <div class="absolute inset-0 bg-gradient-to-br from-[#B6FF00]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    <div class="relative z-10">
+                                        <div class="flex justify-between items-start mb-6">
+                                            <div>
+                                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Komisi Bisa Dicairkan</p>
+                                                <div class="text-3xl font-bold tracking-tight text-[#B6FF00]" id="display-saldo-komisi">
+                                                    <div class="h-8 w-32 skeleton rounded bg-white/10"></div>
+                                                </div>
+                                            </div>
+                                            <div class="p-3 bg-[#B6FF00]/10 rounded-2xl text-[#B6FF00] ring-1 ring-[#B6FF00]/20 shadow-[0_0_15px_rgba(182,255,0,0.1)]">
+                                                <i data-lucide="wallet" class="w-6 h-6"></i>
+                                            </div>
+                                        </div>
+                                        <button onclick="requestWithdrawal()" class="w-full btn-primary px-6 py-4 rounded-xl font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 group whitespace-nowrap">
+                                            Ajukan Penarikan <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform shrink-0"></i>
+                                        </button>
+                                        <p class="text-center text-[10px] text-slate-500 mt-4 leading-snug">Minimal penarikan Rp 50.000 via WhatsApp Admin</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -960,10 +979,19 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             if (r.partners) {
                 renderPartners(r.partners);
                 renderSalesChart(r.partners);
+               if (r.total_komisi !== undefined) {
+                const lifetimeEl = document.getElementById('display-komisi-lifetime');
+                if (lifetimeEl) lifetimeEl.innerText = 'Rp ' + Number(r.total_komisi).toLocaleString('id-ID');
             }
-            if (r.total_komisi !== undefined) {
-                document.getElementById('display-saldo-komisi').innerText = 'Rp ' + Number(r.total_komisi).toLocaleString('id-ID');
-            }
+            
+            if (r.saldo_bisa_dicairkan !== undefined) {
+                const saldoEl = document.getElementById('display-saldo-komisi');
+                if (saldoEl) saldoEl.innerText = 'Rp ' + Number(r.saldo_bisa_dicairkan).toLocaleString('id-ID');
+            } else if (r.total_komisi !== undefined) {
+                // Fallback for old cache/compatibility
+                const saldoEl = document.getElementById('display-saldo-komisi');
+                if (saldoEl) saldoEl.innerText = 'Rp ' + Number(r.total_komisi).toLocaleString('id-ID');
+            }           }
 
             const ownedContainer = document.getElementById('list-owned');
             if (r.owned && r.owned.length > 0) {

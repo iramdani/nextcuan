@@ -2260,13 +2260,15 @@ function getProducts(d, cfg, cachedOrders) {
     }
   }
 
-  let lunasIds = [], totalKomisi = 0, uId = "";
+  let lunasIds = [], totalKomisi = 0, totalDitarik = 0, uId = "";
   let partners = [];
 
   if (email) {
     for (let j = 1; j < users.length; j++) {
       if (String(users[j][1]).toLowerCase() === email) { uId = String(users[j][0]); break; }
     }
+    
+    // 1. Calculate Lifetime Commission from Orders
     for (let x = 1; x < orders.length; x++) {
       const r = orders[x];
       if (String(r[1]).toLowerCase() === email && String(r[7]) === "Lunas") lunasIds.push(String(r[4]));
@@ -2292,6 +2294,22 @@ function getProducts(d, cfg, cachedOrders) {
           date: dtStr,
           commission: r[10] || 0
         });
+      }
+    }
+
+    // 2. Calculate Withdrawn Commission from Withdrawals sheet
+    const wdSheet = ss.getSheetByName("Withdrawals");
+    if (wdSheet && uId) {
+      const wdData = wdSheet.getDataRange().getValues();
+      for (let i = 1; i < wdData.length; i++) {
+        const rowUserId = String(wdData[i][1]);
+        const rowStatus = String(wdData[i][4]).trim().toLowerCase();
+        const rowAmount = Number(wdData[i][3] || 0);
+        
+        // Sum successful and pending withdrawals as they reduce available balance
+        if (rowUserId === uId && (rowStatus === 'success' || rowStatus === 'pending' || rowStatus === 'berhasil')) {
+          totalDitarik += rowAmount;
+        }
       }
     }
   }
@@ -2355,7 +2373,17 @@ function getProducts(d, cfg, cachedOrders) {
     }
   }
 
-  return withPublicCacheVersion_({ status: "success", owned, available, total_komisi: totalKomisi, partners: partners.reverse() }, "catalog");
+  const saldoBisaDicairkan = Math.max(0, totalKomisi - totalDitarik);
+
+  return withPublicCacheVersion_({ 
+    status: "success", 
+    owned, 
+    available, 
+    total_komisi: totalKomisi, 
+    total_ditarik: totalDitarik,
+    saldo_bisa_dicairkan: saldoBisaDicairkan,
+    partners: partners.reverse() 
+  }, "catalog");
 }
 
 function getDashboardData(d) {
