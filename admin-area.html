@@ -867,80 +867,102 @@
                             </select>
                         </div>
                     </div>
-                    <div class="flex flex-col lg:flex-row gap-6 mb-10 fade-in-up">
-                        <!-- Left Stack: 6 Cards (2x3) -->
-                        <div class="w-full lg:w-[480px] flex-shrink-0 grid grid-cols-2 gap-4 content-start">
+                    <style>
+                        #sales-overview-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+                        #summary-cards-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+                        @media (min-width: 1024px) {
+                            #sales-overview-grid { grid-template-columns: repeat(3, 1fr) !important; }
+                            #summary-cards-grid { grid-template-columns: repeat(2, 1fr) !important; grid-column: span 1 / span 1 !important; }
+                            #sales-chart-container { grid-column: span 2 / span 2 !important; }
+                        }
+                    </style>
+
+                    <div id="sales-overview-grid" class="mb-10 w-full min-w-0 fade-in-up">
+                        <!-- Summary Cards Section -->
+                        <div id="summary-cards-grid">
                             <!-- Card 1: Pendapatan -->
                             <div class="glass-card hover:glow-primary flex flex-col justify-center relative overflow-hidden group p-4 sm:p-5 min-w-0 border-[rgba(182,255,0,0.1)]">
-                                <div class="absolute right-0 top-0 w-16 h-16 bg-[rgba(182,255,0,0.05)] rounded-bl-3xl pointer-events-none transition-transform group-hover:scale-110"></div>
+                                <div class="absolute right-0 top-0 w-24 h-24 bg-[rgba(1,122,107,0.05)] rounded-bl-[60px] pointer-events-none transition-transform group-hover:scale-110"></div>
                                 <div class="flex items-center gap-3 mb-2">
-                                    <div class="w-8 h-8 bg-[rgba(182,255,0,0.1)] text-[#B6FF00] rounded-lg flex items-center justify-center shrink-0 border border-[rgba(182,255,0,0.2)]">
+                                    <div class="w-8 h-8 bg-[rgba(1,122,107,0.2)] text-[#017A6B] rounded-xl flex items-center justify-center shrink-0 border border-[#017A6B]/30 shadow-lg shadow-[#017A6B]/10">
                                         <i data-lucide="wallet" class="w-4 h-4"></i>
                                     </div>
-                                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-tight z-10">Pendapatan</p>
+                                    <div class="z-10 relative">
+                                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-tight">Pendapatan</p>
+                                    </div>
                                 </div>
-                                <h3 id="chart-sum-revenue" class="text-base sm:text-lg font-bold tracking-tight text-[#B6FF00] z-10 relative truncate">Rp 0</h3>
+                                <h3 id="chart-sum-revenue" class="text-base sm:text-lg font-bold tracking-tight text-[#B6FF00] mt-1 z-10 relative truncate">Rp 0</h3>
                             </div>
 
                             <!-- Card 2: Pesanan -->
                             <div class="glass-card hover:glow-primary flex flex-col justify-center relative overflow-hidden group p-4 sm:p-5 min-w-0">
-                                <div class="absolute right-0 top-0 w-16 h-16 bg-[rgba(1,122,107,0.05)] rounded-bl-3xl pointer-events-none transition-transform group-hover:scale-110"></div>
+                                <div class="absolute right-0 top-0 w-24 h-24 bg-[rgba(182,255,0,0.05)] rounded-bl-[60px] pointer-events-none transition-transform group-hover:scale-110"></div>
                                 <div class="flex items-center gap-3 mb-2">
-                                    <div class="w-8 h-8 bg-[rgba(1,122,107,0.2)] text-[#017A6B] rounded-lg flex items-center justify-center shrink-0 border border-[#017A6B]/30">
+                                    <div class="w-8 h-8 bg-[rgba(182,255,0,0.1)] text-[#B6FF00] rounded-xl flex items-center justify-center shrink-0 border border-[rgba(182,255,0,0.2)] shadow-lg shadow-[#B6FF00]/10">
                                         <i data-lucide="shopping-bag" class="w-4 h-4"></i>
                                     </div>
-                                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-tight z-10">Pesanan</p>
+                                    <div class="z-10 relative">
+                                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-tight">Pesanan</p>
+                                    </div>
                                 </div>
-                                <h3 id="chart-sum-orders" class="text-base sm:text-lg font-bold tracking-tight text-white z-10 relative truncate">0</h3>
+                                <h3 id="chart-sum-orders" class="text-base sm:text-lg font-bold tracking-tight text-white mt-1 z-10 relative truncate">0</h3>
                             </div>
 
                             <!-- Card 3: Lunas -->
                             <div class="glass-card hover:glow-primary flex flex-col justify-center relative overflow-hidden group p-4 sm:p-5 min-w-0 border-[rgba(182,255,0,0.15)] bg-[rgba(182,255,0,0.02)]">
                                 <div class="flex items-center gap-3 mb-2">
-                                    <div class="w-8 h-8 bg-[rgba(182,255,0,0.15)] text-[#B6FF00] rounded-lg flex items-center justify-center shrink-0 border border-[#B6FF00]/30">
+                                    <div class="w-8 h-8 bg-[rgba(182,255,0,0.15)] text-[#B6FF00] rounded-xl flex items-center justify-center shrink-0 border border-[#B6FF00]/30">
                                         <i data-lucide="check-circle" class="w-4 h-4"></i>
                                     </div>
-                                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-tight z-10">Lunas</p>
+                                    <div class="z-10 relative">
+                                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-tight">Lunas</p>
+                                    </div>
                                 </div>
-                                <h3 id="chart-sum-lunas" class="text-base sm:text-lg font-bold tracking-tight text-[#B6FF00] z-10 relative truncate">0</h3>
+                                <h3 id="chart-sum-lunas" class="text-base sm:text-lg font-bold tracking-tight text-[#B6FF00] mt-1 z-10 relative truncate">0</h3>
                             </div>
 
                             <!-- Card 4: Pending -->
                             <div class="glass-card hover:glow-primary flex flex-col justify-center relative overflow-hidden group p-4 sm:p-5 min-w-0 border-[rgba(245,158,11,0.15)] bg-[rgba(245,158,11,0.02)]">
                                 <div class="flex items-center gap-3 mb-2">
-                                    <div class="w-8 h-8 bg-[rgba(245,158,11,0.15)] text-[#f59e0b] rounded-lg flex items-center justify-center shrink-0 border border-[#f59e0b]/30">
+                                    <div class="w-8 h-8 bg-[rgba(245,158,11,0.15)] text-[#f59e0b] rounded-xl flex items-center justify-center shrink-0 border border-[#f59e0b]/30">
                                         <i data-lucide="clock" class="w-4 h-4"></i>
                                     </div>
-                                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-tight z-10">Pending</p>
+                                    <div class="z-10 relative">
+                                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-tight">Pending</p>
+                                    </div>
                                 </div>
-                                <h3 id="chart-sum-pending" class="text-base sm:text-lg font-bold tracking-tight text-[#f59e0b] z-10 relative truncate">0</h3>
+                                <h3 id="chart-sum-pending" class="text-base sm:text-lg font-bold tracking-tight text-[#f59e0b] mt-1 z-10 relative truncate">0</h3>
                             </div>
 
                             <!-- Card 5: Batal -->
-                            <div class="glass-card hover:glow-primary flex flex-col justify-col justify-center relative overflow-hidden group p-4 sm:p-5 min-w-0 border-[rgba(239,68,68,0.15)] bg-[rgba(239,68,68,0.02)]">
+                            <div class="glass-card hover:glow-primary flex flex-col justify-center relative overflow-hidden group p-4 sm:p-5 min-w-0 border-[rgba(239,68,68,0.15)] bg-[rgba(239,68,68,0.02)]">
                                 <div class="flex items-center gap-3 mb-2">
-                                    <div class="w-8 h-8 bg-[rgba(239,68,68,0.15)] text-[#ef4444] rounded-lg flex items-center justify-center shrink-0 border border-[#ef4444]/30">
+                                    <div class="w-8 h-8 bg-[rgba(239,68,68,0.15)] text-[#ef4444] rounded-xl flex items-center justify-center shrink-0 border border-[#ef4444]/30">
                                         <i data-lucide="x-circle" class="w-4 h-4"></i>
                                     </div>
-                                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-tight z-10">Batal</p>
+                                    <div class="z-10 relative">
+                                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-tight">Batal</p>
+                                    </div>
                                 </div>
-                                <h3 id="chart-sum-batal" class="text-base sm:text-lg font-bold tracking-tight text-[#ef4444] z-10 relative truncate">0</h3>
+                                <h3 id="chart-sum-batal" class="text-base sm:text-lg font-bold tracking-tight text-[#ef4444] mt-1 z-10 relative truncate">0</h3>
                             </div>
 
                             <!-- Card 6: Komisi -->
                             <div class="glass-card hover:glow-primary flex flex-col justify-center relative overflow-hidden group p-4 sm:p-5 min-w-0 border-[rgba(14,165,233,0.15)] bg-[rgba(14,165,233,0.02)]">
                                 <div class="flex items-center gap-3 mb-2">
-                                    <div class="w-8 h-8 bg-[rgba(14,165,233,0.15)] text-[#0ea5e9] rounded-lg flex items-center justify-center shrink-0 border border-[#0ea5e9]/30">
+                                    <div class="w-8 h-8 bg-[rgba(14,165,233,0.15)] text-[#0ea5e9] rounded-xl flex items-center justify-center shrink-0 border border-[#0ea5e9]/30">
                                         <i data-lucide="coins" class="w-4 h-4"></i>
                                     </div>
-                                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-tight z-10">Komisi</p>
+                                    <div class="z-10 relative">
+                                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-tight">Komisi</p>
+                                    </div>
                                 </div>
-                                <h3 id="chart-sum-komisi" class="text-base sm:text-lg font-bold tracking-tight text-[#0ea5e9] z-10 relative truncate">Rp 0</h3>
+                                <h3 id="chart-sum-komisi" class="text-base sm:text-lg font-bold tracking-tight text-[#0ea5e9] mt-1 z-10 relative truncate">Rp 0</h3>
                             </div>
                         </div>
 
-                        <!-- Right Stack: Chart -->
-                        <div class="flex-grow glass-card p-0 flex flex-col relative w-full h-[300px] md:h-auto overflow-hidden">
+                        <!-- Chart Section -->
+                        <div id="sales-chart-container" class="glass-card p-4 sm:p-5 flex flex-col relative w-full h-[300px] md:h-auto min-h-[300px] overflow-hidden">
                             <div id="sales-chart-loader" class="absolute inset-0 bg-[#000018]/80 backdrop-blur-sm z-10 flex items-center justify-center hidden rounded-[2rem]">
                                 <div class="w-8 h-8 border-4 border-[rgba(182,255,0,0.3)] border-t-[#B6FF00] rounded-full animate-spin"></div>
                             </div>
@@ -3887,13 +3909,16 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             
             sortedDates.forEach(dt => {
                 const dObj = new Date(dt);
-                labels.push(dObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }));
+                labels.push(dObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'numeric', year: 'numeric' }));
                 dataRevLunas.push(dateMap[dt].lunas.rev); dataCountLunas.push(dateMap[dt].lunas.count);
                 dataRevPending.push(dateMap[dt].pending.rev); dataCountPending.push(dateMap[dt].pending.count);
                 dataRevBatal.push(dateMap[dt].batal.rev); dataCountBatal.push(dateMap[dt].batal.count);
             });
 
             if(adminSalesChartInstance) adminSalesChartInstance.destroy();
+
+            Chart.defaults.color = '#94a3b8';
+            Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
 
             adminSalesChartInstance = new Chart(ctx, {
                 type: 'line',
@@ -3906,16 +3931,16 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                     ]
                 },
                 options: {
-                    layout: { padding: { left: 0, right: 10, top: 40, bottom: 10 } },
+                    layout: { padding: { left: 0, right: 10, top: 40, bottom: 0 } },
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { display: true, position: 'top', align: 'end', labels: { color: '#94a3b8', font: { family: "'Plus Jakarta Sans', sans-serif", size: 11, weight: 'bold' }, boxWidth: 8, usePointStyle: true } },
-                        tooltip: { backgroundColor: 'rgba(10, 10, 24, 0.95)', titleFont: { size: 14, weight: 'bold' }, bodyFont: { size: 13 }, padding: 12, cornerRadius: 8, displayColors: true, borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1, callbacks: { title: function(context) { if(context && context.length > 0) { let originalIso = sortedDates[context[0].dataIndex]; let parts = originalIso.split('-'); return 'Tanggal: ' + parts[2] + '/' + parts[1] + '/' + parts[0]; } return ''; }, label: function(context) { let label = context.dataset.label || ''; let revStr = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 0 }).format(context.parsed.y); let countStr = context.dataset.orderCountData[context.dataIndex]; return label + ': Rp ' + revStr + ' (' + countStr + ' Pesanan)'; } } }
+                        legend: { display: true, position: 'top', align: 'end', labels: { color: '#94a3b8', font: { size: 11, weight: 'bold' }, boxWidth: 8, usePointStyle: true } },
+                        tooltip: { backgroundColor: 'rgba(10, 10, 24, 0.95)', titleFont: { size: 13, weight: 'bold' }, bodyFont: { size: 12 }, padding: 12, cornerRadius: 8, displayColors: true, borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1, callbacks: { label: function(context) { let label = context.dataset.label || ''; let revStr = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 0 }).format(context.parsed.y); let countStr = context.dataset.orderCountData[context.dataIndex]; return label + ': Rp ' + revStr + ' (' + countStr + ' Pesanan)'; } } }
                     },
                     scales: {
-                        x: { offset: false, grid: { display: false, drawBorder: false }, ticks: { align: 'inner', font: { size: 11 }, color: '#64748b' } },
-                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.03)', drawBorder: false }, ticks: { font: { size: 11 }, color: '#64748b', callback: function(value) { if(value >= 1000000) return 'Rp' + (value/1000000) + 'jt'; if(value >= 1000) return 'Rp' + (value/1000) + 'k'; return 'Rp' + value; }, maxTicksLimit: 6 } }
+                        x: { grid: { display: false, drawBorder: false }, ticks: { font: { size: 10 }, color: '#64748b', maxRotation: 0 } },
+                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.03)', drawBorder: false }, ticks: { font: { size: 10 }, color: '#64748b', callback: function(value) { if(value >= 1000000) return 'Rp' + (value/1000000) + 'jt'; if(value >= 1000) return 'Rp' + (value/1000) + 'k'; return 'Rp' + value; }, maxTicksLimit: 6 } }
                     },
                     interaction: { intersect: false, mode: 'index' }
                 }
