@@ -1755,8 +1755,8 @@
     </div>
 
     <!-- MODAL VOUCHER -->
-    <div id="modal-voucher" class="fixed inset-0 bg-[#000018]/80 z-[300] hidden items-center justify-center p-4 backdrop-blur-md">
-        <div class="glass-card rounded-[2rem] w-full max-w-2xl max-h-[92vh] overflow-y-auto p-8 custom-scroll">
+    <div id="modal-voucher" class="fixed inset-0 bg-[#000018]/80 z-[300] hidden items-start justify-center p-4 backdrop-blur-md overflow-y-auto">
+        <div class="glass-card rounded-[2rem] w-full max-w-2xl p-8 custom-scroll my-auto">
             <div class="flex items-center justify-between mb-6">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 bg-[rgba(182,255,0,0.1)] rounded-xl flex items-center justify-center border border-[rgba(182,255,0,0.2)]">
@@ -1888,8 +1888,8 @@
     </div>
 
     <!-- MODAL PRODUCT -->
-    <div id="modal-prod" class="fixed inset-0 bg-[#000018]/95 hidden z-[300] items-center justify-center p-4 backdrop-blur-xl">
-        <div class="glass-card w-full max-w-2xl rounded-[2.5rem] p-8 md:p-10 shadow-2xl shadow-black/80 max-h-[90vh] overflow-y-auto custom-scroll relative" style="background: rgba(5,5,20,0.92); border-color: rgba(255,255,255,0.1);">
+    <div id="modal-prod" class="fixed inset-0 bg-[#000018]/95 hidden z-[300] items-start justify-center p-4 backdrop-blur-xl overflow-y-auto">
+        <div class="glass-card w-full max-w-2xl rounded-[2.5rem] p-8 md:p-10 shadow-2xl shadow-black/80 custom-scroll relative my-auto" style="background: rgba(5,5,20,0.92); border-color: rgba(255,255,255,0.1);">
             <button onclick="closeModal('modal-prod')" class="absolute top-6 right-6 p-2 bg-[rgba(255,255,255,0.05)] rounded-full text-slate-400 hover:bg-[rgba(255,255,255,0.1)] hover:text-white transition-colors border border-[rgba(255,255,255,0.1)]"><i data-lucide="x" class="w-5 h-5"></i></button>
             
             <h3 class="text-2xl font-bold mb-2 text-white">Setup Produk</h3>
@@ -2023,9 +2023,9 @@
     </div>
 
     <!-- MODAL PAGE -->
-    <div id="modal-page" class="fixed inset-0 hidden z-[300] flex items-center justify-center p-4">
-        <div class="modal-overlay absolute inset-0" onclick="closeModal('modal-page')"></div>
-        <div class="modal-panel w-full max-w-5xl rounded-[2.5rem] p-6 md:p-10 max-h-[95vh] overflow-y-auto custom-scroll relative z-10" style="box-shadow: 0 0 80px rgba(0,0,0,1);">
+    <div id="modal-page" class="fixed inset-0 hidden z-[300] flex items-start justify-center p-4 overflow-y-auto">
+        <div class="modal-overlay fixed inset-0" onclick="closeModal('modal-page')"></div>
+        <div class="modal-panel w-full max-w-5xl rounded-[2.5rem] p-6 md:p-10 custom-scroll relative z-10 my-auto" style="box-shadow: 0 0 80px rgba(0,0,0,1);">
             <button onclick="closeModal('modal-page')" class="absolute top-6 right-6 p-2 bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-full text-slate-400 hover:bg-[rgba(255,255,255,0.1)] hover:text-white transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
 
             <h3 class="text-2xl font-bold mb-2 text-white">Editor Halaman</h3>
