@@ -367,43 +367,45 @@
                             <p class="text-[11px] text-slate-500 mt-1.5 ml-0.5 font-medium">Contoh: 81234567890 (tanpa angka 0 di depan)</p>
                         </div>
 
+                        <!-- VOUCHER SECTION (visible on step 1) -->
+                        <div id="voucher-section" class="pt-1">
+                            <div class="h-px bg-[rgba(255,255,255,0.05)] mb-5"></div>
+                            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3 ml-0.5">Kode Voucher <span class="text-slate-600 font-medium normal-case">(Opsional)</span></label>
+                            <div class="flex gap-2">
+                                <div class="relative flex-1">
+                                    <i data-lucide="ticket" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 z-10 pointer-events-none"></i>
+                                    <input type="text" id="voucher-code-input" placeholder="Masukkan kode voucher..." class="glass-input w-full rounded-xl py-3.5 font-mono font-bold text-white outline-none placeholder:text-slate-600 placeholder:font-normal text-sm transition-all uppercase" style="padding-left: 2.75rem !important;" oninput="this.value=this.value.toUpperCase()">
+                                </div>
+                                <button type="button" onclick="applyVoucher()" id="btn-apply-voucher" class="bg-[rgba(182,255,0,0.15)] hover:bg-[rgba(182,255,0,0.25)] text-[#B6FF00] border border-[rgba(182,255,0,0.3)] px-5 rounded-xl font-bold text-xs uppercase tracking-wide transition-all whitespace-nowrap flex items-center gap-2">
+                                    <i data-lucide="check" class="w-4 h-4"></i> Pakai
+                                </button>
+                            </div>
+                            <div id="voucher-result" class="hidden mt-3 rounded-xl p-4 border border-[rgba(182,255,0,0.25)] bg-[rgba(182,255,0,0.05)]">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-lg bg-[rgba(182,255,0,0.1)] border border-[rgba(182,255,0,0.3)] flex items-center justify-center flex-shrink-0">
+                                            <i data-lucide="tag" class="w-4 h-4 text-[#B6FF00]"></i>
+                                        </div>
+                                        <div>
+                                            <p id="voucher-code-badge" class="font-mono font-black text-[#B6FF00] tracking-widest text-sm"></p>
+                                            <p id="voucher-discount-label" class="text-xs text-slate-400 mt-0.5"></p>
+                                        </div>
+                                    </div>
+                                    <button type="button" onclick="removeVoucher()" class="text-slate-500 hover:text-red-400 transition-colors ml-3 flex-shrink-0">
+                                        <i data-lucide="x-circle" class="w-5 h-5"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="voucher-error" class="hidden mt-2 text-xs font-bold text-red-400 flex items-center gap-2 ml-0.5">
+                                <i data-lucide="alert-circle" class="w-3.5 h-3.5 flex-shrink-0"></i>
+                                <span id="voucher-error-msg"></span>
+                            </div>
+                        </div>
+
                         <!-- PAYMENT METHOD SECTION -->
                         <div id="payment-method-section" class="hidden animate-fade-in-up pt-2">
                             <div class="h-px bg-[rgba(255,255,255,0.05)] mb-6"></div>
 
-                            <!-- VOUCHER SECTION -->
-                            <div class="mb-6">
-                                <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3 ml-0.5">Kode Voucher <span class="text-slate-600 font-medium normal-case">(Opsional)</span></label>
-                                <div class="flex gap-2">
-                                    <div class="relative flex-1">
-                                        <i data-lucide="ticket" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 z-10 pointer-events-none"></i>
-                                        <input type="text" id="voucher-code-input" placeholder="Masukkan kode voucher..." class="glass-input w-full rounded-xl py-3.5 font-mono font-bold text-white outline-none placeholder:text-slate-600 placeholder:font-normal text-sm transition-all uppercase" style="padding-left: 2.75rem !important;" oninput="this.value=this.value.toUpperCase()">
-                                    </div>
-                                    <button type="button" onclick="applyVoucher()" id="btn-apply-voucher" class="bg-[rgba(182,255,0,0.15)] hover:bg-[rgba(182,255,0,0.25)] text-[#B6FF00] border border-[rgba(182,255,0,0.3)] px-5 rounded-xl font-bold text-xs uppercase tracking-wide transition-all whitespace-nowrap flex items-center gap-2">
-                                        <i data-lucide="check" class="w-4 h-4"></i> Pakai
-                                    </button>
-                                </div>
-                                <div id="voucher-result" class="hidden mt-3 rounded-xl p-4 border border-[rgba(182,255,0,0.25)] bg-[rgba(182,255,0,0.05)]">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-8 h-8 rounded-lg bg-[rgba(182,255,0,0.1)] border border-[rgba(182,255,0,0.3)] flex items-center justify-center flex-shrink-0">
-                                                <i data-lucide="tag" class="w-4 h-4 text-[#B6FF00]"></i>
-                                            </div>
-                                            <div>
-                                                <p id="voucher-code-badge" class="font-mono font-black text-[#B6FF00] tracking-widest text-sm"></p>
-                                                <p id="voucher-discount-label" class="text-xs text-slate-400 mt-0.5"></p>
-                                            </div>
-                                        </div>
-                                        <button type="button" onclick="removeVoucher()" class="text-slate-500 hover:text-red-400 transition-colors ml-3 flex-shrink-0">
-                                            <i data-lucide="x-circle" class="w-5 h-5"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div id="voucher-error" class="hidden mt-2 text-xs font-bold text-red-400 flex items-center gap-2 ml-0.5">
-                                    <i data-lucide="alert-circle" class="w-3.5 h-3.5 flex-shrink-0"></i>
-                                    <span id="voucher-error-msg"></span>
-                                </div>
-                            </div>
 
                             <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3 ml-0.5">Metode Pembayaran</label>
                             <div class="grid grid-cols-1 gap-3">
