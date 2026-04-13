@@ -757,11 +757,11 @@
                 <button onclick="switchTab('media')" id="nav-media" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm">
                     <i data-lucide="image" class="w-5 h-5"></i> Media Center
                 </button>
-                <button onclick="switchTab('stats')" id="nav-stats" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm">
-                    <i data-lucide="bar-chart-2" class="w-5 h-5"></i> Statistik
-                </button>
                 <button onclick="switchTab('vouchers')" id="nav-vouchers" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm">
                     <i data-lucide="ticket" class="w-5 h-5"></i> Voucher & Promo
+                </button>
+                <button onclick="switchTab('stats')" id="nav-stats" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm">
+                    <i data-lucide="bar-chart-2" class="w-5 h-5"></i> Statistik
                 </button>
                 
                 <div class="px-4 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 mt-6">System</div>
@@ -1692,7 +1692,7 @@
                                 </div>
                                 <div>
                                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Kode Voucher yang Ditampilkan</label>
-                                    <input type="text" id="promo-voucher-code" placeholder="Contoh: DISKON20" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all text-sm font-mono text-white uppercase">
+                                    <input type="text" id="promo-voucher-code" value="DISKON20" placeholder="Contoh: DISKON20" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all text-sm font-mono text-white uppercase">
                                 </div>
                                 <div>
                                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">URL Gambar Popup (Opsional)</label>
@@ -1788,14 +1788,18 @@
                 <!-- Berlaku Untuk -->
                 <div>
                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Berlaku Untuk <span class="text-[#B6FF00]">*</span></label>
-                    <div class="flex gap-3">
+                    <div class="flex flex-col sm:flex-row gap-3">
                         <label class="flex-1 flex items-center gap-3 cursor-pointer p-4 rounded-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] hover:bg-[rgba(255,255,255,0.05)] transition-all has-[:checked]:border-[#B6FF00]/50 has-[:checked]:bg-[rgba(182,255,0,0.05)]">
                             <input type="radio" name="v-apply-to" value="all" id="v-apply-all" class="text-[#B6FF00] focus:ring-[#B6FF00] focus:ring-offset-0 bg-transparent border-slate-600" checked onchange="toggleProductSelector()">
-                            <span class="text-sm font-bold text-white">Semua Produk</span>
+                            <span class="text-[11px] font-bold text-white uppercase tracking-wide">Semua Produk</span>
                         </label>
                         <label class="flex-1 flex items-center gap-3 cursor-pointer p-4 rounded-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] hover:bg-[rgba(255,255,255,0.05)] transition-all has-[:checked]:border-[#B6FF00]/50 has-[:checked]:bg-[rgba(182,255,0,0.05)]">
                             <input type="radio" name="v-apply-to" value="specific" id="v-apply-specific" class="text-[#B6FF00] focus:ring-[#B6FF00] focus:ring-offset-0 bg-transparent border-slate-600" onchange="toggleProductSelector()">
-                            <span class="text-sm font-bold text-white">Produk Tertentu</span>
+                            <span class="text-[11px] font-bold text-white uppercase tracking-wide">Produk Tertentu</span>
+                        </label>
+                        <label class="flex-1 flex items-center gap-3 cursor-pointer p-4 rounded-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] hover:bg-[rgba(255,255,255,0.05)] transition-all has-[:checked]:border-[#B6FF00]/50 has-[:checked]:bg-[rgba(182,255,0,0.05)]">
+                            <input type="radio" name="v-apply-to" value="exclude" id="v-apply-exclude" class="text-[#B6FF00] focus:ring-[#B6FF00] focus:ring-offset-0 bg-transparent border-slate-600" onchange="toggleProductSelector()">
+                            <span class="text-[11px] font-bold text-white uppercase tracking-wide">Kecuali Produk Tertentu</span>
                         </label>
                     </div>
                 </div>
@@ -1811,7 +1815,7 @@
                 <!-- Baris pengaturan lanjutan -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
-                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Maks. Penggunaan</label>
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block" title="Jumlah total pemakaian voucher oleh keseluruhan pembeli">Batas Kuota Voucher</label>
                         <input type="number" id="v-max-uses" placeholder="0 = tak terbatas" min="0" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all font-bold text-white">
                     </div>
                     <div>
@@ -3682,6 +3686,9 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             if (v.apply_to === 'specific') {
                 document.getElementById('v-apply-specific').checked = true;
                 document.getElementById('v-product-select-wrapper').classList.remove('hidden');
+            } else if (v.apply_to === 'exclude') {
+                document.getElementById('v-apply-exclude').checked = true;
+                document.getElementById('v-product-select-wrapper').classList.remove('hidden');
             } else {
                 document.getElementById('v-apply-all').checked = true;
                 document.getElementById('v-product-select-wrapper').classList.add('hidden');
@@ -3706,8 +3713,9 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
         }
 
         function toggleProductSelector() {
-            const specific = document.getElementById('v-apply-specific').checked;
-            document.getElementById('v-product-select-wrapper').classList.toggle('hidden', !specific);
+            const specific = document.getElementById('v-apply-specific')?.checked;
+            const exclude = document.getElementById('v-apply-exclude')?.checked;
+            document.getElementById('v-product-select-wrapper').classList.toggle('hidden', !(specific || exclude));
         }
 
         function updateVoucherValueLabel() {

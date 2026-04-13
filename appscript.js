@@ -884,6 +884,7 @@ function doPost(e) {
       case "get_admin_users": return jsonRes(getAdminUsers(data));
       case "get_ga_stats": return jsonRes(getGAStats(data, cfg));
       case "get_vouchers": return jsonRes(getVouchers(data));
+      case "get_products": return jsonRes(getAdminProducts(data));
       case "save_voucher": return jsonRes(saveVoucher(data));
       case "delete_voucher": return jsonRes(deleteVoucher(data));
       case "validate_voucher": return jsonRes(validateVoucher(data, cfg));
@@ -4547,6 +4548,24 @@ function getOrCreateVoucherSheet_() {
   return sh;
 }
 
+function getAdminProducts(d) {
+  try {
+    requireAdminSession_(d, { actionName: "get_products" });
+    const sh = mustSheet_("Products");
+    const data = sh.getDataRange().getValues();
+    const products = [];
+    // Skip header
+    for (let i = 1; i < data.length; i++) {
+       const row = data[i];
+       if (!row[0]) continue;
+       products.push(row);
+    }
+    return { status: "success", products: products };
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
 function getVouchers(d) {
   try {
     requireAdminSession_(d, { actionName: "get_vouchers" });
@@ -4689,6 +4708,10 @@ function validateVoucher(d, cfg) {
     if (voucher.apply_to === "specific" && productId) {
       if (!voucher.product_ids.includes(productId)) {
         return { status: "error", message: "Voucher ini tidak berlaku untuk produk ini." };
+      }
+    } else if (voucher.apply_to === "exclude" && productId) {
+      if (voucher.product_ids.includes(productId)) {
+        return { status: "error", message: "Voucher ini tidak dapat digunakan untuk produk ini." };
       }
     }
 
