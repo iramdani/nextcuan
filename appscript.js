@@ -883,6 +883,12 @@ function doPost(e) {
       case "delete_order": return jsonRes(deleteOrder(data));
       case "get_admin_users": return jsonRes(getAdminUsers(data));
       case "get_ga_stats": return jsonRes(getGAStats(data, cfg));
+      case "get_vouchers": return jsonRes(getVouchers(data));
+      case "save_voucher": return jsonRes(saveVoucher(data));
+      case "delete_voucher": return jsonRes(deleteVoucher(data));
+      case "validate_voucher": return jsonRes(validateVoucher(data, cfg));
+      case "save_promotion": return jsonRes(savePromotion(data));
+      case "get_promotion": return jsonRes(getPromotion(data));
 
       // DIAGNOSTIC & MONITORING ACTIONS
       case "get_email_logs":
@@ -1584,6 +1590,23 @@ function createOrder(d, cfg) {
     const isZeroPrice = hargaDasar === 0;
     if (!isZeroPrice && hargaDasar <= 0) return { status: "error", message: "Harga tidak valid" };
 
+    // --- VOUCHER DISCOUNT ---
+    let voucherCode = String(d.voucher_code || "").trim().toUpperCase();
+    let hargaSetelahVoucher = hargaDasar;
+    let discountFactor = 1; // 1 = no discount; 0.9 = 10% discount etc.
+    if (voucherCode) {
+      const vRes = validateVoucher({ voucher_code: voucherCode, product_id: String(d.id_produk || ""), harga: hargaDasar }, cfg);
+      if (vRes.status === "success") {
+        hargaSetelahVoucher = vRes.discounted_price;
+        discountFactor = vRes.discount_factor;
+      } else {
+        // Voucher failed server-side check — ignore (frontend already validated, but be safe)
+        voucherCode = "";
+      }
+    }
+    const hargaFinal = hargaSetelahVoucher;
+    const isZeroPriceFinal = hargaFinal === 0;
+
     let komisiNominal = 0;
 
     // Validate product status + lookup commission
@@ -1601,20 +1624,21 @@ function createOrder(d, cfg) {
             komisiNominal = Number(rules[i][11] || 0);
 
             // --- ANTI SELF-AFFILIATE CHECK ---
-            // If buyer's email or phone matches the affiliate's email/phone, set commission to 0
             let affEmail = "";
             let affWA = "";
             for (let j = 1; j < uData.length; j++) {
               if (String(uData[j][0]) === aff) {
                 affEmail = String(uData[j][1]).toLowerCase().trim();
-                affWA = normalizePhone_(String(uData[j][7])); // Col 8 is WhatsApp
+                affWA = normalizePhone_(String(uData[j][7]));
                 break;
               }
             }
-
             if (email === affEmail || (waNormalized && affWA && waNormalized === affWA)) {
               Logger.log("Self-affiliate detected for " + email + " against affiliate " + aff + ". Commission set to 0.");
               komisiNominal = 0;
+            } else {
+              // Scale commission by voucher discount factor (proportional)
+              komisiNominal = Math.floor(komisiNominal * discountFactor);
             }
           }
           break;
@@ -1622,8 +1646,8 @@ function createOrder(d, cfg) {
       }
     }
 
-    const kodeUnik = isZeroPrice ? 0 : (Math.floor(Math.random() * 299) + 1);
-    const hargaTotalUnik = hargaDasar + kodeUnik;
+    const kodeUnik = (isZeroPrice || isZeroPriceFinal) ? 0 : (Math.floor(Math.random() * 299) + 1);
+    const hargaTotalUnik = hargaFinal + kodeUnik;
 
     // Cek atau Buat User Baru
     let isNew = true;
@@ -1655,10 +1679,9 @@ function createOrder(d, cfg) {
       uS.appendRow([newUserId, email, hashPassword_(pass), d.nama, "member", "Active", toISODate_(), "'" + (waNormalized || waRaw)]);
     }
 
-    const orderStatus = isZeroPrice ? "Lunas" : "Pending";
+    const orderStatus = (isZeroPrice || isZeroPriceFinal) ? "Lunas" : "Pending";
 
-    // Simpan order (struktur kolom sama dengan script lu)
-    // Store WA number as text (prefix with apostrophe prevents Google Sheets from converting to Number)
+    // Simpan order
     const waForSheet = waNormalized || waRaw;
     const isExcluded = d.exclude_statistic === true ? "TRUE" : "FALSE";
     oS.appendRow([
@@ -1675,6 +1698,9 @@ function createOrder(d, cfg) {
       komisiNominal,
       isExcluded
     ]);
+
+    // Increment voucher usage if a valid voucher was applied
+    if (voucherCode) { incrementVoucherUsage_(voucherCode); }
 
     // ==========================================
     // NOTIFIKASI (LOGIC CABANG: GRATIS vs BAYAR)
@@ -4498,4 +4524,292 @@ function getGA4ServiceAccountToken_(serviceAccount) {
     var tokenData = JSON.parse(res.getContentText());
     return tokenData.access_token || null;
   } catch (e) { Logger.log("getGA4ServiceAccountToken_ error: " + e); return null; }
+}
+
+/* =========================
+   VOUCHER MANAGEMENT
+   Sheet "Vouchers" columns:
+   0: ID (auto), 1: Code, 2: Discount Type (percent|flat),
+   3: Discount Value, 4: Apply To (all|specific),
+   5: Product IDs (comma separated, empty=all),
+   6: Max Uses (0=unlimited), 7: Used Count, 8: Expires At (yyyy-mm-dd, empty=no expiry),
+   9: Min Purchase (0=no min), 10: Max Discount Amount (0=no cap, only for percent),
+   11: Status (Active|Inactive), 12: Created At
+========================= */
+
+function getOrCreateVoucherSheet_() {
+  let sh = ss.getSheetByName("Vouchers");
+  if (!sh) {
+    sh = ss.insertSheet("Vouchers");
+    sh.appendRow(["ID","Code","Discount Type","Discount Value","Apply To","Product IDs","Max Uses","Used Count","Expires At","Min Purchase","Max Discount Amount","Status","Created At"]);
+    sh.setFrozenRows(1);
+  }
+  return sh;
+}
+
+function getVouchers(d) {
+  try {
+    requireAdminSession_(d, { actionName: "get_vouchers" });
+    const sh = getOrCreateVoucherSheet_();
+    const data = sh.getDataRange().getValues();
+    const vouchers = [];
+    for (let i = 1; i < data.length; i++) {
+      const row = data[i];
+      if (!row[0]) continue;
+      vouchers.push({
+        id: row[0], code: row[1], discount_type: row[2], discount_value: Number(row[3] || 0),
+        apply_to: row[4], product_ids: row[5] ? String(row[5]).split(",").map(x => x.trim()).filter(Boolean) : [],
+        max_uses: Number(row[6] || 0), used_count: Number(row[7] || 0),
+        expires_at: row[8] ? String(row[8]) : "",
+        min_purchase: Number(row[9] || 0), max_discount_amount: Number(row[10] || 0),
+        status: row[11] || "Active", created_at: row[12] ? String(row[12]) : ""
+      });
+    }
+    return { status: "success", vouchers: vouchers };
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
+function saveVoucher(d) {
+  try {
+    requireAdminSession_(d, { actionName: "save_voucher" });
+    const sh = getOrCreateVoucherSheet_();
+    const code = String(d.code || "").trim().toUpperCase();
+    if (!code) return { status: "error", message: "Kode voucher wajib diisi." };
+    const discountType = String(d.discount_type || "percent").toLowerCase();
+    if (discountType !== "percent" && discountType !== "flat") return { status: "error", message: "Discount type harus 'percent' atau 'flat'." };
+    const discountValue = Number(d.discount_value || 0);
+    if (discountValue <= 0) return { status: "error", message: "Nilai diskon harus lebih dari 0." };
+    if (discountType === "percent" && discountValue > 100) return { status: "error", message: "Diskon persen tidak boleh lebih dari 100%." };
+    const applyTo = String(d.apply_to || "all").toLowerCase();
+    const productIds = Array.isArray(d.product_ids) ? d.product_ids.join(",") : String(d.product_ids || "");
+    const maxUses = Number(d.max_uses || 0);
+    const expiresAt = d.expires_at ? String(d.expires_at).trim() : "";
+    const minPurchase = Number(d.min_purchase || 0);
+    const maxDiscountAmount = Number(d.max_discount_amount || 0);
+    const status = String(d.status || "Active");
+
+    // Check for duplicate code (case-insensitive)
+    const data = sh.getDataRange().getValues();
+    for (let i = 1; i < data.length; i++) {
+      if (String(data[i][1]).toUpperCase() === code && data[i][0] !== d.id) {
+        return { status: "error", message: "Kode voucher sudah ada. Gunakan kode yang berbeda." };
+      }
+    }
+
+    if (d.id) {
+      // Update existing
+      for (let i = 1; i < data.length; i++) {
+        if (String(data[i][0]) === String(d.id)) {
+          sh.getRange(i + 1, 1, 1, 13).setValues([[
+            d.id, code, discountType, discountValue, applyTo, productIds,
+            maxUses, Number(data[i][7] || 0), expiresAt, minPurchase, maxDiscountAmount, status, data[i][12]
+          ]]);
+          CacheService.getScriptCache().remove("vouchers_list");
+          return { status: "success", message: "Voucher berhasil diperbarui." };
+        }
+      }
+      return { status: "error", message: "Voucher tidak ditemukan." };
+    } else {
+      // Create new
+      const newId = "vc-" + Math.floor(100000 + Math.random() * 900000);
+      sh.appendRow([newId, code, discountType, discountValue, applyTo, productIds, maxUses, 0, expiresAt, minPurchase, maxDiscountAmount, status, toISODate_()]);
+      CacheService.getScriptCache().remove("vouchers_list");
+      return { status: "success", message: "Voucher berhasil dibuat.", id: newId };
+    }
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
+function deleteVoucher(d) {
+  try {
+    requireAdminSession_(d, { actionName: "delete_voucher" });
+    if (!d.id) return { status: "error", message: "ID voucher diperlukan." };
+    const sh = getOrCreateVoucherSheet_();
+    const data = sh.getDataRange().getValues();
+    for (let i = 1; i < data.length; i++) {
+      if (String(data[i][0]) === String(d.id)) {
+        sh.deleteRow(i + 1);
+        CacheService.getScriptCache().remove("vouchers_list");
+        return { status: "success", message: "Voucher berhasil dihapus." };
+      }
+    }
+    return { status: "error", message: "Voucher tidak ditemukan." };
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
+function validateVoucher(d, cfg) {
+  try {
+    const code = String(d.voucher_code || "").trim().toUpperCase();
+    if (!code) return { status: "error", message: "Kode voucher tidak boleh kosong." };
+
+    const productId = String(d.product_id || "").trim();
+    const harga = Number(d.harga || 0);
+
+    const sh = getOrCreateVoucherSheet_();
+    const data = sh.getDataRange().getValues();
+
+    let voucherRow = -1;
+    let voucher = null;
+    for (let i = 1; i < data.length; i++) {
+      if (String(data[i][1]).toUpperCase() === code) {
+        voucherRow = i + 1;
+        voucher = {
+          id: data[i][0], code: data[i][1], discount_type: data[i][2], discount_value: Number(data[i][3] || 0),
+          apply_to: String(data[i][4] || "all").toLowerCase(),
+          product_ids: data[i][5] ? String(data[i][5]).split(",").map(x => x.trim()).filter(Boolean) : [],
+          max_uses: Number(data[i][6] || 0), used_count: Number(data[i][7] || 0),
+          expires_at: data[i][8] ? String(data[i][8]) : "",
+          min_purchase: Number(data[i][9] || 0), max_discount_amount: Number(data[i][10] || 0),
+          status: data[i][11] || "Active"
+        };
+        break;
+      }
+    }
+
+    if (!voucher) return { status: "error", message: "Kode voucher tidak valid atau tidak ditemukan." };
+    if (String(voucher.status).toLowerCase() !== "active") return { status: "error", message: "Voucher ini sudah tidak aktif." };
+
+    // Check expiry
+    if (voucher.expires_at) {
+      const expDate = new Date(voucher.expires_at + "T23:59:59");
+      if (new Date() > expDate) return { status: "error", message: "Voucher ini sudah kedaluwarsa." };
+    }
+
+    // Check usage limit
+    if (voucher.max_uses > 0 && voucher.used_count >= voucher.max_uses) {
+      return { status: "error", message: "Voucher ini sudah mencapai batas penggunaan." };
+    }
+
+    // Check product applicability
+    if (voucher.apply_to === "specific" && productId) {
+      if (!voucher.product_ids.includes(productId)) {
+        return { status: "error", message: "Voucher ini tidak berlaku untuk produk ini." };
+      }
+    }
+
+    // Check min purchase
+    if (voucher.min_purchase > 0 && harga < voucher.min_purchase) {
+      return { status: "error", message: "Voucher ini memerlukan pembelian minimal Rp " + Number(voucher.min_purchase).toLocaleString("id-ID") + "." };
+    }
+
+    // Calculate discount
+    let discountAmount = 0;
+    if (voucher.discount_type === "percent") {
+      discountAmount = Math.floor(harga * (voucher.discount_value / 100));
+      if (voucher.max_discount_amount > 0) {
+        discountAmount = Math.min(discountAmount, voucher.max_discount_amount);
+      }
+    } else {
+      discountAmount = Math.min(voucher.discount_value, harga);
+    }
+
+    const discountedPrice = Math.max(0, harga - discountAmount);
+    // Discount rate as factor (e.g. 0.9 = 10% discount) — used to scale affiliate commission
+    const discountFactor = harga > 0 ? discountedPrice / harga : 1;
+
+    return {
+      status: "success",
+      message: "Voucher berhasil diterapkan!",
+      voucher_id: voucher.id,
+      voucher_code: voucher.code,
+      discount_type: voucher.discount_type,
+      discount_value: voucher.discount_value,
+      discount_amount: discountAmount,
+      discounted_price: discountedPrice,
+      discount_factor: discountFactor,
+      original_price: harga
+    };
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
+// Called from createOrder to increment used_count for a voucher
+function incrementVoucherUsage_(voucherCode) {
+  try {
+    const sh = getOrCreateVoucherSheet_();
+    const data = sh.getDataRange().getValues();
+    for (let i = 1; i < data.length; i++) {
+      if (String(data[i][1]).toUpperCase() === String(voucherCode || "").toUpperCase()) {
+        const currentUsed = Number(data[i][7] || 0);
+        sh.getRange(i + 1, 8).setValue(currentUsed + 1);
+        break;
+      }
+    }
+  } catch (e) {
+    Logger.log("incrementVoucherUsage_ error: " + e);
+  }
+}
+
+/* =========================
+   PROMOTION POPUP MANAGEMENT
+   Stored in Settings sheet as keys:
+   promotion_enabled, promotion_product_id, promotion_voucher_code,
+   promotion_title, promotion_subtitle, promotion_image_url,
+   promotion_bg_color, promotion_cta_text
+========================= */
+
+function savePromotion(d) {
+  try {
+    requireAdminSession_(d, { actionName: "save_promotion" });
+    const sh = mustSheet_("Settings");
+    const data = sh.getDataRange().getValues();
+    const settingsToSave = {
+      "promotion_enabled": String(d.promotion_enabled || "false"),
+      "promotion_product_id": String(d.promotion_product_id || ""),
+      "promotion_voucher_code": String(d.promotion_voucher_code || "").trim().toUpperCase(),
+      "promotion_title": String(d.promotion_title || ""),
+      "promotion_subtitle": String(d.promotion_subtitle || ""),
+      "promotion_image_url": String(d.promotion_image_url || ""),
+      "promotion_bg_color": String(d.promotion_bg_color || "#017A6B"),
+      "promotion_cta_text": String(d.promotion_cta_text || "Klaim Diskon Sekarang")
+    };
+
+    for (const [key, value] of Object.entries(settingsToSave)) {
+      let found = false;
+      for (let i = 1; i < data.length; i++) {
+        if (String(data[i][0]).trim() === key) {
+          sh.getRange(i + 1, 2).setValue(value);
+          data[i][1] = value;
+          found = true;
+          break;
+        }
+      }
+      if (!found) sh.appendRow([key, value]);
+    }
+
+    // Bump cache
+    bumpPublicCacheState_(["settings"]);
+    try { CacheService.getScriptCache().remove("settings_map"); } catch (e) {}
+
+    return { status: "success", message: "Pengaturan promosi berhasil disimpan." };
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
+function getPromotion(d) {
+  try {
+    const cfg = getSettingsMap_();
+    const enabled = String(getCfgFrom_(cfg, "promotion_enabled") || "false").toLowerCase() === "true";
+    if (!enabled) return { status: "success", enabled: false };
+    return {
+      status: "success",
+      enabled: true,
+      product_id: getCfgFrom_(cfg, "promotion_product_id") || "",
+      voucher_code: getCfgFrom_(cfg, "promotion_voucher_code") || "",
+      title: getCfgFrom_(cfg, "promotion_title") || "",
+      subtitle: getCfgFrom_(cfg, "promotion_subtitle") || "",
+      image_url: sanitizeAssetUrl_(getCfgFrom_(cfg, "promotion_image_url") || ""),
+      bg_color: getCfgFrom_(cfg, "promotion_bg_color") || "#017A6B",
+      cta_text: getCfgFrom_(cfg, "promotion_cta_text") || "Klaim Diskon Sekarang"
+    };
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
 }

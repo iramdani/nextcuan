@@ -370,6 +370,41 @@
                         <!-- PAYMENT METHOD SECTION -->
                         <div id="payment-method-section" class="hidden animate-fade-in-up pt-2">
                             <div class="h-px bg-[rgba(255,255,255,0.05)] mb-6"></div>
+
+                            <!-- VOUCHER SECTION -->
+                            <div class="mb-6">
+                                <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3 ml-0.5">Kode Voucher <span class="text-slate-600 font-medium normal-case">(Opsional)</span></label>
+                                <div class="flex gap-2">
+                                    <div class="relative flex-1">
+                                        <i data-lucide="ticket" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 z-10 pointer-events-none"></i>
+                                        <input type="text" id="voucher-code-input" placeholder="Masukkan kode voucher..." class="glass-input w-full rounded-xl py-3.5 font-mono font-bold text-white outline-none placeholder:text-slate-600 placeholder:font-normal text-sm transition-all uppercase" style="padding-left: 2.75rem !important;" oninput="this.value=this.value.toUpperCase()">
+                                    </div>
+                                    <button type="button" onclick="applyVoucher()" id="btn-apply-voucher" class="bg-[rgba(182,255,0,0.15)] hover:bg-[rgba(182,255,0,0.25)] text-[#B6FF00] border border-[rgba(182,255,0,0.3)] px-5 rounded-xl font-bold text-xs uppercase tracking-wide transition-all whitespace-nowrap flex items-center gap-2">
+                                        <i data-lucide="check" class="w-4 h-4"></i> Pakai
+                                    </button>
+                                </div>
+                                <div id="voucher-result" class="hidden mt-3 rounded-xl p-4 border border-[rgba(182,255,0,0.25)] bg-[rgba(182,255,0,0.05)]">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 rounded-lg bg-[rgba(182,255,0,0.1)] border border-[rgba(182,255,0,0.3)] flex items-center justify-center flex-shrink-0">
+                                                <i data-lucide="tag" class="w-4 h-4 text-[#B6FF00]"></i>
+                                            </div>
+                                            <div>
+                                                <p id="voucher-code-badge" class="font-mono font-black text-[#B6FF00] tracking-widest text-sm"></p>
+                                                <p id="voucher-discount-label" class="text-xs text-slate-400 mt-0.5"></p>
+                                            </div>
+                                        </div>
+                                        <button type="button" onclick="removeVoucher()" class="text-slate-500 hover:text-red-400 transition-colors ml-3 flex-shrink-0">
+                                            <i data-lucide="x-circle" class="w-5 h-5"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="voucher-error" class="hidden mt-2 text-xs font-bold text-red-400 flex items-center gap-2 ml-0.5">
+                                    <i data-lucide="alert-circle" class="w-3.5 h-3.5 flex-shrink-0"></i>
+                                    <span id="voucher-error-msg"></span>
+                                </div>
+                            </div>
+
                             <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3 ml-0.5">Metode Pembayaran</label>
                             <div class="grid grid-cols-1 gap-3">
                                 <label class="group relative flex items-start p-4 border border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.02)] rounded-xl cursor-pointer transition-all duration-150 hover:border-[rgba(182,255,0,0.5)] hover:bg-[rgba(182,255,0,0.05)] has-[:checked]:border-[#B6FF00] has-[:checked]:bg-[rgba(182,255,0,0.1)] has-[:checked]:shadow-[0_0_15px_rgba(182,255,0,0.2)]" id="opt-bank">
@@ -524,6 +559,105 @@
         const PRODUCT_CACHE_AGE = 5 * 60 * 1000;
 
         function selectPayment(method) { selectedPayment = method; }
+
+        // === VOUCHER STATE & LOGIC ===
+        let appliedVoucher = null; // { code, discount_amount, discounted_price, discount_factor, label }
+
+        async function applyVoucher() {
+            const codeInput = document.getElementById('voucher-code-input');
+            const code = (codeInput ? codeInput.value : '').trim().toUpperCase();
+            const resultEl  = document.getElementById('voucher-result');
+            const errorEl   = document.getElementById('voucher-error');
+            const errorMsg  = document.getElementById('voucher-error-msg');
+            const btn       = document.getElementById('btn-apply-voucher');
+
+            if (!code) { showToast('Masukkan kode voucher terlebih dahulu.', 'warning'); return; }
+
+            // Reset UI
+            if (resultEl) resultEl.classList.add('hidden');
+            if (errorEl) errorEl.classList.add('hidden');
+
+            const oriBtn = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin inline"></i>';
+            lucide.createIcons();
+
+            try {
+                const targetUrl = window.SCRIPT_URL || (typeof SCRIPT_URL !== 'undefined' ? SCRIPT_URL : null);
+                if (!targetUrl) throw new Error('API tidak tersedia');
+
+                const rawPrice = Number(document.getElementById('prod-price').value || 0);
+                const productId = document.getElementById('prod-id').value;
+
+                const res = await fetch(targetUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'validate_voucher', voucher_code: code, product_id: productId, harga: rawPrice })
+                });
+                const r = await res.json();
+
+                if (r.status === 'success') {
+                    const nf = (n) => 'Rp ' + Number(n).toLocaleString('id-ID');
+                    const discountPercent = Math.round((1 - r.discount_factor) * 100);
+                    appliedVoucher = {
+                        code: r.voucher_code,
+                        discount_amount: r.discount_amount,
+                        discounted_price: r.discounted_price,
+                        discount_factor: r.discount_factor,
+                        original_price: r.original_price
+                    };
+
+                    // Show success result
+                    if (document.getElementById('voucher-code-badge')) document.getElementById('voucher-code-badge').innerText = r.voucher_code;
+                    if (document.getElementById('voucher-discount-label')) {
+                        document.getElementById('voucher-discount-label').innerText = `Hemat ${nf(r.discount_amount)} — ${discountPercent}% off`;
+                    }
+                    if (resultEl) resultEl.classList.remove('hidden');
+
+                    // Update the left panel price display
+                    const totalEl = document.getElementById('display-total-top');
+                    if (totalEl) {
+                        totalEl.innerHTML = `<span class="line-through text-slate-500 text-xl">${nf(r.original_price)}</span><br><span class="text-[#B6FF00] drop-shadow-[0_0_10px_rgba(182,255,0,0.3)]">${nf(r.discounted_price)}</span>`;
+                    }
+
+                    // Disable input after successful apply
+                    if (codeInput) codeInput.disabled = true;
+                    btn.classList.add('opacity-50', 'cursor-not-allowed');
+                    btn.disabled = true;
+
+                    showToast('Voucher berhasil diterapkan! Hemat ' + nf(r.discount_amount), 'success');
+                } else {
+                    appliedVoucher = null;
+                    if (errorMsg) errorMsg.innerText = r.message || 'Voucher tidak valid.';
+                    if (errorEl) errorEl.classList.remove('hidden');
+                    btn.disabled = false;
+                }
+            } catch(e) {
+                if (errorMsg) errorMsg.innerText = 'Gagal menghubungi server. Coba lagi.';
+                if (errorEl) errorEl.classList.remove('hidden');
+                btn.disabled = false;
+            } finally {
+                btn.innerHTML = oriBtn;
+                btn.disabled = appliedVoucher ? true : false;
+                lucide.createIcons();
+            }
+        }
+
+        function removeVoucher() {
+            appliedVoucher = null;
+            const codeInput = document.getElementById('voucher-code-input');
+            const resultEl = document.getElementById('voucher-result');
+            const btn = document.getElementById('btn-apply-voucher');
+            if (codeInput) { codeInput.value = ''; codeInput.disabled = false; }
+            if (resultEl) resultEl.classList.add('hidden');
+            btn.disabled = false;
+            btn.classList.remove('opacity-50', 'cursor-not-allowed');
+            // Restore original price display
+            const rawPrice = Number(document.getElementById('prod-price').value || 0);
+            const totalEl = document.getElementById('display-total-top');
+            if (totalEl) totalEl.innerText = 'Rp ' + rawPrice.toLocaleString('id-ID');
+            showToast('Voucher dihapus.', 'warning');
+        }
 
         // === STEP INDICATOR LOGIC ===
         function setStep(step) {
@@ -908,8 +1042,9 @@
                 whatsapp: document.getElementById('cust-wa').value,
                 id_produk: document.getElementById('prod-id').value,
                 nama_produk: document.getElementById('prod-title').value,
-                harga: document.getElementById('prod-price').value,
-                affiliate: localStorage.getItem('cepat_affiliate') || "-" 
+                harga: appliedVoucher ? appliedVoucher.original_price : document.getElementById('prod-price').value,
+                voucher_code: appliedVoucher ? appliedVoucher.code : '',
+                affiliate: localStorage.getItem('cepat_affiliate') || "-"
             };
 
             try {
@@ -1030,10 +1165,90 @@
             }).catch(() => { showToast("Gagal menyalin", "error"); });
         }
 
+        // === PROMOTION POPUP ===
+        function closePromoPopup() {
+            const popup = document.getElementById('promo-popup');
+            popup.classList.replace('opacity-100', 'opacity-0');
+            popup.classList.replace('scale-100', 'scale-90');
+            setTimeout(() => popup.remove(), 300);
+        }
+
+        function applyPromoVoucher(code) {
+            closePromoPopup();
+            const inp = document.getElementById('voucher-code-input');
+            if (inp && !inp.disabled) {
+                inp.value = code;
+                applyVoucher();
+                // Smooth scroll to the voucher section
+                document.getElementById('payment-method-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        async function checkAndShowPromotion() {
+            try {
+                // Determine the API URL
+                const targetUrl = window.SCRIPT_URL || (typeof SCRIPT_URL !== 'undefined' ? SCRIPT_URL : null);
+                if (!targetUrl) return;
+
+                const res = await fetch(targetUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'get_promotion' })
+                });
+                const r = await res.json();
+
+                if (r.status === 'success' && r.enabled === true) {
+                    // Check if it applies to the current product
+                    if (r.product_id && String(r.product_id) !== String(productId)) return;
+                    if (!r.voucher_code) return; // Need a voucher code to show
+
+                    // Build the popup UI
+                    const body = document.querySelector('body');
+                    const popupHTML = `
+                        <div id="promo-popup" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm opacity-0 scale-90 transition-all duration-300 ease-out">
+                            <div class="relative w-full max-w-sm glass-card border border-[rgba(182,255,0,0.3)] shadow-[0_20px_50px_rgba(182,255,0,0.1)] rounded-3xl overflow-hidden p-6 md:p-8 text-center animate-bounce-subtle">
+                                <button onclick="closePromoPopup()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(239,68,68,0.2)] p-2 rounded-full transition-colors z-10">
+                                    <i data-lucide="x" class="w-4 h-4"></i>
+                                </button>
+                                
+                                <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-tr from-[#017A6B] to-[#B6FF00] rounded-2xl rotate-3 flex items-center justify-center shadow-[0_0_25px_rgba(182,255,0,0.4)]">
+                                    <i data-lucide="gift" class="w-8 h-8 text-[#000018] -rotate-3"></i>
+                                </div>
+                                <h3 class="text-xl md:text-2xl font-extrabold text-white mb-2 tracking-tight">${r.title || 'Penawaran Spesial!'}</h3>
+                                <p class="text-sm text-slate-300 font-medium mb-6 px-2">${r.subtitle || 'Dapatkan potongan harga eksklusif hari ini.'}</p>
+                                
+                                <div class="bg-[rgba(0,0,0,0.3)] border border-[rgba(255,255,255,0.1)] rounded-2xl p-4 mb-6 transform -rotate-1 relative group hover:border-[rgba(182,255,0,0.3)] transition-colors">
+                                    <div class="absolute inset-0 bg-[#B6FF00] opacity-0 group-hover:opacity-5 transition-opacity rounded-2xl pointer-events-none"></div>
+                                    <p class="text-[10px] font-black uppercase tracking-widest text-[#B6FF00] mb-1">Gunakan Kode Ini</p>
+                                    <p class="font-mono text-2xl font-black text-white tracking-widest drop-shadow-[0_0_8px_rgba(255,255,255,0.3)] cursor-default">${r.voucher_code}</p>
+                                </div>
+                                
+                                <button onclick="applyPromoVoucher('${r.voucher_code}')" class="btn-primary w-full py-4 rounded-xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(182,255,0,0.2)] hover:shadow-[0_0_30px_rgba(182,255,0,0.4)] transition-all">
+                                    ${r.cta_text || 'Pakai Diskon Sekarang'} <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    body.insertAdjacentHTML('beforeend', popupHTML);
+                    lucide.createIcons();
+                    
+                    // Show animation smoothly
+                    requestAnimationFrame(() => {
+                        const popup = document.getElementById('promo-popup');
+                        popup.classList.replace('opacity-0', 'opacity-100');
+                        popup.classList.replace('scale-90', 'scale-100');
+                    });
+                }
+            } catch(e) { console.error('Promo error:', e); }
+        }
+
         // === INIT ===
         window.onload = () => {
             lucide.createIcons();
             loadProduct();
+            
+            // Render promo delay
+            setTimeout(checkAndShowPromotion, 1200);
             
             // AUTO-FILL IF LOGGED IN
             try {

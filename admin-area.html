@@ -760,6 +760,9 @@
                 <button onclick="switchTab('stats')" id="nav-stats" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm">
                     <i data-lucide="bar-chart-2" class="w-5 h-5"></i> Statistik
                 </button>
+                <button onclick="switchTab('vouchers')" id="nav-vouchers" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm">
+                    <i data-lucide="ticket" class="w-5 h-5"></i> Voucher & Promo
+                </button>
                 
                 <div class="px-4 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 mt-6">System</div>
                 <button onclick="openAdminProfileModal()" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-left hover:bg-[rgba(255,255,255,0.05)] transition-colors">
@@ -1612,9 +1615,232 @@
 
                 </div>
 
+                <!-- VOUCHERS TAB -->
+                <div id="tab-vouchers" class="tab-content">
+                    <!-- VOUCHER LIST SECTION -->
+                    <div class="glass-card p-0 rounded-[2rem] overflow-hidden mb-8">
+                        <div class="px-8 py-6 border-b border-[rgba(255,255,255,0.05)] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[rgba(0,0,0,0.2)]">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-[rgba(182,255,0,0.1)] rounded-xl flex items-center justify-center border border-[rgba(182,255,0,0.2)]">
+                                    <i data-lucide="ticket" class="w-5 h-5 text-[#B6FF00]"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-white text-lg">Daftar Voucher</h3>
+                                    <p class="text-xs text-slate-400">Kelola kode diskon untuk pembeli</p>
+                                </div>
+                            </div>
+                            <button onclick="openVoucherModal()" class="flex items-center gap-2 btn-primary px-5 py-3 rounded-xl font-bold text-xs uppercase tracking-wide whitespace-nowrap">
+                                <i data-lucide="plus" class="w-4 h-4"></i> Buat Voucher
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto custom-scroll">
+                            <table class="w-full text-left text-sm border-collapse bg-transparent min-w-[700px]">
+                                <thead class="bg-[rgba(255,255,255,0.02)]">
+                                    <tr>
+                                        <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-[rgba(255,255,255,0.05)]">Kode</th>
+                                        <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-[rgba(255,255,255,0.05)]">Diskon</th>
+                                        <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-[rgba(255,255,255,0.05)]">Berlaku Untuk</th>
+                                        <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-[rgba(255,255,255,0.05)]">Penggunaan</th>
+                                        <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-[rgba(255,255,255,0.05)]">Kedaluwarsa</th>
+                                        <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-[rgba(255,255,255,0.05)]">Status</th>
+                                        <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-[rgba(255,255,255,0.05)] text-right">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="list-vouchers" class="divide-y divide-[rgba(255,255,255,0.05)] text-white">
+                                    <tr><td colspan="7" class="px-6 py-10 text-center text-slate-400 text-xs italic">Memuat data voucher...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- PROMOTION POPUP SECTION -->
+                    <div class="glass-card p-8 md:p-10 rounded-[2.5rem] border-[rgba(255,255,255,0.05)]">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-[rgba(255,255,255,0.05)] pb-6 mb-8">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-[rgba(182,255,0,0.1)] rounded-xl flex items-center justify-center border border-[rgba(182,255,0,0.2)]">
+                                    <i data-lucide="megaphone" class="w-5 h-5 text-[#B6FF00]"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-white">Promotion Popup</h3>
+                                    <p class="text-xs text-slate-400 mt-0.5">Tampilkan popup kode diskon otomatis kepada pengunjung</p>
+                                </div>
+                            </div>
+                            <label class="flex items-center gap-3 cursor-pointer">
+                                <span class="text-xs font-bold text-slate-400 uppercase">Aktifkan</span>
+                                <div class="relative">
+                                    <input type="checkbox" id="promo-enabled" class="sr-only peer" onchange="togglePromoFields()">
+                                    <div class="w-12 h-6 bg-[rgba(255,255,255,0.1)] peer-focus:ring-2 peer-focus:ring-[#B6FF00]/30 rounded-full peer peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#B6FF00]"></div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div id="promo-fields" class="opacity-50 pointer-events-none transition-all duration-300 space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Judul Popup</label>
+                                    <input type="text" id="promo-title" placeholder="🔥 Penawaran Spesial Hari Ini!" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all text-sm font-medium text-white">
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Subjudul / Deskripsi Singkat</label>
+                                    <input type="text" id="promo-subtitle" placeholder="Dapatkan diskon eksklusif sekarang!" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all text-sm font-medium text-white">
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Terapkan ke Produk</label>
+                                    <select id="promo-product-id" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all text-sm font-medium text-white appearance-none cursor-pointer">
+                                        <option value="">-- Pilih Produk --</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Kode Voucher yang Ditampilkan</label>
+                                    <input type="text" id="promo-voucher-code" placeholder="Contoh: DISKON20" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all text-sm font-mono text-white uppercase">
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">URL Gambar Popup (Opsional)</label>
+                                    <input type="text" id="promo-image-url" placeholder="https://..." class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all text-xs font-mono text-white">
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Teks Tombol CTA</label>
+                                    <input type="text" id="promo-cta-text" placeholder="Klaim Diskon Sekarang" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all text-sm font-medium text-white">
+                                </div>
+                            </div>
+
+                            <!-- Preview -->
+                            <div class="rounded-2xl border border-[rgba(182,255,0,0.2)] bg-[rgba(182,255,0,0.03)] p-5">
+                                <p class="text-[10px] font-black uppercase tracking-widest text-[#B6FF00] mb-4 flex items-center gap-2"><i data-lucide="eye" class="w-3 h-3"></i> Preview Popup</p>
+                                <div class="max-w-sm mx-auto bg-[#000018] border border-[rgba(255,255,255,0.1)] rounded-2xl overflow-hidden shadow-2xl">
+                                    <div class="p-6 text-center">
+                                        <div class="w-14 h-14 bg-[rgba(182,255,0,0.1)] rounded-2xl flex items-center justify-center mx-auto mb-4 border border-[rgba(182,255,0,0.2)]">
+                                            <i data-lucide="tag" class="w-7 h-7 text-[#B6FF00]"></i>
+                                        </div>
+                                        <h3 id="promo-preview-title" class="text-lg font-extrabold text-white mb-1">🔥 Penawaran Spesial!</h3>
+                                        <p id="promo-preview-subtitle" class="text-slate-400 text-xs mb-4">Dapatkan diskon eksklusif sekarang!</p>
+                                        <div class="bg-[rgba(182,255,0,0.08)] border border-[rgba(182,255,0,0.3)] rounded-xl px-4 py-3 mb-4 flex items-center justify-between gap-3">
+                                            <span class="text-xs text-slate-400 font-medium">Kode Diskon:</span>
+                                            <span id="promo-preview-code" class="font-black text-[#B6FF00] tracking-widest text-sm font-mono">DISKON20</span>
+                                        </div>
+                                        <button class="w-full bg-[#B6FF00] text-black rounded-xl py-3 font-bold text-xs uppercase tracking-widest">
+                                            <span id="promo-preview-cta">Klaim Diskon Sekarang</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button onclick="savePromotion()" id="btn-save-promotion" class="w-full btn-primary py-4 rounded-xl font-bold uppercase text-xs tracking-widest flex items-center justify-center gap-2">
+                                <i data-lucide="save" class="w-4 h-4"></i> Simpan Pengaturan Promosi
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- END VOUCHERS TAB -->
+
 
             </div>
         </main>
+    </div>
+
+    <!-- MODAL VOUCHER -->
+    <div id="modal-voucher" class="fixed inset-0 bg-[#000018]/80 z-[300] hidden items-center justify-center p-4 backdrop-blur-md">
+        <div class="glass-card rounded-[2rem] w-full max-w-2xl max-h-[92vh] overflow-y-auto p-8 custom-scroll">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-[rgba(182,255,0,0.1)] rounded-xl flex items-center justify-center border border-[rgba(182,255,0,0.2)]">
+                        <i data-lucide="ticket" class="w-5 h-5 text-[#B6FF00]"></i>
+                    </div>
+                    <h3 id="voucher-modal-title" class="text-xl font-bold text-white">Buat Voucher Baru</h3>
+                </div>
+                <button onclick="closeVoucherModal()" class="w-9 h-9 flex items-center justify-center rounded-xl bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)] text-slate-400 hover:text-white transition-all">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <input type="hidden" id="v-id">
+
+            <div class="space-y-5">
+                <!-- Kode -->
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Kode Voucher <span class="text-[#B6FF00]">*</span></label>
+                    <input type="text" id="v-code" placeholder="Contoh: HEMAT50" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all font-mono font-bold text-white uppercase" oninput="this.value=this.value.toUpperCase()">
+                    <p class="text-[10px] text-slate-500 mt-1 ml-1">Kode otomatis dikonversi ke huruf kapital.</p>
+                </div>
+
+                <!-- Tipe & Nilai Diskon -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Tipe Diskon <span class="text-[#B6FF00]">*</span></label>
+                        <select id="v-discount-type" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all text-sm font-medium text-white cursor-pointer appearance-none" onchange="updateVoucherValueLabel()">
+                            <option value="percent">Persentase (%)</option>
+                            <option value="flat">Nominal Tetap (Rp)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block"><span id="v-value-label">Nilai Diskon (%)</span> <span class="text-[#B6FF00]">*</span></label>
+                        <input type="number" id="v-discount-value" placeholder="Contoh: 10" min="1" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all font-bold text-white">
+                    </div>
+                </div>
+
+                <!-- Max Diskon (Rp) - hanya untuk tipe persen -->
+                <div id="v-max-discount-wrapper">
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Maks. Nominal Diskon (Rp) <span class="text-slate-600">— Opsional</span></label>
+                    <input type="number" id="v-max-discount-amount" placeholder="0 = tidak ada batas" min="0" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all font-bold text-white">
+                    <p class="text-[10px] text-slate-500 mt-1 ml-1">Misalnya diskon 50% tapi maks Rp 100.000. Isi 0 untuk tidak ada batas atas.</p>
+                </div>
+
+                <!-- Berlaku Untuk -->
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Berlaku Untuk <span class="text-[#B6FF00]">*</span></label>
+                    <div class="flex gap-3">
+                        <label class="flex-1 flex items-center gap-3 cursor-pointer p-4 rounded-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] hover:bg-[rgba(255,255,255,0.05)] transition-all has-[:checked]:border-[#B6FF00]/50 has-[:checked]:bg-[rgba(182,255,0,0.05)]">
+                            <input type="radio" name="v-apply-to" value="all" id="v-apply-all" class="text-[#B6FF00] focus:ring-[#B6FF00] focus:ring-offset-0 bg-transparent border-slate-600" checked onchange="toggleProductSelector()">
+                            <span class="text-sm font-bold text-white">Semua Produk</span>
+                        </label>
+                        <label class="flex-1 flex items-center gap-3 cursor-pointer p-4 rounded-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] hover:bg-[rgba(255,255,255,0.05)] transition-all has-[:checked]:border-[#B6FF00]/50 has-[:checked]:bg-[rgba(182,255,0,0.05)]">
+                            <input type="radio" name="v-apply-to" value="specific" id="v-apply-specific" class="text-[#B6FF00] focus:ring-[#B6FF00] focus:ring-offset-0 bg-transparent border-slate-600" onchange="toggleProductSelector()">
+                            <span class="text-sm font-bold text-white">Produk Tertentu</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Pilih Produk (hanya bila specific) -->
+                <div id="v-product-select-wrapper" class="hidden">
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Pilih Produk (Bisa Lebih dari Satu)</label>
+                    <div id="v-product-checkboxes" class="max-h-48 overflow-y-auto custom-scroll space-y-2 bg-[rgba(0,0,0,0.2)] rounded-xl p-3 border border-[rgba(255,255,255,0.05)]">
+                        <p class="text-slate-400 text-xs italic text-center py-4">Memuat produk...</p>
+                    </div>
+                </div>
+
+                <!-- Baris pengaturan lanjutan -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Maks. Penggunaan</label>
+                        <input type="number" id="v-max-uses" placeholder="0 = tak terbatas" min="0" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all font-bold text-white">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Berlaku Sampai</label>
+                        <input type="date" id="v-expires-at" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all text-sm text-white" style="color-scheme:dark;">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Min. Pembelian (Rp)</label>
+                        <input type="number" id="v-min-purchase" placeholder="0 = tidak ada" min="0" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all font-bold text-white">
+                    </div>
+                </div>
+
+                <!-- Status -->
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Status</label>
+                    <select id="v-status" class="w-full p-4 glass-input rounded-xl outline-none focus:border-[#B6FF00] transition-all text-sm font-medium text-white cursor-pointer appearance-none">
+                        <option value="Active">Aktif</option>
+                        <option value="Inactive">Nonaktif</option>
+                    </select>
+                </div>
+
+                <div class="flex gap-3 pt-2">
+                    <button onclick="closeVoucherModal()" class="flex-1 btn-ghost py-4 rounded-xl font-bold text-xs uppercase tracking-wide">Batal</button>
+                    <button onclick="submitVoucher()" id="btn-save-voucher" class="flex-1 btn-primary py-4 rounded-xl font-bold text-xs uppercase tracking-wide flex items-center justify-center gap-2">
+                        <i data-lucide="save" class="w-4 h-4"></i> Simpan Voucher
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- MODAL CONFIRM -->
@@ -3267,7 +3493,7 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); 
             document.getElementById('tab-'+t).classList.add('active'); 
             document.getElementById('nav-'+t).classList.add('active'); 
-            const titles = { 'orders': 'Dashboard', 'admin-orders': 'Manajemen Pesanan', 'members': 'Data Member', 'products': 'Produk & Layanan', 'pages': 'Halaman CMS', 'media': 'Media Center', 'settings': 'Pengaturan Sistem', 'stats': 'Statistik' };
+            const titles = { 'orders': 'Dashboard', 'admin-orders': 'Manajemen Pesanan', 'members': 'Data Member', 'products': 'Produk & Layanan', 'pages': 'Halaman CMS', 'media': 'Media Center', 'settings': 'Pengaturan Sistem', 'stats': 'Statistik', 'vouchers': 'Voucher & Promosi' };
             document.getElementById('tab-title').innerText = titles[t] || 'Dashboard';
             lucide.createIcons();
             if(t === 'media') loadMediaFiles();
@@ -3285,8 +3511,393 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                 ensureWorkerMetricsPolling();
                 loadWorkerBudgetMetrics(false);
             }
+            
+            if(t === 'vouchers') { loadVouchers(); loadVoucherProducts(); loadPromotion(); }
 
             if(window.innerWidth < 768) toggleSidebar(); 
+        }
+
+        // ========================================
+        // VOUCHER & PROMOTION MANAGEMENT
+        // ========================================
+        let voucherProductsList = []; // Cache of active products for voucher selectors
+
+        async function loadVoucherProducts() {
+            try {
+                const endpoint = getApiEndpoint();
+                if (!endpoint) return;
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(buildAdminAuthPayload({ action: 'get_products' }))
+                });
+                const r = await res.json();
+                if (r.status === 'success' && Array.isArray(r.products)) {
+                    // Exclude only 'Inactive' status products — include hidden ones
+                    voucherProductsList = r.products.filter(p => String(p[5] || '').trim() === 'Active');
+                    // Populate promo product dropdown
+                    populatePromoProductDropdown();
+                }
+            } catch(e) { /* silent */ }
+        }
+
+        function populatePromoProductDropdown() {
+            const sel = document.getElementById('promo-product-id');
+            if (!sel) return;
+            const currentVal = sel.value;
+            sel.innerHTML = '<option value="">-- Semua Produk --</option>';
+            voucherProductsList.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p[0];
+                opt.textContent = p[1] + (String(p[15]).toUpperCase() === 'TRUE' ? ' [Tersembunyi]' : '');
+                sel.appendChild(opt);
+            });
+            if (currentVal) sel.value = currentVal;
+        }
+
+        function renderVoucherProductCheckboxes(selectedIds = []) {
+            const box = document.getElementById('v-product-checkboxes');
+            if (!box) return;
+            if (!voucherProductsList.length) {
+                box.innerHTML = '<p class="text-slate-400 text-xs italic text-center py-4">Belum ada produk aktif.</p>';
+                return;
+            }
+            box.innerHTML = voucherProductsList.map(p => {
+                const isHidden = String(p[15]).toUpperCase() === 'TRUE';
+                const checked = selectedIds.includes(String(p[0])) ? 'checked' : '';
+                return `<label class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-[rgba(255,255,255,0.05)] transition-colors">
+                    <input type="checkbox" value="${p[0]}" name="v-products" ${checked} class="text-[#B6FF00] focus:ring-[#B6FF00] focus:ring-offset-0 bg-transparent border-slate-600 rounded">
+                    <span class="text-sm text-white">${p[1]}${isHidden ? '<span class="ml-2 text-[10px] font-bold px-2 py-0.5 bg-[rgba(245,158,11,0.15)] text-amber-400 rounded-full border border-amber-500/30">Tersembunyi</span>' : ''}</span>
+                    <span class="ml-auto text-xs text-slate-400 font-mono">Rp ${Number(p[4] || 0).toLocaleString('id-ID')}</span>
+                </label>`;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        async function loadVouchers() {
+            const tbody = document.getElementById('list-vouchers');
+            if (!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-10 text-center"><i data-lucide="loader" class="w-5 h-5 animate-spin mx-auto text-slate-400"></i></td></tr>';
+            lucide.createIcons();
+            try {
+                const endpoint = getApiEndpoint();
+                if (!endpoint) throw new Error('API endpoint tidak tersedia');
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(buildAdminAuthPayload({ action: 'get_vouchers' }))
+                });
+                const r = await res.json();
+                if (r.status === 'success') {
+                    renderVouchers(r.vouchers || []);
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-10 text-center text-red-400 text-xs">${r.message || 'Gagal memuat voucher'}</td></tr>`;
+                }
+            } catch(e) {
+                tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-10 text-center text-red-400 text-xs">${e.message}</td></tr>`;
+            }
+        }
+
+        function renderVouchers(vouchers) {
+            const tbody = document.getElementById('list-vouchers');
+            if (!tbody) return;
+            if (!vouchers.length) {
+                tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-10 text-center text-slate-400 text-xs italic">Belum ada voucher. Klik "Buat Voucher" untuk memulai.</td></tr>';
+                return;
+            }
+            const nf = new Intl.NumberFormat('id-ID');
+            tbody.innerHTML = vouchers.map(v => {
+                const isActive = String(v.status || '').toLowerCase() === 'active';
+                const statusBadge = isActive
+                    ? '<span class="px-2 py-1 text-[10px] font-black uppercase tracking-wider rounded-full bg-[rgba(182,255,0,0.1)] text-[#B6FF00] border border-[rgba(182,255,0,0.3)]">Aktif</span>'
+                    : '<span class="px-2 py-1 text-[10px] font-black uppercase tracking-wider rounded-full bg-[rgba(239,68,68,0.1)] text-red-400 border border-red-500/30">Nonaktif</span>';
+                const discountLabel = v.discount_type === 'percent'
+                    ? `<span class="text-[#B6FF00] font-black">${v.discount_value}%</span>${v.max_discount_amount > 0 ? `<span class="text-slate-500 text-xs"> (maks Rp ${nf.format(v.max_discount_amount)})</span>` : ''}`
+                    : `<span class="text-emerald-400 font-black">Rp ${nf.format(v.discount_value)}</span>`;
+                const applyLabel = v.apply_to === 'specific'
+                    ? `${v.product_ids.length} Produk`
+                    : '<span class="text-slate-400">Semua Produk</span>';
+                const usageLabel = v.max_uses > 0
+                    ? `${v.used_count} / ${v.max_uses}`
+                    : `${v.used_count} / ∞`;
+                const expiryLabel = v.expires_at
+                    ? new Date(v.expires_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+                    : '<span class="text-slate-500">—</span>';
+                return `<tr class="hover:bg-[rgba(255,255,255,0.02)] transition-colors">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-2">
+                            <span class="font-mono font-black text-white bg-[rgba(182,255,0,0.08)] border border-[rgba(182,255,0,0.2)] px-3 py-1 rounded-lg text-sm tracking-widest">${v.code}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-sm">${discountLabel}</td>
+                    <td class="px-6 py-4 text-sm text-slate-300">${applyLabel}</td>
+                    <td class="px-6 py-4 text-sm text-slate-300 font-mono">${usageLabel}</td>
+                    <td class="px-6 py-4 text-sm text-slate-300">${expiryLabel}</td>
+                    <td class="px-6 py-4">${statusBadge}</td>
+                    <td class="px-6 py-4 text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            <button onclick="editVoucher(${JSON.stringify(v).split('"').join("'")})" class="text-[10px] font-bold uppercase tracking-wide text-slate-400 hover:text-[#B6FF00] transition-colors px-3 py-2 rounded-lg bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(182,255,0,0.1)] border border-[rgba(255,255,255,0.05)]">
+                                <i data-lucide="pencil" class="w-3.5 h-3.5 inline"></i>
+                            </button>
+                            <button onclick="deleteVoucher('${v.id}','${v.code}')" class="text-[10px] font-bold uppercase tracking-wide text-slate-400 hover:text-red-400 transition-colors px-3 py-2 rounded-lg bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(239,68,68,0.1)] border border-[rgba(255,255,255,0.05)]">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5 inline"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function openVoucherModal(voucher) {
+            document.getElementById('v-id').value = '';
+            document.getElementById('v-code').value = '';
+            document.getElementById('v-discount-type').value = 'percent';
+            document.getElementById('v-discount-value').value = '';
+            document.getElementById('v-max-discount-amount').value = '';
+            document.getElementById('v-apply-all').checked = true;
+            document.getElementById('v-product-select-wrapper').classList.add('hidden');
+            document.getElementById('v-max-uses').value = '';
+            document.getElementById('v-expires-at').value = '';
+            document.getElementById('v-min-purchase').value = '';
+            document.getElementById('v-status').value = 'Active';
+            document.getElementById('voucher-modal-title').innerText = 'Buat Voucher Baru';
+            document.getElementById('v-value-label').innerText = 'Nilai Diskon (%)';
+            document.getElementById('v-max-discount-wrapper').classList.remove('hidden');
+            renderVoucherProductCheckboxes([]);
+            const modal = document.getElementById('modal-voucher');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            lucide.createIcons();
+        }
+
+        function editVoucher(vStr) {
+            let v;
+            try { v = typeof vStr === 'string' ? JSON.parse(vStr.replace(/'/g, '"')) : vStr; } catch(e) { return; }
+            document.getElementById('v-id').value = v.id || '';
+            document.getElementById('v-code').value = v.code || '';
+            document.getElementById('v-discount-type').value = v.discount_type || 'percent';
+            document.getElementById('v-discount-value').value = v.discount_value || '';
+            document.getElementById('v-max-discount-amount').value = v.max_discount_amount || '';
+            if (v.apply_to === 'specific') {
+                document.getElementById('v-apply-specific').checked = true;
+                document.getElementById('v-product-select-wrapper').classList.remove('hidden');
+            } else {
+                document.getElementById('v-apply-all').checked = true;
+                document.getElementById('v-product-select-wrapper').classList.add('hidden');
+            }
+            document.getElementById('v-max-uses').value = v.max_uses || '';
+            document.getElementById('v-expires-at').value = v.expires_at || '';
+            document.getElementById('v-min-purchase').value = v.min_purchase || '';
+            document.getElementById('v-status').value = v.status || 'Active';
+            document.getElementById('voucher-modal-title').innerText = 'Edit Voucher';
+            updateVoucherValueLabel();
+            renderVoucherProductCheckboxes(Array.isArray(v.product_ids) ? v.product_ids : []);
+            const modal = document.getElementById('modal-voucher');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            lucide.createIcons();
+        }
+
+        function closeVoucherModal() {
+            const modal = document.getElementById('modal-voucher');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function toggleProductSelector() {
+            const specific = document.getElementById('v-apply-specific').checked;
+            document.getElementById('v-product-select-wrapper').classList.toggle('hidden', !specific);
+        }
+
+        function updateVoucherValueLabel() {
+            const type = document.getElementById('v-discount-type').value;
+            document.getElementById('v-value-label').innerText = type === 'percent' ? 'Nilai Diskon (%)' : 'Nilai Diskon (Rp)';
+            const maxDiscWrapper = document.getElementById('v-max-discount-wrapper');
+            if (maxDiscWrapper) maxDiscWrapper.classList.toggle('hidden', type === 'flat');
+        }
+
+        async function submitVoucher() {
+            const btn = document.getElementById('btn-save-voucher');
+            const oriText = btn.innerHTML;
+            const code = document.getElementById('v-code').value.trim();
+            const discountType = document.getElementById('v-discount-type').value;
+            const discountValue = Number(document.getElementById('v-discount-value').value);
+            const maxDiscountAmount = Number(document.getElementById('v-max-discount-amount').value || 0);
+            const applyTo = document.querySelector('input[name="v-apply-to"]:checked')?.value || 'all';
+            const maxUses = Number(document.getElementById('v-max-uses').value || 0);
+            const expiresAt = document.getElementById('v-expires-at').value;
+            const minPurchase = Number(document.getElementById('v-min-purchase').value || 0);
+            const status = document.getElementById('v-status').value;
+            const vId = document.getElementById('v-id').value;
+
+            if (!code) { showToast('Kode voucher wajib diisi!', 'warning'); return; }
+            if (!discountValue || discountValue <= 0) { showToast('Nilai diskon harus lebih dari 0!', 'warning'); return; }
+            if (discountType === 'percent' && discountValue > 100) { showToast('Diskon persen tidak boleh melebihi 100%!', 'warning'); return; }
+
+            let productIds = [];
+            if (applyTo === 'specific') {
+                document.querySelectorAll('input[name="v-products"]:checked').forEach(cb => productIds.push(cb.value));
+                if (!productIds.length) { showToast('Pilih minimal satu produk untuk voucher ini!', 'warning'); return; }
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin inline mr-1"></i> Menyimpan...';
+            lucide.createIcons();
+
+            try {
+                const endpoint = getApiEndpoint();
+                if (!endpoint) throw new Error('API endpoint tidak tersedia');
+                const payload = {
+                    action: 'save_voucher', id: vId || undefined,
+                    code, discount_type: discountType, discount_value: discountValue,
+                    max_discount_amount: maxDiscountAmount, apply_to: applyTo,
+                    product_ids: productIds, max_uses: maxUses, expires_at: expiresAt,
+                    min_purchase: minPurchase, status
+                };
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(buildAdminAuthPayload(payload))
+                });
+                const r = await res.json();
+                if (r.status === 'success') {
+                    showToast(r.message || 'Voucher disimpan!', 'success');
+                    closeVoucherModal();
+                    loadVouchers();
+                } else {
+                    showToast(r.message || 'Gagal menyimpan voucher', 'error');
+                }
+            } catch(e) {
+                showToast('Terjadi kesalahan: ' + e.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = oriText;
+                lucide.createIcons();
+            }
+        }
+
+        async function deleteVoucher(id, code) {
+            const confirmed = await customConfirm(`Hapus voucher "${code}"? Tindakan ini tidak dapat dibatalkan.`);
+            if (!confirmed) return;
+            try {
+                const endpoint = getApiEndpoint();
+                if (!endpoint) throw new Error('API endpoint tidak tersedia');
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(buildAdminAuthPayload({ action: 'delete_voucher', id }))
+                });
+                const r = await res.json();
+                if (r.status === 'success') {
+                    showToast('Voucher berhasil dihapus!', 'success');
+                    loadVouchers();
+                } else {
+                    showToast(r.message || 'Gagal menghapus voucher', 'error');
+                }
+            } catch(e) {
+                showToast('Terjadi kesalahan: ' + e.message, 'error');
+            }
+        }
+
+        async function loadPromotion() {
+            try {
+                const endpoint = getApiEndpoint();
+                if (!endpoint) return;
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(buildAdminAuthPayload({ action: 'get_promotion' }))
+                });
+                const r = await res.json();
+                if (r.status === 'success') {
+                    const enabled = r.enabled === true;
+                    document.getElementById('promo-enabled').checked = enabled;
+                    togglePromoFields();
+                    if (r.product_id) { 
+                        const sel = document.getElementById('promo-product-id');
+                        if (sel) sel.value = r.product_id;
+                    }
+                    if (r.voucher_code) document.getElementById('promo-voucher-code').value = r.voucher_code;
+                    if (r.title) document.getElementById('promo-title').value = r.title;
+                    if (r.subtitle) document.getElementById('promo-subtitle').value = r.subtitle;
+                    if (r.image_url) document.getElementById('promo-image-url').value = r.image_url;
+                    if (r.cta_text) document.getElementById('promo-cta-text').value = r.cta_text;
+                    updatePromoPreview();
+                }
+            } catch(e) { /* silent */ }
+        }
+
+        function togglePromoFields() {
+            const enabled = document.getElementById('promo-enabled').checked;
+            const fields = document.getElementById('promo-fields');
+            if (enabled) {
+                fields.classList.remove('opacity-50', 'pointer-events-none');
+            } else {
+                fields.classList.add('opacity-50', 'pointer-events-none');
+            }
+        }
+
+        function updatePromoPreview() {
+            const title = document.getElementById('promo-title')?.value || '🔥 Penawaran Spesial!';
+            const subtitle = document.getElementById('promo-subtitle')?.value || 'Dapatkan diskon eksklusif sekarang!';
+            const code = document.getElementById('promo-voucher-code')?.value || 'DISKON20';
+            const cta = document.getElementById('promo-cta-text')?.value || 'Klaim Diskon Sekarang';
+            const titleEl = document.getElementById('promo-preview-title');
+            const subtitleEl = document.getElementById('promo-preview-subtitle');
+            const codeEl = document.getElementById('promo-preview-code');
+            const ctaEl = document.getElementById('promo-preview-cta');
+            if (titleEl) titleEl.innerText = title;
+            if (subtitleEl) subtitleEl.innerText = subtitle;
+            if (codeEl) codeEl.innerText = code.toUpperCase() || 'DISKON20';
+            if (ctaEl) ctaEl.innerText = cta;
+        }
+
+        // Bind preview updates
+        document.addEventListener('DOMContentLoaded', () => {
+            ['promo-title', 'promo-subtitle', 'promo-voucher-code', 'promo-cta-text'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('input', updatePromoPreview);
+            });
+        });
+
+        async function savePromotion() {
+            const btn = document.getElementById('btn-save-promotion');
+            const oriText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin inline mr-1"></i> Menyimpan...';
+            lucide.createIcons();
+            try {
+                const endpoint = getApiEndpoint();
+                if (!endpoint) throw new Error('API endpoint tidak tersedia');
+                const payload = {
+                    action: 'save_promotion',
+                    promotion_enabled: document.getElementById('promo-enabled').checked ? 'true' : 'false',
+                    promotion_product_id: document.getElementById('promo-product-id')?.value || '',
+                    promotion_voucher_code: (document.getElementById('promo-voucher-code')?.value || '').toUpperCase(),
+                    promotion_title: document.getElementById('promo-title')?.value || '',
+                    promotion_subtitle: document.getElementById('promo-subtitle')?.value || '',
+                    promotion_image_url: document.getElementById('promo-image-url')?.value || '',
+                    promotion_cta_text: document.getElementById('promo-cta-text')?.value || 'Klaim Diskon Sekarang'
+                };
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(buildAdminAuthPayload(payload))
+                });
+                const r = await res.json();
+                if (r.status === 'success') {
+                    showToast('Pengaturan promosi berhasil disimpan!', 'success');
+                } else {
+                    showToast(r.message || 'Gagal menyimpan promosi', 'error');
+                }
+            } catch(e) {
+                showToast('Terjadi kesalahan: ' + e.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = oriText;
+                lucide.createIcons();
+            }
         }
 
         async function setLunas(id) { 
