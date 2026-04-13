@@ -30,6 +30,8 @@
         .theme-toggle-btn.active i {
             color: #B6FF00 !important;
         }
+        body:not(.admin-logged-in) #admin-main { display: none !important; }
+        body.admin-logged-in #login-overlay { display: none !important; }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -723,7 +725,7 @@
     </div>
 
     <!-- MAIN ADMIN AREA -->
-    <div id="admin-main" class="flex h-screen w-screen overflow-hidden">
+    <div id="admin-main" class="flex flex-1 h-full w-full overflow-hidden">
         
         <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-[#000018]/60 z-40 md:hidden backdrop-blur-sm transition-opacity"></div>
 
@@ -2313,9 +2315,25 @@
             });
         }
 
+        async function fetchWithTimeout(resource, options = {}) {
+            const { timeout = 10000 } = options;
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), timeout);
+            try {
+                const response = await fetch(resource, { ...options, signal: controller.signal });
+                clearTimeout(id);
+                return response;
+            } catch (err) {
+                clearTimeout(id);
+                throw err;
+            }
+        }
+
         async function readJsonSafe(res) {
-            const text = await res.text();
-            try { return JSON.parse(text); } catch (e) { return null; }
+            try { 
+                const text = await res.text();
+                return JSON.parse(text); 
+            } catch (e) { return null; }
         }
 
         function normalizeAdminData(data) {
@@ -3012,7 +3030,11 @@
 
         async function init() {
             try {
-                if(!isAdminSessionActive()) return;
+                if(!isAdminSessionActive()) {
+                    document.body.classList.remove('admin-logged-in');
+                    return;
+                }
+                document.body.classList.add('admin-logged-in');
                 document.getElementById('login-overlay').style.display = 'none'; 
                 document.getElementById('admin-main').style.display = 'flex'; 
                 document.getElementById('admin-name').innerText = sessionStorage.getItem('auth_name') || sessionStorage.getItem('adm_name') || 'Admin';
@@ -3027,15 +3049,17 @@
                         const normalized = normalizeAdminData(parsed);
                         if (normalized && normalized.settings) renderAdminUI(normalized);
                     } catch(e) { localStorage.removeItem(CACHE_KEY_ADMIN); }
-                    if(syncLabel) syncLabel.classList.remove('hidden');
                 }
+                
+                if(syncLabel) syncLabel.classList.remove('hidden');
                 
                 const endpoint = getApiEndpoint();
                 if(endpoint) {
-                    const res = await fetch(endpoint, { 
+                    const res = await fetchWithTimeout(endpoint, { 
                         method: 'POST', 
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(buildAdminAuthPayload({ action: 'get_admin_data' }))
+                        body: JSON.stringify(buildAdminAuthPayload({ action: 'get_admin_data' })),
+                        timeout: 8000
                     }); 
                     const raw = await res.json();
                     const r = normalizeAdminData(raw);
@@ -4046,7 +4070,7 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                     });
                     const payload = await readJsonSafe(res);
                     if (payload && payload.status === 'success') return true;
-                } catch (err) {}
+                } catch (err) { console.warn("Revoke fetch failed for endpoint:", endpoint); }
             }
             return false;
         }
