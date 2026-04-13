@@ -2163,6 +2163,10 @@
     </div>
 
     <script>
+        let cachedPages = [];
+        let cachedProducts = [];
+        let cachedAdminOrdersForChart = null;
+
         function updateProdPreview(url) {
             const preview = document.getElementById('p-image-preview');
             const placeholder = document.getElementById('p-image-placeholder');
@@ -2418,7 +2422,7 @@
         const CACHE_KEY_ADMIN = 'melimpah_admin_data';
         const PRODUCT_DESC_MAX_LENGTH = 280;
         let MOOTA_URL = ''; let MOOTA_TOKEN_CONFIGURED = false;
-        let IK_PUB = ''; let IK_END = ''; let IK_PRIVATE_CONFIGURED = false; let cachedPages = []; let cachedProducts = [];
+        let IK_PUB = ''; let IK_END = ''; let IK_PRIVATE_CONFIGURED = false;
         let workerMetricsTimer = null;
 
         function normalizePlainText(value) {
@@ -4431,7 +4435,7 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
         
         // --- REAL SALES CHART IMPLEMENTATION START ---
         let adminSalesChartInstance = null;
-        let cachedAdminOrdersForChart = null;
+        // Chart cache variable (declared at top)
 
         async function fetchAndRenderSalesChartData(forceRefresh = false) {
             const loader = document.getElementById('sales-chart-loader');
@@ -4653,11 +4657,6 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                         }
                     } catch(e) {}
                 }
-            }
-
-        window.onload = function() { 
-            if(typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
-                lucide.createIcons(); 
             }
             if(isAdminSessionActive()) init(); 
         };
@@ -5201,16 +5200,17 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
         }
 
         (function() {
-            console.log("Forced cleanup and Debugger initiated.");
-            // Log all clicks to see where they are going
+            // Log clicks for debugging interactivity
+            console.log("SpotAdmin interactivity monitor active.");
             document.addEventListener('click', function(e) {
-                console.log("Click detected on:", e.target);
+                console.log("Interact: click on", e.target);
             }, true);
 
             setInterval(function() {
                 if(typeof isAdminSessionActive === 'function' && isAdminSessionActive()) {
                     document.body.classList.add('admin-logged-in');
-                    document.body.style.overflow = 'auto';
+                    document.body.style.overflow = 'auto !important';
+                    
                     var overlays = ['login-overlay', 'sidebar-overlay', 'modal-forgot-admin'];
                     for(var i=0; i<overlays.length; i++) {
                         var el = document.getElementById(overlays[i]);
