@@ -637,7 +637,7 @@
   gtag('config', 'G-GZM06L9YDH');
 </script>
 </head>
-<body class="antialiased relative h-screen w-screen overflow-hidden flex">
+<body class="antialiased relative h-screen w-screen flex">
 
     <div id="toast-container"></div>
 
@@ -5168,6 +5168,18 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             }
         }
 
+        (function() {
+            var overlays = ['login-overlay', 'sidebar-overlay', 'modal-voucher', 'modal-confirm', 'modal-prod', 'modal-page', 'modal-admin-profile', 'modal-admin-password'];
+            for(var i=0; i<overlays.length; i++) {
+                var el = document.getElementById(overlays[i]);
+                if(el && (overlays[i] === 'login-overlay' || overlays[i] === 'sidebar-overlay')) {
+                    el.style.display = 'none';
+                    el.classList.add('hidden');
+                }
+            }
+            document.body.style.overflow = 'auto'; // Force enabling scroll if stuck
+            console.log("Forced cleanup of overlays initiated.");
+        })();
     </script>
 </body>
 </html>
