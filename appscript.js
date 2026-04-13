@@ -4542,7 +4542,7 @@ function getOrCreateVoucherSheet_() {
   let sh = ss.getSheetByName("Vouchers");
   if (!sh) {
     sh = ss.insertSheet("Vouchers");
-    sh.appendRow(["ID","Code","Discount Type","Discount Value","Apply To","Product IDs","Max Uses","Used Count","Expires At","Min Purchase","Max Discount Amount","Status","Created At"]);
+    sh.appendRow(["ID","Code","Discount Type","Discount Value","Apply To","Product IDs","Quantity","Used Count","Expires At","Min Purchase","Max Discount Amount","Max Per User","Status","Created At"]);
     sh.setFrozenRows(1);
   }
   return sh;
@@ -4551,7 +4551,7 @@ function getOrCreateVoucherSheet_() {
 function getAdminProducts(d) {
   try {
     requireAdminSession_(d, { actionName: "get_products" });
-    const sh = mustSheet_("Products");
+    const sh = mustSheet_("Access_Rules");
     const data = sh.getDataRange().getValues();
     const products = [];
     // Skip header
@@ -4578,10 +4578,11 @@ function getVouchers(d) {
       vouchers.push({
         id: row[0], code: row[1], discount_type: row[2], discount_value: Number(row[3] || 0),
         apply_to: row[4], product_ids: row[5] ? String(row[5]).split(",").map(x => x.trim()).filter(Boolean) : [],
-        max_uses: Number(row[6] || 0), used_count: Number(row[7] || 0),
+        quantity: Number(row[6] || 0), used_count: Number(row[7] || 0),
         expires_at: row[8] ? String(row[8]) : "",
         min_purchase: Number(row[9] || 0), max_discount_amount: Number(row[10] || 0),
-        status: row[11] || "Active", created_at: row[12] ? String(row[12]) : ""
+        max_per_user: Number(row[11] || 0),
+        status: row[12] || "Active", created_at: row[13] ? String(row[13]) : ""
       });
     }
     return { status: "success", vouchers: vouchers };
@@ -4603,10 +4604,11 @@ function saveVoucher(d) {
     if (discountType === "percent" && discountValue > 100) return { status: "error", message: "Diskon persen tidak boleh lebih dari 100%." };
     const applyTo = String(d.apply_to || "all").toLowerCase();
     const productIds = Array.isArray(d.product_ids) ? d.product_ids.join(",") : String(d.product_ids || "");
-    const maxUses = Number(d.max_uses || 0);
+    const quantity = Number(d.quantity || 0); // renamed from max_uses
     const expiresAt = d.expires_at ? String(d.expires_at).trim() : "";
     const minPurchase = Number(d.min_purchase || 0);
     const maxDiscountAmount = Number(d.max_discount_amount || 0);
+    const maxPerUser = Number(d.max_per_user || 0);
     const status = String(d.status || "Active");
 
     // Check for duplicate code (case-insensitive)
@@ -4621,9 +4623,9 @@ function saveVoucher(d) {
       // Update existing
       for (let i = 1; i < data.length; i++) {
         if (String(data[i][0]) === String(d.id)) {
-          sh.getRange(i + 1, 1, 1, 13).setValues([[
+          sh.getRange(i + 1, 1, 1, 14).setValues([[
             d.id, code, discountType, discountValue, applyTo, productIds,
-            maxUses, Number(data[i][7] || 0), expiresAt, minPurchase, maxDiscountAmount, status, data[i][12]
+            quantity, Number(data[i][7] || 0), expiresAt, minPurchase, maxDiscountAmount, maxPerUser, status, data[i][13]
           ]]);
           CacheService.getScriptCache().remove("vouchers_list");
           return { status: "success", message: "Voucher berhasil diperbarui." };
@@ -4633,7 +4635,7 @@ function saveVoucher(d) {
     } else {
       // Create new
       const newId = "vc-" + Math.floor(100000 + Math.random() * 900000);
-      sh.appendRow([newId, code, discountType, discountValue, applyTo, productIds, maxUses, 0, expiresAt, minPurchase, maxDiscountAmount, status, toISODate_()]);
+      sh.appendRow([newId, code, discountType, discountValue, applyTo, productIds, quantity, 0, expiresAt, minPurchase, maxDiscountAmount, maxPerUser, status, toISODate_()]);
       CacheService.getScriptCache().remove("vouchers_list");
       return { status: "success", message: "Voucher berhasil dibuat.", id: newId };
     }
@@ -4681,10 +4683,12 @@ function validateVoucher(d, cfg) {
           id: data[i][0], code: data[i][1], discount_type: data[i][2], discount_value: Number(data[i][3] || 0),
           apply_to: String(data[i][4] || "all").toLowerCase(),
           product_ids: data[i][5] ? String(data[i][5]).split(",").map(x => x.trim()).filter(Boolean) : [],
-          max_uses: Number(data[i][6] || 0), used_count: Number(data[i][7] || 0),
+          quantity: Number(data[i][6] || 0), used_count: Number(data[i][7] || 0),
           expires_at: data[i][8] ? String(data[i][8]) : "",
-          min_purchase: Number(data[i][9] || 0), max_discount_amount: Number(data[i][10] || 0),
-          status: data[i][11] || "Active"
+          min_purchase: data[i][9] ? Number(data[i][9]) : 0,
+          max_discount_amount: data[i][10] ? Number(data[i][10]) : 0,
+          max_per_user: data[i][11] ? Number(data[i][11]) : 0,
+          status: data[i][12] || "Active"
         };
         break;
       }
@@ -4699,9 +4703,29 @@ function validateVoucher(d, cfg) {
       if (new Date() > expDate) return { status: "error", message: "Voucher ini sudah kedaluwarsa." };
     }
 
-    // Check usage limit
-    if (voucher.max_uses > 0 && voucher.used_count >= voucher.max_uses) {
-      return { status: "error", message: "Voucher ini sudah mencapai batas penggunaan." };
+    // Check usage limit (Global Quantity)
+    if (voucher.quantity > 0 && voucher.used_count >= voucher.quantity) {
+      return { status: "error", message: "Voucher ini sudah mencapai batas kuota total." };
+    }
+
+    // Check usage limit per user
+    if (voucher.max_per_user > 0 && d.email) {
+      const email = String(d.email).toLowerCase().trim();
+      const oS = ss.getSheetByName("Orders");
+      if (oS) {
+        const orders = oS.getDataRange().getValues();
+        let userUsage = 0;
+        for (let i = 1; i < orders.length; i++) {
+          if (String(orders[i][1]).toLowerCase().trim() === email && 
+              String(orders[i][12]).toUpperCase() === code && 
+              String(orders[i][7]).toLowerCase() !== "batal") {
+            userUsage++;
+          }
+        }
+        if (userUsage >= voucher.max_per_user) {
+          return { status: "error", message: "Anda sudah mencapai batas penggunaan voucher ini (" + voucher.max_per_user + "x)." };
+        }
+      }
     }
 
     // Check product applicability
@@ -4784,6 +4808,7 @@ function savePromotion(d) {
     const data = sh.getDataRange().getValues();
     const settingsToSave = {
       "promotion_enabled": String(d.promotion_enabled || "false"),
+      "promotion_type": String(d.promotion_type || "discount"), // for future upsell/cross-sell
       "promotion_product_id": String(d.promotion_product_id || ""),
       "promotion_voucher_code": String(d.promotion_voucher_code || "").trim().toUpperCase(),
       "promotion_title": String(d.promotion_title || ""),
