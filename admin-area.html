@@ -974,7 +974,7 @@
 
                         <!-- Chart Section -->
                         <div id="sales-chart-container" class="glass-card p-4 sm:p-5 flex flex-col relative w-full h-[300px] md:h-auto min-h-[300px] overflow-hidden">
-                            <div id="sales-chart-loader" class="absolute inset-0 bg-[#000018]/80 backdrop-blur-sm z-10 flex items-center justify-center hidden rounded-[2rem]">
+                            <div id="sales-chart-loader" class="absolute inset-0 bg-[#000018]/80 backdrop-blur-sm z-10 flex items-center justify-center hidden rounded-[2rem] pointer-events-none">
                                 <div class="w-8 h-8 border-4 border-[rgba(182,255,0,0.3)] border-t-[#B6FF00] rounded-full animate-spin"></div>
                             </div>
                             <div class="w-full h-full relative" style="min-height: 250px;">
@@ -1528,7 +1528,7 @@
                                 </div>
                                 <div class="relative h-48">
                                     <canvas id="ga-chart-visitors"></canvas>
-                                    <div id="ga-chart-visitors-loader" class="absolute inset-0 flex items-center justify-center">
+                                    <div id="ga-chart-visitors-loader" class="absolute inset-0 flex items-center justify-center pointer-events-none">
                                         <div class="w-6 h-6 border-2 border-[#B6FF00]/30 border-t-[#B6FF00] rounded-full animate-spin"></div>
                                     </div>
                                 </div>
@@ -1560,7 +1560,7 @@
                                 </div>
                                 <div class="relative h-48">
                                     <canvas id="ga-chart-devices"></canvas>
-                                    <div id="ga-chart-devices-loader" class="absolute inset-0 flex items-center justify-center">
+                                    <div id="ga-chart-devices-loader" class="absolute inset-0 flex items-center justify-center pointer-events-none">
                                         <div class="w-6 h-6 border-2 border-[#B6FF00]/30 border-t-[#B6FF00] rounded-full animate-spin"></div>
                                     </div>
                                 </div>
@@ -5200,16 +5200,14 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
         }
 
         (function() {
-            // Log clicks for debugging interactivity
+            // Interactivity fix
             console.log("SpotAdmin interactivity monitor active.");
-            document.addEventListener('click', function(e) {
-                console.log("Interact: click on", e.target);
-            }, true);
-
+            
             setInterval(function() {
                 if(typeof isAdminSessionActive === 'function' && isAdminSessionActive()) {
                     document.body.classList.add('admin-logged-in');
-                    document.body.style.overflow = 'auto !important';
+                    document.body.style.setProperty('overflow', 'auto', 'important');
+                    document.body.style.setProperty('pointer-events', 'auto', 'important');
                     
                     var overlays = ['login-overlay', 'sidebar-overlay', 'modal-forgot-admin'];
                     for(var i=0; i<overlays.length; i++) {
