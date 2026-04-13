@@ -30,7 +30,11 @@
         .theme-toggle-btn.active i {
             color: #B6FF00 !important;
         }
-        body:not(.admin-logged-in) #admin-main { display: none !important; }
+        body.admin-logged-in { 
+            overflow: auto !important; 
+            overflow-x: hidden !important;
+            pointer-events: auto !important;
+        }
         body.admin-logged-in #login-overlay { display: none !important; }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
@@ -4651,6 +4655,10 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                 }
             }
 
+        window.onload = function() { 
+            if(typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
+                lucide.createIcons(); 
+            }
             if(isAdminSessionActive()) init(); 
         };
 
@@ -5193,16 +5201,28 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
         }
 
         (function() {
-            var overlays = ['login-overlay', 'sidebar-overlay', 'modal-voucher', 'modal-confirm', 'modal-prod', 'modal-page', 'modal-admin-profile', 'modal-admin-password'];
-            for(var i=0; i<overlays.length; i++) {
-                var el = document.getElementById(overlays[i]);
-                if(el && (overlays[i] === 'login-overlay' || overlays[i] === 'sidebar-overlay')) {
-                    el.style.display = 'none';
-                    el.classList.add('hidden');
+            console.log("Forced cleanup and Debugger initiated.");
+            // Log all clicks to see where they are going
+            document.addEventListener('click', function(e) {
+                console.log("Click detected on:", e.target);
+            }, true);
+
+            setInterval(function() {
+                if(typeof isAdminSessionActive === 'function' && isAdminSessionActive()) {
+                    document.body.classList.add('admin-logged-in');
+                    document.body.style.overflow = 'auto';
+                    var overlays = ['login-overlay', 'sidebar-overlay', 'modal-forgot-admin'];
+                    for(var i=0; i<overlays.length; i++) {
+                        var el = document.getElementById(overlays[i]);
+                        if(el && (el.style.display !== 'none' || !el.classList.contains('hidden'))) {
+                            if(window.innerWidth >= 768 || overlays[i] !== 'sidebar-overlay') {
+                                el.style.display = 'none';
+                                el.classList.add('hidden');
+                            }
+                        }
+                    }
                 }
-            }
-            document.body.style.overflow = 'auto'; // Force enabling scroll if stuck
-            console.log("Forced cleanup of overlays initiated.");
+            }, 1000);
         })();
     </script>
 </body>
