@@ -619,7 +619,7 @@
                     // Update the left panel price display
                     const totalEl = document.getElementById('display-total-top');
                     if (totalEl) {
-                        totalEl.innerHTML = `<span class="line-through text-slate-500 text-xl">${nf(r.original_price)}</span><br><span class="text-[#B6FF00] drop-shadow-[0_0_10px_rgba(182,255,0,0.3)]">${nf(r.discounted_price)}</span>`;
+                        totalEl.innerHTML = `<span class="line-through text-slate-500 text-xl font-normal">${nf(r.original_price)}</span><br><span class="text-[#B6FF00] drop-shadow-[0_0_10px_rgba(182,255,0,0.3)]">${nf(r.discounted_price)}</span>`;
                     }
 
                     // Disable input after successful apply
