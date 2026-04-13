@@ -3580,6 +3580,20 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
 
         async function loadVoucherProducts() {
             try {
+                // Use cachedProducts if already loaded during init
+                if (cachedProducts && cachedProducts.length) {
+                    voucherProductsList = cachedProducts.filter(function(p) {
+                        return p && String(p[5] || '').trim() === 'Active';
+                    });
+                    populatePromoProductDropdown();
+                    // Also refresh checkboxes if modal is open
+                    const box = document.getElementById('v-product-checkboxes');
+                    if (box && box.innerHTML.includes('Memuat')) {
+                        renderVoucherProductCheckboxes();
+                    }
+                    return;
+                }
+                // Fallback: fetch fresh
                 const endpoint = getApiEndpoint();
                 if (!endpoint) return;
                 const payload = buildAdminAuthPayload({ action: 'get_products' });
@@ -4154,28 +4168,17 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
         }
 
         async function logout() {
-            try {
-                if(!confirm('Apakah Anda yakin ingin logout?')) return;
-                // Try to revoke but don't hang if it fails
-                try {
-                    const controller = new AbortController();
-                    const tid = setTimeout(() => controller.abort(), 3000);
-                    await revokeAdminSessionOnServer({ signal: controller.signal });
-                    clearTimeout(tid);
-                } catch(e) { console.warn("Revoke failed or timed out", e); }
-                
-                if (window.workerMetricsTimer) {
-                    clearInterval(window.workerMetricsTimer);
-                    window.workerMetricsTimer = null;
-                }
-                clearAdminSession();
-                localStorage.removeItem(CACHE_KEY_ADMIN);
-                location.reload();
-            } catch(e) {
-                console.error("Logout error:", e);
-                clearAdminSession();
-                location.reload();
+            if(!confirm('Apakah Anda yakin ingin logout?')) return;
+            // Immediately clear session + reload. Revoke server session in background.
+            clearAdminSession();
+            localStorage.removeItem(CACHE_KEY_ADMIN);
+            if (window.workerMetricsTimer) {
+                clearInterval(window.workerMetricsTimer);
+                window.workerMetricsTimer = null;
             }
+            // Fire-and-forget server revoke (don't await, don't block reload)
+            try { revokeAdminSessionOnServer(); } catch(e) {}
+            location.reload();
         }
 
         async function submitFormToGAS(formId, payload, successMsg, modalIdToClose = null) {
