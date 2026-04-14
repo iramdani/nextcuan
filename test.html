@@ -81,21 +81,9 @@
         // Inisialisasi Ikon Lucide
         lucide.createIcons();
 
-        // 2. SETTING PENTING: 
-        // Agar ncDownload tahu URL Apps Script Anda:
-        // Pastikan Anda sudah menyimpan URL Apps Script di localStorage saat Login, 
-        // atau kita set manual di sini untuk testing:
-        // Coba ambil endpoint dari config global jika ada
-        const currentEndpoint = localStorage.getItem('gas_endpoint');
-        if (!currentEndpoint || currentEndpoint.includes('MASUKKAN_URL')) {
-            const promptUrl = prompt('Silakan masukkan URL Web App (Apps Script) Anda untuk testing:', currentEndpoint || '');
-            if (promptUrl) localStorage.setItem('gas_endpoint', promptUrl);
-        }
-
-        // Contoh simulasi Login Email (Abaikan jika sudah login beneran)
-        if (!localStorage.getItem('userEmail')) {
-            localStorage.setItem('userEmail', 'testuser@example.com');
-        }
+        // Di halaman CMS asli, gas_endpoint dan userEmail sudah otomatis 
+        // tersimpan di localStorage saat user melakukan login di platform utama.
+        // Halaman ini akan mengambil data tersebut secara otomatis via nc-core.js.
     </script>
 </body>
 </html>
