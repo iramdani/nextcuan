@@ -57,7 +57,7 @@
 
         <!-- AREA TOMBOL DOWNLOAD -->
         <div class="space-y-4">
-            <button onclick="ncDownload('f-245111')" class="btn-premium w-full py-5 rounded-2xl font-bold text-lg flex items-center justify-center gap-3">
+            <button onclick="ncDownload('f-245111', event)" class="btn-premium w-full py-5 rounded-2xl font-bold text-lg flex items-center justify-center gap-3">
                 <i data-lucide="download" class="w-6 h-6"></i>
                 Download File Sekarang
             </button>
@@ -85,8 +85,11 @@
         // Agar ncDownload tahu URL Apps Script Anda:
         // Pastikan Anda sudah menyimpan URL Apps Script di localStorage saat Login, 
         // atau kita set manual di sini untuk testing:
-        if (!localStorage.getItem('gas_endpoint')) {
-            localStorage.setItem('gas_endpoint', 'https://script.google.com/macros/s/AKfyc...MASUKKAN_URL_ANDA.../exec');
+        // Coba ambil endpoint dari config global jika ada
+        const currentEndpoint = localStorage.getItem('gas_endpoint');
+        if (!currentEndpoint || currentEndpoint.includes('MASUKKAN_URL')) {
+            const promptUrl = prompt('Silakan masukkan URL Web App (Apps Script) Anda untuk testing:', currentEndpoint || '');
+            if (promptUrl) localStorage.setItem('gas_endpoint', promptUrl);
         }
 
         // Contoh simulasi Login Email (Abaikan jika sudah login beneran)
