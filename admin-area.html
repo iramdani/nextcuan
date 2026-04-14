@@ -765,6 +765,9 @@
                 <button onclick="switchTab('media')" id="nav-media" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm">
                     <i data-lucide="image" class="w-5 h-5"></i> Media Center
                 </button>
+                <button onclick="switchTab('filemanagement')" id="nav-filemanagement" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm">
+                    <i data-lucide="hard-drive" class="w-5 h-5"></i> File Management
+                </button>
                 <button onclick="switchTab('vouchers')" id="nav-vouchers" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm">
                     <i data-lucide="ticket" class="w-5 h-5"></i> Voucher & Promo
                 </button>
@@ -1751,6 +1754,131 @@
 
 
             </div>
+        
+
+        <!-- FILE MANAGEMENT TAB -->
+        <div id="tab-filemanagement" class="tab-content p-6 md:p-10">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-white">File Management</h2>
+                    <p class="text-slate-400 text-sm mt-1">Kelola file digital (Gratis & Premium) via Google Drive atau Cloudflare R2</p>
+                </div>
+                <button onclick="openFileMgmtModal()" class="btn-primary px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 flex-shrink-0">
+                    <i data-lucide="plus" class="w-4 h-4"></i> Tambah File
+                </button>
+            </div>
+
+            <!-- R2 Settings Card -->
+            <div class="glass-panel p-6 mb-8 rounded-2xl">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-9 h-9 bg-[rgba(182,255,0,0.1)] rounded-xl flex items-center justify-center"><i data-lucide="cloud" class="w-5 h-5 text-[#B6FF00]"></i></div>
+                    <div>
+                        <h3 class="font-bold text-white text-sm">Konfigurasi Cloudflare R2</h3>
+                        <p class="text-xs text-slate-400">Untuk file Premium. Kredensial tersimpan aman di Script Properties.</p>
+                    </div>
+                    <button onclick="toggleR2Settings()" class="ml-auto text-xs text-[#B6FF00] font-bold hover:underline">Tampilkan / Sembunyikan</button>
+                </div>
+                <div id="r2-settings-form" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">Account ID</label>
+                        <input type="text" id="r2-account-id" class="w-full glass-input rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[#B6FF00]" placeholder="abc123...">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">Bucket Name</label>
+                        <input type="text" id="r2-bucket-name" class="w-full glass-input rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[#B6FF00]" placeholder="nextcuan-files">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">Access Key ID</label>
+                        <input type="password" id="r2-access-key" class="w-full glass-input rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[#B6FF00]" placeholder="••••••••">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">Secret Access Key</label>
+                        <input type="password" id="r2-secret-key" class="w-full glass-input rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[#B6FF00]" placeholder="••••••••">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">Custom Domain (Opsional) <span class="text-slate-500">- misal: https://files.nextcuan.com</span></label>
+                        <input type="text" id="r2-custom-domain" class="w-full glass-input rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[#B6FF00]" placeholder="https://files.nextcuan.com">
+                    </div>
+                    <div class="md:col-span-2">
+                        <button onclick="saveR2Settings()" class="btn-primary px-6 py-3 rounded-xl font-bold text-sm">Simpan Konfigurasi R2</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- File List Table -->
+            <div class="glass-panel rounded-2xl overflow-hidden">
+                <div class="p-4 border-b border-[rgba(255,255,255,0.05)] flex items-center gap-3">
+                    <div class="flex gap-2">
+                        <button onclick="filterFiles('all')" id="filter-all" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-[rgba(182,255,0,0.15)] text-[#B6FF00]">Semua</button>
+                        <button onclick="filterFiles('Free')" id="filter-free" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:bg-[rgba(255,255,255,0.05)]">Free</button>
+                        <button onclick="filterFiles('Paid')" id="filter-paid" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:bg-[rgba(255,255,255,0.05)]">Premium</button>
+                    </div>
+                    <div class="ml-auto text-xs text-slate-500" id="file-count">Loading...</div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full mobile-responsive-table">
+                        <thead><tr class="text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-[rgba(255,255,255,0.05)]">
+                            <th class="px-6 py-4 text-left">Nama File</th>
+                            <th class="px-6 py-4 text-left">Tipe</th>
+                            <th class="px-6 py-4 text-left">Storage</th>
+                            <th class="px-6 py-4 text-left">Status</th>
+                            <th class="px-6 py-4 text-left">Download</th>
+                            <th class="px-6 py-4 text-right">Aksi</th>
+                        </tr></thead>
+                        <tbody id="file-list-body">
+                            <tr><td colspan="6" class="text-center py-16 text-slate-500"><div class="flex flex-col items-center gap-3"><i data-lucide="loader-2" class="w-8 h-8 animate-spin opacity-30"></i><span>Memuat data...</span></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- FILE MANAGEMENT MODAL -->
+        <div id="modal-filemgmt" class="fixed inset-0 z-[100] flex items-end md:items-center justify-center p-0 md:p-4 hidden bg-black/60 backdrop-blur-md">
+            <div class="glass-card w-full md:max-w-lg rounded-t-3xl md:rounded-3xl p-6 md:p-8 relative">
+                <button onclick="closeFileMgmtModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <h3 id="modal-filemgmt-title" class="text-lg font-bold text-white mb-6">Tambah File Baru</h3>
+                <input type="hidden" id="fm-id">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">Nama File / Judul</label>
+                        <input type="text" id="fm-title" class="w-full glass-input rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[#B6FF00]" placeholder="eBook Affiliate Marketing 2025">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">Tipe File</label>
+                            <select id="fm-type" onchange="onFmTypeChange()" class="w-full glass-input rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[#B6FF00]">
+                                <option value="Free">Free (Gratis)</option>
+                                <option value="Paid">Paid (Premium)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">Storage</label>
+                            <select id="fm-storage" onchange="onFmStorageChange()" class="w-full glass-input rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[#B6FF00]">
+                                <option value="GDrive">Google Drive</option>
+                                <option value="R2">Cloudflare R2</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1.5" id="fm-path-label">File ID Google Drive</label>
+                        <input type="text" id="fm-path-id" class="w-full glass-input rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[#B6FF00]" placeholder="1aBcD_eFgHiJkLmNoPqRsTuVwXyZ">
+                        <p id="fm-path-hint" class="text-xs text-slate-500 mt-1.5">Ambil dari URL Google Drive: drive.google.com/file/d/<strong>ID_DI_SINI</strong>/view</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">Status</label>
+                        <select id="fm-status" class="w-full glass-input rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[#B6FF00]">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex gap-3 mt-6">
+                    <button onclick="closeFileMgmtModal()" class="flex-1 btn-ghost border border-[rgba(255,255,255,0.1)] py-3 rounded-xl font-bold text-sm">Batal</button>
+                    <button onclick="saveFileMgmt()" class="flex-1 btn-primary py-3 rounded-xl font-bold text-sm">Simpan File</button>
+                </div>
+            </div>
+        </div>
         </main>
     </div>
 
@@ -3546,7 +3674,7 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                 if(targetTab) targetTab.classList.add('active'); 
                 if(targetNav) targetNav.classList.add('active'); 
 
-                var titles = { 'orders': 'Dashboard', 'admin-orders': 'Manajemen Pesanan', 'members': 'Data Member', 'products': 'Produk & Layanan', 'pages': 'Halaman CMS', 'media': 'Media Center', 'settings': 'Pengaturan Sistem', 'stats': 'Statistik', 'vouchers': 'Voucher & Promosi' };
+                var titles = { 'orders': 'Dashboard', 'admin-orders': 'Manajemen Pesanan', 'members': 'Data Member', 'products': 'Produk & Layanan', 'pages': 'Halaman CMS', 'media': 'Media Center', 'filemanagement': 'File Management', 'settings': 'Pengaturan Sistem', 'stats': 'Statistik', 'vouchers': 'Voucher & Promosi' };
                 var titleEl = document.getElementById('tab-title');
                 if(titleEl) titleEl.innerText = titles[t] || 'Dashboard';
                 if(typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
@@ -3556,6 +3684,7 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                 if(t === 'media') loadMediaFiles();
                 if(t === 'stats') loadGAStats(); 
                 
+                if (t === 'filemanagement' && typeof loadManagedFiles === 'function') { loadManagedFiles(); }
                 if (t === 'admin-orders') {
                     var iframe = document.getElementById('iframe-admin-orders');
                     if (iframe && !iframe.getAttribute('src')) {
@@ -5285,6 +5414,169 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                 }
             }, 1000);
         })();
-    </script>
+    
+        /* ===========================
+           FILE MANAGEMENT LOGIC
+        =========================== */
+        let allManagedFiles = [];
+        let currentFileFilter = 'all';
+
+        async function loadManagedFiles() {
+            try {
+                const res = await fetch(getApiEndpoint(), {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(buildAdminAuthPayload({ action: 'get_managed_files' }))
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    allManagedFiles = data.data || [];
+                    renderFileList(allManagedFiles);
+                } else { throw new Error(data.message); }
+            } catch (e) {
+                document.getElementById('file-list-body').innerHTML = '<tr><td colspan="6" class="text-center py-10 text-red-400 text-sm">Gagal memuat data: ' + e.message + '</td></tr>';
+            }
+        }
+
+        function renderFileList(files) {
+            const tbody = document.getElementById('file-list-body');
+            document.getElementById('file-count').textContent = files.length + ' file';
+            if (!files.length) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-16 text-slate-500"><div class="flex flex-col items-center gap-3"><i data-lucide="folder-open" class="w-10 h-10 opacity-30"></i><span class="font-medium">Belum ada file. Klik "Tambah File" untuk mulai.</span></div></td></tr>';
+                if (window.lucide) lucide.createIcons();
+                return;
+            }
+            tbody.innerHTML = files.map(f => {
+                const typeBadge = f.type === 'Paid'
+                    ? '<span class="px-2.5 py-1 bg-amber-500/15 text-amber-400 rounded-lg text-xs font-bold">PREMIUM</span>'
+                    : '<span class="px-2.5 py-1 bg-emerald-500/15 text-emerald-400 rounded-lg text-xs font-bold">FREE</span>';
+                const storageBadge = f.storage === 'R2'
+                    ? '<span class="flex items-center gap-1.5 text-xs text-orange-400 font-semibold"><i data-lucide="cloud" class="w-3.5 h-3.5"></i> R2</span>'
+                    : '<span class="flex items-center gap-1.5 text-xs text-sky-400 font-semibold"><i data-lucide="hard-drive" class="w-3.5 h-3.5"></i> GDrive</span>';
+                const statusBadge = f.status === 'Active'
+                    ? '<span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block mr-1.5 shadow-[0_0_6px_rgba(52,211,153,0.8)]"></span><span class="text-xs text-emerald-400 font-semibold">Aktif</span>'
+                    : '<span class="w-2.5 h-2.5 rounded-full bg-slate-500 inline-block mr-1.5"></span><span class="text-xs text-slate-400 font-semibold">Nonaktif</span>';
+                return `<tr class="border-b border-[rgba(255,255,255,0.04)] hover:bg-[rgba(255,255,255,0.02)] transition-colors">
+                    <td class="px-6 py-4" data-label="Nama File"><div class="font-semibold text-white text-sm">${f.title}</div><div class="text-xs text-slate-500 mt-0.5 font-mono">${(f.path_id||'').substring(0,24)}...</div></td>
+                    <td class="px-6 py-4" data-label="Tipe">${typeBadge}</td>
+                    <td class="px-6 py-4" data-label="Storage">${storageBadge}</td>
+                    <td class="px-6 py-4" data-label="Status"><div class="flex items-center">${statusBadge}</div></td>
+                    <td class="px-6 py-4" data-label="Download"><span class="text-white font-bold">${f.download_count||0}</span><span class="text-slate-500 text-xs ml-1">kali</span></td>
+                    <td class="px-6 py-4 text-right" data-label="Aksi"><div class="flex items-center justify-end gap-2">
+                        <button onclick='editFileMgmt(${JSON.stringify(f).replace(/'/g, "&apos;")})' class="p-2 rounded-lg hover:bg-[rgba(182,255,0,0.1)] text-slate-400 hover:text-[#B6FF00] transition-colors"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+                        <button onclick="deleteFileMgmt('${f.id}','${f.title}')" class="p-2 rounded-lg hover:bg-[rgba(239,68,68,0.1)] text-slate-400 hover:text-red-400 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    </div></td>
+                </tr>`;
+            }).join('');
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function filterFiles(type) {
+            currentFileFilter = type;
+            ['all','Free','Paid'].forEach(t => {
+                const btn = document.getElementById('filter-' + (t==='all'?'all':t.toLowerCase()));
+                if (!btn) return;
+                if (t === type) { btn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-[rgba(182,255,0,0.15)] text-[#B6FF00]'; }
+                else { btn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:bg-[rgba(255,255,255,0.05)]'; }
+            });
+            const filtered = type === 'all' ? allManagedFiles : allManagedFiles.filter(f => f.type === type);
+            renderFileList(filtered);
+        }
+
+        function toggleR2Settings() {
+            const el = document.getElementById('r2-settings-form');
+            el.classList.toggle('hidden');
+        }
+
+        async function saveR2Settings() {
+            const payload = buildAdminAuthPayload({
+                action: 'update_r2_settings',
+                r2_account_id: document.getElementById('r2-account-id').value,
+                r2_bucket_name: document.getElementById('r2-bucket-name').value,
+                r2_access_key: document.getElementById('r2-access-key').value,
+                r2_secret_key: document.getElementById('r2-secret-key').value,
+                r2_public_domain: document.getElementById('r2-custom-domain').value
+            });
+            try {
+                const res = await fetch(getApiEndpoint(), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const data = await res.json();
+                if (data.status === 'success') { showToast('Konfigurasi R2 berhasil disimpan!', 'success'); document.getElementById('r2-settings-form').classList.add('hidden'); }
+                else throw new Error(data.message);
+            } catch (e) { showToast('Gagal: ' + e.message, 'error'); }
+        }
+
+        function openFileMgmtModal(file) {
+            document.getElementById('fm-id').value = '';
+            document.getElementById('fm-title').value = '';
+            document.getElementById('fm-type').value = 'Free';
+            document.getElementById('fm-storage').value = 'GDrive';
+            document.getElementById('fm-path-id').value = '';
+            document.getElementById('fm-status').value = 'Active';
+            document.getElementById('modal-filemgmt-title').textContent = 'Tambah File Baru';
+            onFmStorageChange();
+            document.getElementById('modal-filemgmt').classList.remove('hidden');
+        }
+
+        function editFileMgmt(file) {
+            document.getElementById('fm-id').value = file.id || '';
+            document.getElementById('fm-title').value = file.title || '';
+            document.getElementById('fm-type').value = file.type || 'Free';
+            document.getElementById('fm-storage').value = file.storage || 'GDrive';
+            document.getElementById('fm-path-id').value = file.path_id || '';
+            document.getElementById('fm-status').value = file.status || 'Active';
+            document.getElementById('modal-filemgmt-title').textContent = 'Edit File';
+            onFmStorageChange();
+            document.getElementById('modal-filemgmt').classList.remove('hidden');
+        }
+
+        function closeFileMgmtModal() { document.getElementById('modal-filemgmt').classList.add('hidden'); }
+
+        function onFmStorageChange() {
+            const storage = document.getElementById('fm-storage').value;
+            const label = document.getElementById('fm-path-label');
+            const hint = document.getElementById('fm-path-hint');
+            if (storage === 'R2') {
+                label.textContent = 'Object Key (Path di R2 Bucket)';
+                hint.innerHTML = 'Contoh: <strong>ebooks/nama-file.pdf</strong> sesuai struktur folder di bucket R2 Anda.';
+            } else {
+                label.textContent = 'File ID Google Drive';
+                hint.innerHTML = 'Ambil dari URL Google Drive: drive.google.com/file/d/<strong>ID_DI_SINI</strong>/view';
+            }
+        }
+
+        function onFmTypeChange() {}
+
+        async function saveFileMgmt() {
+            const title = document.getElementById('fm-title').value.trim();
+            if (!title) { showToast('Nama file wajib diisi!', 'error'); return; }
+            const pathId = document.getElementById('fm-path-id').value.trim();
+            if (!pathId) { showToast('File ID / Object Key wajib diisi!', 'error'); return; }
+            const payload = buildAdminAuthPayload({
+                action: 'save_managed_file',
+                id: document.getElementById('fm-id').value || undefined,
+                title: title,
+                type: document.getElementById('fm-type').value,
+                storage: document.getElementById('fm-storage').value,
+                path_id: pathId,
+                status: document.getElementById('fm-status').value
+            });
+            try {
+                const res = await fetch(getApiEndpoint(), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const data = await res.json();
+                if (data.status === 'success') { showToast('File berhasil disimpan!', 'success'); closeFileMgmtModal(); loadManagedFiles(); }
+                else throw new Error(data.message);
+            } catch (e) { showToast('Gagal: ' + e.message, 'error'); }
+        }
+
+        async function deleteFileMgmt(id, title) {
+            if (!confirm('Hapus file "' + title + '"? Tindakan ini tidak bisa dibatalkan.')) return;
+            const payload = buildAdminAuthPayload({ action: 'delete_managed_file', id: id });
+            try {
+                const res = await fetch(getApiEndpoint(), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const data = await res.json();
+                if (data.status === 'success') { showToast('File berhasil dihapus.', 'success'); loadManagedFiles(); }
+                else throw new Error(data.message);
+            } catch (e) { showToast('Gagal: ' + e.message, 'error'); }
+        }
+        </script>
 </body>
 </html>

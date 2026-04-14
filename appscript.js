@@ -1,4 +1,4 @@
-const ss = SpreadsheetApp.getActiveSpreadsheet();
+﻿const ss = SpreadsheetApp.getActiveSpreadsheet();
 
 /* =========================
    CONFIG.JS INTEGRATION
@@ -758,7 +758,7 @@ function doPost(e) {
     }
 
     // ====================================================================
-    // 🚀 RADAR MOOTA: DETEKSI WEBHOOK MASUK + VERIFIKASI SIGNATURE
+    // ðŸš€ RADAR MOOTA: DETEKSI WEBHOOK MASUK + VERIFIKASI SIGNATURE
     // ====================================================================
     if (Array.isArray(data) && data.length > 0 && data[0].amount !== undefined) {
       const mootaCfg = resolveMootaConfig_({}, cfg);
@@ -891,6 +891,14 @@ function doPost(e) {
       case "save_promotion": return jsonRes(savePromotion(data));
       case "get_promotion": return jsonRes(getPromotion(data));
 
+      // FILE MANAGEMENT SYSTEM (GDrive & R2)
+      case "get_managed_files": return jsonRes(getManagedFiles(data));
+      case "save_managed_file": return jsonRes(saveManagedFile(data));
+      case "delete_managed_file": return jsonRes(deleteManagedFile(data));
+      case "download_file": return jsonRes(requestFileDownload(data, cfg));
+      case "update_r2_settings": return jsonRes(updateR2Settings(data));
+      case "setup_file_sheet": return jsonRes(setupFileManagementSheet());
+
       // DIAGNOSTIC & MONITORING ACTIONS
       case "get_email_logs":
       case "get_moota_logs":
@@ -975,7 +983,7 @@ function purgeCFCache(d, cfg) {
     const body = JSON.parse(res.getContentText());
 
     if (body && body.success) {
-      return { status: "success", message: "🚀 Cache Berhasil Dibersihkan!" };
+      return { status: "success", message: "ðŸš€ Cache Berhasil Dibersihkan!" };
     }
     const msg = (body && body.errors && body.errors.length) ? JSON.stringify(body.errors) : "Cloudflare Error";
     return { status: "error", message: msg };
@@ -1418,10 +1426,10 @@ function normalizePhone_(raw) {
   // Remove all non-digit characters (+, -, spaces, parens, etc)
   let num = String(raw).replace(/[^0-9]/g, "");
   // Handle country code prefix
-  if (num.startsWith("620")) num = num.substring(3); // 6208xxx → 8xxx
-  else if (num.startsWith("62")) num = num.substring(2); // 628xxx → 8xxx
+  if (num.startsWith("620")) num = num.substring(3); // 6208xxx â†’ 8xxx
+  else if (num.startsWith("62")) num = num.substring(2); // 628xxx â†’ 8xxx
   // Remove leading 0 if present
-  if (num.startsWith("0")) num = num.substring(1); // 08xxx → 8xxx
+  if (num.startsWith("0")) num = num.substring(1); // 08xxx â†’ 8xxx
   return num;
 }
 
@@ -1515,7 +1523,7 @@ function sendEmail(target, subject, body, cfg) {
     // Fallback: alert admin via WA
     const adminWA = getCfgFrom_(cfg, "wa_admin");
     if (adminWA) {
-      sendWA(adminWA, "⚠️ *EMAIL QUOTA HABIS!*\n\nEmail ke " + target + " GAGAL terkirim karena quota harian habis.\nSubject: " + subject, cfg);
+      sendWA(adminWA, "âš ï¸ *EMAIL QUOTA HABIS!*\n\nEmail ke " + target + " GAGAL terkirim karena quota harian habis.\nSubject: " + subject, cfg);
     }
     return { success: false, reason: "quota_exceeded" };
   }
@@ -1537,7 +1545,7 @@ function sendEmail(target, subject, body, cfg) {
         // Fallback: alert admin via WA
         const adminWA = getCfgFrom_(cfg, "wa_admin");
         if (adminWA) {
-          sendWA(adminWA, "❌ *EMAIL GAGAL TERKIRIM!*\n\nKe: " + target + "\nSubject: " + subject + "\nError: " + String(e).substring(0, 200), cfg);
+          sendWA(adminWA, "âŒ *EMAIL GAGAL TERKIRIM!*\n\nKe: " + target + "\nSubject: " + subject + "\nError: " + String(e).substring(0, 200), cfg);
         }
         return { success: false, reason: e.toString() };
       }
@@ -1601,7 +1609,7 @@ function createOrder(d, cfg) {
         hargaSetelahVoucher = vRes.discounted_price;
         discountFactor = vRes.discount_factor;
       } else {
-        // Voucher failed server-side check — ignore (frontend already validated, but be safe)
+        // Voucher failed server-side check â€” ignore (frontend already validated, but be safe)
         voucherCode = "";
       }
     }
@@ -1736,13 +1744,13 @@ function createOrder(d, cfg) {
       const emailPassHtml = isNew ? `<code style="background-color: #e2e8f0; padding: 2px 6px; border-radius: 4px; color: #000018;">${pass}</code>` : `<i style="color: #64748b; font-size: 13px;">(gunakan password saat anda pertama kali daftar / yang sudah anda ubah)</i>`;
 
       // 2. WA ke User (use normalized number)
-      const waText = `Halo ${d.nama}, selamat datang di ${siteName}! 🎉\n\nSukses! Akses Anda untuk produk *${d.nama_produk}* telah aktif (GRATIS).\n\n🚀 *Klik link berikut untuk akses produk:*\n${accessUrl}\n\n🔐 *AKUN MEMBER AREA*\n🌐 Link: ${loginUrl}\n✉️ Email: ${email}\n🔑 Password: ${waPassText}\n\nAnda juga bisa mengakses seluruh produk Anda melalui Member Area kami.\n\nTerima kasih atas kepercayaannya!\n*Tim ${siteName}*`;
+      const waText = `Halo ${d.nama}, selamat datang di ${siteName}! ðŸŽ‰\n\nSukses! Akses Anda untuk produk *${d.nama_produk}* telah aktif (GRATIS).\n\nðŸš€ *Klik link berikut untuk akses produk:*\n${accessUrl}\n\nðŸ” *AKUN MEMBER AREA*\nðŸŒ Link: ${loginUrl}\nâœ‰ï¸ Email: ${email}\nðŸ”‘ Password: ${waPassText}\n\nAnda juga bisa mengakses seluruh produk Anda melalui Member Area kami.\n\nTerima kasih atas kepercayaannya!\n*Tim ${siteName}*`;
       sendWA(waForSheet, waText, cfg);
 
       // 3. Email ke User
       const emailHtml = `
        <div style="font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; color: #334155; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-          <h2 style="color: #017A6B; margin-top: 0;">Akses Produk Gratis Dibuka! 🎁</h2>
+          <h2 style="color: #017A6B; margin-top: 0;">Akses Produk Gratis Dibuka! ðŸŽ</h2>
           <p>Halo <b style="color: #000018;">${d.nama}</b>,</p>
           <p>Selamat! Anda telah berhasil mendapatkan akses ke produk <b style="color: #000018;">${d.nama_produk}</b> secara GRATIS.</p>
           
@@ -1751,7 +1759,7 @@ function createOrder(d, cfg) {
           </div>
 
           <div style="background-color: #f8fafc; border-left: 4px solid #017A6B; padding: 15px 20px; border-radius: 8px; margin: 25px 0;">
-              <h3 style="color: #000018; margin: 0 0 10px 0; font-size: 16px;">🔐 Akun Member Area</h3>
+              <h3 style="color: #000018; margin: 0 0 10px 0; font-size: 16px;">ðŸ” Akun Member Area</h3>
               <p style="margin: 0; font-size: 14px;"><b>Link:</b> <a href="${loginUrl}" style="color: #017A6B; text-decoration: none;">${loginUrl}</a><br>
               <b>Email:</b> ${email}<br>
               <b>Password:</b> ${emailPassHtml}</p>
@@ -1762,7 +1770,7 @@ function createOrder(d, cfg) {
       sendEmail(email, `Akses Gratis! Produk ${d.nama_produk}`, emailHtml, cfg);
 
       // 4. Notif Admin
-      sendWA(adminWA, `🎁 *ORDER GRATIS BARU!* 🎁\n\n📌 *Invoice:* #${inv}\n📦 *Produk:* ${d.nama_produk}\n👤 *User:* ${d.nama}\n\nStatus: Lunas (Auto)`, cfg);
+      sendWA(adminWA, `ðŸŽ *ORDER GRATIS BARU!* ðŸŽ\n\nðŸ“Œ *Invoice:* #${inv}\nðŸ“¦ *Produk:* ${d.nama_produk}\nðŸ‘¤ *User:* ${d.nama}\n\nStatus: Lunas (Auto)`, cfg);
 
     } else {
       // --- SKENARIO BERBAYAR (PENDING) ---
@@ -1771,42 +1779,42 @@ function createOrder(d, cfg) {
 
       // --> NOTIFIKASI PEMBELI (WHATSAPP)
       const waBuyerText =
-        `Halo *${d.nama}*, salam hangat dari ${siteName}! 👋
+        `Halo *${d.nama}*, salam hangat dari ${siteName}! ðŸ‘‹
 
 Terima kasih telah melakukan pemesanan. Berikut rincian pesanan Anda:
 
-📦 *Produk:* ${d.nama_produk}
-🔖 *Invoice:* #${inv}
-💰 *Total Tagihan:* Rp ${Number(hargaTotalUnik).toLocaleString('id-ID')}
+ðŸ“¦ *Produk:* ${d.nama_produk}
+ðŸ”– *Invoice:* #${inv}
+ðŸ’° *Total Tagihan:* Rp ${Number(hargaTotalUnik).toLocaleString('id-ID')}
 
-⚠️ _(Penting: Transfer *TEPAT* hingga 3 digit terakhir agar sistem dapat memvalidasi otomatis)_
+âš ï¸ _(Penting: Transfer *TEPAT* hingga 3 digit terakhir agar sistem dapat memvalidasi otomatis)_
 
 Silakan selesaikan pembayaran ke rekening berikut:
 
-🏦 *Bank:* ${bankName}
-💳 *No. Rek:* ${bankNorek}
-👤 *A.n:* ${bankOwner}
+ðŸ¦ *Bank:* ${bankName}
+ðŸ’³ *No. Rek:* ${bankNorek}
+ðŸ‘¤ *A.n:* ${bankOwner}
 
 *(Mohon kirimkan bukti transfer ke sini agar pesanan segera diproses)*
 
 ---
 
-🔐 *INFORMASI AKUN MEMBER*
-🌐 *Link Login:* ${loginUrl}
-✉️ *Email:* ${email}
-🔑 *Password:* ${waPassTextPaid}
+ðŸ” *INFORMASI AKUN MEMBER*
+ðŸŒ *Link Login:* ${loginUrl}
+âœ‰ï¸ *Email:* ${email}
+ðŸ”‘ *Password:* ${waPassTextPaid}
 
 *(Akses materi otomatis terbuka di akun ini setelah pembayaran divalidasi)*.
 
 *Harap tunggu 2-15 menit agar pesanan otomatis divalidasi.*
 
-Jika ada pertanyaan, silakan balas pesan ini. Terima kasih! 🙏`;
+Jika ada pertanyaan, silakan balas pesan ini. Terima kasih! ðŸ™`;
       sendWA(waForSheet, waBuyerText, cfg);
 
       // --> NOTIFIKASI PEMBELI (EMAIL) (template asli lu)
       const emailBuyerHtml = `
     <div style="font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; color: #334155; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-        <h2 style="color: #017A6B; margin-top: 0; margin-bottom: 5px;">Menunggu Pembayaran Anda ⏳</h2>
+        <h2 style="color: #017A6B; margin-top: 0; margin-bottom: 5px;">Menunggu Pembayaran Anda â³</h2>
         <p style="font-size: 16px; margin-top: 0;">Halo <b style="color: #000018;">${d.nama}</b>,</p>
         <p>Terima kasih atas pesanan Anda di <b style="color: #000018;">${siteName}</b>. Berikut adalah detail tagihan yang harus dibayarkan:</p>
 
@@ -1829,7 +1837,7 @@ Jika ada pertanyaan, silakan balas pesan ini. Terima kasih! 🙏`;
 
         <hr style="border: none; border-top: 1px dashed #cbd5e1; margin: 30px 0;">
 
-        <h3 style="color: #000018; margin-bottom: 15px; font-size: 16px;">🔐 Detail Akun Member Anda</h3>
+        <h3 style="color: #000018; margin-bottom: 15px; font-size: 16px;">ðŸ” Detail Akun Member Anda</h3>
 
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px;">
             <tr>
@@ -1853,8 +1861,8 @@ Jika ada pertanyaan, silakan balas pesan ini. Terima kasih! 🙏`;
       sendEmail(email, `Menunggu Pembayaran: Pesanan #${inv} - ${siteName}`, emailBuyerHtml, cfg);
 
       // --> NOTIFIKASI ADMIN
-      const affMsg = aff !== "-" ? `\n🤝 *Affiliate:* ${aff}\n💸 *Potensi Komisi:* Rp ${Number(komisiNominal).toLocaleString('id-ID')}` : "";
-      sendWA(adminWA, `🚨 *PESANAN BARU MASUK!* 🚨\n\n📌 *Invoice:* #${inv}\n📦 *Produk:* ${d.nama_produk}\n👤 *Customer:* ${d.nama}\n💳 *Nilai Unik:* Rp ${Number(hargaTotalUnik).toLocaleString('id-ID')}${affMsg}\n\nSilakan pantau pembayaran dari customer ini.`, cfg);
+      const affMsg = aff !== "-" ? `\nðŸ¤ *Affiliate:* ${aff}\nðŸ’¸ *Potensi Komisi:* Rp ${Number(komisiNominal).toLocaleString('id-ID')}` : "";
+      sendWA(adminWA, `ðŸš¨ *PESANAN BARU MASUK!* ðŸš¨\n\nðŸ“Œ *Invoice:* #${inv}\nðŸ“¦ *Produk:* ${d.nama_produk}\nðŸ‘¤ *Customer:* ${d.nama}\nðŸ’³ *Nilai Unik:* Rp ${Number(hargaTotalUnik).toLocaleString('id-ID')}${affMsg}\n\nSilakan pantau pembayaran dari customer ini.`, cfg);
     } // End of Else (Paid)
 
     return { status: "success", invoice: inv, tagihan: hargaTotalUnik, is_new_user: isNew };
@@ -1923,12 +1931,12 @@ function registerFreeMember(d, cfg) {
     uS.appendRow([newUserId, email, hashPassword_(pass), nama, "member", "Active", toISODate_(), "'" + waForSheet, aff]);
 
     // Send notifications
-    const waText = `Halo ${nama}, selamat datang di ${siteName}! 🎉\n\nPendaftaran akun Anda berhasil. Sekarang Anda telah bergabung dan bisa mulai menggunakan fasilitas platform kami.\n\n🔐 *INFORMASI AKUN ANDA*\n🌐 Link Login: ${loginUrl}\n✉️ Email: ${email}\n🔑 Password: ${pass}\n\nSilakan login ke Member Area untuk menjelajahi fitur dan program affiliate kami.\n\nTerima kasih atas kepercayaannya!\n*Tim ${siteName}*`;
+    const waText = `Halo ${nama}, selamat datang di ${siteName}! ðŸŽ‰\n\nPendaftaran akun Anda berhasil. Sekarang Anda telah bergabung dan bisa mulai menggunakan fasilitas platform kami.\n\nðŸ” *INFORMASI AKUN ANDA*\nðŸŒ Link Login: ${loginUrl}\nâœ‰ï¸ Email: ${email}\nðŸ”‘ Password: ${pass}\n\nSilakan login ke Member Area untuk menjelajahi fitur dan program affiliate kami.\n\nTerima kasih atas kepercayaannya!\n*Tim ${siteName}*`;
     sendWA(waForSheet, waText, cfg);
 
     const emailHtml = `
       <div style="font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; color: #334155; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-          <h2 style="color: #017A6B; margin-top: 0;">Selamat Datang! 🎉</h2>
+          <h2 style="color: #017A6B; margin-top: 0;">Selamat Datang! ðŸŽ‰</h2>
           <p>Halo <b style="color: #000018;">${nama}</b>,</p>
           <p>Selamat! Pendaftaran akun Anda di <b style="color: #000018;">${siteName}</b> telah berhasil. Silakan login ke Member Area untuk menjelajahi fitur dan program affiliate kami.</p>
           
@@ -1937,7 +1945,7 @@ function registerFreeMember(d, cfg) {
           </div>
 
           <div style="background-color: #f8fafc; border-left: 4px solid #017A6B; padding: 15px 20px; border-radius: 8px; margin: 25px 0;">
-              <h3 style="color: #000018; margin: 0 0 10px 0; font-size: 16px;">🔐 Informasi Akun Anda</h3>
+              <h3 style="color: #000018; margin: 0 0 10px 0; font-size: 16px;">ðŸ” Informasi Akun Anda</h3>
               <p style="margin: 0; font-size: 14px;"><b>Link Login:</b> <a href="${loginUrl}" style="color: #017A6B; text-decoration: none;">${loginUrl}</a><br>
               <b>Email:</b> ${email}<br>
               <b>Password:</b> <code style="background-color: #e2e8f0; padding: 2px 6px; border-radius: 4px; color: #000018;">${pass}</code></p>
@@ -1950,7 +1958,7 @@ function registerFreeMember(d, cfg) {
     // Notify Admin optionally
     const adminWA = getCfgFrom_(cfg, "wa_admin");
     if(adminWA) {
-      sendWA(adminWA, "🚀 *MEMBER GRATIS BARU!* 🚀\n\n👤 *Nama:* " + nama + "\n✉️ *Email:* " + email + "\n📱 *WA:* " + waForSheet + "\n\nTelah mendaftar affiliate/member gratis.", cfg);
+      sendWA(adminWA, "ðŸš€ *MEMBER GRATIS BARU!* ðŸš€\n\nðŸ‘¤ *Nama:* " + nama + "\nâœ‰ï¸ *Email:* " + email + "\nðŸ“± *WA:* " + waForSheet + "\n\nTelah mendaftar affiliate/member gratis.", cfg);
     }
 
     return { status: "success", message: "Pendaftaran berhasil! Silakan cek WhatsApp / Email Anda untuk detail akun." };
@@ -2025,14 +2033,14 @@ function updateOrderStatus(d, cfg) {
 
       // STEP 1: Send WA to customer
       Logger.log(traceId + " Sending WA to: " + uWA);
-      const waResult = sendWA(uWA, `🎉 *PEMBAYARAN TERVERIFIKASI!* 🎉\n\nHalo *${uName}*, kabar baik!\n\nPembayaran Anda untuk produk *${pName}* (Invoice: #${d.id}) telah kami terima dan akses Anda kini *Telah Aktif*.\n\n🚀 *Klik link berikut untuk mengakses produk Anda:*\n${accessUrl}\n\nAnda juga bisa mengakses seluruh produk Anda melalui Member Area kami.\n\nTerima kasih atas kepercayaannya!\n*Tim ${siteName}*`, cfg);
+      const waResult = sendWA(uWA, `ðŸŽ‰ *PEMBAYARAN TERVERIFIKASI!* ðŸŽ‰\n\nHalo *${uName}*, kabar baik!\n\nPembayaran Anda untuk produk *${pName}* (Invoice: #${d.id}) telah kami terima dan akses Anda kini *Telah Aktif*.\n\nðŸš€ *Klik link berikut untuk mengakses produk Anda:*\n${accessUrl}\n\nAnda juga bisa mengakses seluruh produk Anda melalui Member Area kami.\n\nTerima kasih atas kepercayaannya!\n*Tim ${siteName}*`, cfg);
       Logger.log(traceId + " WA Result: " + JSON.stringify(waResult));
 
       // STEP 2: Send Email to customer
       const emailActivationHtml = `
       <div style="font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; color: #334155; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
           <div style="text-align: center; margin-bottom: 25px;">
-              <h1 style="color: #017A6B; margin-top: 0; margin-bottom: 5px;">Akses Telah Dibuka! 🎉</h1>
+              <h1 style="color: #017A6B; margin-top: 0; margin-bottom: 5px;">Akses Telah Dibuka! ðŸŽ‰</h1>
           </div>
           <p style="font-size: 16px;">Halo <b style="color: #000018;">${uName}</b>,</p>
           <p>Terima kasih! Pembayaran Anda telah berhasil kami verifikasi. Akses penuh untuk produk <b style="color: #000018;">${pName}</b> sekarang sudah aktif dan dapat Anda gunakan.</p>
@@ -2156,13 +2164,13 @@ function giveProductAccess(d, cfg) {
     const loginUrl = siteUrl ? (siteUrl + "/login.html") : "Link Login Belum Disetting";
     
     // WA ke User
-    const waText = `Halo ${uName}, selamat datang kembali di ${siteName}! 🎉\n\nAkses Anda untuk produk *${pName}* telah kami berikan secara langsung.\n\n🚀 *Klik link berikut untuk akses produk:*\n${accessUrl}\n\n🔐 *AKUN MEMBER AREA*\n🌐 Link: ${loginUrl}\n✉️ Email: ${email}\n🔑 Password: _(gunakan password yang sudah anda miliki)_\n\nAnda juga bisa mengakses seluruh produk Anda melalui Member Area kami.\n\nTerima kasih!\n*Tim ${siteName}*`;
+    const waText = `Halo ${uName}, selamat datang kembali di ${siteName}! ðŸŽ‰\n\nAkses Anda untuk produk *${pName}* telah kami berikan secara langsung.\n\nðŸš€ *Klik link berikut untuk akses produk:*\n${accessUrl}\n\nðŸ” *AKUN MEMBER AREA*\nðŸŒ Link: ${loginUrl}\nâœ‰ï¸ Email: ${email}\nðŸ”‘ Password: _(gunakan password yang sudah anda miliki)_\n\nAnda juga bisa mengakses seluruh produk Anda melalui Member Area kami.\n\nTerima kasih!\n*Tim ${siteName}*`;
     if (uWA) sendWA(uWA, waText, cfg);
     
     // 3. Email ke User
     const emailHtml = `
      <div style="font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; color: #334155; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-        <h2 style="color: #017A6B; margin-top: 0;">Akses Produk Tambahan Dibuka! 🎁</h2>
+        <h2 style="color: #017A6B; margin-top: 0;">Akses Produk Tambahan Dibuka! ðŸŽ</h2>
         <p>Halo <b style="color: #000018;">${uName}</b>,</p>
         <p>Selamat! Anda telah mendapatkan akses tambahan ke produk <b style="color: #000018;">${pName}</b> tanpa biaya tambahan.</p>
         
@@ -2860,14 +2868,14 @@ function runAuthTests() {
       detail: "Raw length: " + emailStr.length + ", Trimmed: " + emailStr.trim().length
     });
 
-    // Test 6: loginUser works for admin (should succeed — tests email+pass)
+    // Test 6: loginUser works for admin (should succeed â€” tests email+pass)
     const loginResult = loginUser({ email: adminRow.email.trim(), password: adminRow.pass.trim() });
     results.push({
       test: "loginUser() succeeds for admin credentials", pass: loginResult.status === "success",
       detail: JSON.stringify(loginResult)
     });
 
-    // Test 7: adminLogin works for admin (should succeed — tests email+pass+role)
+    // Test 7: adminLogin works for admin (should succeed â€” tests email+pass+role)
     const adminResult = adminLogin({ email: adminRow.email.trim(), password: adminRow.pass.trim() });
     results.push({
       test: "adminLogin() succeeds for admin credentials", pass: adminResult.status === "success",
@@ -2917,7 +2925,7 @@ function runAuthTests() {
       detail: JSON.stringify(memberResult)
     });
 
-    // Test 10: adminLogin rejects member (should fail — not admin role)
+    // Test 10: adminLogin rejects member (should fail â€” not admin role)
     const memberAdminResult = adminLogin({ email: memberRow.email.trim(), password: memberRow.pass.trim() });
     results.push({
       test: "adminLogin() correctly rejects member user", pass: memberAdminResult.status === "error",
@@ -3924,14 +3932,14 @@ function handleMootaWebhook(mutations, cfg) {
           // A) WA Customer
           sendWA(
             uWA,
-            `🎉 *PEMBAYARAN TERVERIFIKASI!* 🎉\n\nHalo *${uName}*, kabar baik!\n\nPembayaran Anda sebesar Rp ${Number(nominalTransfer).toLocaleString('id-ID')} telah berhasil diverifikasi otomatis.\n\nProduk *${pName}* (Invoice: #${inv}) kini *Telah Aktif*.\n\n🚀 *Klik link berikut untuk mengakses produk Anda:*\n${accessUrl}\n\nAnda juga bisa mengakses seluruh produk Anda melalui Member Area kami.\n\nTerima kasih atas kepercayaannya!\n*Tim ${siteName}*`,
+            `ðŸŽ‰ *PEMBAYARAN TERVERIFIKASI!* ðŸŽ‰\n\nHalo *${uName}*, kabar baik!\n\nPembayaran Anda sebesar Rp ${Number(nominalTransfer).toLocaleString('id-ID')} telah berhasil diverifikasi otomatis.\n\nProduk *${pName}* (Invoice: #${inv}) kini *Telah Aktif*.\n\nðŸš€ *Klik link berikut untuk mengakses produk Anda:*\n${accessUrl}\n\nAnda juga bisa mengakses seluruh produk Anda melalui Member Area kami.\n\nTerima kasih atas kepercayaannya!\n*Tim ${siteName}*`,
             cfg
           );
 
           // B) Email Customer
           const emailHtml = `
             <div style="font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; color: #334155; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-                <h2 style="color: #017A6B; margin-top: 0;">Pembayaran Berhasil! ✅</h2>
+                <h2 style="color: #017A6B; margin-top: 0;">Pembayaran Berhasil! âœ…</h2>
                 <p>Halo <b style="color: #000018;">${uName}</b>,</p>
                 <p>Pembayaran invoice <b style="color: #000018;">#${inv}</b> sebesar <b style="color: #000018;">Rp ${Number(nominalTransfer).toLocaleString('id-ID')}</b> telah diterima.</p>
                 <p>Silakan akses produk <b style="color: #000018;">${pName}</b> melalui tombol di bawah ini:</p>
@@ -3945,7 +3953,7 @@ function handleMootaWebhook(mutations, cfg) {
           // C) WA Admin
           sendWA(
             adminWA,
-            `💰 *MOOTA PAYMENT RECEIVED* 💰\n\nInv: #${inv}\nAmt: Rp ${Number(nominalTransfer).toLocaleString('id-ID')}\nUser: ${uName}\nProduk: ${pName}\n\nStatus: Auto-Lunas by System.`,
+            `ðŸ’° *MOOTA PAYMENT RECEIVED* ðŸ’°\n\nInv: #${inv}\nAmt: Rp ${Number(nominalTransfer).toLocaleString('id-ID')}\nUser: ${uName}\nProduk: ${pName}\n\nStatus: Auto-Lunas by System.`,
             cfg
           );
 
@@ -3980,7 +3988,7 @@ function handleMootaWebhook(mutations, cfg) {
         if (adminWA && nominalTransfer >= 10000) {
           sendWA(
             adminWA,
-            `⚠️ *UNMATCHED PAYMENT* ⚠️\n\nTransfer masuk Rp ${Number(nominalTransfer).toLocaleString('id-ID')} dari Moota TIDAK COCOK dengan order manapun.\n\nDeskripsi: ${String(mutasi.description || "-").substring(0, 100)}\n\nPending Orders:\n${pendingOrders.length > 0 ? pendingOrders.slice(0, 5).map(o => "• " + o.inv + " = Rp " + Number(o.tagihan).toLocaleString('id-ID')).join("\n") : "(tidak ada order pending)"}\n\nMohon cek manual di dashboard.`,
+            `âš ï¸ *UNMATCHED PAYMENT* âš ï¸\n\nTransfer masuk Rp ${Number(nominalTransfer).toLocaleString('id-ID')} dari Moota TIDAK COCOK dengan order manapun.\n\nDeskripsi: ${String(mutasi.description || "-").substring(0, 100)}\n\nPending Orders:\n${pendingOrders.length > 0 ? pendingOrders.slice(0, 5).map(o => "â€¢ " + o.inv + " = Rp " + Number(o.tagihan).toLocaleString('id-ID')).join("\n") : "(tidak ada order pending)"}\n\nMohon cek manual di dashboard.`,
             cfg
           );
         }
@@ -4040,7 +4048,7 @@ function forgotPassword(d) {
 
       const body = `
           <div style="font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; color: #334155; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-            <h2 style="color: #017A6B; margin-top: 0;">Reset Password Akun 🔐</h2>
+            <h2 style="color: #017A6B; margin-top: 0;">Reset Password Akun ðŸ”</h2>
             <p>Halo <b style="color: #000018;">${nama}</b>,</p>
             <p>Anda telah meminta reset password untuk akun Anda di <b style="color: #000018;">${siteName}</b>.</p>
             
@@ -4166,7 +4174,7 @@ function testEmailDelivery(d) {
     const siteName = getCfgFrom_(cfg, "site_name") || "Sistem Premium";
 
     const testHtml = '<div style="font-family: sans-serif; padding: 20px; max-width: 500px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px;">' +
-      '<h2 style="color: #4f46e5;">✅ Test Email Berhasil!</h2>' +
+      '<h2 style="color: #4f46e5;">âœ… Test Email Berhasil!</h2>' +
       '<p>Ini adalah email test dari sistem <b>' + siteName + '</b>.</p>' +
       '<p><b>Waktu:</b> ' + new Date().toLocaleString("id-ID", { timeZone: "Asia/Jakarta" }) + '</p>' +
       '<p><b>Quota Tersisa:</b> ' + MailApp.getRemainingDailyQuota() + ' email</p>' +
@@ -4332,7 +4340,7 @@ function testWADelivery(d) {
 
     var cfg = getSettingsMap_();
     var siteName = getCfgFrom_(cfg, "site_name") || "Sistem Premium";
-    var testMessage = "✅ *TEST WA BERHASIL!*\n\nIni adalah pesan test dari sistem *" + siteName + "*.\n\nWaktu: " + new Date().toLocaleString("id-ID", { timeZone: "Asia/Jakarta" }) + "\n\nJika Anda menerima pesan ini, berarti koneksi WhatsApp via Fonnte berfungsi normal.";
+    var testMessage = "âœ… *TEST WA BERHASIL!*\n\nIni adalah pesan test dari sistem *" + siteName + "*.\n\nWaktu: " + new Date().toLocaleString("id-ID", { timeZone: "Asia/Jakarta" }) + "\n\nJika Anda menerima pesan ini, berarti koneksi WhatsApp via Fonnte berfungsi normal.";
 
     var result = sendWA(target, testMessage, cfg);
     return { status: "success", message: "Test WA sent to " + target, result: result };
@@ -4342,7 +4350,7 @@ function testWADelivery(d) {
 }
 
 /**
- * testLunasNotification — Simulates the EXACT Lunas notification flow.
+ * testLunasNotification â€” Simulates the EXACT Lunas notification flow.
  * Finds a pending/existing order and sends WA + Email using the same code path 
  * as updateOrderStatus. Does NOT change the order status.
  * 
@@ -4406,13 +4414,13 @@ function testLunasNotification(d) {
     logWA_("TEST_LUNAS", String(uWA), "Testing Lunas notification for " + inv + " | WA raw=" + JSON.stringify(uWA) + " type=" + typeof uWA);
     var waResult = sendWA(
       uWA,
-      "🎉 *[TEST] PEMBAYARAN TERVERIFIKASI!* 🎉\n\nHalo *" + uName + "*, ini adalah TEST notifikasi Lunas.\n\nProduk *" + pName + "* (Invoice: #" + inv + ")\n\n🚀 *AKSES MATERI:*\n" + accessUrl + "\n\nIni pesan test. Jika terkirim berarti notifikasi Lunas berfungsi normal.\n*Tim " + siteName + "*",
+      "ðŸŽ‰ *[TEST] PEMBAYARAN TERVERIFIKASI!* ðŸŽ‰\n\nHalo *" + uName + "*, ini adalah TEST notifikasi Lunas.\n\nProduk *" + pName + "* (Invoice: #" + inv + ")\n\nðŸš€ *AKSES MATERI:*\n" + accessUrl + "\n\nIni pesan test. Jika terkirim berarti notifikasi Lunas berfungsi normal.\n*Tim " + siteName + "*",
       cfg
     );
 
     // SEND EMAIL (same template as real Lunas flow)
     var emailHtml = '<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px;border:1px solid #e2e8f0;border-radius:8px;">' +
-      '<h2 style="color:#10b981;">[TEST] Akses Terbuka! 🎉</h2>' +
+      '<h2 style="color:#10b981;">[TEST] Akses Terbuka! ðŸŽ‰</h2>' +
       '<p>Halo <b>' + uName + '</b>,</p>' +
       '<p>Ini adalah TEST notifikasi Lunas untuk produk <b>' + pName + '</b>.</p>' +
       '<div style="text-align:center;margin:30px 0;">' +
@@ -4515,8 +4523,8 @@ function getGAStats(data, cfg) {
     var trafficSources = (srcData.rows||[]).map(function(r) { return { source: r.dimensionValues[0].value, sessions: parseFloat(r.metricValues[0].value)||0 }; });
 
     var ctrData = gaPost(":runReport", { dateRanges: [{ startDate: startDate, endDate: endDate }], dimensions: [{ name: "country" }], metrics: [{ name: "totalUsers" }], orderBys: [{ metric: { metricName: "totalUsers" }, desc: true }], limit: 8 });
-    var flagMap = { "Indonesia":"🇮🇩","Malaysia":"🇲🇾","Singapore":"🇸🇬","United States":"🇺🇸","India":"🇮🇳","Philippines":"🇵🇭","Thailand":"🇹🇭","Vietnam":"🇻🇳","Australia":"🇦🇺","Japan":"🇯🇵","United Kingdom":"🇬🇧" };
-    var topCountries = (ctrData.rows||[]).map(function(r) { var c=r.dimensionValues[0].value; return { country: c, users: parseFloat(r.metricValues[0].value)||0, flag: flagMap[c]||"🌏" }; });
+    var flagMap = { "Indonesia":"ðŸ‡®ðŸ‡©","Malaysia":"ðŸ‡²ðŸ‡¾","Singapore":"ðŸ‡¸ðŸ‡¬","United States":"ðŸ‡ºðŸ‡¸","India":"ðŸ‡®ðŸ‡³","Philippines":"ðŸ‡µðŸ‡­","Thailand":"ðŸ‡¹ðŸ‡­","Vietnam":"ðŸ‡»ðŸ‡³","Australia":"ðŸ‡¦ðŸ‡º","Japan":"ðŸ‡¯ðŸ‡µ","United Kingdom":"ðŸ‡¬ðŸ‡§" };
+    var topCountries = (ctrData.rows||[]).map(function(r) { var c=r.dimensionValues[0].value; return { country: c, users: parseFloat(r.metricValues[0].value)||0, flag: flagMap[c]||"ðŸŒ" }; });
 
     var cityData = gaPost(":runReport", { dateRanges: [{ startDate: startDate, endDate: endDate }], dimensions: [{ name: "city" }], metrics: [{ name: "totalUsers" }], orderBys: [{ metric: { metricName: "totalUsers" }, desc: true }], limit: 8 });
     var topCities = (cityData.rows||[]).filter(function(r) { return r.dimensionValues[0].value !== "(not set)"; }).map(function(r) { return { city: r.dimensionValues[0].value, users: parseFloat(r.metricValues[0].value)||0 }; });
@@ -4769,7 +4777,7 @@ function validateVoucher(d, cfg) {
     }
 
     const discountedPrice = Math.max(0, harga - discountAmount);
-    // Discount rate as factor (e.g. 0.9 = 10% discount) — used to scale affiliate commission
+    // Discount rate as factor (e.g. 0.9 = 10% discount) â€” used to scale affiliate commission
     const discountFactor = harga > 0 ? discountedPrice / harga : 1;
 
     return {
@@ -4874,3 +4882,197 @@ function getPromotion(d) {
     return { status: "error", message: e.toString() };
   }
 }
+
+
+/* =========================
+   FILE MANAGEMENT SYSTEM
+   Sheet: Managed_Files
+   Storage: GDrive | R2
+   Type: Free | Paid
+========================= */
+
+function setupFileManagementSheet() {
+  let s = ss.getSheetByName("Managed_Files");
+  if (!s) {
+    s = ss.insertSheet("Managed_Files");
+    s.appendRow(["ID", "Title", "Type", "Storage", "Path_ID", "Status", "DownloadCount", "CreatedAt"]);
+    s.setFrozenRows(1);
+    s.getRange("A1:H1").setFontWeight("bold").setBackground("#f3f4f6");
+  }
+  return { status: "success", message: "Sheet Managed_Files siap digunakan." };
+}
+
+function getManagedFiles(d) {
+  try {
+    const s = mustSheet_("Managed_Files");
+    const data = s.getDataRange().getValues();
+    const result = [];
+    for (let i = 1; i < data.length; i++) {
+      result.push({
+        id: data[i][0], title: data[i][1], type: data[i][2],
+        storage: data[i][3], path_id: data[i][4], status: data[i][5],
+        download_count: data[i][6], created_at: data[i][7]
+      });
+    }
+    return { status: "success", data: result.reverse() };
+  } catch (e) { return { status: "error", message: e.toString() }; }
+}
+
+function saveManagedFile(d) {
+  try {
+    requireAdminSession_(d, { actionName: "save_managed_file" });
+    const s = mustSheet_("Managed_Files");
+    const data = s.getDataRange().getValues();
+    const id = d.id || ("f-" + Math.floor(100000 + Math.random() * 900000));
+    const rowData = [
+      id, d.title || "Untitled File", d.type || "Free", d.storage || "GDrive",
+      d.path_id || "", d.status || "Active", d.download_count || 0, d.created_at || toISODate_()
+    ];
+    let found = false;
+    for (let i = 1; i < data.length; i++) {
+      if (String(data[i][0]) === String(id)) {
+        s.getRange(i + 1, 1, 1, 8).setValues([rowData]);
+        found = true; break;
+      }
+    }
+    if (!found) s.appendRow(rowData);
+    return { status: "success", message: "File berhasil disimpan." };
+  } catch (e) { return { status: "error", message: e.toString() }; }
+}
+
+function deleteManagedFile(d) {
+  try {
+    requireAdminSession_(d, { actionName: "delete_managed_file" });
+    const s = mustSheet_("Managed_Files");
+    const data = s.getDataRange().getValues();
+    for (let i = 1; i < data.length; i++) {
+      if (String(data[i][0]) === String(d.id)) {
+        s.deleteRow(i + 1);
+        return { status: "success", message: "File berhasil dihapus." };
+      }
+    }
+    return { status: "error", message: "File tidak ditemukan." };
+  } catch (e) { return { status: "error", message: e.toString() }; }
+}
+
+function updateR2Settings(d) {
+  try {
+    requireAdminSession_(d, { actionName: "update_r2_settings" });
+    const props = PropertiesService.getScriptProperties();
+    if (d.r2_account_id !== undefined) props.setProperty("R2_ACCOUNT_ID", String(d.r2_account_id).trim());
+    if (d.r2_bucket_name !== undefined) props.setProperty("R2_BUCKET_NAME", String(d.r2_bucket_name).trim());
+    if (d.r2_access_key !== undefined) props.setProperty("R2_ACCESS_KEY", String(d.r2_access_key).trim());
+    if (d.r2_secret_key !== undefined) props.setProperty("R2_SECRET_KEY", String(d.r2_secret_key).trim());
+    if (d.r2_public_domain !== undefined) props.setProperty("R2_PUBLIC_DOMAIN", String(d.r2_public_domain).trim());
+    return { status: "success", message: "Kredensial R2 berhasil diperbarui secara aman." };
+  } catch (e) { return { status: "error", message: e.toString() }; }
+}
+
+function requestFileDownload(data, cfg) {
+  try {
+    const d = data || {};
+    const email = String(d.email || "").trim().toLowerCase();
+    const fileId = String(d.file_id || "").trim();
+    if (!email || !fileId) throw new Error("Akses ditolak: Data tidak lengkap.");
+    const s = mustSheet_("Managed_Files");
+    const files = s.getDataRange().getValues();
+    let fileObj = null;
+    for (let i = 1; i < files.length; i++) {
+      if (String(files[i][0]) === fileId) {
+        fileObj = { id: files[i][0], title: files[i][1], type: files[i][2],
+          storage: files[i][3], path_id: files[i][4], row: i+1, count: Number(files[i][6] || 0) };
+        break;
+      }
+    }
+    if (!fileObj) throw new Error("File tidak ditemukan.");
+    if (fileObj.type === "Paid") {
+      const orders = mustSheet_("Orders").getDataRange().getValues();
+      let hasAccess = false;
+      for (let j = 1; j < orders.length; j++) {
+        if (String(orders[j][1]).toLowerCase() === email && String(orders[j][7]) === "Lunas") {
+          hasAccess = true; break;
+        }
+      }
+      if (!hasAccess) throw new Error("Anda belum memiliki akses ke file premium ini.");
+    }
+    let downloadUrl = "";
+    if (fileObj.storage === "R2") {
+      downloadUrl = getR2SignedUrl_(fileObj.path_id);
+    } else {
+      downloadUrl = getGDriveTimedUrl_(fileObj.path_id);
+    }
+    s.getRange(fileObj.row, 7).setValue(fileObj.count + 1);
+    return { status: "success", url: downloadUrl, title: fileObj.title };
+  } catch (e) { return { status: "error", message: e.toString() }; }
+}
+
+function getGDriveTimedUrl_(fileId) {
+  try {
+    const file = DriveApp.getFileById(fileId);
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    ScriptApp.newTrigger("lockGDriveFileById_").timeBased().after(5 * 60 * 1000).create();
+    const props = PropertiesService.getScriptProperties();
+    let queue = JSON.parse(props.getProperty("GD_LOCK_QUEUE") || "[]");
+    queue.push(fileId);
+    props.setProperty("GD_LOCK_QUEUE", JSON.stringify(queue));
+    return "https://drive.google.com/uc?export=download&id=" + fileId;
+  } catch (e) { throw new Error("Gagal memproses file GDrive: " + e.toString()); }
+}
+
+function lockGDriveFileById_() {
+  const props = PropertiesService.getScriptProperties();
+  let queue = JSON.parse(props.getProperty("GD_LOCK_QUEUE") || "[]");
+  if (queue.length === 0) return;
+  const fileId = queue.shift();
+  try {
+    DriveApp.getFileById(fileId).setSharing(DriveApp.Access.PRIVATE, DriveApp.Permission.NONE);
+  } catch (e) {}
+  props.setProperty("GD_LOCK_QUEUE", JSON.stringify(queue));
+}
+
+function getR2SignedUrl_(objectKey) {
+  const props = PropertiesService.getScriptProperties();
+  const accountId = props.getProperty("R2_ACCOUNT_ID");
+  const bucket = props.getProperty("R2_BUCKET_NAME");
+  const accessKey = props.getProperty("R2_ACCESS_KEY");
+  const secretKey = props.getProperty("R2_SECRET_KEY");
+  const customDomain = props.getProperty("R2_PUBLIC_DOMAIN");
+  if (!accountId || !bucket || !accessKey || !secretKey) {
+    throw new Error("Konfigurasi Cloudflare R2 belum diisi di Script Properties.");
+  }
+  const host = bucket + "." + accountId + ".r2.cloudflarestorage.com";
+  const datetime = Utilities.formatDate(new Date(), "UTC", "yyyyMMdd'T'HHmmss'Z'");
+  const date = datetime.substring(0, 8);
+  const credentialScope = date + "/auto/s3/aws4_request";
+  const algorithm = "AWS4-HMAC-SHA256";
+  const q = {
+    "X-Amz-Algorithm": algorithm,
+    "X-Amz-Credential": accessKey + "/" + credentialScope,
+    "X-Amz-Date": datetime,
+    "X-Amz-Expires": "600",
+    "X-Amz-SignedHeaders": "host"
+  };
+  const ks = Object.keys(q).sort();
+  const qs = ks.map(function(k) { return encodeURIComponent(k) + "=" + encodeURIComponent(q[k]); }).join("&");
+  const cr = ["GET", "/" + objectKey, qs, "host:" + host, "", "host", "UNSIGNED-PAYLOAD"].join("\n");
+  const sts = [algorithm, datetime, credentialScope, hex_(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, cr))].join("\n");
+  const sk = getR2SigningKey_(secretKey, date, "auto", "s3");
+  const sig = hex_(Utilities.computeHmacSha256Signature(sts, sk));
+  const url = "https://" + host + "/" + objectKey + "?" + qs + "&X-Amz-Signature=" + sig;
+  if (customDomain) {
+    return url.replace("https://" + host, customDomain.startsWith("http") ? customDomain : "https://" + customDomain);
+  }
+  return url;
+}
+
+function getR2SigningKey_(secret, date, region, service) {
+  const kDate = Utilities.computeHmacSha256Signature(date, "AWS4" + secret);
+  const kRegion = Utilities.computeHmacSha256Signature(region, kDate);
+  const kService = Utilities.computeHmacSha256Signature(service, kRegion);
+  return Utilities.computeHmacSha256Signature("aws4_request", kService);
+}
+
+function hex_(data) {
+  return data.map(function(b) { return ("0" + (b & 0xFF).toString(16)).slice(-2); }).join("");
+}
+
