@@ -4523,8 +4523,8 @@ function getGAStats(data, cfg) {
     var trafficSources = (srcData.rows||[]).map(function(r) { return { source: r.dimensionValues[0].value, sessions: parseFloat(r.metricValues[0].value)||0 }; });
 
     var ctrData = gaPost(":runReport", { dateRanges: [{ startDate: startDate, endDate: endDate }], dimensions: [{ name: "country" }], metrics: [{ name: "totalUsers" }], orderBys: [{ metric: { metricName: "totalUsers" }, desc: true }], limit: 8 });
-    var flagMap = { "Indonesia":"ðŸ‡®ðŸ‡©","Malaysia":"ðŸ‡²ðŸ‡¾","Singapore":"ðŸ‡¸ðŸ‡¬","United States":"ðŸ‡ºðŸ‡¸","India":"ðŸ‡®ðŸ‡³","Philippines":"ðŸ‡µðŸ‡­","Thailand":"ðŸ‡¹ðŸ‡­","Vietnam":"ðŸ‡»ðŸ‡³","Australia":"ðŸ‡¦ðŸ‡º","Japan":"ðŸ‡¯ðŸ‡µ","United Kingdom":"ðŸ‡¬ðŸ‡§" };
-    var topCountries = (ctrData.rows||[]).map(function(r) { var c=r.dimensionValues[0].value; return { country: c, users: parseFloat(r.metricValues[0].value)||0, flag: flagMap[c]||"ðŸŒ" }; });
+    var flagMap = { "Indonesia":"🇮🇩","Malaysia":"🇲🇾","Singapore":"🇸🇬","United States":"🇺🇸","India":"🇮🇳","Philippines":"🇵🇭","Thailand":"🇹🇭","Vietnam":"🇻🇳","Australia":"🇦🇺","Japan":"🇯🇵","United Kingdom":"🇬🇧" };
+    var topCountries = (ctrData.rows||[]).map(function(r) { var c=r.dimensionValues[0].value; return { country: c, users: parseFloat(r.metricValues[0].value)||0, flag: flagMap[c]||"🌍" }; });
 
     var cityData = gaPost(":runReport", { dateRanges: [{ startDate: startDate, endDate: endDate }], dimensions: [{ name: "city" }], metrics: [{ name: "totalUsers" }], orderBys: [{ metric: { metricName: "totalUsers" }, desc: true }], limit: 8 });
     var topCities = (cityData.rows||[]).filter(function(r) { return r.dimensionValues[0].value !== "(not set)"; }).map(function(r) { return { city: r.dimensionValues[0].value, users: parseFloat(r.metricValues[0].value)||0 }; });

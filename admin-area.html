@@ -792,7 +792,7 @@
                         <p id="admin-role-note" class="text-xs text-[#017A6B]">Master Control</p>
                     </div>
                 </div>
-                <button onclick="logout()" class="w-full flex items-center justify-center gap-2 btn-ghost border border-[rgba(255,255,255,0.1)] hover:bg-[#ef4444]/10 hover:text-[#ef4444] hover:border-[#ef4444]/30 py-2.5 rounded-xl font-semibold text-xs transition-all">
+                <button onclick="logout(event)" class="w-full flex items-center justify-center gap-2 btn-ghost border border-[rgba(255,255,255,0.1)] hover:bg-[#ef4444]/10 hover:text-[#ef4444] hover:border-[#ef4444]/30 py-2.5 rounded-xl font-semibold text-xs transition-all">
                     <i data-lucide="log-out" class="w-4 h-4"></i> Sign Out
                 </button>
             </div>
@@ -4307,18 +4307,52 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             } catch (e) {}
         }
 
-        async function logout() {
-            if(!confirm('Apakah Anda yakin ingin logout?')) return;
-            // Immediately clear session + reload. Revoke server session in background.
-            clearAdminSession();
-            localStorage.removeItem(CACHE_KEY_ADMIN);
-            if (window.workerMetricsTimer) {
-                clearInterval(window.workerMetricsTimer);
-                window.workerMetricsTimer = null;
+        async function logout(event) {
+            if(!await customConfirm('Apakah Anda yakin ingin logout?')) return;
+            
+            // Show loading state if needed
+            const btn = event.currentTarget;
+            const originalContent = btn ? btn.innerHTML : null;
+            if (btn) {
+                btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Sign Out...';
+                btn.disabled = true;
+                if (window.lucide) lucide.createIcons();
             }
-            // Fire-and-forget server revoke (don't await, don't block reload)
-            try { revokeAdminSessionOnServer(); } catch(e) {}
-            location.reload();
+
+            try {
+                // Clear all known session keys
+                clearAdminSession();
+                localStorage.removeItem(CACHE_KEY_ADMIN);
+                
+                // Stop any polling timers
+                if (window.workerMetricsTimer) {
+                    clearInterval(window.workerMetricsTimer);
+                    window.workerMetricsTimer = null;
+                }
+
+                // Fire-and-forget server revoke
+                try { 
+                    const endpoint = getApiEndpoint();
+                    if (endpoint) {
+                        fetch(endpoint, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ action: 'revoke_session', ...getAdminSessionMeta() }),
+                            keepalive: true
+                        }).catch(() => {});
+                    }
+                } catch(e) {}
+
+                // Redirect to login or reload to trigger overlay
+                showToast('Logout berhasil!', 'success');
+                setTimeout(() => {
+                    location.reload();
+                }, 800);
+                
+            } catch (err) {
+                console.error('Logout failed:', err);
+                location.reload();
+            }
         }
 
         async function submitFormToGAS(formId, payload, successMsg, modalIdToClose = null) {
@@ -5280,7 +5314,7 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             if (tcEl && data.topCountries && data.topCountries.length) {
                 const maxC = Math.max(...data.topCountries.map(c => c.users));
                 tcEl.innerHTML = data.topCountries.map(c =>
-                    renderBarRow(`${c.flag || '🌏'} ${c.country}`, c.users, maxC, 'bg-[#B6FF00]')
+                    renderBarRow(`${c.flag || '🌍'} ${c.country}`, c.users, maxC, 'bg-[#B6FF00]')
                 ).join('');
             } else if (tcEl) {
                 tcEl.innerHTML = '<div class="text-slate-400 text-xs italic text-center py-4">Tidak ada data negara.</div>';
