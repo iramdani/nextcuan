@@ -5045,7 +5045,7 @@ function getGDriveTimedUrl_(fileId) {
       downloadUrl = "https://drive.google.com/drive/folders/" + fileId;
     }
 
-    ScriptApp.newTrigger("lockGDriveFileById_").timeBased().after(5 * 60 * 1000).create();
+    ScriptApp.newTrigger("lockGDriveFileById_").timeBased().after(1 * 60 * 1000).create();
     const props = PropertiesService.getScriptProperties();
     let queue = JSON.parse(props.getProperty("GD_LOCK_QUEUE") || "[]");
     queue.push(JSON.stringify({ id: fileId, isFolder: isFolder }));
@@ -5098,7 +5098,7 @@ function getR2SignedUrl_(objectKey) {
     "X-Amz-Algorithm": algorithm,
     "X-Amz-Credential": accessKey + "/" + credentialScope,
     "X-Amz-Date": datetime,
-    "X-Amz-Expires": "600",
+    "X-Amz-Expires": "60",
     "X-Amz-SignedHeaders": "host"
   };
   const ks = Object.keys(q).sort();

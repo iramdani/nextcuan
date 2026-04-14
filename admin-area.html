@@ -5473,6 +5473,7 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                     <td class="px-6 py-4" data-label="Status"><div class="flex items-center">${statusBadge}</div></td>
                     <td class="px-6 py-4" data-label="Download"><span class="text-white font-bold">${f.download_count||0}</span><span class="text-slate-500 text-xs ml-1">kali</span></td>
                     <td class="px-6 py-4 text-right" data-label="Aksi"><div class="flex items-center justify-end gap-2">
+                        <button onclick="copyDownloadCode('${f.id}')" title="Salin Kode Tombol" class="p-2 rounded-lg hover:bg-[rgba(182,255,0,0.1)] text-slate-400 hover:text-[#B6FF00] transition-colors"><i data-lucide="copy" class="w-4 h-4"></i></button>
                         <button onclick='editFileMgmt(${JSON.stringify(f).replace(/'/g, "&apos;")})' class="p-2 rounded-lg hover:bg-[rgba(182,255,0,0.1)] text-slate-400 hover:text-[#B6FF00] transition-colors"><i data-lucide="pencil" class="w-4 h-4"></i></button>
                         <button onclick="deleteFileMgmt('${f.id}','${f.title}')" class="p-2 rounded-lg hover:bg-[rgba(239,68,68,0.1)] text-slate-400 hover:text-red-400 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                     </div></td>
@@ -5590,6 +5591,40 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                 if (data.status === 'success') { showToast('File berhasil dihapus.', 'success'); loadManagedFiles(); }
                 else throw new Error(data.message);
             } catch (e) { showToast('Gagal: ' + e.message, 'error'); }
+        }
+
+        // --- GLOBAL DOWNLOAD MANAGER ---
+        // Anda cukup copy kode di dalam onclick saat menggunakan tombol di halaman akses
+        function copyDownloadCode(id) {
+            const code = `onclick="ncDownload('${id}')"`;
+            navigator.clipboard.writeText(code);
+            showToast('Kode tombol berhasil disalin!', 'success');
+        }
+
+        // Fungsi ini harus ada di halaman akses agar download bisa berjalan
+        async function ncDownload(id) {
+            const email = localStorage.getItem('userEmail') || '';
+            if(!email) { alert('Silakan login untuk mendownload.'); return; }
+            
+            const btn = event.currentTarget;
+            const originalInnet = btn.innerHTML;
+            btn.innerHTML = '<i class="animate-spin mr-2">...</i> Loading';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(getApiEndpoint(), {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'download_file', email: email, file_id: id })
+                });
+                const data = await res.json();
+                if(data.status === 'success') {
+                    window.location.href = data.url;
+                } else { alert(data.message); }
+            } catch(e) { alert('Gagal memproses download.'); }
+            finally {
+                btn.innerHTML = originalInnet;
+                btn.disabled = false;
+            }
         }
         </script>
 </body>
