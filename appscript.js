@@ -4986,14 +4986,22 @@ function requestFileDownload(data, cfg) {
     }
     if (!fileObj) throw new Error("File tidak ditemukan.");
     if (fileObj.type === "Paid") {
-      const orders = mustSheet_("Orders").getDataRange().getValues();
-      let hasAccess = false;
-      for (let j = 1; j < orders.length; j++) {
-        if (String(orders[j][1]).toLowerCase() === email && String(orders[j][7]) === "Lunas") {
-          hasAccess = true; break;
+      // 1. Cek apakah ini Admin (Bypass check)
+      const props = PropertiesService.getScriptProperties();
+      const adminEmail = (props.getProperty("ADMIN_EMAIL") || "").toLowerCase().trim();
+      const isAdmin = email === adminEmail;
+
+      if (!isAdmin) {
+        // 2. Jika bukan admin, cek status Order
+        const orders = mustSheet_("Orders").getDataRange().getValues();
+        let hasAccess = false;
+        for (let j = 1; j < orders.length; j++) {
+          if (String(orders[j][1]).toLowerCase() === email && String(orders[j][7]) === "Lunas") {
+            hasAccess = true; break;
+          }
         }
+        if (!hasAccess) throw new Error("Anda belum memiliki akses ke file premium ini.");
       }
-      if (!hasAccess) throw new Error("Anda belum memiliki akses ke file premium ini.");
     }
     let downloadUrl = "";
     if (fileObj.storage === "R2") {
