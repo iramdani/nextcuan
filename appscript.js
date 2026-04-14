@@ -5008,14 +5008,50 @@ function requestFileDownload(data, cfg) {
 
 function getGDriveTimedUrl_(fileId) {
   try {
-    const file = DriveApp.getFileById(fileId);
-    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    let downloadUrl = "";
+    let isFolder = false;
+
+    // Auto-detect: coba sebagai file dulu, lalu folder
+    try {
+      const file = DriveApp.getFileById(fileId);
+      const mimeType = file.getMimeType();
+      if (mimeType === "application/vnd.google-apps.folder") {
+        isFolder = true;
+      } else {
+        file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+        switch (mimeType) {
+          case "application/vnd.google-apps.document":
+            downloadUrl = "https://docs.google.com/document/d/" + fileId + "/export?format=pdf";
+            break;
+          case "application/vnd.google-apps.spreadsheet":
+            downloadUrl = "https://docs.google.com/spreadsheets/d/" + fileId + "/export?format=xlsx";
+            break;
+          case "application/vnd.google-apps.presentation":
+            downloadUrl = "https://docs.google.com/presentation/d/" + fileId + "/export/pptx";
+            break;
+          case "application/vnd.google-apps.form":
+            downloadUrl = "https://docs.google.com/forms/d/" + fileId + "/viewform";
+            break;
+          default:
+            downloadUrl = "https://drive.google.com/uc?export=download&id=" + fileId;
+        }
+      }
+    } catch (fileErr) {
+      isFolder = true;
+    }
+
+    if (isFolder) {
+      DriveApp.getFolderById(fileId).setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+      downloadUrl = "https://drive.google.com/drive/folders/" + fileId;
+    }
+
     ScriptApp.newTrigger("lockGDriveFileById_").timeBased().after(5 * 60 * 1000).create();
     const props = PropertiesService.getScriptProperties();
     let queue = JSON.parse(props.getProperty("GD_LOCK_QUEUE") || "[]");
-    queue.push(fileId);
+    queue.push(JSON.stringify({ id: fileId, isFolder: isFolder }));
     props.setProperty("GD_LOCK_QUEUE", JSON.stringify(queue));
-    return "https://drive.google.com/uc?export=download&id=" + fileId;
+
+    return downloadUrl;
   } catch (e) { throw new Error("Gagal memproses file GDrive: " + e.toString()); }
 }
 
@@ -5023,10 +5059,23 @@ function lockGDriveFileById_() {
   const props = PropertiesService.getScriptProperties();
   let queue = JSON.parse(props.getProperty("GD_LOCK_QUEUE") || "[]");
   if (queue.length === 0) return;
-  const fileId = queue.shift();
+  const item = queue.shift();
   try {
-    DriveApp.getFileById(fileId).setSharing(DriveApp.Access.PRIVATE, DriveApp.Permission.NONE);
-  } catch (e) {}
+    let fileId, isFolder;
+    if (typeof item === "string" && item.charAt(0) === "{") {
+      const parsed = JSON.parse(item);
+      fileId = parsed.id;
+      isFolder = parsed.isFolder;
+    } else {
+      fileId = item;
+      isFolder = false;
+    }
+    if (isFolder) {
+      DriveApp.getFolderById(fileId).setSharing(DriveApp.Access.PRIVATE, DriveApp.Permission.NONE);
+    } else {
+      DriveApp.getFileById(fileId).setSharing(DriveApp.Access.PRIVATE, DriveApp.Permission.NONE);
+    }
+  } catch (e) { Logger.log("Lock GDrive error: " + e); }
   props.setProperty("GD_LOCK_QUEUE", JSON.stringify(queue));
 }
 

@@ -1861,9 +1861,20 @@
                         </div>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1.5" id="fm-path-label">File ID Google Drive</label>
-                        <input type="text" id="fm-path-id" class="w-full glass-input rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[#B6FF00]" placeholder="1aBcD_eFgHiJkLmNoPqRsTuVwXyZ">
+                        <label class="block text-xs font-semibold text-slate-400 mb-1.5" id="fm-path-label">ID Google Drive (File atau Folder)</label>
+                        <input type="text" id="fm-path-id" class="w-full glass-input rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[#B6FF00]" placeholder="1aBcD_eFgHiJkLmNoPqRsTuVwXyZ (File ID atau Folder ID)">
                         <p id="fm-path-hint" class="text-xs text-slate-500 mt-1.5">Ambil dari URL Google Drive: drive.google.com/file/d/<strong>ID_DI_SINI</strong>/view</p>
+                        <div id="fm-gdrive-autodetect" class="mt-2 p-3 rounded-xl bg-[rgba(182,255,0,0.05)] border border-[rgba(182,255,0,0.1)]">
+                            <p class="text-xs text-[#B6FF00] font-semibold mb-1">🤖 Auto-Detect Aktif</p>
+                            <p class="text-xs text-slate-400">Sistem otomatis mendeteksi tipe file:</p>
+                            <ul class="text-xs text-slate-500 mt-1 space-y-0.5 ml-2">
+                                <li>📄 Google Docs → ekspor PDF</li>
+                                <li>📊 Google Sheets → ekspor Excel</li>
+                                <li>📑 Google Slides → ekspor PPT</li>
+                                <li>📁 Folder → buka akses folder</li>
+                                <li>📦 File biasa (PDF, ZIP, dll) → download langsung</li>
+                            </ul>
+                        </div>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 mb-1.5">Status</label>
@@ -5534,12 +5545,15 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             const storage = document.getElementById('fm-storage').value;
             const label = document.getElementById('fm-path-label');
             const hint = document.getElementById('fm-path-hint');
+            const autoDetect = document.getElementById('fm-gdrive-autodetect');
             if (storage === 'R2') {
                 label.textContent = 'Object Key (Path di R2 Bucket)';
                 hint.innerHTML = 'Contoh: <strong>ebooks/nama-file.pdf</strong> sesuai struktur folder di bucket R2 Anda.';
+                if (autoDetect) autoDetect.classList.add('hidden');
             } else {
-                label.textContent = 'File ID Google Drive';
-                hint.innerHTML = 'Ambil dari URL Google Drive: drive.google.com/file/d/<strong>ID_DI_SINI</strong>/view';
+                label.textContent = 'ID Google Drive (File atau Folder)';
+                hint.innerHTML = 'Ambil dari URL: drive.google.com/file/d/<strong>ID</strong>/view atau drive.google.com/drive/folders/<strong>ID</strong>';
+                if (autoDetect) autoDetect.classList.remove('hidden');
             }
         }
 
