@@ -1583,7 +1583,7 @@ function createOrder(d, cfg) {
     const bankNorek = getCfgFrom_(cfg, "bank_norek") || "-";
     const bankOwner = getCfgFrom_(cfg, "bank_owner") || "-";
 
-    const aff = (d.affiliate && String(d.affiliate).trim() !== "") ? String(d.affiliate).trim() : "-";
+    let aff = (d.affiliate && String(d.affiliate).trim() !== "") ? String(d.affiliate).trim() : "-";
 
     const hargaDasar = toNumberSafe_(d.harga);
 
@@ -1677,7 +1677,19 @@ function createOrder(d, cfg) {
           }
         }
       }
-      uS.appendRow([newUserId, email, hashPassword_(pass), d.nama, "member", "Active", toISODate_(), "'" + (waNormalized || waRaw)]);
+      // Column 9: Referrer ID (Permanent Affiliate)
+      uS.appendRow([newUserId, email, hashPassword_(pass), d.nama, "member", "Active", toISODate_(), "'" + (waNormalized || waRaw), aff]);
+    } else {
+      // PERMANENT AFFILIATE LOGIC: If existing user, check if they already have a referrer
+      // Columns: 0:ID, 1:Email, 2:Pass, 3:Nama, 4:Role, 5:Status, 6:Date, 7:WA, 8:Referrer
+      let permanentAff = String(uData[existingUserRow][8] || "").trim();
+      if (permanentAff && permanentAff !== "-" && permanentAff !== "") {
+        // If they already have a permanent affiliate, use it instead of the one passed from frontend
+        aff = permanentAff;
+      } else if (aff !== "-" && aff !== "") {
+        // If they don't have one yet, assign this one as their permanent affiliate
+        uS.getRange(existingUserRow + 1, 9).setValue(aff);
+      }
     }
 
     const orderStatus = (isZeroPrice || isZeroPriceFinal) ? "Lunas" : "Pending";
@@ -1905,9 +1917,10 @@ function registerFreeMember(d, cfg) {
     }
 
     const waForSheet = waNormalized || waRaw;
+    const aff = (d.affiliate && String(d.affiliate).trim() !== "") ? String(d.affiliate).trim() : "-";
     
-    // Save New User
-    uS.appendRow([newUserId, email, hashPassword_(pass), nama, "member", "Active", toISODate_(), "'" + waForSheet]);
+    // Save New User (Column 9: Referrer ID)
+    uS.appendRow([newUserId, email, hashPassword_(pass), nama, "member", "Active", toISODate_(), "'" + waForSheet, aff]);
 
     // Send notifications
     const waText = `Halo ${nama}, selamat datang di ${siteName}! 🎉\n\nPendaftaran akun Anda berhasil. Sekarang Anda telah bergabung dan bisa mulai menggunakan fasilitas platform kami.\n\n🔐 *INFORMASI AKUN ANDA*\n🌐 Link Login: ${loginUrl}\n✉️ Email: ${email}\n🔑 Password: ${pass}\n\nSilakan login ke Member Area untuk menjelajahi fitur dan program affiliate kami.\n\nTerima kasih atas kepercayaannya!\n*Tim ${siteName}*`;

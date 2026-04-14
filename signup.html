@@ -252,7 +252,8 @@
                         action: 'register_free_member', 
                         nama: document.getElementById('nama').value,
                         email: document.getElementById('email').value, 
-                        whatsapp: document.getElementById('whatsapp').value
+                        whatsapp: document.getElementById('whatsapp').value,
+                        affiliate: localStorage.getItem('cepat_affiliate') || "-"
                     })
                 });
                 const r = await res.json();
