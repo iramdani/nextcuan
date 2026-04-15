@@ -1051,8 +1051,12 @@
                 <!-- MEMBERS TAB -->
                 <div id="tab-members" class="tab-content">
                     <div class="glass-card p-0 rounded-[2rem] overflow-hidden">
-                        <div class="px-8 py-6 border-b border-[rgba(255,255,255,0.05)] flex justify-between items-center bg-[rgba(0,0,0,0.2)]">
+                        <div class="px-8 py-6 border-b border-[rgba(255,255,255,0.05)] flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-[rgba(0,0,0,0.2)]">
                             <h3 class="font-bold text-white text-lg">Data Member</h3>
+                            <div class="relative w-full md:w-80">
+                                <i data-lucide="search" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                                <input type="text" id="member-search" placeholder="Cari nama atau email..." oninput="handleMemberSearch(this.value)" class="w-full bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.05)] rounded-2xl py-3 pl-11 pr-4 text-sm text-white focus:outline-none focus:border-[#B6FF00] focus:bg-[rgba(182,255,0,0.05)] transition-all">
+                            </div>
                         </div>
                         <div class="overflow-x-auto custom-scroll p-0">
                             <table class="w-full text-left text-sm min-w-[700px] border-collapse bg-transparent" id="list-members">
@@ -2558,6 +2562,7 @@
                 stats: {
                     users: Number(stats.users || 0),
                     orders: Number(stats.orders || 0),
+                    free_orders: Number(stats.free_orders || 0),
                     rev: Number(stats.rev || 0)
                 },
                 settings,
@@ -3110,12 +3115,15 @@
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium" data-label="Aksi">
-                        <div class="flex gap-2">
+                        <div class="flex gap-2 justify-end">
                             ${statusLower==='pending'
                                 ? `<button onclick="setLunas('${o[0]}')" class="text-[#B6FF00] border border-[rgba(182,255,0,0.2)] bg-[rgba(182,255,0,0.1)] font-bold uppercase text-[10px] hover:bg-[rgba(182,255,0,0.2)] px-3 py-1.5 rounded-lg transition-colors">Aktifkan</button>`
                                 : (statusLower==='lunas'
                                     ? `<button onclick="setPending('${o[0]}')" class="text-[#ef4444] border border-[#ef4444]/20 bg-[#ef4444]/10 font-bold uppercase text-[10px] hover:bg-[#ef4444]/20 px-3 py-1.5 rounded-lg transition-colors">Non Aktifkan</button>`
                                     : '-')}
+                            <button onclick="deleteOrder('${o[0]}')" class="text-slate-500 hover:text-red-500 p-1.5 rounded-lg hover:bg-red-500/10 transition-all" title="Hapus Pesanan">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
                         </div>
                     </td>
                 </tr>`;
@@ -4334,6 +4342,58 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                 showToast('Gagal menghubungi server.', 'error');
             }
         }
+        async function deleteOrder(id) {
+            const isConfirmed = await customConfirm(`Hapus permanent pesanan #${id}? Tindakan ini tidak dapat dibatalkan.`);
+            if(!isConfirmed) return;
+            
+            showToast('Menghapus pesanan...', 'warning');
+            try {
+                const endpoint = getApiEndpoint();
+                if(!endpoint) throw new Error('API endpoint tidak tersedia');
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(buildAdminAuthPayload({ action: 'delete_order', id: id }))
+                });
+                const data = await res.json();
+                if(data.status === 'success') {
+                    showToast('Pesanan berhasil dihapus!', 'success');
+                    forceSync();
+                } else {
+                    showToast(data.message || 'Gagal menghapus', 'error');
+                }
+            } catch(e) {
+                showToast('Gagal menghubungi server.', 'error');
+            }
+        }
+
+        let searchTimeoutMember = null;
+        function handleMemberSearch(query) {
+            clearTimeout(searchTimeoutMember);
+            searchTimeoutMember = setTimeout(async () => {
+                if (query.length > 0 && query.length < 3) return; // Wait for at least 3 chars
+                
+                showToast('Mencari member...', 'warning');
+                try {
+                    const endpoint = getApiEndpoint();
+                    if(!endpoint) return;
+                    const res = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(buildAdminAuthPayload({ 
+                            action: 'get_admin_data', 
+                            filter_member: query 
+                        }))
+                    });
+                    const r = await res.json();
+                    if(r.status === 'success') {
+                        renderMembers(r.users || []);
+                        document.getElementById('more-members-container').classList.add('hidden'); // Disable load more during search
+                    }
+                } catch(e) { console.error(e); }
+            }, 500);
+        }
+
 
         function openProdModal() { 
             document.getElementById('form-prod').reset(); 

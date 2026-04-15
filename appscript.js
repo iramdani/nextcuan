@@ -1869,86 +1869,76 @@ function updateOrderStatus(d, cfg) {
     // Trace ID for debugging this specific request
     const traceId = "UOS-" + Date.now();
     Logger.log(traceId + " updateOrderStatus called with id=" + d.id + " status=" + newStatus + " isLunas=" + isLunas);
+    let firstRowIndex = -1;
 
     for (let i = 1; i < r.length; i++) {
       if (String(r[i][0]) === String(d.id)) {
-        s.getRange(i + 1, 8).setValue(isLunas ? "Lunas" : newStatus);
-        uEmail = r[i][1];
-        uName = r[i][2];
-        uWA = r[i][3];
-        pId = r[i][4];
-        pName = r[i][5];
         orderFound = true;
-        Logger.log(traceId + " Order FOUND: row=" + (i + 1) + " uWA=" + JSON.stringify(uWA) + " type=" + typeof uWA + " uEmail=" + uEmail);
-        break;
+        if (firstRowIndex === -1) {
+          firstRowIndex = i;
+          uEmail = String(r[i][1]);
+          uName = String(r[i][2]);
+          uWA = String(r[i][3]);
+        }
+        
+        // Update status for this row
+        s.getRange(i + 1, 8).setValue(isLunas ? "Lunas" : newStatus);
+        
+        const rowPId = String(r[i][4]);
+        const rowPName = String(r[i][5]);
+        
+        // Find access info for this specific product
+        let accessUrl = "";
+        const pData = pS.getDataRange().getValues();
+        for (let k = 1; k < pData.length; k++) {
+          if (String(pData[k][0]) === rowPId) {
+            accessUrl = String(pData[k][3]);
+            break;
+          }
+        }
+        productsFound.push({ id: rowPId, name: rowPName, url: accessUrl });
       }
     }
 
     if (orderFound) {
       const cacheState = bumpPublicCacheState_(["dashboard"]);
       if (!isLunas) {
-        Logger.log(traceId + " Not Lunas, returning early. newStatus=" + newStatus);
-        return withPublicCacheState_({ status: "success", message: "Status berhasil diubah menjadi " + newStatus }, cacheState);
+        return withPublicCacheState_({ status: "success", message: "Status pesanan #" + d.id + " berhasil diupdate." }, cacheState);
       }
 
-      Logger.log(traceId + " Status=Lunas, proceeding with notifications...");
+      // Consolidate access info
+      const productNames = productsFound.map(p => p.name).join(", ");
+      const waProductsList = productsFound.map(p => `\u2705 *${p.name}*\n\uD83D\uDE80 Akses: ${p.url}`).join("\n\n");
+      const emailProductsHtml = productsFound.map(p => `<li><b>${p.name}</b> \u2014 <a href="${p.url}" style="color:#017A6B;font-weight:bold;">Mulai Belajar</a></li>`).join("");
 
-      let accessUrl = "";
-      let capiPixelId = "";
-      let capiPixelToken = "";
-      let capiPixelTestCode = "";
-      const pData = pS.getDataRange().getValues();
-      for (let k = 1; k < pData.length; k++) {
-        if (String(pData[k][0]) === String(pId)) {
-          accessUrl = pData[k][3];
-          capiPixelId = String(pData[k][8] || "").trim();
-          capiPixelToken = String(pData[k][9] || "").trim();
-          capiPixelTestCode = String(pData[k][10] || "").trim();
-          break;
-        }
-      }
-      Logger.log(traceId + " accessUrl=" + accessUrl);
-
-      // LOG: Debug notification target data before sending
-      const waDebug = "uWA raw=" + JSON.stringify(uWA) + " type=" + typeof uWA + " normalized=" + normalizePhone_(uWA);
-      logWA_("DEBUG_LUNAS", String(uWA), traceId + " | " + waDebug + " | Inv=" + d.id + " uEmail=" + uEmail);
-
-      // STEP 1: Send WA to customer
-      Logger.log(traceId + " Sending WA to: " + uWA);
-      const waResult = sendWA(uWA, `\uD83C\uDF89 *PEMBAYARAN TERVERIFIKASI!* \uD83C\uDF89\n\nHalo *${uName}*, kabar baik!\n\nPembayaran Anda untuk produk *${pName}* (Invoice: #${d.id}) telah kami terima dan akses Anda kini *Telah Aktif*.\n\n\uD83D\uDE80 *Klik link berikut untuk mengakses produk Anda:*\n${accessUrl}\n\nAnda juga bisa mengakses seluruh produk Anda melalui Member Area kami.\n\nTerima kasih atas kepercayaannya!\n*Tim ${siteName}*`, cfg);
-      Logger.log(traceId + " WA Result: " + JSON.stringify(waResult));
-
-      // STEP 2: Send Email to customer
-      const emailActivationHtml = `
-      <div style="font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; color: #334155; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-          <div style="text-align: center; margin-bottom: 25px;">
-              <h1 style="color: #017A6B; margin-top: 0; margin-bottom: 5px;">Akses Telah Dibuka! \uD83C\uDF89</h1>
-          </div>
-          <p style="font-size: 16px;">Halo <b style="color: #000018;">${uName}</b>,</p>
-          <p>Terima kasih! Pembayaran Anda telah berhasil kami verifikasi. Akses penuh untuk produk <b style="color: #000018;">${pName}</b> sekarang sudah aktif dan dapat Anda gunakan.</p>
-
-          <div style="text-align: center; margin: 35px 0;">
-              <a href="${accessUrl}" style="background-color: #B6FF00; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; display: inline-block;">Akses Produk Sekarang</a>
-          </div>
-
-          <p>Sebagai alternatif, Anda selalu bisa menemukan semua produk yang Anda miliki dengan masuk ke Member Area menggunakan akun yang telah kami kirimkan sebelumnya.</p>
-
-          <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 30px 0;">
-          <p style="font-size: 14px; color: #64748b; margin-bottom: 0;">Salam Sukses,<br><b style="color: #000018;">Tim ${siteName}</b></p>
-      </div>
-      `;
-      Logger.log(traceId + " Sending Email to: " + uEmail);
-      const emailResult = sendEmail(uEmail, `Akses Terbuka! Produk ${pName} - ${siteName}`, emailActivationHtml, cfg);
-      Logger.log(traceId + " Email Result: " + JSON.stringify(emailResult));
+      const waResult = sendWA(uWA, `Halo *${uName}*, pembayaran Anda telah kami terima! \u2705\n\n\uD83D\uDCCC *Invoice:* #${d.id}\n\uD83D\uDCE6 *Produk:* ${productNames}\n\nLayanan Anda telah diaktifkan. Silakan akses di sini:\n\n${waProductsList}\n\nAkses juga tersedia kapan saja di Member Area.\n\nSelamat berkarya!\n*Tim ${siteName}*`, cfg);
+      
+      // Unified Email
+      const emailHtml = `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:30px;border:1px solid #e2e8f0;border-radius:12px;color:#334155;"><h2 style="color:#017A6B;">Pembayaran Diterima! \u2705</h2><p>Halo <b>${uName}</b>, terima kasih atas pembayaran Anda untuk pesanan <b>#${d.id}</b>.</p><ul style="padding-left:20px;line-height:1.8;">${emailProductsHtml}</ul><p>Akses Member Area: <a href="${getCfgFrom_(cfg, "site_url")}/dashboard">${getCfgFrom_(cfg, "site_url")}/dashboard</a></p></div>`;
+      const emailResult = sendEmail(uEmail, `Pembayaran Berhasil: #${d.id}`, emailHtml, cfg);
 
       // STEP 3: META CONVERSIONS API - Server-side Purchase event (konfirmasi manual admin)
+      // Note: Menggunakan produk pertama dalam invoice untuk CAPI track
+      let pixelId = "", pixelToken = "", pixelTestCode = "";
+      if (productsFound.length > 0) {
+        const pData = pS.getDataRange().getValues();
+        for (let k = 1; k < pData.length; k++) {
+          if (String(pData[k][0]) === productsFound[0].id) {
+            pixelId = String(pData[k][8] || "").trim();
+            pixelToken = String(pData[k][9] || "").trim();
+            pixelTestCode = String(pData[k][10] || "").trim();
+            break;
+          }
+        }
+      }
+
       const capiResult = sendMetaCAPIEvent_({
-        pixelId: capiPixelId,
-        accessToken: capiPixelToken,
-        testEventCode: capiPixelTestCode,
+        pixelId: pixelId,
+        accessToken: pixelToken,
+        testEventCode: pixelTestCode,
         invoice: String(d.id || ""),
-        productId: pId,
-        productName: pName,
+        productId: productsFound.length > 0 ? productsFound[0].id : "",
+        productName: productNames,
         value: Number(r.find ? (r.find(row => String(row[0]) === String(d.id)) || [])[6] : 0) || 0,
         email: uEmail,
         phone: uWA,
@@ -1956,10 +1946,10 @@ function updateOrderStatus(d, cfg) {
       });
       Logger.log(traceId + " CAPI Result: " + JSON.stringify(capiResult));
 
-      return withPublicCacheState_({ status: "success", trace: traceId, notifications: { wa: waResult, email: emailResult, capi: capiResult } }, cacheState);
+      return withPublicCacheState_({ status: "success", trace: traceId, notifications: { wa: waResult, email: emailResult, capi: capiResult }, message: "Akses untuk " + productsFound.length + " produk berhasil diaktifkan." }, cacheState);
     }
 
-    return { status: "error", message: "Order tidak ditemukan" };
+    return { status: "error", message: "Order tidak ditemukan." };
   } catch (e) {
     return { status: "error", message: e.toString() };
   }
@@ -3053,11 +3043,22 @@ function getAdminData(d, cfg) {
     t.ik_private_key = "";
     t.ik_private_key_configured = !!getSecret_("ik_private_key", cfg);
 
+    const filterMember = String(d.filter_member || "").toLowerCase();
+    let usersData = [];
+    for (let i = 1; i < u.length; i++) {
+      const uMail = String(u[i][1] || "").toLowerCase();
+      const uName = String(u[i][2] || "").toLowerCase();
+      if (filterMember && !uMail.includes(filterMember) && !uName.includes(filterMember)) continue;
+      usersData.push(u[i]);
+      if (!filterMember && usersData.length >= 20) break; // Limit initial load
+    }
+
     const result = {
       status: "success",
       role: session.role,
       session_expires_at: session.expires_at,
       stats: { users: u.length - 1, orders: paidOrderCount, free_orders: freeOrderCount, rev: rev },
+      users: usersData,
       orders: o.slice(1).reverse().slice(0, 20),
       products: p.slice(1).map(normalizeProductRow_),
       pages: pg.slice(1),
