@@ -370,15 +370,17 @@
                         <!-- VOUCHER SECTION (visible on step 1) -->
                         <div id="voucher-section" class="pt-1">
                             <div class="h-px bg-[rgba(255,255,255,0.05)] mb-5"></div>
-                            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3 ml-0.5">Kode Voucher <span class="text-slate-600 font-medium normal-case">(Opsional)</span></label>
-                            <div class="flex gap-2">
-                                <div class="relative flex-1">
-                                    <i data-lucide="ticket" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 z-10 pointer-events-none"></i>
-                                    <input type="text" id="voucher-code-input" placeholder="Masukkan kode voucher..." class="glass-input w-full rounded-xl py-3.5 font-mono font-bold text-white outline-none placeholder:text-slate-600 placeholder:font-normal text-sm transition-all uppercase" style="padding-left: 2.75rem !important;" oninput="this.value=this.value.toUpperCase()">
+                            <div id="voucher-input-group">
+                                <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3 ml-0.5">Kode Voucher <span class="text-slate-600 font-medium normal-case">(Opsional)</span></label>
+                                <div class="flex gap-2">
+                                    <div class="relative flex-1">
+                                        <i data-lucide="ticket" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 z-10 pointer-events-none"></i>
+                                        <input type="text" id="voucher-code-input" placeholder="Masukkan kode voucher..." class="glass-input w-full rounded-xl py-3.5 font-mono font-bold text-white outline-none placeholder:text-slate-600 placeholder:font-normal text-sm transition-all uppercase" style="padding-left: 2.75rem !important;" oninput="this.value=this.value.toUpperCase()">
+                                    </div>
+                                    <button type="button" onclick="applyVoucher()" id="btn-apply-voucher" class="bg-[rgba(182,255,0,0.15)] hover:bg-[rgba(182,255,0,0.25)] text-[#B6FF00] border border-[rgba(182,255,0,0.3)] px-5 rounded-xl font-bold text-xs uppercase tracking-wide transition-all whitespace-nowrap flex items-center gap-2">
+                                        <i data-lucide="check" class="w-4 h-4"></i> Pakai
+                                    </button>
                                 </div>
-                                <button type="button" onclick="applyVoucher()" id="btn-apply-voucher" class="bg-[rgba(182,255,0,0.15)] hover:bg-[rgba(182,255,0,0.25)] text-[#B6FF00] border border-[rgba(182,255,0,0.3)] px-5 rounded-xl font-bold text-xs uppercase tracking-wide transition-all whitespace-nowrap flex items-center gap-2">
-                                    <i data-lucide="check" class="w-4 h-4"></i> Pakai
-                                </button>
                             </div>
                             <div id="voucher-result" class="hidden mt-3 rounded-xl p-4 border border-[rgba(182,255,0,0.25)] bg-[rgba(182,255,0,0.05)]">
                                 <div class="flex items-center justify-between">
@@ -1293,10 +1295,21 @@
             `).join('')}</div>`;
             titleEl.insertAdjacentHTML('afterend', cartListHtml);
 
-            // Hide voucher for multi-item (one voucher per cart not yet supported)
-            if (cart.length > 1) {
-                const vsec = document.getElementById('voucher-section');
-                if (vsec) vsec.classList.add('hidden');
+            // Handle voucher if passed from cart
+            const voucherFromUrl = urlParams.get('voucher');
+            if (voucherFromUrl) {
+                const vinp = document.getElementById('voucher-code-input');
+                if (vinp) {
+                    vinp.value = voucherFromUrl.toUpperCase();
+                    applyVoucher();
+                    // Hide voucher input group if from cart as requested, but keep the badge
+                    const vgroup = document.getElementById('voucher-input-group');
+                    if (vgroup) vgroup.classList.add('hidden');
+                }
+            } else if (cart.length > 1) {
+                // Hide voucher for multi-item if no voucher passed (one voucher per cart not yet supported)
+                const vgroup = document.getElementById('voucher-input-group');
+                if (vgroup) vgroup.classList.add('hidden');
             }
 
             // Set hidden prod-id to first item (for legacy compatibility; actual items sent via cartItems in payload)
@@ -1329,6 +1342,17 @@
                 initCartMode();
             } else {
                 loadProduct();
+                // If not in cart mode, but voucher is present (direct buy with voucher URL)
+                const vUrl = urlParams.get('voucher');
+                if (vUrl) {
+                  setTimeout(() => {
+                    const vinp = document.getElementById('voucher-code-input');
+                    if (vinp) {
+                      vinp.value = vUrl.toUpperCase();
+                      applyVoucher();
+                    }
+                  }, 500);
+                }
             }
             
             // Render promo delay
