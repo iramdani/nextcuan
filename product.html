@@ -78,7 +78,7 @@
             background: var(--color-primary);
             color: #000018;
             font-weight: 700;
-            border-radius: 0.75rem;
+            border-radius: 1rem;
             transition: all 0.2s;
             box-shadow: 0 4px 15px rgba(182, 255, 0, 0.2);
         }
@@ -94,7 +94,7 @@
             color: var(--color-text);
             border: 1px solid var(--color-border);
             font-weight: 600;
-            border-radius: 0.75rem;
+            border-radius: 1rem;
             transition: all 0.2s;
         }
 
@@ -151,6 +151,26 @@
             to { opacity: 1; transform: translateY(0); }
         }
         .fade-in { animation: fadeIn 0.8s ease-out forwards; }
+
+        /* Toast Styling */
+        .toast {
+            display: flex; align-items: center; gap: 0.75rem;
+            background: rgba(10,10,30,0.98); border: 1px solid rgba(255,255,255,0.1);
+            color: white; padding: 0.9rem 1.25rem; border-radius: 1rem;
+            font-size: 0.875rem; font-weight: 600; pointer-events: all;
+            min-width: 220px; max-width: 380px;
+            transform: translateX(120%); opacity: 0;
+            transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), opacity 0.35s ease;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+        }
+        .toast.success { border-color: rgba(182,255,0,0.3); color: #B6FF00; }
+        .toast.warning { border-color: rgba(245,158,11,0.3); color: #f59e0b; }
+        .toast.show { transform: translateX(0); opacity: 1; }
+
+        /* Floating Cart Bar */
+        #cart-bar {
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+        }
     </style>
 </head>
 
@@ -281,16 +301,162 @@
             </div>
             <div class="pt-8 border-t flex flex-col md:flex-row items-center justify-between text-sm"
                 style="border-color: rgba(182, 255, 0, 0.15); color: var(--color-text-muted);">
-                <p>&copy; 2024 Next Cuan. All rights reserved.</p>
+                <p>&copy; 2026 Next Cuan. All rights reserved.</p>
                 <p class="mt-2 md:mt-0">Made with ❤️ in Indonesia</p>
             </div>
         </div>
     </footer>
 
+    <!-- Shopping Cart Bar -->
+    <div id="cart-bar" class="fixed bottom-0 left-0 right-0 z-[60] glass-nav bg-dark-900/90 border-t border-primary/20 p-4 transform translate-y-full transition-transform duration-500 hidden sm:block">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div class="relative">
+                    <div class="w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-dark-900">
+                        <i data-lucide="shopping-cart" class="w-6 h-6"></i>
+                    </div>
+                    <span id="cart-item-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full border-2 border-dark-900">0</span>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-400 font-bold uppercase tracking-widest leading-none mb-1">Total Keranjang</p>
+                    <p id="cart-total" class="text-xl font-black text-primary font-mono leading-none">Rp 0</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="clearCart()" class="text-xs font-bold text-slate-400 hover:text-red-400 py-3 px-4 transition-colors">Kosongkan</button>
+                <button onclick="goToCartCheckout()" class="btn-primary px-8 py-3 rounded-xl flex items-center gap-2 group">
+                    Bayar Sekarang <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Cart Bar -->
+    <div id="mobile-cart-bar" class="fixed bottom-0 left-0 right-0 z-[60] bg-dark-900/95 border-t border-primary/20 p-4 transform translate-y-full transition-transform duration-500 sm:hidden">
+        <div class="flex items-center gap-4 h-12">
+            <div class="flex flex-col flex-1">
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0.5" id="mobile-cart-count">0 Item</p>
+                <p class="text-lg font-black text-primary font-mono" id="mobile-cart-total">Rp 0</p>
+            </div>
+            <button onclick="goToCartCheckout()" class="btn-primary flex-1 h-full rounded-xl font-black text-sm flex items-center justify-center gap-2">
+                Bayar Sekarang <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-24 right-6 z-[999] flex flex-col gap-3" style="pointer-events:none;"></div>
+
     <!-- Scripts -->
     <script>
         // Init Lucide
         lucide.createIcons();
+
+        // ==============================
+        // SHOPPING CART SYSTEM
+        // ==============================
+        const CART_KEY = 'cepat_cart';
+
+        function getCart() {
+            try { return JSON.parse(localStorage.getItem(CART_KEY) || '[]'); } catch(e) { return []; }
+        }
+
+        function saveCart(cart) {
+            localStorage.setItem(CART_KEY, JSON.stringify(cart));
+            renderCartBar();
+        }
+
+        function addToCart(e, id, name, price, hargaCoret) {
+            if(e) { e.preventDefault(); e.stopPropagation(); }
+            const cart = getCart();
+            const existing = cart.find(i => i.id_produk === id);
+            if (existing) {
+                showToast('Produk sudah ada di keranjang!', 'warning');
+                return;
+            }
+            cart.push({ id_produk: id, nama_produk: name, harga: price, harga_coret: hargaCoret });
+            saveCart(cart);
+
+            const btn = document.getElementById('cart-btn');
+            if (btn) {
+                const orig = btn.innerHTML;
+                btn.innerHTML = '<i data-lucide="check" class="w-4 h-4 mr-2"></i>Ditambahkan';
+                btn.classList.add('opacity-80');
+                btn.disabled = true;
+                if (window.lucide) lucide.createIcons({ nodes: [btn] });
+                setTimeout(() => {
+                    btn.innerHTML = orig;
+                    btn.classList.remove('opacity-80');
+                    btn.disabled = false;
+                    if (window.lucide) lucide.createIcons({ nodes: [btn] });
+                }, 1800);
+            }
+
+            showToast('✅ Berhasil ditambahkan ke keranjang!', 'success');
+        }
+
+        function clearCart() {
+            saveCart([]);
+        }
+
+        function goToCartCheckout() {
+            const cart = getCart();
+            if (!cart.length) { showToast('Keranjang masih kosong!', 'warning'); return; }
+            if (cart.length === 1) {
+                window.location.href = 'checkout.html?id=' + cart[0].id_produk;
+                return;
+            }
+            window.location.href = 'checkout.html?cart=1';
+        }
+
+        function renderCartBar() {
+            const cart = getCart();
+            const bar = document.getElementById('cart-bar');
+            const mobileBar = document.getElementById('mobile-cart-bar');
+            if (!bar || !mobileBar) return;
+
+            if (!cart.length) {
+                bar.classList.add('translate-y-full');
+                mobileBar.classList.add('translate-y-full');
+                setTimeout(() => { bar.classList.add('hidden'); mobileBar.classList.add('hidden'); }, 500);
+                return;
+            }
+
+            bar.classList.remove('hidden');
+            mobileBar.classList.remove('hidden');
+            setTimeout(() => { 
+                bar.classList.remove('translate-y-full'); 
+                mobileBar.classList.remove('translate-y-full'); 
+            }, 50);
+
+            const nf = new Intl.NumberFormat('id-ID');
+            const total = cart.reduce((s, i) => s + Number(i.harga || 0), 0);
+
+            const countEl = document.getElementById('cart-item-count');
+            const totalEl = document.getElementById('cart-total');
+            const mobileCountEl = document.getElementById('mobile-cart-count');
+            const mobileTotalEl = document.getElementById('mobile-cart-total');
+
+            if (countEl) countEl.innerText = cart.length;
+            if (totalEl) totalEl.innerText = 'Rp ' + nf.format(total);
+            if (mobileCountEl) mobileCountEl.innerText = cart.length + ' Item Di Keranjang';
+            if (mobileTotalEl) mobileTotalEl.innerText = 'Rp ' + nf.format(total);
+
+            if (window.lucide) lucide.createIcons({ root: bar });
+        }
+
+        function showToast(msg, type = 'success') {
+            const c = document.getElementById('toast-container');
+            if (!c) return;
+            const t = document.createElement('div');
+            t.className = `toast ${type}`;
+            const icon = type === 'success' ? 'check-circle' : 'alert-triangle';
+            t.innerHTML = `<i data-lucide="${icon}" class="w-5 h-5 flex-shrink-0"></i><span>${msg}</span>`;
+            c.appendChild(t);
+            if (window.lucide) lucide.createIcons({ nodes: [t] });
+            setTimeout(() => t.classList.add('show'), 10);
+            setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, 3000);
+        }
 
         async function fetchProduct() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -375,44 +541,50 @@
                         ${p.title}
                     </h1>
                     
-                    <p class="text-base text-slate-400 mb-6 leading-relaxed max-w-xl">
+                    <p class="text-base text-slate-400 mb-8 leading-relaxed max-w-xl">
                         ${p.desc}
                     </p>
 
-                    <div class="flex items-center gap-6 mb-8 bg-white/5 p-4 rounded-2xl border border-white/5">
-                        <div>
-                            <p class="text-[10px] font-bold uppercase tracking-widest mb-1 text-slate-500">Harga</p>
+                    <!-- Refined Price Section -->
+                    <div class="flex flex-wrap items-center gap-6 mb-10 pb-8 border-b border-white/5">
+                        <div class="flex flex-col">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2">Harga Sekarang</span>
                             <div class="flex items-baseline gap-3">
-                                <span class="text-3xl font-black text-primary font-mono tracking-tighter">
+                                <span class="text-4xl lg:text-5xl font-black text-primary font-mono tracking-tighter">
                                     Rp ${currentPrice.toLocaleString('id-ID')}
                                 </span>
-                                ${hasDiscount ? `<span class="text-sm text-slate-500 line-through">Rp ${originalPrice.toLocaleString('id-ID')}</span>` : ''}
                             </div>
                         </div>
                         ${hasDiscount ? `
-                            <div class="bg-red-500/10 border border-red-500/20 px-3 py-1 rounded-xl">
-                                <span class="text-[10px] font-bold text-red-500 block">HEMAT</span>
-                                <span class="text-xl font-black text-red-500">${discountPct}%</span>
+                        <div class="flex flex-col border-l border-white/10 pl-6">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2">Potongan Harga</span>
+                            <div class="flex items-center gap-3">
+                                <span class="text-lg text-slate-500 line-through font-medium">Rp ${originalPrice.toLocaleString('id-ID')}</span>
+                                <span class="bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] font-black px-2 py-1 rounded-lg">HEMAT ${discountPct}%</span>
                             </div>
+                        </div>
                         ` : ''}
                     </div>
 
-                    <div class="flex items-center gap-4 mb-8">
-                        <div class="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20 shrink-0">
-                            <i data-lucide="shield-check" class="w-5 h-5 text-primary"></i>
+                    <div class="flex items-center gap-4 mb-10">
+                        <div class="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/20 shrink-0">
+                            <i data-lucide="shield-check" class="w-6 h-6 text-primary"></i>
                         </div>
                         <div>
-                            <p class="font-bold text-white text-xs leading-none mb-1">Lifetime Access</p>
-                            <p class="text-[10px] text-slate-400">Akses Sekali Bayar Selamanya</p>
+                            <p class="font-bold text-white text-sm leading-none mb-1.5">Lifetime Access</p>
+                            <p class="text-[11px] text-slate-400 font-medium">Bayar Sekali Akses Selamanya</p>
                         </div>
                     </div>
 
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <a href="checkout.html?id=${p.id}" class="btn-primary px-10 py-5 rounded-2xl flex items-center justify-center gap-3 group">
-                            Beli Sekarang <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+                    <div class="flex flex-col sm:flex-row flex-wrap gap-4">
+                        <a href="checkout.html?id=${p.id}" class="btn-primary px-8 py-5 rounded-2xl flex-1 sm:flex-none flex items-center justify-center gap-3 group">
+                            Beli Sekarang <i data-lucide="zap" class="w-5 h-5 fill-dark-900"></i>
                         </a>
-                        <button onclick="handleBackToCatalog()" class="btn-secondary px-8 py-5 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all">
-                            Lihat Katalog Lainnya
+                        <button id="cart-btn" onclick="addToCart(event, '${p.id}', '${p.title.replace(/'/g,"\\'").replace(/"/g,'&quot;')}', ${currentPrice}, ${originalPrice})" class="btn-secondary px-8 py-5 rounded-2xl flex-1 sm:flex-none flex items-center justify-center gap-3 group">
+                            <i data-lucide="shopping-cart" class="w-5 h-5"></i> Keranjang
+                        </button>
+                        <button onclick="handleBackToCatalog()" class="w-full sm:w-auto text-slate-400 hover:text-white transition-colors text-xs font-bold py-4 flex items-center justify-center gap-2 group">
+                            <i data-lucide="arrow-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i> Kembali ke Katalog
                         </button>
                     </div>
                 </div>
@@ -436,22 +608,27 @@
             }
 
             lucide.createIcons();
+            renderCartBar();
         }
 
         function renderError(msg) {
-            document.getElementById('product-hero').innerHTML = `
-                <div class="col-span-full py-20 text-center">
-                    <div class="w-20 h-20 mx-auto bg-rose-500/10 text-rose-500 rounded-3xl flex items-center justify-center border border-rose-500/20 mb-8">
-                        <i data-lucide="alert-circle" class="w-10 h-10"></i>
+            const hero = document.getElementById('product-hero');
+            if (hero) {
+                hero.innerHTML = `
+                    <div class="col-span-full py-20 text-center">
+                        <div class="w-20 h-20 mx-auto bg-rose-500/10 text-rose-500 rounded-3xl flex items-center justify-center border border-rose-500/20 mb-8">
+                            <i data-lucide="alert-circle" class="w-10 h-10"></i>
+                        </div>
+                        <h1 class="text-2xl font-black text-white mb-4">Ups! Ada Masalah</h1>
+                        <p class="text-slate-400 max-w-md mx-auto mb-10 leading-relaxed">${msg}</p>
+                        <a href="products.html" class="btn-primary px-8 py-4 rounded-xl inline-block">
+                            Kembali ke Katalog
+                        </a>
                     </div>
-                    <h1 class="text-2xl font-black text-white mb-4">Ups! Ada Masalah</h1>
-                    <p class="text-slate-400 max-w-md mx-auto mb-10 leading-relaxed">${msg}</p>
-                    <a href="products.html" class="btn-primary px-8 py-4 rounded-xl inline-block">
-                        Kembali ke Katalog
-                    </a>
-                </div>
-            `;
-            document.getElementById('product-details').innerHTML = '';
+                `;
+            }
+            const details = document.getElementById('product-details');
+            if(details) details.innerHTML = '';
             lucide.createIcons();
         }
 
@@ -479,7 +656,7 @@
         function closeMobileMenu() {
             const menu = document.getElementById('mobile-menu');
             const icon = document.getElementById('hamburger-icon');
-            menu.classList.remove('open');
+            if(menu) menu.classList.remove('open');
             if (icon) { icon.setAttribute('data-lucide', 'menu'); lucide.createIcons({ nodes: [icon] }); }
         }
 
@@ -509,6 +686,7 @@
                     mobileNavActions.innerHTML = '<a href="dashboard.html" class="block px-4 py-3 rounded-xl text-sm font-semibold btn-primary text-center mt-1 flex items-center justify-center space-x-2"><div class="w-6 h-6 rounded-full bg-[#000018] text-[#B6FF00] flex items-center justify-center text-[10px] font-black">' + initials + '</div><span>Ke Member Area</span></a>';
                 }
             }
+            renderCartBar();
         });
 
         fetchProduct();
