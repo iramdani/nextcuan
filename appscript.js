@@ -1676,9 +1676,9 @@ function createOrder(d, cfg) {
         komisiNominal = Number(productRule[11] || 0);
         komisiNominal = Math.floor(komisiNominal * discountFactor);
         if (isNew === false) {
-           let affEmailCheck = "";
-           for (let urow of uData) { if (String(urow[0]) === aff) { affEmailCheck = String(urow[1]).toLowerCase(); break; } }
-           if (email === affEmailCheck) komisiNominal = 0;
+          let affEmailCheck = "";
+          for (let urow of uData) { if (String(urow[0]) === aff) { affEmailCheck = String(urow[1]).toLowerCase(); break; } }
+          if (email === affEmailCheck) komisiNominal = 0;
         }
       }
 
@@ -1759,7 +1759,7 @@ function createOrder(d, cfg) {
 function registerFreeMember(d, cfg) {
   try {
     cfg = cfg || getSettingsMap_();
-    
+
     // Require admin session ONLY if explicitly passed or needed by your security model. 
     // Usually signup is public, so no admin check here.
 
@@ -1768,7 +1768,7 @@ function registerFreeMember(d, cfg) {
 
     const email = String(d.email || "").trim().toLowerCase();
     if (!email) return { status: "error", message: "Email wajib diisi" };
-    
+
     const nama = String(d.nama || "").trim();
     if (!nama) return { status: "error", message: "Nama lengkap wajib diisi" };
 
@@ -1808,7 +1808,7 @@ function registerFreeMember(d, cfg) {
 
     const waForSheet = waNormalized || waRaw;
     const aff = (d.affiliate && String(d.affiliate).trim() !== "") ? String(d.affiliate).trim() : "-";
-    
+
     // Save New User (Column 9: Referrer ID)
     uS.appendRow([newUserId, email, hashPassword_(pass), nama, "member", "Active", toISODate_(), "'" + waForSheet, aff]);
 
@@ -1839,7 +1839,7 @@ function registerFreeMember(d, cfg) {
 
     // Notify Admin optionally
     const adminWA = getCfgFrom_(cfg, "wa_admin");
-    if(adminWA) {
+    if (adminWA) {
       sendWA(adminWA, "\uD83D\uDE80 *MEMBER GRATIS BARU!* \uD83D\uDE80\n\n\uD83D\uDC64 *Nama:* " + nama + "\n\u2709 *Email:* " + email + "\n\uD83D\uDCF1 *WA:* " + waForSheet + "\n\nTelah mendaftar affiliate/member gratis.", cfg);
     }
 
@@ -1880,13 +1880,13 @@ function updateOrderStatus(d, cfg) {
           uName = String(r[i][2]);
           uWA = String(r[i][3]);
         }
-        
+
         // Update status for this row
         s.getRange(i + 1, 8).setValue(isLunas ? "Lunas" : newStatus);
-        
+
         const rowPId = String(r[i][4]);
         const rowPName = String(r[i][5]);
-        
+
         // Find access info for this specific product
         let accessUrl = "";
         const pData = pS.getDataRange().getValues();
@@ -1912,7 +1912,7 @@ function updateOrderStatus(d, cfg) {
       const emailProductsHtml = productsFound.map(p => `<li><b>${p.name}</b> \u2014 <a href="${p.url}" style="color:#017A6B;font-weight:bold;">Mulai Belajar</a></li>`).join("");
 
       const waResult = sendWA(uWA, `Halo *${uName}*, pembayaran Anda telah kami terima! \u2705\n\n\uD83D\uDCCC *Invoice:* #${d.id}\n\uD83D\uDCE6 *Produk:* ${productNames}\n\nLayanan Anda telah diaktifkan. Silakan akses di sini:\n\n${waProductsList}\n\nAkses juga tersedia kapan saja di Member Area.\n\nSelamat berkarya!\n*Tim ${siteName}*`, cfg);
-      
+
       // Unified Email
       const emailHtml = `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:30px;border:1px solid #e2e8f0;border-radius:12px;color:#334155;"><h2 style="color:#017A6B;">Pembayaran Diterima! \u2705</h2><p>Halo <b>${uName}</b>, terima kasih atas pembayaran Anda untuk pesanan <b>#${d.id}</b>.</p><ul style="padding-left:20px;line-height:1.8;">${emailProductsHtml}</ul><p>Akses Member Area: <a href="${getCfgFrom_(cfg, "site_url")}/dashboard">${getCfgFrom_(cfg, "site_url")}/dashboard</a></p></div>`;
       const emailResult = sendEmail(uEmail, `Pembayaran Berhasil: #${d.id}`, emailHtml, cfg);
@@ -1966,13 +1966,13 @@ function giveProductAccess(d, cfg) {
     const uS = mustSheet_("Users");
     const uData = uS.getDataRange().getValues();
     const email = String(d.email || "").trim().toLowerCase();
-    
+
     if (!email) return { status: "error", message: "Email wajib diisi" };
-    
+
     let uName = "";
     let uWA = "";
     let userFound = false;
-    
+
     for (let j = 1; j < uData.length; j++) {
       if (String(uData[j][1]).toLowerCase() === email) {
         uName = uData[j][3];
@@ -1981,38 +1981,38 @@ function giveProductAccess(d, cfg) {
         break;
       }
     }
-    
+
     if (!userFound) {
       return { status: "error", message: "Member dengan email tersebut tidak ditemukan di sistem." };
     }
 
     const pId = String(d.id_produk || "").trim();
     if (!pId) return { status: "error", message: "Produk belum diisi" };
-    
+
     const rules = mustSheet_("Access_Rules").getDataRange().getValues();
     let pName = "";
     let accessUrl = "";
     let productFound = false;
     for (let i = 1; i < rules.length; i++) {
-        if (String(rules[i][0]) === pId) {
-            pName = normalizePlainText_(rules[i][1]);
-            accessUrl = rules[i][3];
-            productFound = true;
-            break;
-        }
+      if (String(rules[i][0]) === pId) {
+        pName = normalizePlainText_(rules[i][1]);
+        accessUrl = rules[i][3];
+        productFound = true;
+        break;
+      }
     }
-    
+
     if (!productFound) return { status: "error", message: "Produk tidak ditemukan." };
 
     const inv = "ACC-" + Math.floor(10000 + Math.random() * 90000); // Use ACC- to indicate direct access
     const oS = mustSheet_("Orders");
-    
+
     // Check if user already has access to this product
     const ordersData = oS.getDataRange().getValues();
     for (let i = 1; i < ordersData.length; i++) {
-        if (String(ordersData[i][1]).trim().toLowerCase() === email && String(ordersData[i][4]) === pId && String(ordersData[i][7]).toLowerCase() === "lunas") {
-            return { status: "error", message: "Member ini sudah memiliki akses Lunas untuk produk tersebut." };
-        }
+      if (String(ordersData[i][1]).trim().toLowerCase() === email && String(ordersData[i][4]) === pId && String(ordersData[i][7]).toLowerCase() === "lunas") {
+        return { status: "error", message: "Member ini sudah memiliki akses Lunas untuk produk tersebut." };
+      }
     }
 
     // append to Orders
@@ -2034,11 +2034,11 @@ function giveProductAccess(d, cfg) {
     const siteName = getCfgFrom_(cfg, "site_name") || "Sistem Premium";
     const siteUrl = String(getCfgFrom_(cfg, "site_url") || "").trim();
     const loginUrl = siteUrl ? (siteUrl + "/login.html") : "Link Login Belum Disetting";
-    
+
     // WA ke User
     const waText = `Halo ${uName}, selamat datang kembali di ${siteName}! \uD83C\uDF89\n\nAkses Anda untuk produk *${pName}* telah kami berikan secara langsung.\n\n\uD83D\uDE80 *Klik link berikut untuk akses produk:*\n${accessUrl}\n\n\uD83D\uDD10 *AKUN MEMBER AREA*\n\uD83C\uDF10 Link: ${loginUrl}\n\u2709 Email: ${email}\n\uD83D\uDD11 Password: _(gunakan password yang sudah anda miliki)_\n\nAnda juga bisa mengakses seluruh produk Anda melalui Member Area kami.\n\nTerima kasih!\n*Tim ${siteName}*`;
     if (uWA) sendWA(uWA, waText, cfg);
-    
+
     // 3. Email ke User
     const emailHtml = `
      <div style="font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; color: #334155; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
@@ -2061,8 +2061,8 @@ function giveProductAccess(d, cfg) {
     // BUMP CACHE & REPORT
     const cacheState = bumpPublicCacheState_(["dashboard"]);
     return withPublicCacheState_({ status: "success", message: "Akses produk berhasil diberikan ke member." }, cacheState);
-    
-  } catch(e) {
+
+  } catch (e) {
     return { status: "error", message: e.toString() };
   }
 }
@@ -2088,7 +2088,8 @@ function getAffiliatePixel_(userId, productId) {
 }
 
 /* =========================
-   PRODUCT DETAIL
+   GET PRODUCT DETAIL (BY ID OR SLUG)
+   Digunakan oleh halaman product.html (Default Product Page)
 ========================= */
 function getProductDetail(d, cfg) {
   try {
@@ -2097,13 +2098,13 @@ function getProductDetail(d, cfg) {
     const reqId = String(d.id || "").trim();
     const reqSlug = String(d.slug || "").trim().toLowerCase();
     
-    // Get headers to find columns dynamically
+    // 1. Deteksi Header secara dinamis (Agar tidak salah kolom)
     const headers = rules[0].map(h => String(h || "").trim().toLowerCase());
     const colId = headers.indexOf("id");
     const colStatus = headers.indexOf("status");
     const colSlug = headers.indexOf("slug");
     
-    // Fallback indices if headers not found as expected
+    // Fallback index jika header tidak ditemukan
     const idxId = colId !== -1 ? colId : 0;
     const idxStatus = colStatus !== -1 ? colStatus : 5;
     const idxSlug = colSlug !== -1 ? colSlug : 16;
@@ -2119,8 +2120,6 @@ function getProductDetail(d, cfg) {
       const matchSlug = reqSlug && rowSlug === reqSlug;
 
       if (rowStatus === "active" && (matchId || matchSlug)) {
-        // Map remaining columns (fallback to indices if needed)
-        // [productId, productTitle, productDesc, productUrl, d.harga, productStatus, landingPageUrl, imageUrl...]
         productData = {
           id: rowId,
           title: normalizePlainText_(rules[i][1]),
@@ -2141,47 +2140,35 @@ function getProductDetail(d, cfg) {
         break;
       }
     }
+
     if (!productData) {
       const searchInfo = reqId ? "ID: " + reqId : "Slug: " + reqSlug;
       return { 
         status: "error", 
         message: "Produk (" + searchInfo + ") tidak ditemukan. Pastikan status produk 'Active' di Tab Access_Rules.",
-        debug_headers: headers.join(",") // Technical info for me if it still fails
+        debug_headers: headers.join(",") 
       };
     }
 
-    // --> CHECK AFFILIATE PIXEL OVERRIDE
+    // 3. Cek Affiliate Pixel Override
     const affRef = d.ref || d.aff_id;
     if (affRef) {
-      const affPixel = getAffiliatePixel_(affRef, pId);
-      if (affPixel && affPixel.pixel_id) {
-        productData.pixel_id = affPixel.pixel_id;
-        productData.pixel_token = affPixel.pixel_token;
-        productData.pixel_test_code = affPixel.pixel_test_code;
-        productData.is_affiliate_pixel = true;
-      }
-    }
-
-    const paymentInfo = {
-      bank_name: getCfgFrom_(cfg, "bank_name"),
-      bank_norek: getCfgFrom_(cfg, "bank_norek"),
-      bank_owner: getCfgFrom_(cfg, "bank_owner"),
-      wa_admin: getCfgFrom_(cfg, "wa_admin"),
-
-      pixel_id: productData.pixel_id, // Pass pixel_id (possibly overridden)
-      pixel_token: productData.pixel_token,
-      pixel_test_code: productData.pixel_test_code
-    };
-
-    let affName = "";
-    if (d.aff_id && d.aff_id !== "GUEST" && d.aff_id !== "-") {
       const users = mustSheet_("Users").getDataRange().getValues();
+      const refIdStr = String(affRef).trim().toLowerCase();
       for (let j = 1; j < users.length; j++) {
-        if (String(users[j][0]) === String(d.aff_id)) { affName = String(users[j][3]); break; }
+        const uId = String(users[j][0] || "").trim().toLowerCase();
+        if (uId === refIdStr) {
+          if (users[j][11]) {
+            productData.pixel_id = String(users[j][11]).trim();
+            productData.is_affiliate_pixel = true;
+          }
+          if (users[j][12]) productData.pixel_token = String(users[j][12]).trim();
+          break;
+        }
       }
     }
 
-    return withPublicCacheVersion_({ status: "success", data: productData, payment: paymentInfo, aff_name: affName }, "catalog");
+    return withPublicCacheVersion_({ status: "success", data: productData }, "catalog");
   } catch (e) {
     return { status: "error", message: e.toString() };
   }
@@ -2223,7 +2210,7 @@ function getProducts(d, cfg, cachedOrders) {
     for (let j = 1; j < users.length; j++) {
       if (String(users[j][1]).toLowerCase() === email) { uId = String(users[j][0]); break; }
     }
-    
+
     // 1. Calculate Lifetime Commission from Orders
     for (let x = 1; x < orders.length; x++) {
       const r = orders[x];
@@ -2237,7 +2224,7 @@ function getProducts(d, cfg, cachedOrders) {
         if (r[8]) {
           try {
             dtStr = Utilities.formatDate(new Date(r[8]), Session.getScriptTimeZone(), "dd/MM/yyyy HH:mm");
-          } catch(e) {
+          } catch (e) {
             dtStr = String(r[8]).substring(0, 10);
           }
         }
@@ -2261,7 +2248,7 @@ function getProducts(d, cfg, cachedOrders) {
         const rowUserId = String(wdData[i][1]);
         const rowStatus = String(wdData[i][4]).trim().toLowerCase();
         const rowAmount = Number(wdData[i][3] || 0);
-        
+
         // Sum successful and pending withdrawals as they reduce available balance
         if (rowUserId === uId && (rowStatus === 'success' || rowStatus === 'pending' || rowStatus === 'berhasil')) {
           totalDitarik += rowAmount;
@@ -2335,14 +2322,14 @@ function getProducts(d, cfg, cachedOrders) {
 
   const saldoBisaDicairkan = Math.max(0, totalKomisi - totalDitarik);
 
-  return withPublicCacheVersion_({ 
-    status: "success", 
-    owned, 
-    available, 
-    total_komisi: totalKomisi, 
+  return withPublicCacheVersion_({
+    status: "success",
+    owned,
+    available,
+    total_komisi: totalKomisi,
     total_ditarik: totalDitarik,
     saldo_bisa_dicairkan: saldoBisaDicairkan,
-    partners: partners.reverse() 
+    partners: partners.reverse()
   }, "catalog");
 }
 
@@ -3655,7 +3642,7 @@ function sendMetaCAPIEvent_(opts) {
       const str = String(raw || "").trim().toLowerCase();
       if (!str) return null;
       const digest = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, str, Utilities.Charset.UTF_8);
-      return digest.map(function(b) {
+      return digest.map(function (b) {
         const v = b < 0 ? b + 256 : b;
         return ("0" + v.toString(16)).slice(-2);
       }).join("").toLowerCase();
@@ -3722,7 +3709,7 @@ function sendMetaCAPIEvent_(opts) {
     const responseText = response.getContentText();
 
     let parsed = null;
-    try { parsed = JSON.parse(responseText); } catch (e) {}
+    try { parsed = JSON.parse(responseText); } catch (e) { }
 
     if (responseCode >= 200 && responseCode < 300) {
       logMoota_("CAPI_PURCHASE_OK", JSON.stringify({
@@ -4082,22 +4069,22 @@ function getUserInventory(d) {
     const email = String(d.email).trim().toLowerCase();
     const o = mustSheet_("Orders").getDataRange().getValues();
     const inventory = [];
-    
+
     for (let i = 1; i < o.length; i++) {
-        if (String(o[i][1]).trim().toLowerCase() === email && String(o[i][7]).trim() === "Lunas") {
-            inventory.push({
-                invoice: o[i][0],
-                product_id: o[i][4],
-                product_name: o[i][5],
-                price: o[i][6],
-                date: o[i][8]
-            });
-        }
+      if (String(o[i][1]).trim().toLowerCase() === email && String(o[i][7]).trim() === "Lunas") {
+        inventory.push({
+          invoice: o[i][0],
+          product_id: o[i][4],
+          product_name: o[i][5],
+          price: o[i][6],
+          date: o[i][8]
+        });
+      }
     }
-    
+
     return {
-        status: "success",
-        data: inventory
+      status: "success",
+      data: inventory
     };
   } catch (e) {
     return { status: "error", message: e.toString() };
@@ -4456,7 +4443,7 @@ function getGAStats(data, cfg) {
       var res = UrlFetchApp.fetch(gaBase + endpoint, { method: "post", headers: hdrs, payload: JSON.stringify(payload), muteHttpExceptions: true });
       var code = res.getResponseCode();
       var body = {};
-      try { body = JSON.parse(res.getContentText()); } catch(e) {}
+      try { body = JSON.parse(res.getContentText()); } catch (e) { }
       if (code !== 200) { throw new Error((body.error && body.error.message) ? body.error.message : ("GA4 API HTTP " + code)); }
       return body;
     }
@@ -4466,34 +4453,34 @@ function getGAStats(data, cfg) {
       metrics: [{ name: "totalUsers" }, { name: "sessions" }, { name: "screenPageViews" }, { name: "bounceRate" }, { name: "newUsers" }, { name: "averageSessionDuration" }]
     });
 
-    function mv(rows, ri, mi) { try { return parseFloat((rows[ri] && rows[ri].metricValues && rows[ri].metricValues[mi]) ? rows[ri].metricValues[mi].value : 0) || 0; } catch(e) { return 0; } }
+    function mv(rows, ri, mi) { try { return parseFloat((rows[ri] && rows[ri].metricValues && rows[ri].metricValues[mi]) ? rows[ri].metricValues[mi].value : 0) || 0; } catch (e) { return 0; } }
     function pct(cur, prev) { return prev > 0 ? Math.round((cur - prev) / prev * 1000) / 10 : null; }
 
     var rows = summaryData.rows || [];
-    var totalUsers = mv(rows,0,0), sessions = mv(rows,0,1), pageviews = mv(rows,0,2);
-    var bounceRate = mv(rows,0,3)*100, newUsers = mv(rows,0,4), avgDur = mv(rows,0,5);
-    var prevU = mv(rows,1,0), prevS = mv(rows,1,1), prevPv = mv(rows,1,2), prevBr = mv(rows,1,3)*100;
+    var totalUsers = mv(rows, 0, 0), sessions = mv(rows, 0, 1), pageviews = mv(rows, 0, 2);
+    var bounceRate = mv(rows, 0, 3) * 100, newUsers = mv(rows, 0, 4), avgDur = mv(rows, 0, 5);
+    var prevU = mv(rows, 1, 0), prevS = mv(rows, 1, 1), prevPv = mv(rows, 1, 2), prevBr = mv(rows, 1, 3) * 100;
 
     var trendData = gaPost(":runReport", { dateRanges: [{ startDate: startDate, endDate: endDate }], dimensions: [{ name: "date" }], metrics: [{ name: "totalUsers" }, { name: "sessions" }], orderBys: [{ dimension: { dimensionName: "date" } }], limit: 90 });
-    var dailyTrend = (trendData.rows||[]).map(function(r) { var d = r.dimensionValues[0].value; return { date: d.substring(0,4)+"-"+d.substring(4,6)+"-"+d.substring(6,8), users: parseFloat(r.metricValues[0].value)||0, sessions: parseFloat(r.metricValues[1].value)||0 }; });
+    var dailyTrend = (trendData.rows || []).map(function (r) { var d = r.dimensionValues[0].value; return { date: d.substring(0, 4) + "-" + d.substring(4, 6) + "-" + d.substring(6, 8), users: parseFloat(r.metricValues[0].value) || 0, sessions: parseFloat(r.metricValues[1].value) || 0 }; });
 
     var pagesData = gaPost(":runReport", { dateRanges: [{ startDate: startDate, endDate: endDate }], dimensions: [{ name: "pagePathPlusQueryString" }], metrics: [{ name: "screenPageViews" }], orderBys: [{ metric: { metricName: "screenPageViews" }, desc: true }], limit: 10 });
-    var topPages = (pagesData.rows||[]).map(function(r) { return { page: r.dimensionValues[0].value, views: parseFloat(r.metricValues[0].value)||0 }; });
+    var topPages = (pagesData.rows || []).map(function (r) { return { page: r.dimensionValues[0].value, views: parseFloat(r.metricValues[0].value) || 0 }; });
 
     var devData = gaPost(":runReport", { dateRanges: [{ startDate: startDate, endDate: endDate }], dimensions: [{ name: "deviceCategory" }], metrics: [{ name: "totalUsers" }], orderBys: [{ metric: { metricName: "totalUsers" }, desc: true }] });
-    var devices = (devData.rows||[]).map(function(r) { var l=r.dimensionValues[0].value; return { label: l.charAt(0).toUpperCase()+l.slice(1), value: parseFloat(r.metricValues[0].value)||0 }; });
+    var devices = (devData.rows || []).map(function (r) { var l = r.dimensionValues[0].value; return { label: l.charAt(0).toUpperCase() + l.slice(1), value: parseFloat(r.metricValues[0].value) || 0 }; });
 
     var srcData = gaPost(":runReport", { dateRanges: [{ startDate: startDate, endDate: endDate }], dimensions: [{ name: "sessionDefaultChannelGrouping" }], metrics: [{ name: "sessions" }], orderBys: [{ metric: { metricName: "sessions" }, desc: true }], limit: 8 });
-    var trafficSources = (srcData.rows||[]).map(function(r) { return { source: r.dimensionValues[0].value, sessions: parseFloat(r.metricValues[0].value)||0 }; });
+    var trafficSources = (srcData.rows || []).map(function (r) { return { source: r.dimensionValues[0].value, sessions: parseFloat(r.metricValues[0].value) || 0 }; });
 
     var ctrData = gaPost(":runReport", { dateRanges: [{ startDate: startDate, endDate: endDate }], dimensions: [{ name: "country" }], metrics: [{ name: "totalUsers" }], orderBys: [{ metric: { metricName: "totalUsers" }, desc: true }], limit: 8 });
-    var flagMap = { "Indonesia":"????","Malaysia":"????","Singapore":"????","United States":"????","India":"????","Philippines":"????","Thailand":"????","Vietnam":"????","Australia":"????","Japan":"????","United Kingdom":"????" };
-    var topCountries = (ctrData.rows||[]).map(function(r) { var c=r.dimensionValues[0].value; return { country: c, users: parseFloat(r.metricValues[0].value)||0, flag: flagMap[c]||"??" }; });
+    var flagMap = { "Indonesia": "????", "Malaysia": "????", "Singapore": "????", "United States": "????", "India": "????", "Philippines": "????", "Thailand": "????", "Vietnam": "????", "Australia": "????", "Japan": "????", "United Kingdom": "????" };
+    var topCountries = (ctrData.rows || []).map(function (r) { var c = r.dimensionValues[0].value; return { country: c, users: parseFloat(r.metricValues[0].value) || 0, flag: flagMap[c] || "??" }; });
 
     var cityData = gaPost(":runReport", { dateRanges: [{ startDate: startDate, endDate: endDate }], dimensions: [{ name: "city" }], metrics: [{ name: "totalUsers" }], orderBys: [{ metric: { metricName: "totalUsers" }, desc: true }], limit: 8 });
-    var topCities = (cityData.rows||[]).filter(function(r) { return r.dimensionValues[0].value !== "(not set)"; }).map(function(r) { return { city: r.dimensionValues[0].value, users: parseFloat(r.metricValues[0].value)||0 }; });
+    var topCities = (cityData.rows || []).filter(function (r) { return r.dimensionValues[0].value !== "(not set)"; }).map(function (r) { return { city: r.dimensionValues[0].value, users: parseFloat(r.metricValues[0].value) || 0 }; });
 
-    return { status: "success", data: { totalUsers: totalUsers, sessions: sessions, pageviews: pageviews, bounceRate: bounceRate, newUsers: newUsers, returningUsers: Math.max(0,totalUsers-newUsers), avgSessionDuration: avgDur, usersChange: pct(totalUsers,prevU), sessionsChange: pct(sessions,prevS), pageviewsChange: pct(pageviews,prevPv), bounceChange: pct(bounceRate,prevBr), dailyTrend: dailyTrend, topPages: topPages, devices: devices, trafficSources: trafficSources, topCountries: topCountries, topCities: topCities, period: { days: days, measurementId: "G-GZM06L9YDH" } } };
+    return { status: "success", data: { totalUsers: totalUsers, sessions: sessions, pageviews: pageviews, bounceRate: bounceRate, newUsers: newUsers, returningUsers: Math.max(0, totalUsers - newUsers), avgSessionDuration: avgDur, usersChange: pct(totalUsers, prevU), sessionsChange: pct(sessions, prevS), pageviewsChange: pct(pageviews, prevPv), bounceChange: pct(bounceRate, prevBr), dailyTrend: dailyTrend, topPages: topPages, devices: devices, trafficSources: trafficSources, topCountries: topCountries, topCities: topCities, period: { days: days, measurementId: "G-GZM06L9YDH" } } };
   } catch (e) {
     return { status: "error", message: "getGAStats: " + e.toString() };
   }
@@ -4527,7 +4514,7 @@ function getOrCreateVoucherSheet_() {
   let sh = ss.getSheetByName("Vouchers");
   if (!sh) {
     sh = ss.insertSheet("Vouchers");
-    sh.appendRow(["ID","Code","Discount Type","Discount Value","Apply To","Product IDs","Quantity","Used Count","Expires At","Min Purchase","Max Discount Amount","Max Per User","Status","Created At"]);
+    sh.appendRow(["ID", "Code", "Discount Type", "Discount Value", "Apply To", "Product IDs", "Quantity", "Used Count", "Expires At", "Min Purchase", "Max Discount Amount", "Max Per User", "Status", "Created At"]);
     sh.setFrozenRows(1);
   }
   return sh;
@@ -4541,9 +4528,9 @@ function getAdminProducts(d) {
     const products = [];
     // Skip header
     for (let i = 1; i < data.length; i++) {
-       const row = data[i];
-       if (!row[0]) continue;
-       products.push(row);
+      const row = data[i];
+      if (!row[0]) continue;
+      products.push(row);
     }
     return { status: "success", products: products };
   } catch (e) {
@@ -4701,9 +4688,9 @@ function validateVoucher(d, cfg) {
         const orders = oS.getDataRange().getValues();
         let userUsage = 0;
         for (let i = 1; i < orders.length; i++) {
-          if (String(orders[i][1]).toLowerCase().trim() === email && 
-              String(orders[i][12]).toUpperCase() === code && 
-              String(orders[i][7]).toLowerCase() !== "batal") {
+          if (String(orders[i][1]).toLowerCase().trim() === email &&
+            String(orders[i][12]).toUpperCase() === code &&
+            String(orders[i][7]).toLowerCase() !== "batal") {
             userUsage++;
           }
         }
@@ -4818,7 +4805,7 @@ function savePromotion(d) {
 
     // Bump cache
     bumpPublicCacheState_(["settings"]);
-    try { CacheService.getScriptCache().remove("settings_map"); } catch (e) {}
+    try { CacheService.getScriptCache().remove("settings_map"); } catch (e) { }
 
     return { status: "success", message: "Pengaturan promosi berhasil disimpan." };
   } catch (e) {
@@ -4943,8 +4930,10 @@ function requestFileDownload(data, cfg) {
     let fileObj = null;
     for (let i = 1; i < files.length; i++) {
       if (String(files[i][0]) === fileId) {
-        fileObj = { id: files[i][0], title: files[i][1], type: files[i][2],
-          storage: files[i][3], path_id: files[i][4], row: i+1, count: Number(files[i][6] || 0) };
+        fileObj = {
+          id: files[i][0], title: files[i][1], type: files[i][2],
+          storage: files[i][3], path_id: files[i][4], row: i + 1, count: Number(files[i][6] || 0)
+        };
         break;
       }
     }
@@ -5074,7 +5063,7 @@ function getR2SignedUrl_(objectKey) {
     "X-Amz-SignedHeaders": "host"
   };
   const ks = Object.keys(q).sort();
-  const qs = ks.map(function(k) { return encodeURIComponent(k) + "=" + encodeURIComponent(q[k]); }).join("&");
+  const qs = ks.map(function (k) { return encodeURIComponent(k) + "=" + encodeURIComponent(q[k]); }).join("&");
   const cr = ["GET", "/" + objectKey, qs, "host:" + host, "", "host", "UNSIGNED-PAYLOAD"].join("\n");
   const sts = [algorithm, datetime, credentialScope, hex_(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, cr))].join("\n");
   const sk = getR2SigningKey_(secretKey, date, "auto", "s3");
@@ -5094,6 +5083,6 @@ function getR2SigningKey_(secret, date, region, service) {
 }
 
 function hex_(data) {
-  return data.map(function(b) { return ("0" + (b & 0xFF).toString(16)).slice(-2); }).join("");
+  return data.map(function (b) { return ("0" + (b & 0xFF).toString(16)).slice(-2); }).join("");
 }
 
