@@ -1,4 +1,4 @@
-﻿const ss = SpreadsheetApp.getActiveSpreadsheet();
+const ss = SpreadsheetApp.getActiveSpreadsheet();
 
 /* =========================
    CONFIG.JS INTEGRATION
@@ -758,7 +758,7 @@ function doPost(e) {
     }
 
     // ====================================================================
-    // ðŸš€ RADAR MOOTA: DETEKSI WEBHOOK MASUK + VERIFIKASI SIGNATURE
+    // \uD83D\uDE80 RADAR MOOTA: DETEKSI WEBHOOK MASUK + VERIFIKASI SIGNATURE
     // ====================================================================
     if (Array.isArray(data) && data.length > 0 && data[0].amount !== undefined) {
       const mootaCfg = resolveMootaConfig_({}, cfg);
@@ -882,6 +882,8 @@ function doPost(e) {
       case "get_admin_orders": return jsonRes(getAdminOrders(data));
       case "delete_order": return jsonRes(deleteOrder(data));
       case "get_admin_users": return jsonRes(getAdminUsers(data));
+      case "get_user_inventory": return jsonRes(getUserInventory(data));
+
       case "get_ga_stats": return jsonRes(getGAStats(data, cfg));
       case "get_vouchers": return jsonRes(getVouchers(data));
       case "get_products": return jsonRes(getAdminProducts(data));
@@ -983,7 +985,7 @@ function purgeCFCache(d, cfg) {
     const body = JSON.parse(res.getContentText());
 
     if (body && body.success) {
-      return { status: "success", message: "ðŸš€ Cache Berhasil Dibersihkan!" };
+      return { status: "success", message: "\uD83D\uDE80 Cache Berhasil Dibersihkan!" };
     }
     const msg = (body && body.errors && body.errors.length) ? JSON.stringify(body.errors) : "Cloudflare Error";
     return { status: "error", message: msg };
@@ -1426,10 +1428,10 @@ function normalizePhone_(raw) {
   // Remove all non-digit characters (+, -, spaces, parens, etc)
   let num = String(raw).replace(/[^0-9]/g, "");
   // Handle country code prefix
-  if (num.startsWith("620")) num = num.substring(3); // 6208xxx â†’ 8xxx
-  else if (num.startsWith("62")) num = num.substring(2); // 628xxx â†’ 8xxx
+  if (num.startsWith("620")) num = num.substring(3); // 6208xxx → 8xxx
+  else if (num.startsWith("62")) num = num.substring(2); // 628xxx → 8xxx
   // Remove leading 0 if present
-  if (num.startsWith("0")) num = num.substring(1); // 08xxx â†’ 8xxx
+  if (num.startsWith("0")) num = num.substring(1); // 08xxx → 8xxx
   return num;
 }
 
@@ -1523,7 +1525,7 @@ function sendEmail(target, subject, body, cfg) {
     // Fallback: alert admin via WA
     const adminWA = getCfgFrom_(cfg, "wa_admin");
     if (adminWA) {
-      sendWA(adminWA, "âš ï¸ *EMAIL QUOTA HABIS!*\n\nEmail ke " + target + " GAGAL terkirim karena quota harian habis.\nSubject: " + subject, cfg);
+      sendWA(adminWA, "\u26A0 *EMAIL QUOTA HABIS!*\n\nEmail ke " + target + " GAGAL terkirim karena quota harian habis.\nSubject: " + subject, cfg);
     }
     return { success: false, reason: "quota_exceeded" };
   }
@@ -1545,7 +1547,7 @@ function sendEmail(target, subject, body, cfg) {
         // Fallback: alert admin via WA
         const adminWA = getCfgFrom_(cfg, "wa_admin");
         if (adminWA) {
-          sendWA(adminWA, "âŒ *EMAIL GAGAL TERKIRIM!*\n\nKe: " + target + "\nSubject: " + subject + "\nError: " + String(e).substring(0, 200), cfg);
+          sendWA(adminWA, "\u274C *EMAIL GAGAL TERKIRIM!*\n\nKe: " + target + "\nSubject: " + subject + "\nError: " + String(e).substring(0, 200), cfg);
         }
         return { success: false, reason: e.toString() };
       }
@@ -1571,301 +1573,181 @@ function createOrder(d, cfg) {
     const oS = mustSheet_("Orders");
     const uS = mustSheet_("Users");
     const uData = uS.getDataRange().getValues();
+    const pS = mustSheet_("Access_Rules");
+    const pData = pS.getDataRange().getValues();
 
-    const inv = "INV-" + Math.floor(10000 + Math.random() * 90000);
     const email = String(d.email || "").trim().toLowerCase();
     if (!email) return { status: "error", message: "Email wajib diisi" };
 
-    // Normalize WhatsApp number at storage time
     const waRaw = String(d.whatsapp || "").trim();
     const waNormalized = normalizePhone_(waRaw);
-    if (waRaw && !waNormalized) {
-      Logger.log("WARNING: WA number normalization failed for: " + waRaw);
-    }
-
     const siteName = getCfgFrom_(cfg, "site_name") || "Sistem Premium";
     const siteUrl = String(getCfgFrom_(cfg, "site_url") || "").trim();
     const loginUrl = siteUrl ? (siteUrl + "/login.html") : "Link Login Belum Disetting";
+    const waForSheet = waNormalized || waRaw;
 
-    const bankName = getCfgFrom_(cfg, "bank_name") || "-";
-    const bankNorek = getCfgFrom_(cfg, "bank_norek") || "-";
-    const bankOwner = getCfgFrom_(cfg, "bank_owner") || "-";
-
-    let aff = (d.affiliate && String(d.affiliate).trim() !== "") ? String(d.affiliate).trim() : "-";
-
-    const hargaDasar = toNumberSafe_(d.harga);
-
-    // MODIFIED: Allow 0 price (Free Product)
-    const isZeroPrice = hargaDasar === 0;
-    if (!isZeroPrice && hargaDasar <= 0) return { status: "error", message: "Harga tidak valid" };
-
-    // --- VOUCHER DISCOUNT ---
-    let voucherCode = String(d.voucher_code || "").trim().toUpperCase();
-    let hargaSetelahVoucher = hargaDasar;
-    let discountFactor = 1; // 1 = no discount; 0.9 = 10% discount etc.
-    if (voucherCode) {
-      const vRes = validateVoucher({ voucher_code: voucherCode, product_id: String(d.id_produk || ""), harga: hargaDasar }, cfg);
-      if (vRes.status === "success") {
-        hargaSetelahVoucher = vRes.discounted_price;
-        discountFactor = vRes.discount_factor;
-      } else {
-        // Voucher failed server-side check â€” ignore (frontend already validated, but be safe)
-        voucherCode = "";
-      }
-    }
-    const hargaFinal = hargaSetelahVoucher;
-    const isZeroPriceFinal = hargaFinal === 0;
-
-    let komisiNominal = 0;
-
-    // Validate product status + lookup commission
-    const pId = String(d.id_produk || "").trim();
-    if (pId) {
-      const rules = mustSheet_("Access_Rules").getDataRange().getValues();
-      for (let i = 1; i < rules.length; i++) {
-        if (String(rules[i][0]) === pId) {
-          // Guard: always reject order if product is not Active
-          if (String(rules[i][5]).trim() !== "Active") {
-            return { status: "error", message: "Produk ini tidak aktif dan tidak bisa di-order." };
-          }
-          // Commission only relevant when there's an affiliate
-          if (aff !== "-") {
-            komisiNominal = Number(rules[i][11] || 0);
-
-            // --- ANTI SELF-AFFILIATE CHECK ---
-            let affEmail = "";
-            let affWA = "";
-            for (let j = 1; j < uData.length; j++) {
-              if (String(uData[j][0]) === aff) {
-                affEmail = String(uData[j][1]).toLowerCase().trim();
-                affWA = normalizePhone_(String(uData[j][7]));
-                break;
-              }
-            }
-            if (email === affEmail || (waNormalized && affWA && waNormalized === affWA)) {
-              Logger.log("Self-affiliate detected for " + email + " against affiliate " + aff + ". Commission set to 0.");
-              komisiNominal = 0;
-            } else {
-              // Scale commission by voucher discount factor (proportional)
-              komisiNominal = Math.floor(komisiNominal * discountFactor);
-            }
-          }
-          break;
-        }
-      }
+    // Normalize Items — supports single or bulk (cart)
+    let items = d.items;
+    if (!items || !Array.isArray(items)) {
+      items = [{
+        id_produk: d.id_produk,
+        nama_produk: d.nama_produk,
+        harga: d.harga,
+        voucher_code: d.voucher_code,
+        exclude_statistic: d.exclude_statistic
+      }];
     }
 
-    const kodeUnik = (isZeroPrice || isZeroPriceFinal) ? 0 : (Math.floor(Math.random() * 299) + 1);
-    const hargaTotalUnik = hargaFinal + kodeUnik;
-
-    // Cek atau Buat User Baru
+    // --- 1. USER REGISTRATION / IDENTIFICATION ---
     let isNew = true;
     let pass = Math.random().toString(36).slice(-6);
-
-    // uData already fetched above
     let existingUserRow = -1;
+    let currentPermAff = "-";
+
     for (let j = 1; j < uData.length; j++) {
       if (String(uData[j][1]).toLowerCase() === email) {
         isNew = false;
         existingUserRow = j;
+        currentPermAff = String(uData[j][8] || "").trim();
         break;
       }
     }
+
+    let aff = (d.affiliate && String(d.affiliate).trim() !== "") ? String(d.affiliate).trim() : "-";
+
     if (isNew) {
-      // Generate Friendly Unique ID (u-XXXXXX)
       let newUserId = "u-" + Math.floor(100000 + Math.random() * 900000);
-      let unique = false;
-      while (!unique) {
-        unique = true;
+      let uniqueUser = false;
+      while (!uniqueUser) {
+        uniqueUser = true;
         for (let k = 1; k < uData.length; k++) {
-          if (String(uData[k][0]) === newUserId) {
-            unique = false;
-            newUserId = "u-" + Math.floor(100000 + Math.random() * 900000);
-            break;
-          }
+          if (String(uData[k][0]) === newUserId) { uniqueUser = false; newUserId = "u-" + Math.floor(100000 + Math.random() * 900000); break; }
         }
       }
-      // Column 9: Referrer ID (Permanent Affiliate)
-      uS.appendRow([newUserId, email, hashPassword_(pass), d.nama, "member", "Active", toISODate_(), "'" + (waNormalized || waRaw), aff]);
+      uS.appendRow([newUserId, email, hashPassword_(pass), d.nama, "member", "Active", toISODate_(), "'" + waForSheet, aff]);
     } else {
-      // PERMANENT AFFILIATE LOGIC: If existing user, check if they already have a referrer
-      // Columns: 0:ID, 1:Email, 2:Pass, 3:Nama, 4:Role, 5:Status, 6:Date, 7:WA, 8:Referrer
-      let permanentAff = String(uData[existingUserRow][8] || "").trim();
-      if (permanentAff && permanentAff !== "-" && permanentAff !== "") {
-        // If they already have a permanent affiliate, use it instead of the one passed from frontend
-        aff = permanentAff;
+      if (currentPermAff && currentPermAff !== "-" && currentPermAff !== "") {
+        aff = currentPermAff;
       } else if (aff !== "-" && aff !== "") {
-        // If they don't have one yet, assign this one as their permanent affiliate
         uS.getRange(existingUserRow + 1, 9).setValue(aff);
       }
     }
 
-    const orderStatus = (isZeroPrice || isZeroPriceFinal) ? "Lunas" : "Pending";
+    // --- 2. PROCESS ITEMS ---
+    const inv = "INV-" + Math.floor(10000 + Math.random() * 90000);
+    let totalHargaDasar = 0;
+    let totalDiscount = 0;
+    let orderDetails = [];
+    let hasPaidItem = false;
+    let lunasItems = [];
 
-    // Simpan order
-    const waForSheet = waNormalized || waRaw;
-    const isExcluded = d.exclude_statistic === true ? "TRUE" : "FALSE";
-    oS.appendRow([
-      inv,
-      email,
-      d.nama,
-      "'" + waForSheet,
-      d.id_produk,
-      d.nama_produk,
-      hargaTotalUnik,
-      orderStatus,
-      toISODate_(),
-      aff,
-      komisiNominal,
-      isExcluded
-    ]);
+    for (let item of items) {
+      const pId = String(item.id_produk || "").trim();
+      let pName = String(item.nama_produk || "").trim();
+      let hargaDasar = toNumberSafe_(item.harga);
+      let voucherCode = String(item.voucher_code || "").trim().toUpperCase();
+      let itemDiscount = 0;
+      let discountFactor = 1;
 
-    // Increment voucher usage if a valid voucher was applied
-    if (voucherCode) { incrementVoucherUsage_(voucherCode); }
+      let productRule = null;
+      for (let i = 1; i < pData.length; i++) {
+        if (String(pData[i][0]) === pId) {
+          if (String(pData[i][5]).trim() !== "Active") continue;
+          productRule = pData[i];
+          pName = normalizePlainText_(pData[i][1]);
+          break;
+        }
+      }
+      if (!productRule) continue;
 
-    // ==========================================
-    // NOTIFIKASI (LOGIC CABANG: GRATIS vs BAYAR)
-    // ==========================================
-
-    const adminWA = getCfgFrom_(cfg, "wa_admin");
-
-    if (isZeroPrice) {
-      // --- SKENARIO PRODUK GRATIS (AUTO LUNAS) ---
-
-      // 1. Ambil Link Akses
-      let accessUrl = "";
-      const pS = mustSheet_("Access_Rules");
-      const pData = pS.getDataRange().getValues();
-      for (let k = 1; k < pData.length; k++) {
-        if (String(pData[k][0]) === String(d.id_produk)) { accessUrl = pData[k][3]; break; }
+      if (voucherCode) {
+        const vRes = validateVoucher({ voucher_code: voucherCode, product_id: pId, harga: hargaDasar }, cfg);
+        if (vRes.status === "success") {
+          itemDiscount = hargaDasar - vRes.discounted_price;
+          discountFactor = vRes.discount_factor;
+          incrementVoucherUsage_(voucherCode);
+        }
       }
 
-      const waPassText = isNew ? pass : "_(gunakan password saat anda pertama kali daftar / yang sudah anda ubah)_";
-      const emailPassHtml = isNew ? `<code style="background-color: #e2e8f0; padding: 2px 6px; border-radius: 4px; color: #000018;">${pass}</code>` : `<i style="color: #64748b; font-size: 13px;">(gunakan password saat anda pertama kali daftar / yang sudah anda ubah)</i>`;
+      let hargaFinal = Math.max(0, hargaDasar - itemDiscount);
+      let komisiNominal = 0;
 
-      // 2. WA ke User (use normalized number)
-      const waText = `Halo ${d.nama}, selamat datang di ${siteName}! ðŸŽ‰\n\nSukses! Akses Anda untuk produk *${d.nama_produk}* telah aktif (GRATIS).\n\nðŸš€ *Klik link berikut untuk akses produk:*\n${accessUrl}\n\nðŸ” *AKUN MEMBER AREA*\nðŸŒ Link: ${loginUrl}\nâœ‰ï¸ Email: ${email}\nðŸ”‘ Password: ${waPassText}\n\nAnda juga bisa mengakses seluruh produk Anda melalui Member Area kami.\n\nTerima kasih atas kepercayaannya!\n*Tim ${siteName}*`;
-      sendWA(waForSheet, waText, cfg);
+      if (aff !== "-") {
+        komisiNominal = Number(productRule[11] || 0);
+        komisiNominal = Math.floor(komisiNominal * discountFactor);
+        if (isNew === false) {
+           let affEmailCheck = "";
+           for (let urow of uData) { if (String(urow[0]) === aff) { affEmailCheck = String(urow[1]).toLowerCase(); break; } }
+           if (email === affEmailCheck) komisiNominal = 0;
+        }
+      }
 
-      // 3. Email ke User
-      const emailHtml = `
-       <div style="font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; color: #334155; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-          <h2 style="color: #017A6B; margin-top: 0;">Akses Produk Gratis Dibuka! ðŸŽ</h2>
-          <p>Halo <b style="color: #000018;">${d.nama}</b>,</p>
-          <p>Selamat! Anda telah berhasil mendapatkan akses ke produk <b style="color: #000018;">${d.nama_produk}</b> secara GRATIS.</p>
-          
-          <div style="text-align: center; margin: 35px 0;">
-              <a href="${accessUrl}" style="background-color: #B6FF00; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">Akses Produk Sekarang</a>
-          </div>
+      const itemStatus = (hargaFinal === 0) ? "Lunas" : "Pending";
+      if (itemStatus === "Pending") hasPaidItem = true;
 
-          <div style="background-color: #f8fafc; border-left: 4px solid #017A6B; padding: 15px 20px; border-radius: 8px; margin: 25px 0;">
-              <h3 style="color: #000018; margin: 0 0 10px 0; font-size: 16px;">ðŸ” Akun Member Area</h3>
-              <p style="margin: 0; font-size: 14px;"><b>Link:</b> <a href="${loginUrl}" style="color: #017A6B; text-decoration: none;">${loginUrl}</a><br>
-              <b>Email:</b> ${email}<br>
-              <b>Password:</b> ${emailPassHtml}</p>
-          </div>
-          
-          <p style="margin-bottom: 0;">Salam hangat,<br><b style="color: #000018;">Tim ${siteName}</b></p>
-       </div>`;
-      sendEmail(email, `Akses Gratis! Produk ${d.nama_produk}`, emailHtml, cfg);
+      let accessUrl = productRule[3];
+      if (itemStatus === "Lunas") lunasItems.push({ name: pName, url: accessUrl });
 
-      // 4. Notif Admin
-      sendWA(adminWA, `ðŸŽ *ORDER GRATIS BARU!* ðŸŽ\n\nðŸ“Œ *Invoice:* #${inv}\nðŸ“¦ *Produk:* ${d.nama_produk}\nðŸ‘¤ *User:* ${d.nama}\n\nStatus: Lunas (Auto)`, cfg);
+      const isExcluded = (d.exclude_statistic === true || item.exclude_statistic === true) ? "TRUE" : "FALSE";
 
-    } else {
-      // --- SKENARIO BERBAYAR (PENDING) ---
+      orderDetails.push({ pId, pName, hargaFinal, komisiNominal, itemStatus, isExcluded });
+      totalHargaDasar += hargaDasar;
+      totalDiscount += itemDiscount;
+    }
 
-      const waPassTextPaid = isNew ? pass : "_(gunakan password saat anda pertama kali daftar / yang sudah anda ubah)_";
+    if (orderDetails.length === 0) return { status: "error", message: "Tidak ada produk valid untuk di-order." };
 
-      // --> NOTIFIKASI PEMBELI (WHATSAPP)
-      const waBuyerText =
-        `Halo *${d.nama}*, salam hangat dari ${siteName}! ðŸ‘‹
+    const kodeUnik = hasPaidItem ? (Math.floor(Math.random() * 299) + 1) : 0;
+    const finalPriceTotal = Math.max(0, (totalHargaDasar - totalDiscount)) + kodeUnik;
 
-Terima kasih telah melakukan pemesanan. Berikut rincian pesanan Anda:
+    let codeUnikApplied = false;
+    for (let i = 0; i < orderDetails.length; i++) {
+      let item = orderDetails[i];
+      let rowPrice = item.hargaFinal;
+      if (!codeUnikApplied && item.itemStatus === "Pending") {
+        rowPrice += kodeUnik;
+        codeUnikApplied = true;
+      }
+      oS.appendRow([inv, email, d.nama, "'" + waForSheet, item.pId, item.pName, rowPrice, item.itemStatus, toISODate_(), aff, item.komisiNominal, item.isExcluded]);
+    }
 
-ðŸ“¦ *Produk:* ${d.nama_produk}
-ðŸ”– *Invoice:* #${inv}
-ðŸ’° *Total Tagihan:* Rp ${Number(hargaTotalUnik).toLocaleString('id-ID')}
+    // --- 3. SMART NOTIFICATIONS ---
+    const adminWA = getCfgFrom_(cfg, "wa_admin");
+    const bankName = getCfgFrom_(cfg, "bank_name") || "-";
+    const bankNorek = getCfgFrom_(cfg, "bank_norek") || "-";
+    const bankOwner = getCfgFrom_(cfg, "bank_owner") || "-";
 
-âš ï¸ _(Penting: Transfer *TEPAT* hingga 3 digit terakhir agar sistem dapat memvalidasi otomatis)_
+    const isAllFree = !hasPaidItem;
+    // Silent if: existing user AND all items are free (no account info needed)
+    const shouldSendNotification = isNew || !isAllFree;
 
-Silakan selesaikan pembayaran ke rekening berikut:
+    if (shouldSendNotification) {
+      const waPassText = isNew ? pass : "_(gunakan password yang sudah Anda miliki)_";
+      const emailPassHtml = isNew
+        ? `<code style="background-color:#e2e8f0;padding:2px 6px;border-radius:4px;color:#000018;">${pass}</code>`
+        : `<i style="color:#64748b;font-size:13px;">(gunakan password yang sudah Anda miliki)</i>`;
 
-ðŸ¦ *Bank:* ${bankName}
-ðŸ’³ *No. Rek:* ${bankNorek}
-ðŸ‘¤ *A.n:* ${bankOwner}
+      if (isAllFree) {
+        // USER BARU ambil barang gratis — kirim notif 1x saja
+        const itemsListText = lunasItems.map(it => `\u2705 *${it.name}*\n\uD83D\uDE80 Akses: ${it.url}`).join("\n\n");
+        sendWA(waForSheet, `Halo ${d.nama}, selamat datang di ${siteName}! \uD83C\uDF89\n\nSukses! Akses produk gratis Anda telah aktif.\n\n${itemsListText}\n\n\uD83D\uDD10 *AKUN MEMBER*\n\uD83C\uDF10 Link: ${loginUrl}\n\u2709 Email: ${email}\n\uD83D\uDD11 Password: ${waPassText}\n\nTerima kasih!\n*Tim ${siteName}*`, cfg);
+        const itemsHtml = lunasItems.map(it => `<li><b>${it.name}</b> — <a href="${it.url}" style="color:#017A6B;">Akses Sekarang</a></li>`).join("");
+        sendEmail(email, "Pendaftaran & Akses Gratis - " + siteName, `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:30px;border:1px solid #e2e8f0;border-radius:12px;color:#334155;"><h2 style="color:#017A6B;">Pendaftaran Berhasil! \uD83C\uDF89</h2><p>Halo <b>${d.nama}</b>, selamat bergabung di ${siteName}.</p><ul style="padding-left:20px;">${itemsHtml}</ul><div style="background:#f8fafc;padding:15px;border-radius:8px;margin-top:20px;"><h3 style="margin-top:0;font-size:16px;">\uD83D\uDD10 Akun Member</h3><b>Email:</b> ${email}<br><b>Password:</b> ${emailPassHtml}<br><b>Login:</b> <a href="${loginUrl}">${loginUrl}</a></div><p>Salam hangat,<br><b>Tim ${siteName}</b></p></div>`, cfg);
+        if (adminWA) sendWA(adminWA, `\uD83C\uDF81 *USER GRATIS BARU!*\n\n\uD83D\uDC64 *Nama:* ${d.nama}\n\u2709 *Email:* ${email}\n\uD83D\uDCE6 *Produk:* ${items.length} item`, cfg);
 
-*(Mohon kirimkan bukti transfer ke sini agar pesanan segera diproses)*
+      } else {
+        // ADA ITEM BERBAYAR — notif lengkap
+        const productNames = orderDetails.map(it => it.pName).join(", ");
+        const lunasNote = lunasItems.length > 0 ? `\n\n*(${lunasItems.length} produk gratis sudah bisa diakses langsung di Member Area)*` : "";
 
----
+        sendWA(waForSheet, `Halo *${d.nama}*, terima kasih pesanan Anda di ${siteName}! \uD83D\uDC4B\n\n\uD83D\uDCE6 *Produk:* ${productNames}\n\uD83D\uDCD6 *Invoice:* #${inv}\n\uD83D\uDCB0 *Total:* Rp ${Number(finalPriceTotal).toLocaleString('id-ID')}\n\n\u26A0 *Transfer TEPAT hingga 3 digit terakhir.*\n\n\uD83C\uDFE6 *Bank:* ${bankName}\n\uD83D\uDCB3 *No. Rek:* ${bankNorek}\n\uD83D\uDC64 *A.n:* ${bankOwner}${lunasNote}\n\n\uD83D\uDD10 *AKUN MEMBER*\n\uD83C\uDF10 ${loginUrl}\n\u2709 ${email}\n\uD83D\uDD11 ${waPassText}\n\n*Akses otomatis terbuka 2-15 menit setelah transfer.*`, cfg);
+        sendEmail(email, `Menunggu Pembayaran: Pesanan #${inv}`, `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:30px;border:1px solid #e2e8f0;border-radius:12px;"><h2 style="color:#017A6B;">Menunggu Pembayaran \u23F3</h2><p>Halo <b>${d.nama}</b>, terima kasih atas pesanan Anda.</p><div style="background:#f8fafc;padding:20px;border-radius:8px;border-left:4px solid #017A6B;"><b>Total: Rp ${Number(finalPriceTotal).toLocaleString('id-ID')}</b><br><b>Invoice:</b> #${inv}<br><b>Produk:</b> ${productNames}</div><p>Transfer ke <b>${bankName}</b>: <b style="font-size:20px;color:#017A6B;">${bankNorek}</b> (a.n ${bankOwner})</p><hr><p><b>Akun:</b><br>Email: ${email}<br>Password: ${emailPassHtml}</p></div>`, cfg);
+        if (adminWA) sendWA(adminWA, `\uD83D\uDCB0 *PESANAN BARU!*\n\n\uD83D\uDCCC *Invoice:* #${inv}\n\uD83D\uDC64 *Customer:* ${d.nama}\n\uD83D\uDCB3 *Total:* Rp ${Number(finalPriceTotal).toLocaleString('id-ID')}\n\uD83D\uDCE6 *Produk:* ${productNames}`, cfg);
+      }
+    }
+    // If shouldSendNotification is false: existing user, all free — silent, no WA/Email wasted
 
-ðŸ” *INFORMASI AKUN MEMBER*
-ðŸŒ *Link Login:* ${loginUrl}
-âœ‰ï¸ *Email:* ${email}
-ðŸ”‘ *Password:* ${waPassTextPaid}
-
-*(Akses materi otomatis terbuka di akun ini setelah pembayaran divalidasi)*.
-
-*Harap tunggu 2-15 menit agar pesanan otomatis divalidasi.*
-
-Jika ada pertanyaan, silakan balas pesan ini. Terima kasih! ðŸ™`;
-      sendWA(waForSheet, waBuyerText, cfg);
-
-      // --> NOTIFIKASI PEMBELI (EMAIL) (template asli lu)
-      const emailBuyerHtml = `
-    <div style="font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; color: #334155; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-        <h2 style="color: #017A6B; margin-top: 0; margin-bottom: 5px;">Menunggu Pembayaran Anda â³</h2>
-        <p style="font-size: 16px; margin-top: 0;">Halo <b style="color: #000018;">${d.nama}</b>,</p>
-        <p>Terima kasih atas pesanan Anda di <b style="color: #000018;">${siteName}</b>. Berikut adalah detail tagihan yang harus dibayarkan:</p>
-
-        <div style="background-color: #f8fafc; padding: 15px 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #017A6B;">
-            <p style="margin: 0 0 5px 0;"><b>Produk:</b> <span style="color: #000018;">${d.nama_produk}</span></p>
-            <p style="margin: 0 0 5px 0;"><b>Invoice:</b> <span style="color: #000018;">#${inv}</span></p>
-            <p style="margin: 0; font-size: 20px; color: #000018;"><b>Total Tagihan: Rp ${Number(hargaTotalUnik).toLocaleString('id-ID')}</b></p>
-            <p style="margin: 5px 0 0 0; font-size: 12px; color: #ef4444; font-weight: bold;">*Wajib transfer TEPAT hingga 3 digit angka terakhir.</p>
-        </div>
-
-        <p>Silakan selesaikan pembayaran ke rekening berikut:</p>
-
-        <div style="background-color: #f1f5f9; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; border: 1px solid #e2e8f0;">
-            <p style="margin: 0 0 5px 0; color: #64748b; text-transform: uppercase; font-size: 12px; font-weight: bold;">Transfer Ke Bank ${bankName}</p>
-            <p style="margin: 0 0 5px 0; font-size: 24px; color: #017A6B; font-family: monospace; font-weight: bold; letter-spacing: 2px;">${bankNorek}</p>
-            <p style="margin: 0; font-size: 14px; color: #000018;"><b>A.n:</b> ${bankOwner}</p>
-        </div>
-
-        <p style="text-align: center;">Setelah transfer, konfirmasi melalui WhatsApp Admin agar produk segera kami aktifkan.</p>
-
-        <hr style="border: none; border-top: 1px dashed #cbd5e1; margin: 30px 0;">
-
-        <h3 style="color: #000018; margin-bottom: 15px; font-size: 16px;">ðŸ” Detail Akun Member Anda</h3>
-
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px;">
-            <tr>
-                <td style="padding: 12px 10px; border-bottom: 1px solid #e2e8f0; width: 100px; color: #64748b;"><b>Link Login</b></td>
-                <td style="padding: 12px 10px; border-bottom: 1px solid #e2e8f0;"><a href="${loginUrl}" style="color: #017A6B; text-decoration: none; font-weight: bold;">${loginUrl}</a></td>
-            </tr>
-            <tr>
-                <td style="padding: 12px 10px; border-bottom: 1px solid #e2e8f0; color: #64748b;"><b>Email</b></td>
-                <td style="padding: 12px 10px; border-bottom: 1px solid #e2e8f0; color: #000018;">${email}</td>
-            </tr>
-            <tr>
-                <td style="padding: 12px 10px; border-bottom: 1px solid #e2e8f0; color: #64748b;"><b>Password</b></td>
-                <td style="padding: 12px 10px; border-bottom: 1px solid #e2e8f0;">${isNew ? `<code style="background: #f1f5f9; padding: 4px 8px; border-radius: 4px; color: #000018; font-weight: bold;">${pass}</code>` : `<i style="color: #64748b; font-size: 13px;">(gunakan password saat anda pertama kali daftar / yang sudah anda ubah)</i>`}</td>
-            </tr>
-        </table>
-
-        <br>
-        <p style="margin-bottom: 0;">Salam hangat,<br><b style="color: #000018;">Tim ${siteName}</b></p>
-    </div>
-    `;
-      sendEmail(email, `Menunggu Pembayaran: Pesanan #${inv} - ${siteName}`, emailBuyerHtml, cfg);
-
-      // --> NOTIFIKASI ADMIN
-      const affMsg = aff !== "-" ? `\nðŸ¤ *Affiliate:* ${aff}\nðŸ’¸ *Potensi Komisi:* Rp ${Number(komisiNominal).toLocaleString('id-ID')}` : "";
-      sendWA(adminWA, `ðŸš¨ *PESANAN BARU MASUK!* ðŸš¨\n\nðŸ“Œ *Invoice:* #${inv}\nðŸ“¦ *Produk:* ${d.nama_produk}\nðŸ‘¤ *Customer:* ${d.nama}\nðŸ’³ *Nilai Unik:* Rp ${Number(hargaTotalUnik).toLocaleString('id-ID')}${affMsg}\n\nSilakan pantau pembayaran dari customer ini.`, cfg);
-    } // End of Else (Paid)
-
-    return { status: "success", invoice: inv, tagihan: hargaTotalUnik, is_new_user: isNew };
+    return { status: "success", invoice: inv, tagihan: finalPriceTotal, is_new_user: isNew, is_silent: !shouldSendNotification };
   } catch (e) {
     return { status: "error", message: e.toString() };
   }
@@ -1931,12 +1813,12 @@ function registerFreeMember(d, cfg) {
     uS.appendRow([newUserId, email, hashPassword_(pass), nama, "member", "Active", toISODate_(), "'" + waForSheet, aff]);
 
     // Send notifications
-    const waText = `Halo ${nama}, selamat datang di ${siteName}! ðŸŽ‰\n\nPendaftaran akun Anda berhasil. Sekarang Anda telah bergabung dan bisa mulai menggunakan fasilitas platform kami.\n\nðŸ” *INFORMASI AKUN ANDA*\nðŸŒ Link Login: ${loginUrl}\nâœ‰ï¸ Email: ${email}\nðŸ”‘ Password: ${pass}\n\nSilakan login ke Member Area untuk menjelajahi fitur dan program affiliate kami.\n\nTerima kasih atas kepercayaannya!\n*Tim ${siteName}*`;
+    const waText = `Halo ${nama}, selamat datang di ${siteName}! \uD83C\uDF89\n\nPendaftaran akun Anda berhasil. Sekarang Anda telah bergabung dan bisa mulai menggunakan fasilitas platform kami.\n\n\uD83D\uDD10 *INFORMASI AKUN ANDA*\n\uD83C\uDF10 Link Login: ${loginUrl}\n\u2709 Email: ${email}\n\uD83D\uDD11 Password: ${pass}\n\nSilakan login ke Member Area untuk menjelajahi fitur dan program affiliate kami.\n\nTerima kasih atas kepercayaannya!\n*Tim ${siteName}*`;
     sendWA(waForSheet, waText, cfg);
 
     const emailHtml = `
       <div style="font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; color: #334155; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-          <h2 style="color: #017A6B; margin-top: 0;">Selamat Datang! ðŸŽ‰</h2>
+          <h2 style="color: #017A6B; margin-top: 0;">Selamat Datang! \uD83C\uDF89</h2>
           <p>Halo <b style="color: #000018;">${nama}</b>,</p>
           <p>Selamat! Pendaftaran akun Anda di <b style="color: #000018;">${siteName}</b> telah berhasil. Silakan login ke Member Area untuk menjelajahi fitur dan program affiliate kami.</p>
           
@@ -1945,7 +1827,7 @@ function registerFreeMember(d, cfg) {
           </div>
 
           <div style="background-color: #f8fafc; border-left: 4px solid #017A6B; padding: 15px 20px; border-radius: 8px; margin: 25px 0;">
-              <h3 style="color: #000018; margin: 0 0 10px 0; font-size: 16px;">ðŸ” Informasi Akun Anda</h3>
+              <h3 style="color: #000018; margin: 0 0 10px 0; font-size: 16px;">\uD83D\uDD10 Informasi Akun Anda</h3>
               <p style="margin: 0; font-size: 14px;"><b>Link Login:</b> <a href="${loginUrl}" style="color: #017A6B; text-decoration: none;">${loginUrl}</a><br>
               <b>Email:</b> ${email}<br>
               <b>Password:</b> <code style="background-color: #e2e8f0; padding: 2px 6px; border-radius: 4px; color: #000018;">${pass}</code></p>
@@ -1958,7 +1840,7 @@ function registerFreeMember(d, cfg) {
     // Notify Admin optionally
     const adminWA = getCfgFrom_(cfg, "wa_admin");
     if(adminWA) {
-      sendWA(adminWA, "ðŸš€ *MEMBER GRATIS BARU!* ðŸš€\n\nðŸ‘¤ *Nama:* " + nama + "\nâœ‰ï¸ *Email:* " + email + "\nðŸ“± *WA:* " + waForSheet + "\n\nTelah mendaftar affiliate/member gratis.", cfg);
+      sendWA(adminWA, "\uD83D\uDE80 *MEMBER GRATIS BARU!* \uD83D\uDE80\n\n\uD83D\uDC64 *Nama:* " + nama + "\n\u2709 *Email:* " + email + "\n\uD83D\uDCF1 *WA:* " + waForSheet + "\n\nTelah mendaftar affiliate/member gratis.", cfg);
     }
 
     return { status: "success", message: "Pendaftaran berhasil! Silakan cek WhatsApp / Email Anda untuk detail akun." };
@@ -2033,14 +1915,14 @@ function updateOrderStatus(d, cfg) {
 
       // STEP 1: Send WA to customer
       Logger.log(traceId + " Sending WA to: " + uWA);
-      const waResult = sendWA(uWA, `ðŸŽ‰ *PEMBAYARAN TERVERIFIKASI!* ðŸŽ‰\n\nHalo *${uName}*, kabar baik!\n\nPembayaran Anda untuk produk *${pName}* (Invoice: #${d.id}) telah kami terima dan akses Anda kini *Telah Aktif*.\n\nðŸš€ *Klik link berikut untuk mengakses produk Anda:*\n${accessUrl}\n\nAnda juga bisa mengakses seluruh produk Anda melalui Member Area kami.\n\nTerima kasih atas kepercayaannya!\n*Tim ${siteName}*`, cfg);
+      const waResult = sendWA(uWA, `\uD83C\uDF89 *PEMBAYARAN TERVERIFIKASI!* \uD83C\uDF89\n\nHalo *${uName}*, kabar baik!\n\nPembayaran Anda untuk produk *${pName}* (Invoice: #${d.id}) telah kami terima dan akses Anda kini *Telah Aktif*.\n\n\uD83D\uDE80 *Klik link berikut untuk mengakses produk Anda:*\n${accessUrl}\n\nAnda juga bisa mengakses seluruh produk Anda melalui Member Area kami.\n\nTerima kasih atas kepercayaannya!\n*Tim ${siteName}*`, cfg);
       Logger.log(traceId + " WA Result: " + JSON.stringify(waResult));
 
       // STEP 2: Send Email to customer
       const emailActivationHtml = `
       <div style="font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; color: #334155; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
           <div style="text-align: center; margin-bottom: 25px;">
-              <h1 style="color: #017A6B; margin-top: 0; margin-bottom: 5px;">Akses Telah Dibuka! ðŸŽ‰</h1>
+              <h1 style="color: #017A6B; margin-top: 0; margin-bottom: 5px;">Akses Telah Dibuka! \uD83C\uDF89</h1>
           </div>
           <p style="font-size: 16px;">Halo <b style="color: #000018;">${uName}</b>,</p>
           <p>Terima kasih! Pembayaran Anda telah berhasil kami verifikasi. Akses penuh untuk produk <b style="color: #000018;">${pName}</b> sekarang sudah aktif dan dapat Anda gunakan.</p>
@@ -2164,13 +2046,13 @@ function giveProductAccess(d, cfg) {
     const loginUrl = siteUrl ? (siteUrl + "/login.html") : "Link Login Belum Disetting";
     
     // WA ke User
-    const waText = `Halo ${uName}, selamat datang kembali di ${siteName}! ðŸŽ‰\n\nAkses Anda untuk produk *${pName}* telah kami berikan secara langsung.\n\nðŸš€ *Klik link berikut untuk akses produk:*\n${accessUrl}\n\nðŸ” *AKUN MEMBER AREA*\nðŸŒ Link: ${loginUrl}\nâœ‰ï¸ Email: ${email}\nðŸ”‘ Password: _(gunakan password yang sudah anda miliki)_\n\nAnda juga bisa mengakses seluruh produk Anda melalui Member Area kami.\n\nTerima kasih!\n*Tim ${siteName}*`;
+    const waText = `Halo ${uName}, selamat datang kembali di ${siteName}! \uD83C\uDF89\n\nAkses Anda untuk produk *${pName}* telah kami berikan secara langsung.\n\n\uD83D\uDE80 *Klik link berikut untuk akses produk:*\n${accessUrl}\n\n\uD83D\uDD10 *AKUN MEMBER AREA*\n\uD83C\uDF10 Link: ${loginUrl}\n\u2709 Email: ${email}\n\uD83D\uDD11 Password: _(gunakan password yang sudah anda miliki)_\n\nAnda juga bisa mengakses seluruh produk Anda melalui Member Area kami.\n\nTerima kasih!\n*Tim ${siteName}*`;
     if (uWA) sendWA(uWA, waText, cfg);
     
     // 3. Email ke User
     const emailHtml = `
      <div style="font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; color: #334155; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-        <h2 style="color: #017A6B; margin-top: 0;">Akses Produk Tambahan Dibuka! ðŸŽ</h2>
+        <h2 style="color: #017A6B; margin-top: 0;">Akses Produk Tambahan Dibuka! \uD83C\uDF81</h2>
         <p>Halo <b style="color: #000018;">${uName}</b>,</p>
         <p>Selamat! Anda telah mendapatkan akses tambahan ke produk <b style="color: #000018;">${pName}</b> tanpa biaya tambahan.</p>
         
@@ -2868,14 +2750,14 @@ function runAuthTests() {
       detail: "Raw length: " + emailStr.length + ", Trimmed: " + emailStr.trim().length
     });
 
-    // Test 6: loginUser works for admin (should succeed â€” tests email+pass)
+    // Test 6: loginUser works for admin (should succeed — tests email+pass)
     const loginResult = loginUser({ email: adminRow.email.trim(), password: adminRow.pass.trim() });
     results.push({
       test: "loginUser() succeeds for admin credentials", pass: loginResult.status === "success",
       detail: JSON.stringify(loginResult)
     });
 
-    // Test 7: adminLogin works for admin (should succeed â€” tests email+pass+role)
+    // Test 7: adminLogin works for admin (should succeed — tests email+pass+role)
     const adminResult = adminLogin({ email: adminRow.email.trim(), password: adminRow.pass.trim() });
     results.push({
       test: "adminLogin() succeeds for admin credentials", pass: adminResult.status === "success",
@@ -2925,7 +2807,7 @@ function runAuthTests() {
       detail: JSON.stringify(memberResult)
     });
 
-    // Test 10: adminLogin rejects member (should fail â€” not admin role)
+    // Test 10: adminLogin rejects member (should fail — not admin role)
     const memberAdminResult = adminLogin({ email: memberRow.email.trim(), password: memberRow.pass.trim() });
     results.push({
       test: "adminLogin() correctly rejects member user", pass: memberAdminResult.status === "error",
@@ -3142,11 +3024,22 @@ function getAdminData(d, cfg) {
     const pg = mustSheet_("Pages").getDataRange().getValues();
 
     let rev = 0;
-    let validOrderCount = 0;
+    let paidOrderCount = 0;
+    let freeOrderCount = 0;
     for (let i = 1; i < o.length; i++) {
-      if (String(o[i][11]) === "TRUE") continue;
-      validOrderCount++;
-      if (String(o[i][7]) === "Lunas") rev += Number(o[i][6] || 0);
+      // Index 11 is exclude_statistic, Index 6 is price, Index 7 is status
+      const isExcluded = String(o[i][11]) === "TRUE";
+      const price = Number(o[i][6] || 0);
+      const isLunas = String(o[i][7]) === "Lunas";
+
+      if (isExcluded) continue;
+
+      if (price > 0) {
+        paidOrderCount++;
+        if (isLunas) rev += price;
+      } else {
+        freeOrderCount++;
+      }
     }
 
     let t = {};
@@ -3164,7 +3057,7 @@ function getAdminData(d, cfg) {
       status: "success",
       role: session.role,
       session_expires_at: session.expires_at,
-      stats: { users: u.length - 1, orders: validOrderCount, rev: rev },
+      stats: { users: u.length - 1, orders: paidOrderCount, free_orders: freeOrderCount, rev: rev },
       orders: o.slice(1).reverse().slice(0, 20),
       products: p.slice(1).map(normalizeProductRow_),
       pages: pg.slice(1),
@@ -3932,14 +3825,14 @@ function handleMootaWebhook(mutations, cfg) {
           // A) WA Customer
           sendWA(
             uWA,
-            `ðŸŽ‰ *PEMBAYARAN TERVERIFIKASI!* ðŸŽ‰\n\nHalo *${uName}*, kabar baik!\n\nPembayaran Anda sebesar Rp ${Number(nominalTransfer).toLocaleString('id-ID')} telah berhasil diverifikasi otomatis.\n\nProduk *${pName}* (Invoice: #${inv}) kini *Telah Aktif*.\n\nðŸš€ *Klik link berikut untuk mengakses produk Anda:*\n${accessUrl}\n\nAnda juga bisa mengakses seluruh produk Anda melalui Member Area kami.\n\nTerima kasih atas kepercayaannya!\n*Tim ${siteName}*`,
+            `\uD83C\uDF89 *PEMBAYARAN TERVERIFIKASI!* \uD83C\uDF89\n\nHalo *${uName}*, kabar baik!\n\nPembayaran Anda sebesar Rp ${Number(nominalTransfer).toLocaleString('id-ID')} telah berhasil diverifikasi otomatis.\n\nProduk *${pName}* (Invoice: #${inv}) kini *Telah Aktif*.\n\n\uD83D\uDE80 *Klik link berikut untuk mengakses produk Anda:*\n${accessUrl}\n\nAnda juga bisa mengakses seluruh produk Anda melalui Member Area kami.\n\nTerima kasih atas kepercayaannya!\n*Tim ${siteName}*`,
             cfg
           );
 
           // B) Email Customer
           const emailHtml = `
             <div style="font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; color: #334155; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-                <h2 style="color: #017A6B; margin-top: 0;">Pembayaran Berhasil! âœ…</h2>
+                <h2 style="color: #017A6B; margin-top: 0;">Pembayaran Berhasil! \u2705</h2>
                 <p>Halo <b style="color: #000018;">${uName}</b>,</p>
                 <p>Pembayaran invoice <b style="color: #000018;">#${inv}</b> sebesar <b style="color: #000018;">Rp ${Number(nominalTransfer).toLocaleString('id-ID')}</b> telah diterima.</p>
                 <p>Silakan akses produk <b style="color: #000018;">${pName}</b> melalui tombol di bawah ini:</p>
@@ -3953,7 +3846,7 @@ function handleMootaWebhook(mutations, cfg) {
           // C) WA Admin
           sendWA(
             adminWA,
-            `ðŸ’° *MOOTA PAYMENT RECEIVED* ðŸ’°\n\nInv: #${inv}\nAmt: Rp ${Number(nominalTransfer).toLocaleString('id-ID')}\nUser: ${uName}\nProduk: ${pName}\n\nStatus: Auto-Lunas by System.`,
+            `\uD83D\uDCB0 *MOOTA PAYMENT RECEIVED* \uD83D\uDCB0\n\nInv: #${inv}\nAmt: Rp ${Number(nominalTransfer).toLocaleString('id-ID')}\nUser: ${uName}\nProduk: ${pName}\n\nStatus: Auto-Lunas by System.`,
             cfg
           );
 
@@ -3988,7 +3881,7 @@ function handleMootaWebhook(mutations, cfg) {
         if (adminWA && nominalTransfer >= 10000) {
           sendWA(
             adminWA,
-            `âš ï¸ *UNMATCHED PAYMENT* âš ï¸\n\nTransfer masuk Rp ${Number(nominalTransfer).toLocaleString('id-ID')} dari Moota TIDAK COCOK dengan order manapun.\n\nDeskripsi: ${String(mutasi.description || "-").substring(0, 100)}\n\nPending Orders:\n${pendingOrders.length > 0 ? pendingOrders.slice(0, 5).map(o => "â€¢ " + o.inv + " = Rp " + Number(o.tagihan).toLocaleString('id-ID')).join("\n") : "(tidak ada order pending)"}\n\nMohon cek manual di dashboard.`,
+            `\u26A0 *UNMATCHED PAYMENT* \u26A0\n\nTransfer masuk Rp ${Number(nominalTransfer).toLocaleString('id-ID')} dari Moota TIDAK COCOK dengan order manapun.\n\nDeskripsi: ${String(mutasi.description || "-").substring(0, 100)}\n\nPending Orders:\n${pendingOrders.length > 0 ? pendingOrders.slice(0, 5).map(o => "• " + o.inv + " = Rp " + Number(o.tagihan).toLocaleString('id-ID')).join("\n") : "(tidak ada order pending)"}\n\nMohon cek manual di dashboard.`,
             cfg
           );
         }
@@ -4048,7 +3941,7 @@ function forgotPassword(d) {
 
       const body = `
           <div style="font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; color: #334155; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-            <h2 style="color: #017A6B; margin-top: 0;">Reset Password Akun ðŸ”</h2>
+            <h2 style="color: #017A6B; margin-top: 0;">Reset Password Akun \uD83D\uDD10</h2>
             <p>Halo <b style="color: #000018;">${nama}</b>,</p>
             <p>Anda telah meminta reset password untuk akun Anda di <b style="color: #000018;">${siteName}</b>.</p>
             
@@ -4140,6 +4033,34 @@ function getAdminUsers(d) {
   }
 }
 
+function getUserInventory(d) {
+  try {
+    requireAdminSession_(d, { actionName: "get_user_inventory" });
+    const email = String(d.email).trim().toLowerCase();
+    const o = mustSheet_("Orders").getDataRange().getValues();
+    const inventory = [];
+    
+    for (let i = 1; i < o.length; i++) {
+        if (String(o[i][1]).trim().toLowerCase() === email && String(o[i][7]).trim() === "Lunas") {
+            inventory.push({
+                invoice: o[i][0],
+                product_id: o[i][4],
+                product_name: o[i][5],
+                price: o[i][6],
+                date: o[i][8]
+            });
+        }
+    }
+    
+    return {
+        status: "success",
+        data: inventory
+    };
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
 /* =========================
    DIAGNOSTIC & TEST FUNCTIONS
 ========================= */
@@ -4174,7 +4095,7 @@ function testEmailDelivery(d) {
     const siteName = getCfgFrom_(cfg, "site_name") || "Sistem Premium";
 
     const testHtml = '<div style="font-family: sans-serif; padding: 20px; max-width: 500px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px;">' +
-      '<h2 style="color: #4f46e5;">âœ… Test Email Berhasil!</h2>' +
+      '<h2 style="color: #4f46e5;">\u2705 Test Email Berhasil!</h2>' +
       '<p>Ini adalah email test dari sistem <b>' + siteName + '</b>.</p>' +
       '<p><b>Waktu:</b> ' + new Date().toLocaleString("id-ID", { timeZone: "Asia/Jakarta" }) + '</p>' +
       '<p><b>Quota Tersisa:</b> ' + MailApp.getRemainingDailyQuota() + ' email</p>' +
@@ -4340,7 +4261,7 @@ function testWADelivery(d) {
 
     var cfg = getSettingsMap_();
     var siteName = getCfgFrom_(cfg, "site_name") || "Sistem Premium";
-    var testMessage = "âœ… *TEST WA BERHASIL!*\n\nIni adalah pesan test dari sistem *" + siteName + "*.\n\nWaktu: " + new Date().toLocaleString("id-ID", { timeZone: "Asia/Jakarta" }) + "\n\nJika Anda menerima pesan ini, berarti koneksi WhatsApp via Fonnte berfungsi normal.";
+    var testMessage = "\u2705 *TEST WA BERHASIL!*\n\nIni adalah pesan test dari sistem *" + siteName + "*.\n\nWaktu: " + new Date().toLocaleString("id-ID", { timeZone: "Asia/Jakarta" }) + "\n\nJika Anda menerima pesan ini, berarti koneksi WhatsApp via Fonnte berfungsi normal.";
 
     var result = sendWA(target, testMessage, cfg);
     return { status: "success", message: "Test WA sent to " + target, result: result };
@@ -4350,7 +4271,7 @@ function testWADelivery(d) {
 }
 
 /**
- * testLunasNotification â€” Simulates the EXACT Lunas notification flow.
+ * testLunasNotification — Simulates the EXACT Lunas notification flow.
  * Finds a pending/existing order and sends WA + Email using the same code path 
  * as updateOrderStatus. Does NOT change the order status.
  * 
@@ -4414,13 +4335,13 @@ function testLunasNotification(d) {
     logWA_("TEST_LUNAS", String(uWA), "Testing Lunas notification for " + inv + " | WA raw=" + JSON.stringify(uWA) + " type=" + typeof uWA);
     var waResult = sendWA(
       uWA,
-      "ðŸŽ‰ *[TEST] PEMBAYARAN TERVERIFIKASI!* ðŸŽ‰\n\nHalo *" + uName + "*, ini adalah TEST notifikasi Lunas.\n\nProduk *" + pName + "* (Invoice: #" + inv + ")\n\nðŸš€ *AKSES MATERI:*\n" + accessUrl + "\n\nIni pesan test. Jika terkirim berarti notifikasi Lunas berfungsi normal.\n*Tim " + siteName + "*",
+      "\uD83C\uDF89 *[TEST] PEMBAYARAN TERVERIFIKASI!* \uD83C\uDF89\n\nHalo *" + uName + "*, ini adalah TEST notifikasi Lunas.\n\nProduk *" + pName + "* (Invoice: #" + inv + ")\n\n\uD83D\uDE80 *AKSES MATERI:*\n" + accessUrl + "\n\nIni pesan test. Jika terkirim berarti notifikasi Lunas berfungsi normal.\n*Tim " + siteName + "*",
       cfg
     );
 
     // SEND EMAIL (same template as real Lunas flow)
     var emailHtml = '<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px;border:1px solid #e2e8f0;border-radius:8px;">' +
-      '<h2 style="color:#10b981;">[TEST] Akses Terbuka! ðŸŽ‰</h2>' +
+      '<h2 style="color:#10b981;">[TEST] Akses Terbuka! \uD83C\uDF89</h2>' +
       '<p>Halo <b>' + uName + '</b>,</p>' +
       '<p>Ini adalah TEST notifikasi Lunas untuk produk <b>' + pName + '</b>.</p>' +
       '<div style="text-align:center;margin:30px 0;">' +
@@ -4523,8 +4444,8 @@ function getGAStats(data, cfg) {
     var trafficSources = (srcData.rows||[]).map(function(r) { return { source: r.dimensionValues[0].value, sessions: parseFloat(r.metricValues[0].value)||0 }; });
 
     var ctrData = gaPost(":runReport", { dateRanges: [{ startDate: startDate, endDate: endDate }], dimensions: [{ name: "country" }], metrics: [{ name: "totalUsers" }], orderBys: [{ metric: { metricName: "totalUsers" }, desc: true }], limit: 8 });
-    var flagMap = { "Indonesia":"🇮🇩","Malaysia":"🇲🇾","Singapore":"🇸🇬","United States":"🇺🇸","India":"🇮🇳","Philippines":"🇵🇭","Thailand":"🇹🇭","Vietnam":"🇻🇳","Australia":"🇦🇺","Japan":"🇯🇵","United Kingdom":"🇬🇧" };
-    var topCountries = (ctrData.rows||[]).map(function(r) { var c=r.dimensionValues[0].value; return { country: c, users: parseFloat(r.metricValues[0].value)||0, flag: flagMap[c]||"🌍" }; });
+    var flagMap = { "Indonesia":"????","Malaysia":"????","Singapore":"????","United States":"????","India":"????","Philippines":"????","Thailand":"????","Vietnam":"????","Australia":"????","Japan":"????","United Kingdom":"????" };
+    var topCountries = (ctrData.rows||[]).map(function(r) { var c=r.dimensionValues[0].value; return { country: c, users: parseFloat(r.metricValues[0].value)||0, flag: flagMap[c]||"??" }; });
 
     var cityData = gaPost(":runReport", { dateRanges: [{ startDate: startDate, endDate: endDate }], dimensions: [{ name: "city" }], metrics: [{ name: "totalUsers" }], orderBys: [{ metric: { metricName: "totalUsers" }, desc: true }], limit: 8 });
     var topCities = (cityData.rows||[]).filter(function(r) { return r.dimensionValues[0].value !== "(not set)"; }).map(function(r) { return { city: r.dimensionValues[0].value, users: parseFloat(r.metricValues[0].value)||0 }; });
@@ -4777,7 +4698,7 @@ function validateVoucher(d, cfg) {
     }
 
     const discountedPrice = Math.max(0, harga - discountAmount);
-    // Discount rate as factor (e.g. 0.9 = 10% discount) â€” used to scale affiliate commission
+    // Discount rate as factor (e.g. 0.9 = 10% discount) — used to scale affiliate commission
     const discountFactor = harga > 0 ? discountedPrice / harga : 1;
 
     return {

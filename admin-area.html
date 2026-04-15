@@ -836,8 +836,9 @@
                                 <i data-lucide="shopping-bag" class="w-7 h-7"></i>
                             </div>
                             <div>
-                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Total Pesanan</p>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Pesanan Berbayar</p>
                                 <h3 id="stat-orders" class="text-2xl font-bold text-white tracking-tight truncate max-w-[120px]">0</h3>
+                                <p class="text-[9px] text-slate-500 mt-0.5">Paid orders only</p>
                             </div>
                         </div>
                         <div class="glass-card hover:glow-primary p-6 rounded-3xl flex items-center gap-6 transition-all border-[rgba(255,255,255,0.05)]">
@@ -850,12 +851,13 @@
                             </div>
                         </div>
                         <div class="glass-card hover:glow-primary p-6 rounded-3xl flex items-center gap-6 transition-all border-[rgba(255,255,255,0.05)]">
-                            <div class="w-14 h-14 bg-[rgba(239,68,68,0.15)] text-[#ef4444] rounded-2xl flex items-center justify-center shadow-sm border border-[rgba(239,68,68,0.3)]">
-                                <i data-lucide="percent" class="w-7 h-7"></i>
+                            <div class="w-14 h-14 bg-[rgba(139,92,246,0.15)] text-[#8b5cf6] rounded-2xl flex items-center justify-center shadow-sm border border-[rgba(139,92,246,0.3)]">
+                                <i data-lucide="gift" class="w-7 h-7"></i>
                             </div>
                             <div>
-                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Total Komisi</p>
-                                <h3 id="stat-komisi" class="text-2xl font-bold text-white tracking-tight truncate max-w-[120px]">Rp 0</h3>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Leads Gratis</p>
+                                <h3 id="stat-free-orders" class="text-2xl font-bold text-[#8b5cf6] tracking-tight truncate max-w-[120px]">0</h3>
+                                <p class="text-[9px] text-slate-500 mt-0.5">Free product claims</p>
                             </div>
                         </div>
                     </div>
@@ -1062,6 +1064,7 @@
                                         <th class="px-8 py-5">Role</th>
                                         <th class="px-8 py-5">Status</th>
                                         <th class="px-8 py-5">Tanggal Bergabung</th>
+                                        <th class="px-8 py-5 text-right">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-[rgba(255,255,255,0.05)] text-white"></tbody>
@@ -2161,7 +2164,46 @@
         </div>
     </div>
 
+    <!-- USER INVENTORY MODAL -->
+    <div id="modal-user-inventory" class="fixed inset-0 bg-[#000018]/95 hidden z-[305] items-center justify-center p-4 backdrop-blur-xl">
+        <div class="w-full max-w-2xl bg-[#000018] rounded-[2.5rem] border border-[rgba(255,255,255,0.05)] shadow-2xl overflow-hidden relative">
+            <div class="px-8 py-6 border-b border-[rgba(255,255,255,0.05)] flex justify-between items-center bg-[rgba(0,0,0,0.2)]">
+                <div>
+                    <h3 class="font-bold text-white text-lg">Inventaris Produk</h3>
+                    <p id="inv-user-name" class="text-xs text-slate-400 mt-0.5">Memuat data...</p>
+                </div>
+                <button onclick="closeUserInventory()" class="p-2 rounded-xl hover:bg-[rgba(255,255,255,0.05)] text-slate-400 transition-colors">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <div class="p-8 max-h-[60vh] overflow-y-auto custom-scroll">
+                <div id="inv-loading" class="flex flex-col items-center py-12 gap-4">
+                    <i data-lucide="loader" class="w-8 h-8 animate-spin text-[#B6FF00]"></i>
+                    <p class="text-slate-400 text-sm italic">Mengambil data inventaris...</p>
+                </div>
+                <div id="inv-list" class="hidden space-y-3">
+                    <!-- Inventory items rendered by JS -->
+                </div>
+                <div id="inv-empty" class="hidden flex-col items-center py-12 gap-4">
+                    <div class="w-16 h-16 rounded-3xl bg-[rgba(255,255,255,0.02)] flex items-center justify-center text-slate-600 border border-[rgba(255,255,255,0.05)]">
+                        <i data-lucide="package-x" class="w-8 h-8"></i>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-white font-bold text-sm">Belum Ada Produk</p>
+                        <p class="text-slate-400 text-xs mt-1">User ini belum memiliki produk berbayar.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="px-8 py-6 border-t border-[rgba(255,255,255,0.05)] bg-[rgba(0,0,0,0.1)] flex justify-end">
+                <button onclick="closeUserInventory()" class="px-6 py-3 bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)] text-white text-xs font-bold rounded-xl transition-all">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL PAGE -->
+
     <div id="modal-page" class="fixed inset-0 hidden z-[300] flex items-start justify-center p-4 overflow-y-auto">
         <div class="modal-overlay fixed inset-0" onclick="closeModal('modal-page')"></div>
         <div class="modal-panel w-full max-w-5xl rounded-[2.5rem] p-6 md:p-10 custom-scroll relative z-10 my-auto" style="box-shadow: 0 0 80px rgba(0,0,0,1);">
@@ -2945,9 +2987,82 @@
                         <span class="px-3 py-1.5 bg-[rgba(182,255,0,0.1)] text-[#B6FF00] border border-[rgba(182,255,0,0.2)] rounded-full text-xs font-bold">${m[5]}</span>
                     </td>
                     <td class="px-8 py-5 text-sm text-slate-400">${m[6]}</td>
+                    <td class="px-8 py-5 text-right">
+                        <button onclick="viewUserInventory('${m[1]}', '${String(m[3]).replace(/'/g, "\\'")}')" class="p-2 rounded-lg bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-slate-400 hover:text-[#B6FF00] hover:bg-[rgba(182,255,0,0.1)] hover:border-[rgba(182,255,0,0.3)] transition-all" title="Liat Inventaris">
+                            <i data-lucide="package" class="w-4 h-4"></i>
+                        </button>
+                    </td>
                 `;
                 list.appendChild(row);
             });
+            if (window.lucide) lucide.createIcons();
+        }
+
+        async function viewUserInventory(email, name) {
+            const modal = document.getElementById('modal-user-inventory');
+            const list = document.getElementById('inv-list');
+            const loading = document.getElementById('inv-loading');
+            const empty = document.getElementById('inv-empty');
+            const userNameEl = document.getElementById('inv-user-name');
+
+            userNameEl.innerText = `${name} (${email})`;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            list.classList.add('hidden');
+            empty.classList.add('hidden');
+            loading.classList.remove('hidden');
+            list.innerHTML = '';
+            
+            if (window.lucide) lucide.createIcons();
+
+            try {
+                const endpoint = getApiEndpoint();
+                if (!endpoint) throw new Error('API endpoint tidak tersedia');
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(buildAdminAuthPayload({ action: 'get_user_inventory', email: email }))
+                });
+                const r = await res.json();
+                
+                loading.classList.add('hidden');
+                
+                if (r.status === 'success' && r.data && r.data.length > 0) {
+                    list.classList.remove('hidden');
+                    list.innerHTML = r.data.map(item => `
+                        <div class="p-4 rounded-2xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.05)] flex items-center gap-4 hover:bg-[rgba(182,255,0,0.03)] transition-colors">
+                            <div class="w-10 h-10 rounded-xl bg-[rgba(182,255,0,0.1)] text-[#B6FF00] flex items-center justify-center border border-[rgba(182,255,0,0.2)]">
+                                <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h4 class="text-white font-bold text-sm truncate">${item.product_name}</h4>
+                                <div class="flex items-center gap-2 mt-0.5">
+                                    <span class="text-[10px] font-mono text-slate-500">${item.invoice}</span>
+                                    <span class="w-1 h-1 rounded-full bg-slate-700"></span>
+                                    <span class="text-[10px] text-slate-500">${new Date(item.date).toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'})}</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs font-bold text-white">Lunas</p>
+                                <p class="text-[9px] text-[#B6FF00] font-mono">Rp ${Number(item.price).toLocaleString('id-ID')}</p>
+                            </div>
+                        </div>
+                    `).join('');
+                    if (window.lucide) lucide.createIcons();
+                } else {
+                    empty.classList.remove('hidden');
+                }
+            } catch (e) {
+                loading.classList.add('hidden');
+                showToast('Gagal memuat inventaris: ' + e.message, 'error');
+            }
+        }
+
+        function closeUserInventory() {
+            const modal = document.getElementById('modal-user-inventory');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
         }
 
         function renderOrders(orders, append = false) {
@@ -3069,7 +3184,9 @@
             document.getElementById('stat-orders').innerText = formatAdminNumber(r.stats.orders);
             document.getElementById('stat-rev').innerText = formatAdminCurrency(r.stats.rev);
             const stMembers = document.getElementById('stat-members'); if(stMembers) stMembers.innerText = formatAdminNumber(r.stats.users);
+            const stFreeOrders = document.getElementById('stat-free-orders'); if(stFreeOrders) stFreeOrders.innerText = formatAdminNumber(r.stats.free_orders || 0);
             document.getElementById('count-prod').innerText = cachedProducts.length;
+
 
             document.getElementById('list-products').innerHTML = [...cachedProducts].reverse().map(p => {
                 const isAct = String(p[5]).trim() === 'Active';
@@ -4806,8 +4923,10 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             document.getElementById('chart-sum-komisi').innerText = 'Rp ' + nf.format(sumKomisi);
 
             document.getElementById('stat-rev').innerText = 'Rp ' + nf.format(lifetimeRev);
-            document.getElementById('stat-orders').innerText = nf.format(lifetimeOrders);
-            document.getElementById('stat-komisi').innerText = 'Rp ' + nf.format(lifetimeKomisi);
+            // stat-orders now shows PAID orders only (populated by forceSync from backend)
+            // stat-free-orders populated by forceSync from backend
+            const statKomisi = document.getElementById('stat-komisi');
+            if (statKomisi) statKomisi.innerText = 'Rp ' + nf.format(lifetimeKomisi);
             
             let productListEl = document.getElementById('list-product-sales');
             if (productListEl) {

@@ -1037,17 +1037,39 @@
             btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> MEMPROSES...'; 
             btn.disabled = true; lucide.createIcons();
 
+            // Build items array - supports single item (current) and future cart (multiple items)
+            const cartItems = (function() {
+                // Check if a cart exists in localStorage (future multi-item support)
+                try {
+                    const cartRaw = localStorage.getItem('cepat_cart');
+                    if (cartRaw) {
+                        const cart = JSON.parse(cartRaw);
+                        if (Array.isArray(cart) && cart.length > 0) return cart;
+                    }
+                } catch(e) {}
+                // Fall back to single item from current page
+                return [{
+                    id_produk: document.getElementById('prod-id').value,
+                    nama_produk: document.getElementById('prod-title').value,
+                    harga: appliedVoucher ? appliedVoucher.original_price : document.getElementById('prod-price').value,
+                    voucher_code: appliedVoucher ? appliedVoucher.code : ''
+                }];
+            })();
+
             const pData = {
                 action: 'create_order',
                 nama: document.getElementById('cust-name').value,
                 email: document.getElementById('cust-email').value,
                 whatsapp: document.getElementById('cust-wa').value,
-                id_produk: document.getElementById('prod-id').value,
-                nama_produk: document.getElementById('prod-title').value,
-                harga: appliedVoucher ? appliedVoucher.original_price : document.getElementById('prod-price').value,
-                voucher_code: appliedVoucher ? appliedVoucher.code : '',
+                items: cartItems,
+                // Legacy fields for backward compatibility (single-item)
+                id_produk: cartItems[0].id_produk,
+                nama_produk: cartItems[0].nama_produk,
+                harga: cartItems[0].harga,
+                voucher_code: cartItems[0].voucher_code || '',
                 affiliate: localStorage.getItem('cepat_affiliate') || "-"
             };
+
 
             try {
                 const targetUrl = window.SCRIPT_URL || SCRIPT_URL;
@@ -1244,10 +1266,70 @@
             } catch(e) { console.error('Promo error:', e); }
         }
 
+        // === CART MODE ===
+        const isCartMode = urlParams.get('cart') === '1';
+
+        function initCartMode() {
+            let cart = [];
+            try { cart = JSON.parse(localStorage.getItem('cepat_cart') || '[]'); } catch(e) {}
+            if (!cart.length) { window.location.href = 'index.html'; return; }
+
+            const nf = new Intl.NumberFormat('id-ID');
+            const total = cart.reduce((s, i) => s + Number(i.harga || 0), 0);
+
+            // Populate left panel
+            document.getElementById('display-title').innerHTML = `<span class="text-[#B6FF00]">${cart.length} Produk</span> Dipilih`;
+            document.getElementById('display-total-top').innerText = 'Rp ' + nf.format(total);
+
+            // Render item list below display-title
+            const titleEl = document.getElementById('display-title');
+            const cartListHtml = `<div class="mt-4 space-y-2 mb-6">${cart.map(item => `
+                <div class="flex items-center justify-between gap-3 py-2 border-b border-[rgba(255,255,255,0.06)]">
+                    <div class="min-w-0 flex-1">
+                        <p class="text-white text-xs font-semibold truncate">${item.nama_produk}</p>
+                    </div>
+                    <p class="text-[#B6FF00] text-xs font-black font-mono flex-shrink-0">Rp ${nf.format(item.harga)}</p>
+                </div>
+            `).join('')}</div>`;
+            titleEl.insertAdjacentHTML('afterend', cartListHtml);
+
+            // Hide voucher for multi-item (one voucher per cart not yet supported)
+            if (cart.length > 1) {
+                const vsec = document.getElementById('voucher-section');
+                if (vsec) vsec.classList.add('hidden');
+            }
+
+            // Set hidden prod-id to first item (for legacy compatibility; actual items sent via cartItems in payload)
+            document.getElementById('prod-id').value = cart[0].id_produk;
+            document.getElementById('prod-title').value = cart.length > 1 ? `${cart.length} Produk Bundling` : cart[0].nama_produk;
+            document.getElementById('prod-price').value = total;
+
+            // Show page
+            const loader = document.getElementById('loading-state');
+            loader.classList.add('opacity-0');
+            setTimeout(() => {
+                loader.style.display = 'none';
+                document.getElementById('main-content').classList.remove('hidden');
+                document.getElementById('main-content').classList.add('flex');
+            }, 200);
+            setStep(1);
+            if (window.lucide) lucide.createIcons();
+
+            // Show payment section for paid cart
+            if (total > 0) {
+                document.getElementById('payment-method-section').classList.remove('hidden');
+            }
+        }
+
         // === INIT ===
         window.onload = () => {
             lucide.createIcons();
-            loadProduct();
+
+            if (isCartMode) {
+                initCartMode();
+            } else {
+                loadProduct();
+            }
             
             // Render promo delay
             setTimeout(checkAndShowPromotion, 1200);
@@ -1266,6 +1348,7 @@
                 }
             } catch(e) {}
         };
+
     </script>
 </body>
 </html>
