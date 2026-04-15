@@ -2096,19 +2096,31 @@ function getProductDetail(d, cfg) {
     const rules = mustSheet_("Access_Rules").getDataRange().getValues();
     const reqId = String(d.id || "").trim();
     const reqSlug = String(d.slug || "").trim().toLowerCase();
+    
+    // Get headers to find columns dynamically
+    const headers = rules[0].map(h => String(h || "").trim().toLowerCase());
+    const colId = headers.indexOf("id");
+    const colStatus = headers.indexOf("status");
+    const colSlug = headers.indexOf("slug");
+    
+    // Fallback indices if headers not found as expected
+    const idxId = colId !== -1 ? colId : 0;
+    const idxStatus = colStatus !== -1 ? colStatus : 5;
+    const idxSlug = colSlug !== -1 ? colSlug : 16;
+    
     let productData = null;
 
     for (let i = 1; i < rules.length; i++) {
-      const rowId = String(rules[i][0] || "").trim();
-      const rowSlug = String(rules[i][16] || "").trim().toLowerCase();
-      const rowStatus = String(rules[i][5] || "").trim();
-      const isActive = rowStatus.toLowerCase() === "active";
+      const rowId = String(rules[i][idxId] || "").trim();
+      const rowSlug = String(rules[i][idxSlug] || "").trim().toLowerCase();
+      const rowStatus = String(rules[i][idxStatus] || "").trim().toLowerCase();
 
-      // Match by ID accurately (case-insensitive for safety) or Slug
       const matchId = reqId && rowId.toLowerCase() === reqId.toLowerCase();
       const matchSlug = reqSlug && rowSlug === reqSlug;
 
-      if (isActive && (matchId || matchSlug)) {
+      if (rowStatus === "active" && (matchId || matchSlug)) {
+        // Map remaining columns (fallback to indices if needed)
+        // [productId, productTitle, productDesc, productUrl, d.harga, productStatus, landingPageUrl, imageUrl...]
         productData = {
           id: rowId,
           title: normalizePlainText_(rules[i][1]),
@@ -2131,7 +2143,11 @@ function getProductDetail(d, cfg) {
     }
     if (!productData) {
       const searchInfo = reqId ? "ID: " + reqId : "Slug: " + reqSlug;
-      return { status: "error", message: "Produk (" + searchInfo + ") tidak ditemukan atau status tidak aktif." };
+      return { 
+        status: "error", 
+        message: "Produk (" + searchInfo + ") tidak ditemukan. Pastikan status produk 'Active' di Tab Access_Rules.",
+        debug_headers: headers.join(",") // Technical info for me if it still fails
+      };
     }
 
     // --> CHECK AFFILIATE PIXEL OVERRIDE

@@ -213,13 +213,15 @@
             }
 
             try {
+                console.log('Fetching from:', apiEndpoint);
                 const response = await fetch(apiEndpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         action: 'get_product',
                         slug: slug,
-                        id: id
+                        id: id,
+                        v: Date.now() // Bypass potential GAS caching
                     })
                 });
 
