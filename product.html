@@ -189,11 +189,6 @@
         lucide.createIcons();
 
         async function fetchProduct() {
-            // Helper to get API URL correctly from config.js
-            const getApiUrl = () => {
-                return window.API_URL || window.SCRIPT_URL || window.GAS_URL || null;
-            };
-
             const urlParams = new URLSearchParams(window.location.search);
             const slug = urlParams.get('slug');
             const id = urlParams.get('id');
@@ -203,14 +198,17 @@
                 return;
             }
 
-            // Small delay to ensure config.js is fully initialized
-            if (!getApiUrl()) {
-                await new Promise(r => setTimeout(r, 500));
+            // Ensure configuration is ready
+            let apiEndpoint = window.API_URL || window.SCRIPT_URL || window.GAS_URL;
+            let attempts = 0;
+            while (!apiEndpoint && attempts < 10) {
+                await new Promise(r => setTimeout(r, 200));
+                apiEndpoint = window.API_URL || window.SCRIPT_URL || window.GAS_URL;
+                attempts++;
             }
 
-            const apiEndpoint = getApiUrl();
             if (!apiEndpoint) {
-                renderError('Terjadi kegagalan konfigurasi sistem. Mohon refresh halaman.');
+                renderError('Kofigurasi sistem tidak ditemukan (API_URL Missing). Mohon pastikan script utama dimuat dengan benar.');
                 return;
             }
 
@@ -225,6 +223,8 @@
                     })
                 });
 
+                if (!response.ok) throw new Error('Network response was not ok: ' + response.status);
+                
                 const result = await response.json();
 
                 if (result.status === 'success' && result.data) {
@@ -234,7 +234,7 @@
                 }
             } catch (error) {
                 console.error('Fetch Error:', error);
-                renderError('Gagal memuat data produk. Pastikan koneksi internet stabil.');
+                renderError('Gagal memuat data produk: ' + error.message + '. Pastikan koneksi internet stabil.');
             }
         }
 
