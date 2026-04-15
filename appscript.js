@@ -2095,22 +2095,22 @@ function getProductDetail(d, cfg) {
   try {
     cfg = cfg || getSettingsMap_();
     const rules = mustSheet_("Access_Rules").getDataRange().getValues();
-    const reqId = String(d.id || "").trim();
+    const reqId = String(d.id || d.id_produk || "").trim(); // Support id or id_produk (Checkout compat)
     const reqSlug = String(d.slug || "").trim().toLowerCase();
     
-    // 1. Deteksi Header secara dinamis (Agar tidak salah kolom)
+    // 1. Dynamic Header Detection
     const headers = rules[0].map(h => String(h || "").trim().toLowerCase());
     const colId = headers.indexOf("id");
     const colStatus = headers.indexOf("status");
     const colSlug = headers.indexOf("slug");
     
-    // Fallback index jika header tidak ditemukan
     const idxId = colId !== -1 ? colId : 0;
     const idxStatus = colStatus !== -1 ? colStatus : 5;
     const idxSlug = colSlug !== -1 ? colSlug : 16;
     
     let productData = null;
 
+    // 2. Lookup logic
     for (let i = 1; i < rules.length; i++) {
       const rowId = String(rules[i][idxId] || "").trim();
       const rowSlug = String(rules[i][idxSlug] || "").trim().toLowerCase();
@@ -2142,22 +2142,19 @@ function getProductDetail(d, cfg) {
     }
 
     if (!productData) {
-      const searchInfo = reqId ? "ID: " + reqId : "Slug: " + reqSlug;
-      return { 
-        status: "error", 
-        message: "Produk (" + searchInfo + ") tidak ditemukan. Pastikan status produk 'Active' di Tab Access_Rules.",
-        debug_headers: headers.join(",") 
-      };
+      return { status: "error", message: "Produk tidak ditemukan atau tidak aktif." };
     }
 
-    // 3. Cek Affiliate Pixel Override
+    // 3. Identify Affiliate Name & Pixel override
+    let affName = "";
     const affRef = d.ref || d.aff_id;
-    if (affRef) {
+    if (affRef && affRef !== "GUEST" && affRef !== "-") {
       const users = mustSheet_("Users").getDataRange().getValues();
       const refIdStr = String(affRef).trim().toLowerCase();
       for (let j = 1; j < users.length; j++) {
         const uId = String(users[j][0] || "").trim().toLowerCase();
         if (uId === refIdStr) {
+          affName = String(users[j][3] || "");
           if (users[j][11]) {
             productData.pixel_id = String(users[j][11]).trim();
             productData.is_affiliate_pixel = true;
@@ -2168,7 +2165,23 @@ function getProductDetail(d, cfg) {
       }
     }
 
-    return withPublicCacheVersion_({ status: "success", data: productData }, "catalog");
+    // 4. Payment Info (Required for Checkout)
+    const paymentInfo = {
+      bank_name: getCfgFrom_(cfg, "bank_name"),
+      bank_norek: getCfgFrom_(cfg, "bank_norek"),
+      bank_owner: getCfgFrom_(cfg, "bank_owner"),
+      wa_admin: getCfgFrom_(cfg, "wa_admin"),
+      pixel_id: productData.pixel_id,
+      pixel_token: productData.pixel_token,
+      pixel_test_code: productData.pixel_test_code
+    };
+
+    return withPublicCacheVersion_({ 
+      status: "success", 
+      data: productData, 
+      payment: paymentInfo, 
+      aff_name: affName 
+    }, "catalog");
   } catch (e) {
     return { status: "error", message: e.toString() };
   }
