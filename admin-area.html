@@ -3266,7 +3266,21 @@
                                 <span class="text-sm font-bold text-white block">Rp ${displayPrice}</span>
                                 ${(function() { const hCoret = Number(p[14]||0); const harga = Number(p[4]||0); if(hCoret > 0 && hCoret > harga) { const pct = Math.round((1-harga/hCoret)*100); return `<span class="text-[10px] font-bold text-[#ef4444] bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.2)] px-1.5 py-0.5 rounded-full">-${pct}%</span>`; } return ''; })()}
                             </div>
-                            <button onclick="copyProductLink('${copyUrl}')" class="p-2 rounded-xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-slate-400 hover:text-[#B6FF00] hover:bg-[rgba(182,255,0,0.1)] hover:border-[rgba(182,255,0,0.3)] transition-all" title="Copy Link Checkout"><i data-lucide="link" class="w-4 h-4"></i></button>
+                            <div class="flex flex-col gap-2">
+                                <button onclick="copyProductLink('${copyUrl}')" class="p-2 rounded-xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-slate-400 hover:text-[#B6FF00] hover:bg-[rgba(182,255,0,0.1)] hover:border-[rgba(182,255,0,0.3)] transition-all" title="Copy Link Checkout"><i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i></button>
+                                <button onclick="copyProductLink('${(function(){
+                                    const lp = p[6] || '';
+                                    const slug = p[16] || '';
+                                    const id = p[0];
+                                    const _basePath = location.pathname.replace(/\/?admin-area(\.html)?\s*$/i, '').replace(/\/?$/, '/');
+                                    if(lp) {
+                                        if(lp.startsWith('http')) return lp;
+                                        return location.origin + _basePath + lp;
+                                    }
+                                    const pUrl = slug ? 'product.html?slug=' + slug : 'product.html?id=' + id;
+                                    return location.origin + _basePath + pUrl;
+                                })()}')" class="p-2 rounded-xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-slate-400 hover:text-[#0ea5e9] hover:bg-[rgba(14,165,233,0.1)] hover:border-[rgba(14,165,233,0.3)] transition-all" title="Copy Link Landing Page"><i data-lucide="layout" class="w-3.5 h-3.5"></i></button>
+                            </div>
                         </div>
                     </div>
                     ${productImage ? `<div class="w-full aspect-square rounded-2xl overflow-hidden mb-4 border border-[rgba(255,255,255,0.05)]"><img src="${productImage}" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500" onerror="this.style.display='none'" loading="lazy" decoding="async"></div>` : ''}
