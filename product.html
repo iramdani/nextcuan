@@ -189,6 +189,11 @@
         lucide.createIcons();
 
         async function fetchProduct() {
+            // Helper to get API URL correctly from config.js
+            const getApiUrl = () => {
+                return window.API_URL || window.SCRIPT_URL || window.GAS_URL || null;
+            };
+
             const urlParams = new URLSearchParams(window.location.search);
             const slug = urlParams.get('slug');
             const id = urlParams.get('id');
@@ -198,9 +203,18 @@
                 return;
             }
 
+            // Small delay to ensure config.js is fully initialized
+            if (!getApiUrl()) {
+                await new Promise(r => setTimeout(r, 500));
+            }
+
+            const apiEndpoint = getApiUrl();
+            if (!apiEndpoint) {
+                renderError('Terjadi kegagalan konfigurasi sistem. Mohon refresh halaman.');
+                return;
+            }
+
             try {
-                // Using fallback endpoint if needed (simulated for dev)
-                const apiEndpoint = (typeof getApiEndpoint === 'function') ? getApiEndpoint() : '/api';
                 const response = await fetch(apiEndpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -333,12 +347,6 @@
                 </div>
             `;
             lucide.createIcons();
-        }
-
-        // Start local dev simulation helpers (if needed)
-        function getApiEndpoint() {
-            if (window.API_URL) return window.API_URL;
-            return 'https://script.google.com/macros/s/AKfycbz_dG5w9V6x_p_j_u_x_f_v_p_j_u_x_f_v_p/exec'; // Example, should match project's GAS URL
         }
 
         // Boot
