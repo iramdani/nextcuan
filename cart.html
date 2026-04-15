@@ -12,6 +12,8 @@
     <script src="config.js?v=2026_1"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <script>
@@ -34,6 +36,7 @@
             --color-bg: #000018;
             --color-surface: rgba(255, 255, 255, 0.03);
             --color-primary: #B6FF00;
+            --color-secondary: #017A6B;
             --color-text: #f1f5f9;
             --color-text-muted: #94a3b8;
             --color-border: rgba(255, 255, 255, 0.08);
@@ -44,19 +47,19 @@
             background-color: var(--color-bg);
             color: var(--color-text);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
         }
 
         .glass-card {
             background: var(--color-surface);
             backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--color-border);
         }
 
         .glass-nav {
             background: rgba(0, 0, 24, 0.85);
             backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(182, 255, 0, 0.08);
         }
 
@@ -64,109 +67,186 @@
             background: var(--color-primary);
             color: #000018;
             font-weight: 800;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
             box-shadow: 0 4px 15px rgba(182, 255, 0, 0.2);
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(182, 255, 0, 0.4);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 12px 30px rgba(182, 255, 0, 0.4);
         }
 
         .btn-secondary {
             background: rgba(255, 255, 255, 0.05);
             color: var(--color-text);
             border: 1px solid var(--color-border);
-            transition: all 0.2s;
+            transition: all 0.3s ease;
         }
 
         .btn-secondary:hover {
             border-color: var(--color-primary);
             color: var(--color-primary);
+            background: rgba(182, 255, 0, 0.05);
+        }
+
+        /* Mobile menu */
+        #mobile-menu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        #mobile-menu.open {
+            max-height: 500px;
         }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        .item-row {
+            transition: all 0.3s ease;
+        }
+        .item-row:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(182, 255, 0, 0.2);
+        }
     </style>
 </head>
 
 <body class="antialiased">
 
-    <!-- Navigation -->
+    <!-- Navigation (Synced with products.html) -->
     <nav class="glass-nav fixed top-0 left-0 right-0 z-50">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-            <a href="index.html">
-                <img src="https://ik.imagekit.io/iramdani/NextCuan_Logo_Transparent_Horizontal-3__1__n8uCKrYMC.png" alt="Logo" class="h-10 w-auto">
-            </a>
-            <div class="flex items-center gap-4">
-                <a href="products.html" class="text-xs font-bold text-slate-400 hover:text-primary transition-colors uppercase tracking-widest hidden sm:block">Kembali Belanja</a>
-                <div id="user-profile-nav"></div>
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <!-- Logo -->
+                <a href="index.html" class="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+                    <img src="https://ik.imagekit.io/iramdani/NextCuan_Logo_Transparent_Horizontal-3__1__n8uCKrYMC.png"
+                        alt="Next Cuan Logo" class="h-10 w-auto object-contain">
+                </a>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);">Beranda</a>
+                    <a href="products.html" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);">Products</a>
+                    <a href="index.html#solution" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);">Platform</a>
+                    <a href="index.html#how-it-works" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);">Cara Kerja</a>
+                    <a href="index.html#faq" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);">FAQ</a>
+                </div>
+
+                <!-- Right Side -->
+                <div class="flex items-center space-x-3" id="nav-right-side">
+                    <a href="login.html" class="hidden sm:block btn-secondary px-5 py-2.5 rounded-lg text-sm font-bold" id="nav-login">Masuk</a>
+                    <a href="signup.html" class="btn-primary px-5 py-2.5 rounded-lg text-sm font-bold" id="nav-signup">Daftar</a>
+                    <button id="hamburger-btn" class="md:hidden flex items-center justify-center w-10 h-10 rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.04)] text-white transition hover:border-[#B6FF00] hover:text-[#B6FF00]" aria-label="Menu" onclick="toggleMobileMenu()">
+                        <i data-lucide="menu" class="w-5 h-5" id="hamburger-icon"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Dropdown Menu -->
+            <div id="mobile-menu" class="md:hidden">
+                <div class="py-4 border-t border-[rgba(255,255,255,0.07)] mt-3 flex flex-col space-y-1">
+                    <a href="index.html" onclick="closeMobileMenu()" class="px-4 py-3 rounded-xl text-sm font-medium transition hover:bg-[rgba(182,255,0,0.08)] hover:text-[#B6FF00]" style="color: var(--color-text-muted);">Beranda</a>
+                    <a href="products.html" onclick="closeMobileMenu()" class="px-4 py-3 rounded-xl text-sm font-medium transition hover:bg-[rgba(182,255,0,0.08)] hover:text-[#B6FF00]" style="color: var(--color-text-muted);">Products</a>
+                    <a href="index.html#solution" onclick="closeMobileMenu()" class="px-4 py-3 rounded-xl text-sm font-medium transition hover:bg-[rgba(182,255,0,0.08)] hover:text-[#B6FF00]" style="color: var(--color-text-muted);">Platform</a>
+                    <a href="index.html#how-it-works" onclick="closeMobileMenu()" class="px-4 py-3 rounded-xl text-sm font-medium transition hover:bg-[rgba(182,255,0,0.08)] hover:text-[#B6FF00]" style="color: var(--color-text-muted);">Cara Kerja</a>
+                    <a href="index.html#faq" onclick="closeMobileMenu()" class="px-4 py-3 rounded-xl text-sm font-medium transition hover:bg-[rgba(182,255,0,0.08)] hover:text-[#B6FF00]" style="color: var(--color-text-muted);">FAQ</a>
+                    <div class="pt-2 border-t border-[rgba(255,255,255,0.07)]" id="mobile-nav-actions">
+                        <a href="login.html" class="block px-4 py-3 rounded-xl text-sm font-bold btn-secondary text-center mt-1">Masuk</a>
+                        <a href="signup.html" class="block px-4 py-3 rounded-xl text-sm font-bold btn-primary text-center mt-2">Daftar</a>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
 
-    <main class="flex-grow pt-28 pb-20 px-6">
+    <main class="pt-32 pb-20 px-6">
         <div class="max-w-7xl mx-auto">
             
-            <div class="flex flex-col lg:flex-row gap-10">
+            <div class="mb-12">
+                <div class="flex items-center gap-3 text-primary font-bold text-xs uppercase tracking-[0.2em] mb-3">
+                    <i data-lucide="shopping-cart" class="w-4 h-4"></i> Konfirmasi Pesanan
+                </div>
+                <h1 class="text-4xl md:text-5xl font-black text-white leading-tight">Keranjang Belanja</h1>
+            </div>
+
+            <div class="flex flex-col lg:flex-row gap-12">
                 
-                <!-- Left: Items List -->
-                <div class="flex-grow">
-                    <div class="mb-8">
-                        <h1 class="text-3xl font-black text-white mb-2">Keranjang Belanja</h1>
-                        <p id="total-count-text" class="text-slate-400 font-medium">Memuat keranjang...</p>
-                    </div>
-
+                <!-- Left: Product List -->
+                <div class="flex-grow space-y-6">
                     <div id="cart-items-container" class="space-y-4">
-                        <!-- Items will be injected here -->
+                        <!-- Loading State -->
+                        <div class="py-20 text-center glass-card rounded-[2.5rem]">
+                            <div class="animate-spin w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full mx-auto mb-4"></div>
+                            <p class="text-slate-500 font-bold uppercase tracking-widest text-xs">Menyiapkan Pesanan...</p>
+                        </div>
                     </div>
 
-                    <!-- Empty State (Hidden by default) -->
-                    <div id="empty-cart" class="hidden py-20 text-center glass-card rounded-[2.5rem] border-dashed border-white/10">
-                        <div class="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-600">
-                            <i data-lucide="shopping-cart" class="w-10 h-10"></i>
+                    <!-- Empty State (Hidden) -->
+                    <div id="empty-cart" class="hidden py-24 text-center glass-card rounded-[3rem] border-dashed border-white/10">
+                        <div class="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-8 text-slate-700">
+                            <i data-lucide="shopping-bag" class="w-12 h-12"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-white mb-2">Oops! Keranjang Kosong</h3>
-                        <p class="text-slate-400 mb-8">Sepertinya kamu belum memilih produk apa pun.</p>
-                        <a href="products.html" class="btn-primary px-8 py-4 rounded-xl inline-flex items-center gap-2">
-                            Mulai Belanja Sekarang <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                        <h2 class="text-2xl font-bold text-white mb-4">Keranjang Masih Kosong</h2>
+                        <p class="text-slate-400 mb-10 max-w-sm mx-auto">Mulailah petualangan digitalmu dengan memilih tools premium kami sekarang.</p>
+                        <a href="products.html" class="btn-primary px-10 py-5 rounded-2xl inline-flex items-center gap-3">
+                            <i data-lucide="grid" class="w-5 h-5"></i> Jelajahi Produk
                         </a>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div id="cart-actions" class="hidden flex items-center justify-between pt-6">
+                        <a href="products.html" class="text-slate-400 hover:text-white transition-colors text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+                            <i data-lucide="arrow-left" class="w-4 h-4"></i> Lanjut Belanja
+                        </a>
+                        <button onclick="clearCart()" class="text-rose-500 hover:text-rose-400 transition-colors text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+                             Kosongkan <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
                     </div>
                 </div>
 
-                <!-- Right: Summary Card -->
-                <div class="lg:w-96 shrink-0">
-                    <div class="glass-card rounded-[2.5rem] p-8 sticky top-28 shadow-2xl">
-                        <h3 class="text-xl font-black text-white mb-6 flex items-center gap-2">
-                            Ringkasan <i data-lucide="receipt" class="w-5 h-5 text-primary"></i>
+                <!-- Right: Summary Sidebar -->
+                <div class="lg:w-[400px] shrink-0" id="cart-summary-wrapper">
+                    <div class="glass-card rounded-[3rem] p-10 sticky top-32 shadow-2xl border-white/10">
+                        <h3 class="text-2xl font-black text-white mb-8 flex items-center gap-3">
+                            Ringkasan <span class="bg-primary/20 text-primary text-[10px] px-2 py-0.5 rounded-full font-black ml-1">PAID ACCESS</span>
                         </h3>
                         
-                        <div class="space-y-4 mb-8">
-                            <div class="flex justify-between text-slate-400 text-sm font-medium">
-                                <span>Subtotal</span>
-                                <span id="summary-subtotal">Rp 0</span>
+                        <div class="space-y-5 mb-10">
+                            <div class="flex justify-between items-center text-slate-400 font-medium">
+                                <span class="text-sm">Subtotal</span>
+                                <span class="text-white font-mono" id="sum-subtotal">Rp 0</span>
                             </div>
-                            <div class="flex justify-between text-slate-400 text-sm font-medium">
-                                <span>Diskon Item</span>
-                                <span id="summary-discount" class="text-red-400">- Rp 0</span>
+                            <div class="flex justify-between items-center text-slate-400 font-medium">
+                                <span class="text-sm">Potongan (DISKON)</span>
+                                <span class="text-red-400 font-mono" id="sum-discount">- Rp 0</span>
                             </div>
-                            <div class="pt-4 border-t border-white/5 flex justify-between items-end">
-                                <span class="text-slate-400 text-sm font-bold uppercase tracking-widest">Total Bayar</span>
-                                <span id="summary-total" class="text-3xl font-black text-primary font-mono tracking-tighter">Rp 0</span>
+                            <!-- Separator -->
+                            <div class="h-px bg-white/5 w-full my-6"></div>
+                            
+                            <div class="flex flex-col gap-2">
+                                <span class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-1">Total Pembayaran</span>
+                                <div class="flex items-center justify-between">
+                                    <span id="sum-total" class="text-4xl font-black text-primary font-mono tracking-tighter leading-none">Rp 0</span>
+                                    <div class="bg-primary/10 p-2 rounded-xl">
+                                        <i data-lucide="coins" class="w-6 h-6 text-primary"></i>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <button onclick="goToCheckout()" class="btn-primary w-full py-5 rounded-2xl flex items-center justify-center gap-3 text-lg group">
-                            Checkout Sekarang <i data-lucide="zap" class="w-5 h-5 fill-dark-900 group-hover:scale-110 transition-transform"></i>
+                        <button onclick="goToCheckout()" class="btn-primary w-full py-6 rounded-3xl flex items-center justify-center gap-4 text-lg group active:scale-95">
+                            <span class="font-black">CHECKOUT SEKARANG</span>
+                            <i data-lucide="arrow-right" class="w-6 h-6 group-hover:translate-x-2 transition-transform"></i>
                         </button>
                         
-                        <div class="mt-6 flex flex-col gap-3">
-                            <div class="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5 text-[10px] text-slate-400 font-medium">
-                                <i data-lucide="shield-check" class="w-5 h-5 text-primary"></i>
-                                Transaksi Aman dengan sistem enkripsi Next Cuan.
+                        <div class="mt-8 space-y-4">
+                            <div class="flex items-center gap-4 p-4 glass-card bg-white/[0.02] border-white/5 rounded-2xl">
+                                <i data-lucide="shield-check" class="w-6 h-6 text-emerald-400 shrink-0"></i>
+                                <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wide leading-relaxed">Transaksi terenkripsi & data aman</span>
                             </div>
-                            <div class="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5 text-[10px] text-slate-400 font-medium tracking-tight">
-                                <i data-lucide="clock" class="w-5 h-5 text-primary"></i>
-                                Akses produk langsung dikirim setelah pembayaran.
+                            <div class="flex items-center gap-4 p-4 glass-card bg-white/[0.02] border-white/5 rounded-2xl">
+                                <i data-lucide="zap" class="w-6 h-6 text-amber-400 shrink-0"></i>
+                                <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wide leading-relaxed">Akses instan setelah pembayaran</span>
                             </div>
                         </div>
                     </div>
@@ -176,20 +256,57 @@
         </div>
     </main>
 
-    <!-- FOOTER -->
-    <footer class="py-12 border-t border-white/5 mt-auto bg-dark-900">
-        <div class="max-w-7xl mx-auto px-6 text-center md:text-left">
-            <div class="flex flex-col md:flex-row items-center justify-between gap-6 pb-8">
-                <img src="https://ik.imagekit.io/iramdani/NextCuan_Logo_Transparent_Horizontal-3__1__n8uCKrYMC.png" alt="Logo" class="h-8">
-                <div class="flex gap-6 text-slate-400 text-xs font-bold uppercase tracking-widest">
-                    <a href="index.html" class="hover:text-primary transition-colors">Beranda</a>
-                    <a href="products.html" class="hover:text-primary transition-colors">Produk</a>
-                    <a href="login.html" class="hover:text-primary transition-colors">Masuk</a>
+    <!-- FOOTER (Synced with products.html) -->
+    <footer class="py-12 border-t mt-20" style="border-color: rgba(182, 255, 0, 0.15);">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-8 mb-12">
+                <div class="md:col-span-1">
+                    <a href="index.html" class="flex items-center space-x-2 mb-4 hover:opacity-80 transition-opacity">
+                        <img src="https://ik.imagekit.io/iramdani/NextCuan_Logo_Transparent_Horizontal-3__1__n8uCKrYMC.png"
+                            alt="Next Cuan Logo" class="h-10 w-auto object-contain">
+                    </a>
+                    <p class="text-sm mb-4" style="color: var(--color-text-muted);">
+                        Platform ekosistem digital untuk membangun income online di era AI.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);"><i data-lucide="instagram" class="w-5 h-5"></i></a>
+                        <a href="#" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);"><i data-lucide="youtube" class="w-5 h-5"></i></a>
+                        <a href="#" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);"><i data-lucide="twitter" class="w-5 h-5"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Products</h4>
+                    <ul class="space-y-2 text-sm" style="color: var(--color-text-muted);">
+                        <li><a href="products.html" class="hover:text-[#B6FF00] transition">Semua Produk</a></li>
+                        <li><a href="products.html" class="hover:text-[#B6FF00] transition">Ebook Digital</a></li>
+                        <li><a href="products.html" class="hover:text-[#B6FF00] transition">Template</a></li>
+                        <li><a href="products.html" class="hover:text-[#B6FF00] transition">GPT Tools</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Resources</h4>
+                    <ul class="space-y-2 text-sm" style="color: var(--color-text-muted);">
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Documentation</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Tutorials</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Blog</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Community</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Company</h4>
+                    <ul class="space-y-2 text-sm" style="color: var(--color-text-muted);">
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">About Us</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Contact</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Terms of Service</a></li>
+                    </ul>
                 </div>
             </div>
-            <p class="text-[10px] text-slate-600 font-medium text-center border-t border-white/5 pt-8">
-                &copy; 2026 Next Cuan. Semua Produk dilindungi hak cipta. Pembelian memberikan lisensi penggunaan sesuai ketentuan.
-            </p>
+            <div class="pt-8 border-t flex flex-col md:flex-row items-center justify-between text-sm"
+                style="border-color: rgba(182, 255, 0, 0.15); color: var(--color-text-muted);">
+                <p>&copy; 2026 Next Cuan. All rights reserved.</p>
+                <p class="mt-2 md:mt-0">Made with ❤️ in Indonesia</p>
+            </div>
         </div>
     </footer>
 
@@ -210,25 +327,31 @@
             saveCart(getCart().filter(i => i.id_produk !== id));
         }
 
+        function clearCart() {
+            if(confirm('Hapus semua produk dari keranjang?')) {
+                saveCart([]);
+            }
+        }
+
         function renderCart() {
             const cart = getCart();
             const container = document.getElementById('cart-items-container');
+            const summary = document.getElementById('cart-summary-wrapper');
             const emptyEl = document.getElementById('empty-cart');
-            const countText = document.getElementById('total-count-text');
+            const actionEl = document.getElementById('cart-actions');
             const nf = new Intl.NumberFormat('id-ID');
 
             if (cart.length === 0) {
                 container.innerHTML = '';
                 emptyEl.classList.remove('hidden');
-                countText.innerText = 'Keranjang Anda kosong.';
-                document.getElementById('summary-subtotal').innerText = 'Rp 0';
-                document.getElementById('summary-discount').innerText = '- Rp 0';
-                document.getElementById('summary-total').innerText = 'Rp 0';
+                if(summary) summary.classList.add('hidden');
+                if(actionEl) actionEl.classList.add('hidden');
                 return;
             }
 
             emptyEl.classList.add('hidden');
-            countText.innerText = `Ada ${cart.length} produk pilihan dalam keranjang Anda.`;
+            if(summary) summary.classList.remove('hidden');
+            if(actionEl) actionEl.classList.remove('hidden');
 
             let subtotal = 0;
             let discount = 0;
@@ -236,33 +359,46 @@
             container.innerHTML = cart.map(item => {
                 const price = Number(item.harga || 0);
                 const original = Number(item.harga_coret || 0);
-                subtotal += (original > 0 ? original : price);
+                subtotal += (original > price ? original : price);
                 discount += (original > price ? (original - price) : 0);
 
+                // Use the image_url from the cart object, fallback to placeholder
+                const img = item.image_url || 'https://ik.imagekit.io/iramdani/logo/NextCuan_Fav.webp';
+
                 return `
-                    <div class="glass-card rounded-3xl p-4 md:p-6 flex flex-col md:flex-row items-center gap-6 group hover:border-primary/20 transition-all">
-                        <div class="w-24 h-24 md:w-32 md:h-32 bg-white/5 rounded-2xl border border-white/10 overflow-hidden flex-shrink-0">
-                            ${item.image_url ? `<img src="${item.image_url}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">` : `<div class="w-full h-full flex items-center justify-center text-primary/30 font-black text-4xl">${item.nama_produk.charAt(0)}</div>`}
+                    <div class="glass-card rounded-[2.5rem] p-6 flex flex-col md:flex-row items-center gap-8 item-row border-white/5">
+                        <!-- Product Image -->
+                        <div class="w-32 h-32 md:w-40 md:h-40 bg-white/[0.03] rounded-3xl border border-white/5 overflow-hidden flex-shrink-0 relative group/img">
+                            <img src="${img}" class="w-full h-full object-cover transition-transform duration-700 group-hover/img:scale-110" 
+                                 onerror="this.src='https://ik.imagekit.io/iramdani/logo/NextCuan_Fav.webp'">
+                            <div class="absolute inset-0 bg-primary/10 opacity-0 group-hover/img:opacity-100 transition-opacity"></div>
                         </div>
+
+                        <!-- Info -->
                         <div class="flex-1 text-center md:text-left">
-                            <h3 class="text-xl font-bold text-white mb-2 leading-tight">${item.nama_produk}</h3>
-                            <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 justify-center md:justify-start">
-                                <span class="text-lg font-black text-primary font-mono tracking-tight">Rp ${nf.format(price)}</span>
+                            <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Produk Terpilih</div>
+                            <h3 class="text-2xl font-black text-white mb-3 group-hover:text-primary transition-colors leading-tight">${item.nama_produk}</h3>
+                            <div class="flex flex-col md:flex-row md:items-center gap-3 justify-center md:justify-start">
+                                <span class="text-2xl font-black text-primary font-mono tracking-tighter">Rp ${nf.format(price)}</span>
                                 ${original > price ? `<span class="text-sm text-slate-500 line-through font-medium">Rp ${nf.format(original)}</span>` : ''}
+                                ${original > price ? `<span class="inline-flex items-center text-[10px] font-black text-rose-500 bg-rose-500/10 px-2 py-0.5 rounded-lg border border-rose-500/10">HEMAT Rp ${nf.format(original - price)}</span>` : ''}
                             </div>
                         </div>
-                        <div class="flex items-center gap-4">
-                            <button onclick="removeFromCart('${item.id_produk}')" class="w-12 h-12 flex items-center justify-center rounded-2xl bg-red-500/5 text-red-500/50 hover:text-red-500 hover:bg-red-500/10 transition-all border border-red-500/10 group/btn">
-                                <i data-lucide="trash-2" class="w-6 h-6 group-hover/btn:scale-110 transition-transform"></i>
+
+                        <!-- Actions -->
+                        <div class="shrink-0 flex items-center md:flex-col gap-3">
+                            <button onclick="removeFromCart('${item.id_produk}')" 
+                                    class="w-14 h-14 flex items-center justify-center rounded-2xl bg-white/[0.03] text-slate-500 hover:text-rose-500 hover:bg-rose-500/10 hover:border-rose-500/20 border border-white/5 transition-all group/trash">
+                                <i data-lucide="trash-2" class="w-6 h-6 group-hover/trash:scale-110 transition-transform"></i>
                             </button>
                         </div>
                     </div>
                 `;
             }).join('');
 
-            document.getElementById('summary-subtotal').innerText = 'Rp ' + nf.format(subtotal);
-            document.getElementById('summary-discount').innerText = '- Rp ' + nf.format(discount);
-            document.getElementById('summary-total').innerText = 'Rp ' + nf.format(subtotal - discount);
+            document.getElementById('sum-subtotal').innerText = 'Rp ' + nf.format(subtotal);
+            document.getElementById('sum-discount').innerText = '- Rp ' + nf.format(discount);
+            document.getElementById('sum-total').innerText = 'Rp ' + nf.format(subtotal - discount);
 
             lucide.createIcons();
         }
@@ -277,23 +413,41 @@
             }
         }
 
-        window.addEventListener('load', () => {
-            const userEmail = sessionStorage.getItem('user_email');
-            if (userEmail) {
-                const name = sessionStorage.getItem('user_nama') || 'User';
-                const initials = name.trim().split(/\s+/).length >= 2 
-                    ? (name.split(/\s+/)[0][0] + name.split(/\s+/)[1][0]).toUpperCase() 
-                    : name.substring(0, 2).toUpperCase();
-                
-                document.getElementById('user-profile-nav').innerHTML = `
-                    <a href="dashboard.html" class="w-10 h-10 rounded-full flex items-center justify-center bg-primary text-dark-900 font-black text-sm hover:scale-105 transition-transform">
-                        ${initials}
-                    </a>
-                `;
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const icon = document.getElementById('hamburger-icon');
+            if (menu.classList.contains('open')) {
+                menu.classList.remove('open');
+                if (icon) { icon.setAttribute('data-lucide', 'menu'); lucide.createIcons({ nodes: [icon] }); }
             } else {
-                document.getElementById('user-profile-nav').innerHTML = `
-                    <a href="login.html" class="btn-secondary px-5 py-2 rounded-xl text-xs font-bold uppercase tracking-widest hidden sm:block">Masuk</a>
-                `;
+                menu.classList.add('open');
+                if (icon) { icon.setAttribute('data-lucide', 'x'); lucide.createIcons({ nodes: [icon] }); }
+            }
+        }
+
+        function closeMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const icon = document.getElementById('hamburger-icon');
+            if(menu) menu.classList.remove('open');
+            if (icon) { icon.setAttribute('data-lucide', 'menu'); lucide.createIcons({ nodes: [icon] }); }
+        }
+
+        window.addEventListener('load', () => {
+            const isLogged = !!sessionStorage.getItem('user_email');
+            if(isLogged) {
+                const userNama = sessionStorage.getItem('user_nama') || 'User';
+                const words = userNama.trim().split(/\s+/);
+                const initials = words.length >= 2 ? (words[0][0] + words[1][0]).toUpperCase() : userNama.substring(0, 2).toUpperCase();
+
+                const desktopNavActions = document.getElementById('nav-right-side');
+                if(desktopNavActions) {
+                    const hamburger = document.getElementById('hamburger-btn');
+                    desktopNavActions.innerHTML = `<a href="dashboard.html" class="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-[#B6FF00] text-[#000018] font-black text-sm tracking-tighter hover:scale-105">${initials}</a>`;
+                    if(hamburger) desktopNavActions.appendChild(hamburger);
+                }
+
+                const mobileNavActions = document.getElementById('mobile-nav-actions');
+                if(mobileNavActions) mobileNavActions.innerHTML = `<a href="dashboard.html" class="block px-4 py-3 rounded-xl text-sm font-semibold btn-primary text-center mt-1 flex items-center justify-center space-x-2"><div class="w-6 h-6 rounded-full bg-[#000018] text-[#B6FF00] flex items-center justify-center text-[10px] font-black">${initials}</div><span>Ke Member Area</span></a>`;
             }
             renderCart();
         });
