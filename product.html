@@ -158,19 +158,21 @@
             background: rgba(10,10,30,0.98); border: 1px solid rgba(255,255,255,0.1);
             color: white; padding: 0.9rem 1.25rem; border-radius: 1rem;
             font-size: 0.875rem; font-weight: 600; pointer-events: all;
-            min-width: 220px; max-width: 380px;
-            transform: translateX(120%); opacity: 0;
-            transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), opacity 0.35s ease;
+            min-width: 220px; max-width: 300px;
+            transform: translateY(120%); opacity: 0;
+            transition: all 0.35s cubic-bezier(0.22,1,0.36,1);
             box-shadow: 0 8px 32px rgba(0,0,0,0.6);
         }
         .toast.success { border-color: rgba(182,255,0,0.3); color: #B6FF00; }
         .toast.warning { border-color: rgba(245,158,11,0.3); color: #f59e0b; }
-        .toast.show { transform: translateX(0); opacity: 1; }
+        .toast.show { transform: translateY(0); opacity: 1; }
 
-        /* Floating Cart Bar */
-        #cart-bar {
-            box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
-        }
+        /* Scrollbar Styling for Drawer */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .drawer-scrollbar::-webkit-scrollbar { width: 4px; }
+        .drawer-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
+        .drawer-scrollbar::-webkit-scrollbar-thumb { background: rgba(182,255,0,0.2); border-radius: 10px; }
+        .drawer-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(182,255,0,0.4); }
     </style>
 </head>
 
@@ -307,45 +309,77 @@
         </div>
     </footer>
 
-    <!-- Shopping Cart Bar -->
-    <div id="cart-bar" class="fixed bottom-0 left-0 right-0 z-[60] glass-nav bg-dark-900/90 border-t border-primary/20 p-4 transform translate-y-full transition-transform duration-500 hidden sm:block">
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
-            <div class="flex items-center gap-4">
-                <div class="relative">
-                    <div class="w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-dark-900">
-                        <i data-lucide="shopping-cart" class="w-6 h-6"></i>
+    <!-- Shopping Cart Overlay/Drawer -->
+    <div id="cart-drawer" class="fixed inset-0 z-[100] hidden">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-dark-900/80 backdrop-blur-sm" onclick="toggleCartDrawer()"></div>
+        
+        <!-- Drawer Card -->
+        <div class="absolute right-4 bottom-24 md:bottom-28 w-[calc(100%-2rem)] md:w-[420px] glass-card rounded-[2rem] p-6 shadow-2xl border-primary/20 flex flex-col max-h-[70vh] md:max-h-[500px]">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 md:w-12 md:h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary border border-primary/20">
+                        <i data-lucide="shopping-basket" class="w-5 h-5 md:w-6 md:h-6"></i>
                     </div>
-                    <span id="cart-item-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full border-2 border-dark-900">0</span>
+                    <div>
+                        <h3 class="font-black text-lg md:text-xl text-white leading-tight">Keranjang</h3>
+                        <a href="cart.html" class="text-[10px] text-primary font-bold uppercase tracking-widest hover:underline flex items-center gap-1">
+                            Lihat Detail <i data-lucide="external-link" class="w-2.5 h-2.5"></i>
+                        </a>
+                    </div>
                 </div>
-                <div>
-                    <p class="text-xs text-slate-400 font-bold uppercase tracking-widest leading-none mb-1">Total Keranjang</p>
-                    <p id="cart-total" class="text-xl font-black text-primary font-mono leading-none">Rp 0</p>
+                <div class="flex items-center gap-3">
+                    <button onclick="clearCart()" class="p-2 text-slate-500 hover:text-red-400 transition-colors" title="Kosongkan Keranjang">
+                        <i data-lucide="trash-2" class="w-5 h-5"></i>
+                    </button>
+                    <button onclick="toggleCartDrawer()" class="p-2 text-slate-500 hover:text-white transition-colors">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
                 </div>
             </div>
-            <div class="flex items-center gap-3">
-                <button onclick="clearCart()" class="text-xs font-bold text-slate-400 hover:text-red-400 py-3 px-4 transition-colors">Kosongkan</button>
-                <button onclick="goToCartCheckout()" class="btn-primary px-8 py-3 rounded-xl flex items-center gap-2 group">
-                    Bayar Sekarang <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+
+            <!-- Items List -->
+            <div id="drawer-items" class="flex-1 overflow-y-auto drawer-scrollbar space-y-4 mb-6 pr-2">
+                <!-- Items will be injected here -->
+            </div>
+
+            <!-- Summary & CTA -->
+            <div class="pt-6 border-t border-white/5 mt-auto">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Total Bayar</span>
+                    <span id="drawer-total" class="text-xl font-black text-primary font-mono tracking-tighter">Rp 0</span>
+                </div>
+                <button onclick="goToCartCheckout()" class="btn-primary w-full py-4 md:py-5 rounded-2xl flex items-center justify-center gap-3 group relative overflow-hidden">
+                    <div class="absolute inset-0 bg-white/20 transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                    <i data-lucide="zap" class="w-4 h-4 md:w-5 md:h-5 fill-dark-900"></i>
+                    <span class="text-sm md:text-base font-black uppercase">Lanjut Checkout</span>
+                    <span id="drawer-btn-count" class="bg-dark-900/20 px-2.5 py-0.5 rounded-full text-[9px] font-black ml-1">0 ITEM</span>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Mobile Cart Bar -->
-    <div id="mobile-cart-bar" class="fixed bottom-0 left-0 right-0 z-[60] bg-dark-900/95 border-t border-primary/20 p-4 transform translate-y-full transition-transform duration-500 sm:hidden">
-        <div class="flex items-center gap-4 h-12">
-            <div class="flex flex-col flex-1">
-                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0.5" id="mobile-cart-count">0 Item</p>
-                <p class="text-lg font-black text-primary font-mono" id="mobile-cart-total">Rp 0</p>
+    <!-- Floating Compact Cart Bar (The Trigger) -->
+    <div id="cart-bar" class="fixed bottom-6 left-1/2 -translate-x-1/2 md:left-auto md:right-8 md:translate-x-0 z-[90] transform translate-y-32 opacity-0 transition-all duration-500 pointer-events-none">
+        <button onclick="toggleCartDrawer()" class="glass-card bg-dark-900/90 border-primary/30 pl-2 pr-6 py-2 rounded-2xl flex items-center gap-4 shadow-[0_10px_40px_rgba(0,0,0,0.5)] pointer-events-auto hover:border-primary transition-all group active:scale-95">
+            <div class="relative">
+                <div class="w-11 h-11 bg-primary rounded-xl flex items-center justify-center text-dark-900 group-hover:scale-110 transition-transform">
+                    <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                </div>
+                <span id="cart-item-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full border-2 border-dark-900 shadow-xl">0</span>
             </div>
-            <button onclick="goToCartCheckout()" class="btn-primary flex-1 h-full rounded-xl font-black text-sm flex items-center justify-center gap-2">
-                Bayar Sekarang <i data-lucide="chevron-right" class="w-4 h-4"></i>
-            </button>
-        </div>
+            <div>
+                <p class="text-[9px] text-slate-500 font-bold uppercase tracking-widest leading-none mb-1">Total Keranjang</p>
+                <div class="flex items-center gap-2">
+                    <p id="cart-total" class="text-lg font-black text-primary font-mono leading-none tracking-tight">Rp 0</p>
+                    <i data-lucide="chevron-up" class="w-4 h-4 text-primary animate-bounce"></i>
+                </div>
+            </div>
+        </button>
     </div>
 
     <!-- Toast Container -->
-    <div id="toast-container" class="fixed bottom-24 right-6 z-[999] flex flex-col gap-3" style="pointer-events:none;"></div>
+    <div id="toast-container" class="fixed top-24 right-6 z-[999] flex flex-col gap-3" style="pointer-events:none;"></div>
 
     <!-- Scripts -->
     <script>
@@ -364,9 +398,10 @@
         function saveCart(cart) {
             localStorage.setItem(CART_KEY, JSON.stringify(cart));
             renderCartBar();
+            renderDrawerItems();
         }
 
-        function addToCart(e, id, name, price, hargaCoret) {
+        function addToCart(e, id, name, price, hargaCoret, imageUrl) {
             if(e) { e.preventDefault(); e.stopPropagation(); }
             const cart = getCart();
             const existing = cart.find(i => i.id_produk === id);
@@ -374,7 +409,13 @@
                 showToast('Produk sudah ada di keranjang!', 'warning');
                 return;
             }
-            cart.push({ id_produk: id, nama_produk: name, harga: price, harga_coret: hargaCoret });
+            cart.push({ 
+                id_produk: id, 
+                nama_produk: name, 
+                harga: price, 
+                harga_coret: hargaCoret,
+                image_url: imageUrl 
+            });
             saveCart(cart);
 
             const btn = document.getElementById('cart-btn');
@@ -392,11 +433,71 @@
                 }, 1800);
             }
 
-            showToast('✅ Berhasil ditambahkan ke keranjang!', 'success');
+            showToast('✅ Berhasil ditambahkan!', 'success');
+        }
+
+        function removeFromCart(id) {
+            saveCart(getCart().filter(i => i.id_produk !== id));
         }
 
         function clearCart() {
-            saveCart([]);
+            if(confirm('Kosongkan semua item di keranjang?')) {
+                saveCart([]);
+                toggleCartDrawer(false);
+            }
+        }
+
+        function toggleCartDrawer(force) {
+            const drawer = document.getElementById('cart-drawer');
+            if(!drawer) return;
+            const isHidden = drawer.classList.contains('hidden');
+            const show = typeof force === 'boolean' ? force : isHidden;
+            
+            if(show) {
+                drawer.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+                renderDrawerItems();
+            } else {
+                drawer.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+        }
+
+        function renderDrawerItems() {
+            const cart = getCart();
+            const container = document.getElementById('drawer-items');
+            if(!container) return;
+
+            if(!cart.length) {
+                container.innerHTML = `
+                    <div class="py-10 text-center">
+                        <div class="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/5">
+                            <i data-lucide="shopping-cart" class="w-8 h-8 text-slate-600"></i>
+                        </div>
+                        <p class="text-slate-500 font-medium">Keranjang kamu masih kosong</p>
+                    </div>
+                `;
+                lucide.createIcons({ nodes: [container] });
+                return;
+            }
+
+            const nf = new Intl.NumberFormat('id-ID');
+            container.innerHTML = cart.map((item, idx) => `
+                <div class="flex items-center gap-4 group p-1">
+                    <div class="w-14 h-14 bg-white/5 rounded-xl border border-white/5 overflow-hidden flex-shrink-0">
+                        ${item.image_url ? `<img src="${item.image_url}" class="w-full h-full object-cover" onerror="this.outerHTML='<div class=\\'flex h-full w-full items-center justify-center text-primary/30 font-black text-xl\\'>${item.nama_produk.charAt(0)}</div>'">` : `<div class="w-full h-full flex items-center justify-center text-primary/30 font-black text-xl">${item.nama_produk.charAt(0)}</div>`}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h4 class="text-xs font-bold text-white truncate group-hover:text-primary transition-colors">${item.nama_produk}</h4>
+                        <p class="text-xs font-black text-primary font-mono tracking-tight mt-0.5">Rp ${nf.format(item.harga)}</p>
+                    </div>
+                    <button onclick="removeFromCart('${item.id_produk}')" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-500/10 text-slate-600 hover:text-red-500 transition-all">
+                        <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                    </button>
+                </div>
+            `).join('');
+
+            lucide.createIcons({ nodes: [container] });
         }
 
         function goToCartCheckout() {
@@ -412,35 +513,35 @@
         function renderCartBar() {
             const cart = getCart();
             const bar = document.getElementById('cart-bar');
-            const mobileBar = document.getElementById('mobile-cart-bar');
-            if (!bar || !mobileBar) return;
-
-            if (!cart.length) {
-                bar.classList.add('translate-y-full');
-                mobileBar.classList.add('translate-y-full');
-                setTimeout(() => { bar.classList.add('hidden'); mobileBar.classList.add('hidden'); }, 500);
-                return;
-            }
-
-            bar.classList.remove('hidden');
-            mobileBar.classList.remove('hidden');
-            setTimeout(() => { 
-                bar.classList.remove('translate-y-full'); 
-                mobileBar.classList.remove('translate-y-full'); 
-            }, 50);
+            if (!bar) return;
 
             const nf = new Intl.NumberFormat('id-ID');
             const total = cart.reduce((s, i) => s + Number(i.harga || 0), 0);
 
+            // Update main bar
             const countEl = document.getElementById('cart-item-count');
             const totalEl = document.getElementById('cart-total');
-            const mobileCountEl = document.getElementById('mobile-cart-count');
-            const mobileTotalEl = document.getElementById('mobile-cart-total');
-
             if (countEl) countEl.innerText = cart.length;
             if (totalEl) totalEl.innerText = 'Rp ' + nf.format(total);
-            if (mobileCountEl) mobileCountEl.innerText = cart.length + ' Item Di Keranjang';
-            if (mobileTotalEl) mobileTotalEl.innerText = 'Rp ' + nf.format(total);
+
+            // Update drawer elements
+            const drawerCountEl = document.getElementById('drawer-item-count');
+            const drawerTotalEl = document.getElementById('drawer-total');
+            const drawerBtnCountEl = document.getElementById('drawer-btn-count');
+            if (drawerCountEl) drawerCountEl.innerText = cart.length + ' Produk Terpilih';
+            if (drawerTotalEl) drawerTotalEl.innerText = 'Rp ' + nf.format(total);
+            if (drawerBtnCountEl) drawerBtnCountEl.innerText = cart.length + ' ITEM';
+
+            // Show/Hide bar with animation
+            if (!cart.length) {
+                bar.classList.add('translate-y-32', 'opacity-0');
+                bar.classList.remove('translate-y-0', 'opacity-100');
+                bar.style.pointerEvents = 'none';
+            } else {
+                bar.classList.remove('translate-y-32', 'opacity-0');
+                bar.classList.add('translate-y-0', 'opacity-100');
+                bar.style.pointerEvents = 'auto';
+            }
 
             if (window.lucide) lucide.createIcons({ root: bar });
         }
@@ -468,7 +569,6 @@
                 return;
             }
 
-            // Ensure configuration is ready
             let apiEndpoint = window.API_URL || window.SCRIPT_URL || window.GAS_URL;
             let attempts = 0;
             while (!apiEndpoint && attempts < 10) {
@@ -478,7 +578,7 @@
             }
 
             if (!apiEndpoint) {
-                renderError('Konfigurasi sistem tidak ditemukan (API_URL Missing). Mohon pastikan script utama dimuat dengan benar.');
+                renderError('Konfigurasi sistem tidak ditemukan (API_URL Missing).');
                 return;
             }
 
@@ -486,35 +586,21 @@
                 const response = await fetch(apiEndpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'get_product',
-                        slug: slug,
-                        id: id,
-                        v: Date.now()
-                    })
+                    body: JSON.stringify({ action: 'get_product', slug: slug, id: id, v: Date.now() })
                 });
-
-                if (!response.ok) throw new Error('Network response was not ok: ' + response.status);
-                
                 const result = await response.json();
-
-                if (result.status === 'success' && result.data) {
-                    renderProduct(result.data);
-                } else {
-                    renderError(result.message || 'Produk tidak ditemukan atau telah dihapus.');
-                }
+                if (result.status === 'success' && result.data) renderProduct(result.data);
+                else renderError(result.message || 'Produk tidak ditemukan.');
             } catch (error) {
                 console.error('Fetch Error:', error);
-                renderError('Gagal memuat data produk: ' + error.message);
+                renderError('Gagal memuat data produk.');
             }
         }
 
         function renderProduct(p) {
             document.title = `${p.title} - Next Cuan`;
             document.getElementById('page-title').innerText = `${p.title} - Next Cuan`;
-            
-            const shortDesc = p.desc || 'Optimalkan potensi digital Anda bersama Next Cuan.';
-            document.getElementById('meta-desc').setAttribute('content', shortDesc);
+            document.getElementById('meta-desc').setAttribute('content', p.desc || 'Detail produk Next Cuan.');
 
             const hero = document.getElementById('product-hero');
             const originalPrice = Number(p.harga_coret || 0);
@@ -534,7 +620,7 @@
 
                 <div class="order-2 lg:order-2">
                     <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold uppercase tracking-widest mb-4">
-                        <i data-lucide="tag" class="w-3 h-3"></i> ${p.category || 'Digital Tool'}
+                        <i data-lucide="tag" class="w-3 h-3 text-primary"></i> ${p.category || 'Digital Tool'}
                     </div>
                     
                     <h1 class="text-3xl md:text-4xl lg:text-5xl font-black text-white leading-tight mb-4">
@@ -545,7 +631,6 @@
                         ${p.desc}
                     </p>
 
-                    <!-- Refined Price Section -->
                     <div class="flex flex-wrap items-center gap-6 mb-10 pb-8 border-b border-white/5">
                         <div class="flex flex-col">
                             <span class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2">Harga Sekarang</span>
@@ -556,11 +641,11 @@
                             </div>
                         </div>
                         ${hasDiscount ? `
-                        <div class="flex flex-col border-l border-white/10 pl-6">
+                        <div class="flex flex-col border-l border-white/10 pl-6 text-left">
                             <span class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2">Potongan Harga</span>
                             <div class="flex items-center gap-3">
                                 <span class="text-lg text-slate-500 line-through font-medium">Rp ${originalPrice.toLocaleString('id-ID')}</span>
-                                <span class="bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] font-black px-2 py-1 rounded-lg">HEMAT ${discountPct}%</span>
+                                <span class="bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] font-black px-2 py-1 rounded-lg tracking-tight">HEMAT ${discountPct}%</span>
                             </div>
                         </div>
                         ` : ''}
@@ -572,21 +657,22 @@
                         </div>
                         <div>
                             <p class="font-bold text-white text-sm leading-none mb-1.5">Lifetime Access</p>
-                            <p class="text-[11px] text-slate-400 font-medium">Bayar Sekali Akses Selamanya</p>
+                            <p class="text-[11px] text-slate-400 font-medium tracking-wide">Bayar Sekali Akses Selamanya</p>
                         </div>
                     </div>
 
                     <div class="flex flex-col sm:flex-row flex-wrap gap-4">
-                        <a href="checkout.html?id=${p.id}" class="btn-primary px-8 py-5 rounded-2xl flex-1 sm:flex-none flex items-center justify-center gap-3 group">
-                            Beli Sekarang <i data-lucide="zap" class="w-5 h-5 fill-dark-900"></i>
+                        <a href="checkout.html?id=${p.id}" class="btn-primary px-10 py-5 rounded-2xl flex-1 sm:flex-none flex items-center justify-center gap-3 group">
+                            Beli Sekarang <i data-lucide="zap" class="w-5 h-5 fill-dark-900 group-hover:scale-110 transition-transform"></i>
                         </a>
-                        <button id="cart-btn" onclick="addToCart(event, '${p.id}', '${p.title.replace(/'/g,"\\'").replace(/"/g,'&quot;')}', ${currentPrice}, ${originalPrice})" class="btn-secondary px-8 py-5 rounded-2xl flex-1 sm:flex-none flex items-center justify-center gap-3 group">
-                            <i data-lucide="shopping-cart" class="w-5 h-5"></i> Keranjang
-                        </button>
-                        <button onclick="handleBackToCatalog()" class="w-full sm:w-auto text-slate-400 hover:text-white transition-colors text-xs font-bold py-4 flex items-center justify-center gap-2 group">
-                            <i data-lucide="arrow-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i> Kembali ke Katalog
+                        <button id="cart-btn" onclick="addToCart(event, '${p.id}', '${p.title.replace(/'/g,"\\'").replace(/"/g,'&quot;')}', ${currentPrice}, ${originalPrice}, '${p.image_url}')" class="btn-secondary px-8 py-5 rounded-2xl flex-1 sm:flex-none flex items-center justify-center gap-3 group">
+                            <i data-lucide="shopping-cart" class="w-5 h-5 group-hover:rotate-12 transition-transform"></i> Keranjang
                         </button>
                     </div>
+                    
+                    <button onclick="handleBackToCatalog()" class="w-full sm:w-auto mt-6 text-slate-400 hover:text-white transition-colors text-[10px] sm:text-xs font-bold py-2 flex items-center justify-center sm:justify-start gap-2 group uppercase tracking-widest">
+                        <i data-lucide="arrow-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i> Kembali ke Katalog
+                    </button>
                 </div>
             `;
 
@@ -613,20 +699,7 @@
 
         function renderError(msg) {
             const hero = document.getElementById('product-hero');
-            if (hero) {
-                hero.innerHTML = `
-                    <div class="col-span-full py-20 text-center">
-                        <div class="w-20 h-20 mx-auto bg-rose-500/10 text-rose-500 rounded-3xl flex items-center justify-center border border-rose-500/20 mb-8">
-                            <i data-lucide="alert-circle" class="w-10 h-10"></i>
-                        </div>
-                        <h1 class="text-2xl font-black text-white mb-4">Ups! Ada Masalah</h1>
-                        <p class="text-slate-400 max-w-md mx-auto mb-10 leading-relaxed">${msg}</p>
-                        <a href="products.html" class="btn-primary px-8 py-4 rounded-xl inline-block">
-                            Kembali ke Katalog
-                        </a>
-                    </div>
-                `;
-            }
+            if (hero) hero.innerHTML = `<div class="col-span-full py-20 text-center glass-card rounded-3xl"><i data-lucide="alert-circle" class="w-12 h-12 text-rose-500 mx-auto mb-4"></i><h2 class="text-2xl font-black text-white mb-4">Ups! Ada Masalah</h2><p class="text-slate-400 max-w-sm mx-auto mb-10">${msg}</p><a href="products.html" class="btn-primary px-8 py-4 rounded-xl inline-block">Kembali ke Katalog</a></div>`;
             const details = document.getElementById('product-details');
             if(details) details.innerHTML = '';
             lucide.createIcons();
@@ -634,11 +707,8 @@
 
         function handleBackToCatalog() {
             const ref = document.referrer;
-            if (ref && (ref.includes('products.html') || ref.includes('index.html'))) {
-                history.back();
-            } else {
-                window.location.href = 'products.html';
-            }
+            if (ref && (ref.includes('products.html') || ref.includes('index.html'))) history.back();
+            else window.location.href = 'products.html';
         }
 
         function toggleMobileMenu() {
@@ -663,28 +733,19 @@
         window.addEventListener('load', () => {
             const isLogged = !!sessionStorage.getItem('user_email');
             if(isLogged) {
-                const userNama = sessionStorage.getItem('user_nama') || sessionStorage.getItem('auth_name') || 'User';
+                const userNama = sessionStorage.getItem('user_nama') || 'User';
                 const words = userNama.trim().split(/\s+/);
-                const initials = words.length >= 2 
-                    ? (words[0][0] + words[1][0]).toUpperCase() 
-                    : userNama.substring(0, 2).toUpperCase();
+                const initials = words.length >= 2 ? (words[0][0] + words[1][0]).toUpperCase() : userNama.substring(0, 2).toUpperCase();
 
                 const desktopNavActions = document.getElementById('nav-right-side');
                 if(desktopNavActions) {
                     const hamburger = document.getElementById('hamburger-btn');
-                    desktopNavActions.innerHTML = '';
-                    const profileLink = document.createElement('a');
-                    profileLink.href = 'dashboard.html';
-                    profileLink.className = 'w-10 h-10 rounded-full flex items-center justify-center transition-all bg-[#B6FF00] text-[#000018] font-black text-sm tracking-tighter hover:scale-105';
-                    profileLink.innerHTML = initials;
-                    desktopNavActions.appendChild(profileLink);
+                    desktopNavActions.innerHTML = `<a href="dashboard.html" class="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-[#B6FF00] text-[#000018] font-black text-sm tracking-tighter hover:scale-105">${initials}</a>`;
                     if(hamburger) desktopNavActions.appendChild(hamburger);
                 }
 
                 const mobileNavActions = document.getElementById('mobile-nav-actions');
-                if(mobileNavActions) {
-                    mobileNavActions.innerHTML = '<a href="dashboard.html" class="block px-4 py-3 rounded-xl text-sm font-semibold btn-primary text-center mt-1 flex items-center justify-center space-x-2"><div class="w-6 h-6 rounded-full bg-[#000018] text-[#B6FF00] flex items-center justify-center text-[10px] font-black">' + initials + '</div><span>Ke Member Area</span></a>';
-                }
+                if(mobileNavActions) mobileNavActions.innerHTML = `<a href="dashboard.html" class="block px-4 py-3 rounded-xl text-sm font-semibold btn-primary text-center mt-1 flex items-center justify-center space-x-2"><div class="w-6 h-6 rounded-full bg-[#000018] text-[#B6FF00] flex items-center justify-center text-[10px] font-black">${initials}</div><span>Ke Member Area</span></a>`;
             }
             renderCartBar();
         });

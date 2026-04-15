@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keranjang Belanja - Next Cuan</title>
+    <link rel="icon" type="image/webp" href="https://ik.imagekit.io/iramdani/logo/NextCuan_Fav.webp">
+    <link rel="shortcut icon" href="https://ik.imagekit.io/iramdani/logo/NextCuan_Fav.webp">
+
+    <script src="site.config.js"></script>
+    <script src="config.js?v=2026_1"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: { 900: '#000018', 800: '#0a0a24', 700: '#111827' },
+                        primary: '#B6FF00',
+                        secondary: '#017A6B',
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --color-bg: #000018;
+            --color-surface: rgba(255, 255, 255, 0.03);
+            --color-primary: #B6FF00;
+            --color-text: #f1f5f9;
+            --color-text-muted: #94a3b8;
+            --color-border: rgba(255, 255, 255, 0.08);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .glass-card {
+            background: var(--color-surface);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--color-border);
+        }
+
+        .glass-nav {
+            background: rgba(0, 0, 24, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(182, 255, 0, 0.08);
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: #000018;
+            font-weight: 800;
+            transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(182, 255, 0, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(182, 255, 0, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+
+<body class="antialiased">
+
+    <!-- Navigation -->
+    <nav class="glass-nav fixed top-0 left-0 right-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <a href="index.html">
+                <img src="https://ik.imagekit.io/iramdani/NextCuan_Logo_Transparent_Horizontal-3__1__n8uCKrYMC.png" alt="Logo" class="h-10 w-auto">
+            </a>
+            <div class="flex items-center gap-4">
+                <a href="products.html" class="text-xs font-bold text-slate-400 hover:text-primary transition-colors uppercase tracking-widest hidden sm:block">Kembali Belanja</a>
+                <div id="user-profile-nav"></div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow pt-28 pb-20 px-6">
+        <div class="max-w-7xl mx-auto">
+            
+            <div class="flex flex-col lg:flex-row gap-10">
+                
+                <!-- Left: Items List -->
+                <div class="flex-grow">
+                    <div class="mb-8">
+                        <h1 class="text-3xl font-black text-white mb-2">Keranjang Belanja</h1>
+                        <p id="total-count-text" class="text-slate-400 font-medium">Memuat keranjang...</p>
+                    </div>
+
+                    <div id="cart-items-container" class="space-y-4">
+                        <!-- Items will be injected here -->
+                    </div>
+
+                    <!-- Empty State (Hidden by default) -->
+                    <div id="empty-cart" class="hidden py-20 text-center glass-card rounded-[2.5rem] border-dashed border-white/10">
+                        <div class="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-600">
+                            <i data-lucide="shopping-cart" class="w-10 h-10"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">Oops! Keranjang Kosong</h3>
+                        <p class="text-slate-400 mb-8">Sepertinya kamu belum memilih produk apa pun.</p>
+                        <a href="products.html" class="btn-primary px-8 py-4 rounded-xl inline-flex items-center gap-2">
+                            Mulai Belanja Sekarang <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Right: Summary Card -->
+                <div class="lg:w-96 shrink-0">
+                    <div class="glass-card rounded-[2.5rem] p-8 sticky top-28 shadow-2xl">
+                        <h3 class="text-xl font-black text-white mb-6 flex items-center gap-2">
+                            Ringkasan <i data-lucide="receipt" class="w-5 h-5 text-primary"></i>
+                        </h3>
+                        
+                        <div class="space-y-4 mb-8">
+                            <div class="flex justify-between text-slate-400 text-sm font-medium">
+                                <span>Subtotal</span>
+                                <span id="summary-subtotal">Rp 0</span>
+                            </div>
+                            <div class="flex justify-between text-slate-400 text-sm font-medium">
+                                <span>Diskon Item</span>
+                                <span id="summary-discount" class="text-red-400">- Rp 0</span>
+                            </div>
+                            <div class="pt-4 border-t border-white/5 flex justify-between items-end">
+                                <span class="text-slate-400 text-sm font-bold uppercase tracking-widest">Total Bayar</span>
+                                <span id="summary-total" class="text-3xl font-black text-primary font-mono tracking-tighter">Rp 0</span>
+                            </div>
+                        </div>
+
+                        <button onclick="goToCheckout()" class="btn-primary w-full py-5 rounded-2xl flex items-center justify-center gap-3 text-lg group">
+                            Checkout Sekarang <i data-lucide="zap" class="w-5 h-5 fill-dark-900 group-hover:scale-110 transition-transform"></i>
+                        </button>
+                        
+                        <div class="mt-6 flex flex-col gap-3">
+                            <div class="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5 text-[10px] text-slate-400 font-medium">
+                                <i data-lucide="shield-check" class="w-5 h-5 text-primary"></i>
+                                Transaksi Aman dengan sistem enkripsi Next Cuan.
+                            </div>
+                            <div class="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5 text-[10px] text-slate-400 font-medium tracking-tight">
+                                <i data-lucide="clock" class="w-5 h-5 text-primary"></i>
+                                Akses produk langsung dikirim setelah pembayaran.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="py-12 border-t border-white/5 mt-auto bg-dark-900">
+        <div class="max-w-7xl mx-auto px-6 text-center md:text-left">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6 pb-8">
+                <img src="https://ik.imagekit.io/iramdani/NextCuan_Logo_Transparent_Horizontal-3__1__n8uCKrYMC.png" alt="Logo" class="h-8">
+                <div class="flex gap-6 text-slate-400 text-xs font-bold uppercase tracking-widest">
+                    <a href="index.html" class="hover:text-primary transition-colors">Beranda</a>
+                    <a href="products.html" class="hover:text-primary transition-colors">Produk</a>
+                    <a href="login.html" class="hover:text-primary transition-colors">Masuk</a>
+                </div>
+            </div>
+            <p class="text-[10px] text-slate-600 font-medium text-center border-t border-white/5 pt-8">
+                &copy; 2026 Next Cuan. Semua Produk dilindungi hak cipta. Pembelian memberikan lisensi penggunaan sesuai ketentuan.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+        const CART_KEY = 'cepat_cart';
+
+        function getCart() {
+            try { return JSON.parse(localStorage.getItem(CART_KEY) || '[]'); } catch(e) { return []; }
+        }
+
+        function saveCart(cart) {
+            localStorage.setItem(CART_KEY, JSON.stringify(cart));
+            renderCart();
+        }
+
+        function removeFromCart(id) {
+            saveCart(getCart().filter(i => i.id_produk !== id));
+        }
+
+        function renderCart() {
+            const cart = getCart();
+            const container = document.getElementById('cart-items-container');
+            const emptyEl = document.getElementById('empty-cart');
+            const countText = document.getElementById('total-count-text');
+            const nf = new Intl.NumberFormat('id-ID');
+
+            if (cart.length === 0) {
+                container.innerHTML = '';
+                emptyEl.classList.remove('hidden');
+                countText.innerText = 'Keranjang Anda kosong.';
+                document.getElementById('summary-subtotal').innerText = 'Rp 0';
+                document.getElementById('summary-discount').innerText = '- Rp 0';
+                document.getElementById('summary-total').innerText = 'Rp 0';
+                return;
+            }
+
+            emptyEl.classList.add('hidden');
+            countText.innerText = `Ada ${cart.length} produk pilihan dalam keranjang Anda.`;
+
+            let subtotal = 0;
+            let discount = 0;
+
+            container.innerHTML = cart.map(item => {
+                const price = Number(item.harga || 0);
+                const original = Number(item.harga_coret || 0);
+                subtotal += (original > 0 ? original : price);
+                discount += (original > price ? (original - price) : 0);
+
+                return `
+                    <div class="glass-card rounded-3xl p-4 md:p-6 flex flex-col md:flex-row items-center gap-6 group hover:border-primary/20 transition-all">
+                        <div class="w-24 h-24 md:w-32 md:h-32 bg-white/5 rounded-2xl border border-white/10 overflow-hidden flex-shrink-0">
+                            ${item.image_url ? `<img src="${item.image_url}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">` : `<div class="w-full h-full flex items-center justify-center text-primary/30 font-black text-4xl">${item.nama_produk.charAt(0)}</div>`}
+                        </div>
+                        <div class="flex-1 text-center md:text-left">
+                            <h3 class="text-xl font-bold text-white mb-2 leading-tight">${item.nama_produk}</h3>
+                            <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 justify-center md:justify-start">
+                                <span class="text-lg font-black text-primary font-mono tracking-tight">Rp ${nf.format(price)}</span>
+                                ${original > price ? `<span class="text-sm text-slate-500 line-through font-medium">Rp ${nf.format(original)}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <button onclick="removeFromCart('${item.id_produk}')" class="w-12 h-12 flex items-center justify-center rounded-2xl bg-red-500/5 text-red-500/50 hover:text-red-500 hover:bg-red-500/10 transition-all border border-red-500/10 group/btn">
+                                <i data-lucide="trash-2" class="w-6 h-6 group-hover/btn:scale-110 transition-transform"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('summary-subtotal').innerText = 'Rp ' + nf.format(subtotal);
+            document.getElementById('summary-discount').innerText = '- Rp ' + nf.format(discount);
+            document.getElementById('summary-total').innerText = 'Rp ' + nf.format(subtotal - discount);
+
+            lucide.createIcons();
+        }
+
+        function goToCheckout() {
+            const cart = getCart();
+            if (!cart.length) return;
+            if (cart.length === 1) {
+                window.location.href = 'checkout.html?id=' + cart[0].id_produk;
+            } else {
+                window.location.href = 'checkout.html?cart=1';
+            }
+        }
+
+        window.addEventListener('load', () => {
+            const userEmail = sessionStorage.getItem('user_email');
+            if (userEmail) {
+                const name = sessionStorage.getItem('user_nama') || 'User';
+                const initials = name.trim().split(/\s+/).length >= 2 
+                    ? (name.split(/\s+/)[0][0] + name.split(/\s+/)[1][0]).toUpperCase() 
+                    : name.substring(0, 2).toUpperCase();
+                
+                document.getElementById('user-profile-nav').innerHTML = `
+                    <a href="dashboard.html" class="w-10 h-10 rounded-full flex items-center justify-center bg-primary text-dark-900 font-black text-sm hover:scale-105 transition-transform">
+                        ${initials}
+                    </a>
+                `;
+            } else {
+                document.getElementById('user-profile-nav').innerHTML = `
+                    <a href="login.html" class="btn-secondary px-5 py-2 rounded-xl text-xs font-bold uppercase tracking-widest hidden sm:block">Masuk</a>
+                `;
+            }
+            renderCart();
+        });
+    </script>
+</body>
+</html>
