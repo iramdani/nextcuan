@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Loading Product... - Next Cuan</title>
+    <meta name="description" id="meta-desc" content="Detail produk digital dari Next Cuan.">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/webp" href="https://ik.imagekit.io/iramdani/logo/NextCuan_Fav.webp">
+    <link rel="shortcut icon" href="https://ik.imagekit.io/iramdani/logo/NextCuan_Fav.webp">
+
+    <!-- External Scripts -->
+    <script src="site.config.js"></script>
+    <script src="config.js?v=2026_1"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            900: '#000018',
+                            800: '#0a0a24',
+                            700: '#111827',
+                        },
+                        primary: '#B6FF00',
+                        secondary: '#017A6B',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --color-bg: #000018;
+            --color-surface: rgba(255, 255, 255, 0.03);
+            --color-primary: #B6FF00;
+            --color-secondary: #017A6B;
+            --color-text: #f5f5f7;
+            --color-text-muted: #9ca3af;
+            --color-border: rgba(182, 255, 0, 0.15);
+        }
+
+        body {
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            scroll-behavior: smooth;
+        }
+
+        .glass-card {
+            background: var(--color-surface);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--color-border);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #B6FF00 0%, #9ae600 100%);
+            color: #000018;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(182, 255, 0, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(182, 255, 0, 0.5);
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, #B6FF00 0%, #9ae600 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Content Styling from Quill */
+        #product-content {
+            line-height: 1.8;
+            color: #d1d5db;
+        }
+        #product-content h1, #product-content h2, #product-content h3 {
+            color: #fff;
+            font-weight: 800;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+        #product-content h1 { font-size: 2.25rem; }
+        #product-content h2 { font-size: 1.875rem; border-left: 4px solid #B6FF00; padding-left: 1rem; }
+        #product-content h3 { font-size: 1.5rem; }
+        #product-content p { margin-bottom: 1.25rem; }
+        #product-content ul, #product-content ol { margin-bottom: 1.25rem; padding-left: 1.5rem; }
+        #product-content li { margin-bottom: 0.5rem; }
+        #product-content a { color: #B6FF00; text-decoration: underline; font-weight: 600; }
+        #product-content img { border-radius: 1rem; margin: 2rem 0; width: 100%; height: auto; border: 1px solid rgba(255,255,255,0.1); }
+        #product-content strong { color: #fff; }
+
+        .image-glow {
+            position: relative;
+        }
+        .image-glow::after {
+            content: '';
+            position: absolute;
+            inset: -20px;
+            background: radial-gradient(circle, rgba(182, 255, 0, 0.15) 0%, transparent 70%);
+            z-index: -1;
+            filter: blur(20px);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in { animation: fadeIn 0.8s ease-out forwards; }
+    </style>
+</head>
+
+<body class="antialiased">
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 glass-card bg-dark-900/80 border-b border-white/5 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <a href="index.html" class="flex items-center gap-3">
+                <div class="p-2 bg-primary/10 rounded-lg border border-primary/20">
+                    <i data-lucide="zap" class="w-5 h-5 text-primary"></i>
+                </div>
+                <span class="font-extrabold text-xl tracking-tighter">NEXT<span class="text-primary">CUAN</span></span>
+            </a>
+            
+            <div class="flex items-center gap-4">
+                <a href="index.html#catalog" class="text-sm font-semibold text-slate-400 hover:text-white transition-colors">
+                    <i data-lucide="arrow-left" class="w-4 h-4 inline mr-1"></i> Kembali ke Katalog
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-28 pb-20 px-6">
+        <div class="max-w-7xl mx-auto">
+            
+            <!-- Hero Grid -->
+            <div id="product-hero" class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center mb-20 fade-in">
+                
+                <!-- Skeleton Loading -->
+                <div class="order-2 lg:order-1 space-y-6">
+                    <div class="h-4 w-24 bg-white/5 rounded-full animate-pulse"></div>
+                    <div class="h-12 w-3/4 bg-white/5 rounded-xl animate-pulse"></div>
+                    <div class="h-20 w-full bg-white/5 rounded-xl animate-pulse"></div>
+                    <div class="h-10 w-40 bg-white/5 rounded-xl animate-pulse"></div>
+                </div>
+                <div class="order-1 lg:order-2 aspect-square bg-white/5 rounded-3xl animate-pulse"></div>
+            </div>
+
+            <!-- Content Area -->
+            <div id="product-details" class="max-w-4xl mx-auto fade-in" style="animation-delay: 0.2s;">
+                <div class="h-4 w-full bg-white/5 rounded mb-4 animate-pulse"></div>
+                <div class="h-4 w-5/6 bg-white/5 rounded mb-4 animate-pulse"></div>
+                <div class="h-4 w-4/6 bg-white/5 rounded mb-20 animate-pulse"></div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark-800 border-t border-white/5 py-12 px-6">
+        <div class="max-w-7xl mx-auto text-center">
+            <div class="flex items-center justify-center gap-3 mb-6">
+                <i data-lucide="zap" class="w-6 h-6 text-primary"></i>
+                <span class="font-black text-2xl tracking-tighter">NEXT<span class="text-primary">CUAN</span></span>
+            </div>
+            <p class="text-slate-500 text-sm">&copy; 2026 Next Cuan. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Init Lucide
+        lucide.createIcons();
+
+        async function fetchProduct() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const slug = urlParams.get('slug');
+            const id = urlParams.get('id');
+
+            if (!slug && !id) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            try {
+                // Using fallback endpoint if needed (simulated for dev)
+                const apiEndpoint = (typeof getApiEndpoint === 'function') ? getApiEndpoint() : '/api';
+                const response = await fetch(apiEndpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'get_product',
+                        slug: slug,
+                        id: id
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success' && result.data) {
+                    renderProduct(result.data);
+                } else {
+                    renderError('Produk tidak ditemukan atau telah dihapus.');
+                }
+            } catch (error) {
+                console.error('Fetch Error:', error);
+                renderError('Gagal memuat data produk. Pastikan koneksi internet stabil.');
+            }
+        }
+
+        function renderProduct(p) {
+            // Update Meta
+            document.title = `${p.title} - Next Cuan`;
+            document.getElementById('page-title').innerText = `${p.title} - Next Cuan`;
+            
+            const shortDesc = p.desc || 'Optimalkan potensi digital Anda bersama Next Cuan.';
+            document.getElementById('meta-desc').setAttribute('content', shortDesc);
+
+            // Render Hero
+            const hero = document.getElementById('product-hero');
+            const originalPrice = Number(p.harga_coret || 0);
+            const currentPrice = Number(p.harga || 0);
+            const hasDiscount = originalPrice > currentPrice;
+            const discountPct = hasDiscount ? Math.round((1 - currentPrice / originalPrice) * 100) : 0;
+
+            hero.innerHTML = `
+                <div class="order-2 lg:order-1">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold uppercase tracking-widest mb-6">
+                        <i data-lucide="tag" class="w-3 h-3"></i> ${p.category || 'Digital Tool'}
+                    </div>
+                    
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-6">
+                        ${p.title}
+                    </h1>
+                    
+                    <p class="text-lg text-slate-400 mb-8 leading-relaxed max-w-xl">
+                        ${p.desc}
+                    </p>
+
+                    <div class="flex items-baseline gap-4 mb-10">
+                        <span class="text-4xl font-black text-primary font-mono tracking-tighter">
+                            Rp ${currentPrice.toLocaleString('id-ID')}
+                        </span>
+                        ${hasDiscount ? `
+                            <div class="flex flex-col">
+                                <span class="text-lg text-slate-500 line-through font-medium">Rp ${originalPrice.toLocaleString('id-ID')}</span>
+                                <span class="text-xs font-bold text-red-500 bg-red-500/10 px-2 py-0.5 rounded-full w-fit">HEMA ${discountPct}%</span>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <a href="checkout.html?id=${p.id}" class="btn-primary px-10 py-5 rounded-2xl flex items-center justify-center gap-3 group">
+                            Beli Sekarang <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+                        </a>
+                        <a href="index.html#catalog" class="bg-white/5 border border-white/10 hover:border-white/30 px-8 py-5 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all">
+                            Lihat Katalog Lainnya
+                        </a>
+                    </div>
+                </div>
+
+                <div class="order-1 lg:order-2">
+                    <div class="image-glow group">
+                        <img src="${p.image_url || 'https://ik.imagekit.io/iramdani/placeholder.jpg'}" 
+                             alt="${p.title}" 
+                             class="w-full aspect-square object-cover rounded-[2.5rem] border border-white/10 shadow-2xl transition-transform duration-700 group-hover:scale-[1.02]"
+                             onerror="this.src='https://ik.imagekit.io/iramdani/logo/NextCuan_Fav.webp'">
+                        
+                        <div class="absolute -bottom-6 -right-6 glass-card p-6 rounded-3xl hidden md:block">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-primary/20 rounded-2xl flex items-center justify-center border border-primary/30">
+                                    <i data-lucide="shield-check" class="w-6 h-6 text-primary"></i>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-white leading-none mb-1">Lifetime Access</p>
+                                    <p class="text-xs text-slate-400">Sekali Bayar Selamanya</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Render Content
+            const details = document.getElementById('product-details');
+            if (p.long_desc && p.long_desc.length > 20) {
+                details.innerHTML = `
+                    <div class="pt-20 border-t border-white/5">
+                        <div id="product-content">
+                            ${p.long_desc}
+                        </div>
+                    </div>
+                `;
+            } else {
+                details.innerHTML = `
+                    <div class="pt-20 border-t border-white/5 text-center px-10">
+                        <p class="text-slate-500 italic">Tidak ada deskripsi tambahan untuk produk ini.</p>
+                    </div>
+                `;
+            }
+
+            // Re-init icons
+            lucide.createIcons();
+        }
+
+        function renderError(msg) {
+            document.body.innerHTML = `
+                <div class="min-h-screen bg-dark-900 flex flex-col items-center justify-center p-6 text-center">
+                    <div class="w-20 h-20 bg-rose-500/10 text-rose-500 rounded-3xl flex items-center justify-center border border-rose-500/20 mb-8">
+                        <i data-lucide="alert-circle" class="w-10 h-10"></i>
+                    </div>
+                    <h1 class="text-3xl font-black text-white mb-4">Ups! Ada Masalah</h1>
+                    <p class="text-slate-400 max-w-md mb-10 leading-relaxed">${msg}</p>
+                    <a href="index.html" class="btn-primary px-8 py-4 rounded-2xl">
+                        Kembali ke Home
+                    </a>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        // Start local dev simulation helpers (if needed)
+        function getApiEndpoint() {
+            if (window.API_URL) return window.API_URL;
+            return 'https://script.google.com/macros/s/AKfycbz_dG5w9V6x_p_j_u_x_f_v_p_j_u_x_f_v_p/exec'; // Example, should match project's GAS URL
+        }
+
+        // Boot
+        fetchProduct();
+    </script>
+</body>
+</html>

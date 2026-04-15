@@ -1058,7 +1058,7 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                 
                 // Use slice() to create a copy before reversing to avoid mutating the original array (and cache)
                 availableContainer.innerHTML = r.available.slice().reverse().map(p => {
-                    const targetLink = `checkout.html?id=${p.id}${uplineRef ? '&ref='+uplineRef : ''}`; // Direct checkout with Upline Ref
+                    const targetLink = (p.lp_url && p.lp_url !== "") ? p.lp_url + (p.lp_url.includes('?') ? '&' : '?') + (uplineRef ? 'ref='+uplineRef : '') : (p.slug ? `product.html?slug=${p.slug}${uplineRef ? '&ref='+uplineRef : ''}` : `product.html?id=${p.id}${uplineRef ? '&ref='+uplineRef : ''}`);
                     
                     const hasPixel = window.currentAffiliatePixels && window.currentAffiliatePixels.find(x => String(x.product_id) === String(p.id) && x.pixel_id);
                     const pixelBtnClass = hasPixel 

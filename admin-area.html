@@ -633,15 +633,23 @@
     </style>
 <script src='https://cdn.jsdelivr.net/npm/chart.js'></script>
 
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-GZM06L9YDH"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-GZM06L9YDH');
-</script>
+    <!-- Quill.js for Rich Text Editor -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <style>
+        /* Quill Dark Mode Overrides */
+        .ql-toolbar.ql-snow { border: 1px solid rgba(255,255,255,0.1) !important; background: rgba(0,0,0,0.3); border-top-left-radius: 12px; border-top-right-radius: 12px; }
+        .ql-container.ql-snow { border: 1px solid rgba(255,255,255,0.1) !important; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; background: rgba(0,0,0,0.2); min-height: 200px; color: #fff; font-family: inherit; font-size: 14px; }
+        .ql-snow .ql-stroke { stroke: #cbd5e1 !important; }
+        .ql-snow .ql-fill { fill: #cbd5e1 !important; }
+        .ql-snow .ql-picker { color: #cbd5e1 !important; }
+        .ql-editor.ql-blank::before { color: rgba(255,255,255,0.3) !important; font-style: normal; }
+        .ql-snow.ql-toolbar button:hover .ql-stroke, .ql-snow .ql-toolbar button:hover .ql-stroke { stroke: #B6FF00 !important; }
+        .ql-snow.ql-toolbar button:hover .ql-fill, .ql-snow .ql-toolbar button:hover .ql-fill { fill: #B6FF00 !important; }
+        .ql-snow.ql-toolbar button.ql-active .ql-stroke { stroke: #B6FF00 !important; }
+        .ql-snow.ql-toolbar button.ql-active .ql-fill { fill: #B6FF00 !important; }
+        .ql-toolbar.ql-snow { border-bottom: none !important; }
+    </style>
 </head>
 <body class="antialiased relative h-screen w-screen flex">
 
@@ -2099,9 +2107,16 @@
                         <p class="text-[10px] text-slate-500 mt-1 ml-1">Produk tetap bisa di-order via direct link. Tidak muncul di halaman utama, produk, dan pencarian.</p>
                     </div>
                 </div>
-                <div>
-                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">URL Landing Page</label>
-                    <input type="text" id="p-lp" placeholder="Contoh: p.html?s=promo" class="w-full p-4 glass-input rounded-xl font-medium text-white outline-none focus:border-[#B6FF00] transition-all" required>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Slug URL (Opsional)</label>
+                        <input type="text" id="p-slug" placeholder="slug-produk-anda" class="w-full p-4 glass-input rounded-xl font-medium text-white outline-none focus:border-[#B6FF00] transition-all" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9-]/g, '-')">
+                        <p class="text-[10px] text-slate-500 mt-1 ml-1">Kosongkan untuk generate otomatis dari judul. Hanya huruf, angka, dan dash.</p>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Link Custom Landing Page (Wajib)</label>
+                        <input type="text" id="p-lp" placeholder="Contoh: p.html?s=promo" class="w-full p-4 glass-input rounded-xl font-medium text-white outline-none focus:border-[#B6FF00] transition-all" required>
+                    </div>
                 </div>
                 <div>
                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Link Gambar Produk (Opsional)</label>
@@ -2143,12 +2158,18 @@
                 </div>
 
                 <div>
-                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Deskripsi Singkat</label>
-                    <textarea id="p-desc" placeholder="Deskripsi untuk ditampilkan di katalog..." maxlength="280" class="w-full p-4 glass-input rounded-xl outline-none h-24 font-medium text-sm focus:border-[#B6FF00] text-white transition-all"></textarea>
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Deskripsi Singkat (Katalog)</label>
+                    <textarea id="p-desc" placeholder="Deskripsi untuk ditampilkan di katalog (Max 280 karakter)..." maxlength="280" class="w-full p-4 glass-input rounded-xl outline-none h-24 font-medium text-sm focus:border-[#B6FF00] text-white transition-all"></textarea>
                     <div class="mt-2 flex items-center justify-between gap-4">
-                        <p class="text-[11px] text-slate-500">Disimpan sebagai plain text, maksimal 280 karakter, tanpa tag HTML.</p>
+                        <p class="text-[11px] text-slate-500">Muncul di halaman depan & katalog.</p>
                         <p id="p-desc-counter" class="text-[11px] font-bold text-slate-500">0/280</p>
                     </div>
+                </div>
+
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Deskripsi Lengkap / Konten Produk <span class="text-[#B6FF00] font-black">— RICH TEXT</span></label>
+                    <div id="p-long-desc-editor"></div>
+                    <p class="text-[10px] text-slate-500 mt-2">Deskripsi panjang ini akan muncul jika link landing page dikosongkan (Fallback Default Product Page).</p>
                 </div>
 
                 <!-- Nonaktifkan Produk - paling bawah setelah deskripsi -->
@@ -2368,6 +2389,25 @@
         let cachedPages = [];
         let cachedProducts = [];
         let cachedAdminOrdersForChart = null;
+        let quillProd = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (document.getElementById('p-long-desc-editor')) {
+                quillProd = new Quill('#p-long-desc-editor', {
+                    theme: 'snow',
+                    placeholder: 'Tulis deskripsi produk yang lengkap dan menarik di sini...',
+                    modules: {
+                        toolbar: [
+                            [{ 'header': [1, 2, 3, false] }],
+                            ['bold', 'italic', 'underline', 'strike'],
+                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                            [{ 'color': [] }, { 'background': [] }],
+                            ['link', 'image', 'clean']
+                        ]
+                    }
+                });
+            }
+        });
 
         function updateProdPreview(url) {
             const preview = document.getElementById('p-image-preview');
@@ -3506,6 +3546,13 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             document.getElementById('p-pixel-token').value = p[9] || '';
             document.getElementById('p-pixel-test').value = p[10] || '';
 
+            // Slug & Long Desc (New)
+            document.getElementById('p-slug').value = p[16] || '';
+            if (quillProd) {
+                const longDesc = p[17] || '';
+                quillProd.root.innerHTML = longDesc;
+            }
+
             document.getElementById('p-is-edit').value = 'true'; 
             (function(m){ m.classList.remove('hidden'); m.classList.add('flex'); })(document.getElementById('modal-prod')); 
         }
@@ -4398,6 +4445,8 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
         function openProdModal() { 
             document.getElementById('form-prod').reset(); 
             document.getElementById('p-desc').value = '';
+            document.getElementById('p-slug').value = '';
+            if (quillProd) quillProd.setContents([]);
             document.getElementById('p-rekomendasi').checked = false;
             const hiddenEl = document.getElementById('p-hidden'); if (hiddenEl) hiddenEl.checked = false;
             const inactiveEl2 = document.getElementById('p-inactive'); if (inactiveEl2) inactiveEl2.checked = false;
@@ -4582,6 +4631,13 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             }
             descField.value = descValidation.value;
             updateProductDescriptionCounter(descValidation.value);
+
+            // Get Quill content
+            const longDesc = quillProd ? quillProd.root.innerHTML : '';
+            // If and only if it's empty (just <p><br></p>), set to empty string
+            const isQuillEmpty = !quillProd || quillProd.getText().trim().length === 0;
+            const finalLongDesc = isQuillEmpty ? '' : longDesc;
+
             const p = { 
                 action: 'save_product', 
                 id: document.getElementById('p-id').value, 
@@ -4600,6 +4656,8 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                 rekomendasi: document.getElementById('p-rekomendasi').checked,
                 hidden: document.getElementById('p-hidden') ? document.getElementById('p-hidden').checked : false,
                 status: (document.getElementById('p-inactive') && document.getElementById('p-inactive').checked) ? 'Inactive' : 'Active',
+                slug: document.getElementById('p-slug').value,
+                long_desc: finalLongDesc,
                 is_edit: document.getElementById('p-is-edit').value === 'true' 
             }; 
             await submitFormToGAS('form-prod', p, 'Produk berhasil disimpan!', 'modal-prod');

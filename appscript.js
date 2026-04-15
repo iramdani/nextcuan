@@ -2094,20 +2094,32 @@ function getProductDetail(d, cfg) {
   try {
     cfg = cfg || getSettingsMap_();
     const rules = mustSheet_("Access_Rules").getDataRange().getValues();
-    const pId = String(d.id).trim();
+    const pId = String(d.id || "").trim();
+    const pSlug = String(d.slug || "").trim().toLowerCase();
     let productData = null;
 
     for (let i = 1; i < rules.length; i++) {
-      if (String(rules[i][0]) === pId && String(rules[i][5]).trim() === "Active") {
+      const rowId = String(rules[i][0]).trim();
+      const rowSlug = String(rules[i][16] || "").trim().toLowerCase();
+      const isActive = String(rules[i][5]).trim() === "Active";
+
+      if (isActive && ((pId && rowId === pId) || (pSlug && rowSlug === pSlug))) {
         productData = {
-          id: pId,
+          id: rowId,
           title: normalizePlainText_(rules[i][1]),
           desc: normalizeProductDescription_(rules[i][2]),
           harga: rules[i][4],
+          lp_url: rules[i][6] || "",
+          image_url: rules[i][7] || "",
           pixel_id: rules[i][8] || "",
           pixel_token: rules[i][9] || "",
           pixel_test_code: rules[i][10] || "",
-          commission: rules[i][11] || 0
+          commission: rules[i][11] || 0,
+          category: rules[i][12] || "",
+          rekomendasi: rules[i][13] === true || String(rules[i][13]).toUpperCase() === "TRUE",
+          harga_coret: Number(rules[i][14] || 0) || 0,
+          slug: rules[i][16] || "",
+          long_desc: rules[i][17] || ""
         };
         break;
       }
@@ -2260,7 +2272,9 @@ function getProducts(d, cfg, cachedOrders) {
         rekomendasi: rules[i][13] === true || String(rules[i][13]).toUpperCase() === "TRUE",
         harga_coret: Number(rules[i][14] || 0) || 0,
         hidden: isHidden,
-        active: isActive
+        active: isActive,
+        slug: rules[i][16] || "",
+        long_desc: rules[i][17] || ""
       });
       continue; // don't add to available if already owned
     }
@@ -2282,7 +2296,9 @@ function getProducts(d, cfg, cachedOrders) {
       rekomendasi: rules[i][13] === true || String(rules[i][13]).toUpperCase() === "TRUE",
       harga_coret: Number(rules[i][14] || 0) || 0,
       hidden: isHidden,
-      active: isActive
+      active: isActive,
+      slug: rules[i][16] || "",
+      long_desc: rules[i][17] || ""
     };
 
     if (targetMode) {
@@ -3099,18 +3115,20 @@ function saveProduct(d) {
     const rekomendasi = String(d.rekomendasi || "false") === "true";
     const hargaCoret = String(d.harga_coret || "").trim();
     const hidden = String(d.hidden || "false") === "true";
+    const slug = (String(d.slug || "").trim().toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-")) || productTitle.toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-").substring(0, 50);
+    const longDesc = d.long_desc || "";
 
-    // Ensure we have enough columns (16 columns needed)
-    if (s.getMaxColumns() < 16) s.insertColumnsAfter(s.getMaxColumns(), 16 - s.getMaxColumns());
+    // Ensure we have enough columns (18 columns needed)
+    if (s.getMaxColumns() < 18) s.insertColumnsAfter(s.getMaxColumns(), 18 - s.getMaxColumns());
 
-    const dataRow = [productId, productTitle, productDesc, productUrl, d.harga, productStatus, landingPageUrl, imageUrl, pixelId, pixelToken, pixelTestCode, commission, category, rekomendasi, hargaCoret, hidden];
+    const dataRow = [productId, productTitle, productDesc, productUrl, d.harga, productStatus, landingPageUrl, imageUrl, pixelId, pixelToken, pixelTestCode, commission, category, rekomendasi, hargaCoret, hidden, slug, longDesc];
     const isEdit = String(d.is_edit) === "true";
 
     if (isEdit) {
       const r = s.getDataRange().getValues();
       for (let i = 1; i < r.length; i++) {
         if (String(r[i][0]).trim() === productId) {
-          s.getRange(i + 1, 1, 1, 16).setValues([dataRow]);
+          s.getRange(i + 1, 1, 1, 18).setValues([dataRow]);
           invalidateCaches_(["access_rules"]);
           return withPublicCacheState_({ status: "success" }, bumpPublicCacheState_(["catalog", "dashboard"]));
         }
