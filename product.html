@@ -230,7 +230,7 @@
                 if (result.status === 'success' && result.data) {
                     renderProduct(result.data);
                 } else {
-                    renderError('Produk tidak ditemukan atau telah dihapus.');
+                    renderError(result.message || 'Produk tidak ditemukan atau telah dihapus.');
                 }
             } catch (error) {
                 console.error('Fetch Error:', error);

@@ -2094,16 +2094,21 @@ function getProductDetail(d, cfg) {
   try {
     cfg = cfg || getSettingsMap_();
     const rules = mustSheet_("Access_Rules").getDataRange().getValues();
-    const pId = String(d.id || "").trim();
-    const pSlug = String(d.slug || "").trim().toLowerCase();
+    const reqId = String(d.id || "").trim();
+    const reqSlug = String(d.slug || "").trim().toLowerCase();
     let productData = null;
 
     for (let i = 1; i < rules.length; i++) {
-      const rowId = String(rules[i][0]).trim();
+      const rowId = String(rules[i][0] || "").trim();
       const rowSlug = String(rules[i][16] || "").trim().toLowerCase();
-      const isActive = String(rules[i][5]).trim() === "Active";
+      const rowStatus = String(rules[i][5] || "").trim();
+      const isActive = rowStatus.toLowerCase() === "active";
 
-      if (isActive && ((pId && rowId === pId) || (pSlug && rowSlug === pSlug))) {
+      // Match by ID accurately (case-insensitive for safety) or Slug
+      const matchId = reqId && rowId.toLowerCase() === reqId.toLowerCase();
+      const matchSlug = reqSlug && rowSlug === reqSlug;
+
+      if (isActive && (matchId || matchSlug)) {
         productData = {
           id: rowId,
           title: normalizePlainText_(rules[i][1]),
@@ -2118,13 +2123,16 @@ function getProductDetail(d, cfg) {
           category: rules[i][12] || "",
           rekomendasi: rules[i][13] === true || String(rules[i][13]).toUpperCase() === "TRUE",
           harga_coret: Number(rules[i][14] || 0) || 0,
-          slug: rules[i][16] || "",
+          slug: rowSlug,
           long_desc: rules[i][17] || ""
         };
         break;
       }
     }
-    if (!productData) return { status: "error", message: "Produk tidak ditemukan" };
+    if (!productData) {
+      const searchInfo = reqId ? "ID: " + reqId : "Slug: " + reqSlug;
+      return { status: "error", message: "Produk (" + searchInfo + ") tidak ditemukan atau status tidak aktif." };
+    }
 
     // --> CHECK AFFILIATE PIXEL OVERRIDE
     const affRef = d.ref || d.aff_id;
