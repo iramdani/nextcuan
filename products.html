@@ -313,20 +313,6 @@
                     <div class="skeleton h-3 w-2/3 mb-6"></div>
                     <div class="skeleton h-10 w-full rounded-xl mt-auto"></div>
                 </div>
-                <div class="product-card p-4" style="min-height:380px;">
-                    <div class="skeleton aspect-square w-full rounded-2xl mb-4" style="height:200px;"></div>
-                    <div class="skeleton h-4 w-3/4 mb-3"></div>
-                    <div class="skeleton h-3 w-full mb-2"></div>
-                    <div class="skeleton h-3 w-2/3 mb-6"></div>
-                    <div class="skeleton h-10 w-full rounded-xl mt-auto"></div>
-                </div>
-                <div class="product-card p-4" style="min-height:380px;">
-                    <div class="skeleton aspect-square w-full rounded-2xl mb-4" style="height:200px;"></div>
-                    <div class="skeleton h-4 w-3/4 mb-3"></div>
-                    <div class="skeleton h-3 w-full mb-2"></div>
-                    <div class="skeleton h-3 w-2/3 mb-6"></div>
-                    <div class="skeleton h-10 w-full rounded-xl mt-auto"></div>
-                </div>
             </div>
 
             <!-- Empty State -->
@@ -343,25 +329,8 @@
         </div>
     </section>
 
-
-
     <!-- Toast Container -->
     <div id="toast-container" class="fixed bottom-6 right-6 z-[999] flex flex-col gap-3" style="pointer-events:none;"></div>
-
-    <style>
-        .toast {
-            display: flex; align-items: center; gap: 0.75rem;
-            background: rgba(10,10,30,0.98); border: 1px solid rgba(255,255,255,0.1);
-            color: white; padding: 0.9rem 1.25rem; border-radius: 1rem;
-            font-size: 0.875rem; font-weight: 600; pointer-events: all;
-            min-width: 220px; max-width: 380px;
-            transform: translateX(120%); opacity: 0;
-            transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), opacity 0.35s ease;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
-        }
-        .toast.success { border-color: rgba(182,255,0,0.3); color: #B6FF00; }
-        .toast.show { transform: translateX(0); opacity: 1; }
-    </style>
 
     <script>
         const CACHE_KEY_CATALOG = 'cepat_public_catalog';
@@ -484,7 +453,7 @@
                 const hasDiscount = hargaCoret > 0 && hargaCoret > price;
                 const discountPct = hasDiscount ? Math.round((1 - price / hargaCoret) * 100) : 0;
 
-                let detailUrl = (p.lp_url && p.lp_url !== '') ? p.lp_url : `checkout.html?id=${p.id}`;
+                let detailUrl = (p.lp_url && p.lp_url !== '') ? p.lp_url : `product.html?id=${p.id}`;
                 if (affRef) detailUrl += (detailUrl.includes('?') ? '&' : '?') + `ref=${affRef}`;
                 const checkoutUrl = `checkout.html?id=${p.id}${affParam}`;
 
@@ -511,13 +480,26 @@
                             <p class="text-[10px] font-bold uppercase tracking-widest mb-1" style="color:var(--color-text-muted);">Harga</p>
                             ${hasDiscount ? `<p class="text-xs line-through mb-0.5" style="color:var(--color-text-muted);">Rp ${hargaCoret.toLocaleString('id-ID')}</p>` : ''}
                             <p class="text-lg font-black mb-3" style="color:var(--color-primary);">Rp ${price.toLocaleString('id-ID')}</p>
-                            <div class="grid grid-cols-2 gap-2 mb-2">
+                            
+                            <div class="flex flex-col gap-2 mb-2">
                                 <a href="${detailUrl}"
-                                    class="btn-secondary flex items-center justify-center py-2.5 text-xs font-bold rounded-xl">Detail</a>
-                                <a href="${checkoutUrl}"
-                                    class="btn-primary flex items-center justify-center py-2.5 text-xs font-bold rounded-xl">
-                                    Beli <i data-lucide="shopping-cart" class="w-3.5 h-3.5 ml-1.5"></i>
-                                </a>
+                                    class="w-full btn-secondary flex items-center justify-center py-2.5 text-xs font-bold rounded-xl transition-all hover:bg-white/5">Detail Produk</a>
+                                <div class="flex gap-2">
+                                    ${price > 0
+                                        ? `<a href="${checkoutUrl}" class="flex-1 btn-primary flex items-center justify-center py-2.5 text-xs font-bold rounded-xl shadow-lg group-hover:shadow-[#B6FF00]/20 transition-all">
+                                            <i data-lucide="zap" class="w-3.5 h-3.5 mr-1.5 fill-current"></i>Beli
+                                          </a>
+                                          <button onclick="addToCart(event, '${p.id}', '${safeTitle.replace(/'/g,"\\'").replace(/"/g,'&quot;')}', ${price}, ${hargaCoret})" 
+                                            class="w-12 btn-secondary flex items-center justify-center py-2.5 rounded-xl border border-[rgba(255,255,255,0.1)] hover:border-[#B6FF00]/50 hover:text-[#B6FF00] transition-all" 
+                                            title="Tambah ke Keranjang" id="cart-btn-${p.id}">
+                                            <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+                                          </button>`
+                                        : `<a href="${checkoutUrl}" class="w-full btn-primary flex items-center justify-center py-2.5 text-xs font-bold rounded-xl shadow-lg">
+                                            Klaim Gratis
+                                          </a>`
+                                    }
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </article>`;
@@ -526,7 +508,6 @@
             if (window.lucide) lucide.createIcons();
         }
 
-        // ─── Load Catalog ────────────────────────────────────────────────────────
         async function loadCatalog() {
             try {
                 // Try cache first
@@ -539,14 +520,13 @@
                 else if (cached && Array.isArray(cached.data)) list = cached.data;
 
                 if (list && list.length > 0) {
-                    // Filter hidden products from cache as well
                     allProducts = list.filter(p => p.hidden !== true && String(p.hidden).toUpperCase() !== 'TRUE');
                     renderProducts();
                 }
 
                 // Fetch fresh data
-                if (typeof SCRIPT_URL === 'undefined' && !window.API_URL) return;
-                const endpoint = window.API_URL || (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.protocol === 'file:' ? SCRIPT_URL : '/api');
+                const endpoint = (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.protocol === 'file:') ? (window.SCRIPT_URL || window.GAS_URL || null) : '/api';
+                if(!endpoint) return;
 
                 const res = await fetch(endpoint, {
                     method: 'POST',
@@ -556,17 +536,12 @@
                 const r = await res.json();
                 if (r && r.status === 'success') {
                     const data = Array.isArray(r.available) ? r.available : [];
-                    // Filter out hidden products client-side as safety net
                     allProducts = data.filter(p => p.hidden !== true && String(p.hidden).toUpperCase() !== 'TRUE');
                     localStorage.setItem(CACHE_KEY_CATALOG, JSON.stringify({ data, time: Date.now() }));
                     renderProducts();
                 }
             } catch (err) {
                 console.error('Gagal memuat produk:', err);
-                const container = document.getElementById('public-products');
-                if (!allProducts.length) {
-                    container.innerHTML = '<p class="col-span-full text-center py-16 text-red-400">Gagal memuat produk. Silakan refresh halaman.</p>';
-                }
             }
         }
 
@@ -575,97 +550,104 @@
             loadCatalog();
             
             // Add logged in UI logic
-            const isLogged = !!sessionStorage.getItem('user_email');
-            if(isLogged) {
-                const userNama = sessionStorage.getItem('user_nama') || sessionStorage.getItem('auth_name') || 'User';
-                const words = userNama.trim().split(/\s+/);
-                const initials = words.length >= 2 
-                    ? (words[0][0] + words[1][0]).toUpperCase() 
-                    : userNama.substring(0, 2).toUpperCase();
+            let session = null;
+            try {
+                const raw = localStorage.getItem('cepat_user_session');
+                if(raw) session = JSON.parse(raw);
+            } catch(e) {}
 
-                // Update Desktop Navbar
+            if(session && session.email) {
+                const userNama = session.nama || 'User';
+                const words = userNama.trim().split(/\s+/);
+                const initials = words.length >= 2 ? (words[0][0] + words[1][0]).toUpperCase() : userNama.substring(0, 2).toUpperCase();
+
                 const desktopNavActions = document.getElementById('nav-right-side');
                 if(desktopNavActions) {
                     const hamburger = document.getElementById('hamburger-btn');
-                    desktopNavActions.innerHTML = '';
-                    
-                    const profileLink = document.createElement('a');
-                    profileLink.href = 'dashboard.html';
-                    profileLink.className = 'w-10 h-10 rounded-full flex items-center justify-center transition-all bg-[#B6FF00] text-[#000018] font-black text-sm tracking-tighter hover:scale-105';
-                    profileLink.innerHTML = initials;
-                    desktopNavActions.appendChild(profileLink);
-
+                    desktopNavActions.innerHTML = `<a href="dashboard.html" class="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-[#B6FF00] text-[#000018] font-black text-sm hover:scale-105 shadow-[0_0_20px_rgba(182,255,0,0.3)]">${initials}</a>`;
                     if(hamburger) desktopNavActions.appendChild(hamburger);
                 }
 
-                // Update Mobile Navbar
                 const mobileNavActions = document.getElementById('mobile-nav-actions');
                 if(mobileNavActions) {
-                    mobileNavActions.innerHTML = '<a href="dashboard.html" class="block px-4 py-3 rounded-xl text-sm font-semibold btn-primary text-center mt-1 flex items-center justify-center space-x-2"><div class="w-6 h-6 rounded-full bg-[#000018] text-[#B6FF00] flex items-center justify-center text-[10px] font-black">' + initials + '</div><span>Ke Member Area</span></a>';
+                    mobileNavActions.innerHTML = `<a href="dashboard.html" class="block px-4 py-3 rounded-xl text-sm font-bold btn-primary text-center mt-2 flex items-center justify-center space-x-2"><div class="w-6 h-6 rounded-full bg-[#000018] text-[#B6FF00] flex items-center justify-center text-[10px] font-black">${initials}</div><span>Ke Dashboard</span></a>`;
                 }
             }
+            renderCartBar();
         });
-    </script>
 
-    <!-- FOOTER -->
-    <footer class="py-12 border-t" style="border-color: rgba(182, 255, 0, 0.15);">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="grid md:grid-cols-4 gap-8 mb-12">
-                <!-- Brand -->
-                <div class="md:col-span-1">
-                    <a href="index.html" class="flex items-center space-x-2 mb-4 hover:opacity-80 transition-opacity">
-                        <img src="https://ik.imagekit.io/iramdani/NextCuan_Logo_Transparent_Horizontal-3__1__n8uCKrYMC.png"
-                            alt="Next Cuan Logo" class="h-10 w-auto object-contain">
-                    </a>
-                    <p class="text-sm mb-4" style="color: var(--color-text-muted);">
-                        Platform ekosistem digital untuk membangun income online di era AI.
-                    </p>
-                    <div class="flex space-x-4">
-                        <a href="#" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);"><i data-lucide="instagram" class="w-5 h-5"></i></a>
-                        <a href="#" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);"><i data-lucide="youtube" class="w-5 h-5"></i></a>
-                        <a href="#" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);"><i data-lucide="twitter" class="w-5 h-5"></i></a>
-                    </div>
-                </div>
-                <!-- Products -->
-                <div>
-                    <h4 class="font-semibold mb-4">Products</h4>
-                    <ul class="space-y-2 text-sm" style="color: var(--color-text-muted);">
-                        <li><a href="products.html" class="hover:text-[#B6FF00] transition">Semua Produk</a></li>
-                        <li><a href="products.html" class="hover:text-[#B6FF00] transition">Ebook Digital</a></li>
-                        <li><a href="products.html" class="hover:text-[#B6FF00] transition">Template</a></li>
-                        <li><a href="products.html" class="hover:text-[#B6FF00] transition">GPT Tools</a></li>
-                    </ul>
-                </div>
-                <!-- Resources -->
-                <div>
-                    <h4 class="font-semibold mb-4">Resources</h4>
-                    <ul class="space-y-2 text-sm" style="color: var(--color-text-muted);">
-                        <li><a href="#" class="hover:text-[#B6FF00] transition">Documentation</a></li>
-                        <li><a href="#" class="hover:text-[#B6FF00] transition">Tutorials</a></li>
-                        <li><a href="#" class="hover:text-[#B6FF00] transition">Blog</a></li>
-                        <li><a href="#" class="hover:text-[#B6FF00] transition">Community</a></li>
-                    </ul>
-                </div>
-                <!-- Company -->
-                <div>
-                    <h4 class="font-semibold mb-4">Company</h4>
-                    <ul class="space-y-2 text-sm" style="color: var(--color-text-muted);">
-                        <li><a href="#" class="hover:text-[#B6FF00] transition">About Us</a></li>
-                        <li><a href="#" class="hover:text-[#B6FF00] transition">Contact</a></li>
-                        <li><a href="#" class="hover:text-[#B6FF00] transition">Privacy Policy</a></li>
-                        <li><a href="#" class="hover:text-[#B6FF00] transition">Terms of Service</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="pt-8 border-t flex flex-col md:flex-row items-center justify-between text-sm"
-                style="border-color: rgba(182, 255, 0, 0.15); color: var(--color-text-muted);">
-                <p>&copy; 2024 Next Cuan. All rights reserved.</p>
-                <p class="mt-2 md:mt-0">Made with ❤️ in Indonesia</p>
-            </div>
-        </div>
-    </footer>
+        // ─── Cart Functions ──────────────────────────────────────────────────────
+        const CART_KEY = 'cepat_cart';
+        function getCart() { try { return JSON.parse(localStorage.getItem(CART_KEY) || '[]'); } catch(e) { return []; } }
+        function saveCart(cart) { localStorage.setItem(CART_KEY, JSON.stringify(cart)); renderCartBar(); }
+        function addToCart(e, id, nama, harga, hargaCoret) {
+            e.preventDefault(); e.stopPropagation();
+            let cart = getCart();
+            if (cart.some(i => i.id_produk === id)) { showToast('Produk sudah ada di keranjang!', 'warning'); return; }
+            cart.push({ id_produk: id, nama_produk: nama, harga: harga, harga_coret: hargaCoret, image_url: '' });
+            saveCart(cart);
+            showToast('Ditambahkan ke keranjang!');
+        }
+        function removeFromCart(id) { saveCart(getCart().filter(i => i.id_produk !== id)); }
+        function clearCart() { if(confirm('Kosongkan keranjang?')) saveCart([]); }
 
-    <script>
+        function goToCartCheckout() {
+            const cart = getCart();
+            if(!cart.length) return;
+            if(cart.length === 1) window.location.href = 'checkout.html?id=' + cart[0].id_produk;
+            else window.location.href = 'checkout.html?cart=1';
+        }
+
+        function renderCartBar() {
+            const cart = getCart();
+            const bar = document.getElementById('cart-bar');
+            if (!bar) return;
+
+            const nf = new Intl.NumberFormat('id-ID');
+            const total = cart.reduce((s, i) => s + Number(i.harga || 0), 0);
+
+            const countEl = document.getElementById('cart-item-count');
+            const totalEl = document.getElementById('cart-total');
+            const checkoutCountEl = document.getElementById('cart-checkout-count');
+            
+            if (countEl) countEl.innerText = `${cart.length} produk`;
+            if (totalEl) totalEl.innerText = 'Rp ' + nf.format(total);
+            if (checkoutCountEl) checkoutCountEl.innerText = `${cart.length} item`;
+
+            const itemListEl = document.getElementById('cart-items-list');
+            if (itemListEl) {
+                if (cart.length === 0) {
+                    itemListEl.innerHTML = '';
+                } else {
+                    itemListEl.innerHTML = cart.map(item => `
+                        <div class="flex items-center justify-between px-5 py-3 border-b border-[rgba(255,255,255,0.04)] last:border-0 group/item hover:bg-white/[0.02] transition-colors">
+                            <div class="flex-1 min-w-0 pr-4">
+                                <h4 class="text-white text-[11px] font-bold truncate group-hover/item:text-[#B6FF00] transition-colors leading-tight mb-0.5">${item.nama_produk}</h4>
+                                <p class="text-[#B6FF00] text-[10px] font-black font-mono tracking-tight opacity-80">Rp ${nf.format(item.harga)}</p>
+                            </div>
+                            <button onclick="removeFromCart('${item.id_produk}')" class="p-1.5 text-slate-500 hover:text-red-400 transition-all rounded-lg hover:bg-red-400/10 opacity-40 group-hover/item:opacity-100">
+                                <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                    `).join('');
+                }
+                if (window.lucide) lucide.createIcons({ root: itemListEl });
+            }
+
+            if (!cart.length) {
+                bar.classList.add('translate-y-32', 'opacity-0');
+                bar.classList.remove('translate-y-0', 'opacity-100');
+                setTimeout(() => bar.classList.add('hidden'), 300);
+            } else {
+                bar.classList.remove('hidden');
+                setTimeout(() => {
+                    bar.classList.remove('translate-y-32', 'opacity-0');
+                    bar.classList.add('translate-y-0', 'opacity-100');
+                }, 10);
+            }
+            if (window.lucide) lucide.createIcons({ root: bar });
+        }
+
         function toggleMobileMenu() {
             const menu = document.getElementById('mobile-menu');
             const icon = document.getElementById('hamburger-icon');
@@ -684,6 +666,68 @@
             if (icon) { icon.setAttribute('data-lucide', 'menu'); lucide.createIcons({ nodes: [icon] }); }
         }
     </script>
+
+    <!-- FOOTER -->
+    <footer class="py-12 border-t" style="border-color: rgba(182, 255, 0, 0.15);">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-8 mb-12">
+                <!-- Brand -->
+                <div class="md:col-span-1">
+                    <a href="index.html" class="flex items-center space-x-2 mb-4 hover:opacity-80 transition-opacity">
+                        <img src="https://ik.imagekit.io/iramdani/NextCuan_Logo_Transparent_Horizontal-3__1__n8uCKrYMC.png"
+                            alt="Next Cuan Logo" class="h-10 w-auto object-contain">
+                    </a>
+                    <p class="text-sm mb-4" style="color: var(--color-text-muted);">
+                        Platform ekosistem digital untuk membangun income online di era AI.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4 text-[#B6FF00]">Legal</h4>
+                    <ul class="space-y-2 text-sm text-slate-400">
+                        <li><a href="#" class="hover:text-white transition">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-white transition">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="pt-8 border-t border-white/5 text-center text-sm text-slate-500">
+                &copy; 2024 Next Cuan. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- FLOATING CART BAR -->
+    <div id="cart-bar" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9990] hidden w-[calc(100%-3rem)] max-w-sm">
+        <div class="glass-card rounded-2xl border border-[rgba(182,255,0,0.2)] shadow-[0_0_40px_rgba(182,255,0,0.15)] backdrop-blur-xl overflow-hidden">
+            <!-- Header -->
+            <div class="px-5 py-3 flex items-center justify-between bg-[rgba(182,255,0,0.05)] border-b border-[rgba(182,255,0,0.1)]">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-[rgba(182,255,0,0.15)] text-[#B6FF00] flex items-center justify-center">
+                        <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <p class="text-white font-bold text-sm leading-none">Keranjang</p>
+                        <p id="cart-item-count" class="text-[10px] text-slate-400 mt-0.5">0 produk</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <p id="cart-total" class="text-[#B6FF00] font-black text-sm">Rp 0</p>
+                    <button onclick="clearCart()" class="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-400/10 transition-all" title="Kosongkan Keranjang">
+                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                    </button>
+                </div>
+            </div>
+            <!-- Items list -->
+            <div id="cart-items-list" class="max-h-36 overflow-y-auto"></div>
+            <!-- Checkout button -->
+            <div class="p-3">
+                <button onclick="goToCartCheckout()" class="w-full btn-primary py-3 rounded-xl text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2">
+                    <i data-lucide="zap" class="w-4 h-4"></i>
+                    Lanjut Checkout
+                    <span id="cart-checkout-count" class="bg-black/30 px-2 py-0.5 rounded-full text-[10px]">0 item</span>
+                </button>
+            </div>
+        </div>
+    </div>
 
 </body>
 </html>
