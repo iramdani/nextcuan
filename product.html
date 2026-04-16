@@ -665,7 +665,7 @@
                         <a href="checkout.html?id=${p.id}" class="btn-primary px-10 py-5 rounded-2xl flex-1 sm:flex-none flex items-center justify-center gap-3 group">
                             Beli Sekarang <i data-lucide="zap" class="w-5 h-5 fill-dark-900 group-hover:scale-110 transition-transform"></i>
                         </a>
-                        <button id="cart-btn" onclick="addToCart(event, '${p.id}', '${p.title.replace(/'/g,"\\'").replace(/"/g,'&quot;')}', ${currentPrice}, ${originalPrice}, '${p.image_url}')" class="btn-secondary px-8 py-5 rounded-2xl flex-1 sm:flex-none flex items-center justify-center gap-3 group">
+                        <button id="cart-btn" onclick="addToCart(event, '${p.id}', '${p.title.replace(/'/g, "\\'").replace(/"/g, '&quot;')}', ${currentPrice}, ${originalPrice}, '${p.image_url || ''}')" class="btn-secondary px-8 py-5 rounded-2xl flex-1 sm:flex-none flex items-center justify-center gap-3 group">
                             <i data-lucide="shopping-cart" class="w-5 h-5 group-hover:rotate-12 transition-transform"></i> Keranjang
                         </button>
                     </div>
