@@ -580,9 +580,9 @@
         const CART_KEY = 'cepat_cart';
         function getCart() { try { return JSON.parse(localStorage.getItem(CART_KEY) || '[]'); } catch(e) { return []; } }
         function saveCart(cart) { localStorage.setItem(CART_KEY, JSON.stringify(cart)); renderCartBar(); }
-        function addToCart(e, id, nama, harga, hargaCoret) {
-            e.preventDefault(); e.stopPropagation();
-            let cart = getCart();
+        function addToCart(e, id, name, price, hargaCoret, imageUrl) {
+            if(e) { e.preventDefault(); e.stopPropagation(); }
+            const cart = getCart();
             if (cart.some(i => i.id_produk === id)) { showToast('Produk sudah ada di keranjang!', 'warning'); return; }
             cart.push({ id_produk: id, nama_produk: name, harga: price, harga_coret: hargaCoret, image_url: imageUrl });
             saveCart(cart);
@@ -697,33 +697,7 @@
         }
     </script>
 
-    <!-- FOOTER -->
-    <footer class="py-12 border-t" style="border-color: rgba(182, 255, 0, 0.15);">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="grid md:grid-cols-4 gap-8 mb-12">
-                <!-- Brand -->
-                <div class="md:col-span-1">
-                    <a href="index.html" class="flex items-center space-x-2 mb-4 hover:opacity-80 transition-opacity">
-                        <img src="https://ik.imagekit.io/iramdani/NextCuan_Logo_Transparent_Horizontal-3__1__n8uCKrYMC.png"
-                            alt="Next Cuan Logo" class="h-10 w-auto object-contain">
-                    </a>
-                    <p class="text-sm mb-4" style="color: var(--color-text-muted);">
-                        Platform ekosistem digital untuk membangun income online di era AI.
-                    </p>
-                </div>
-                <div>
-                    <h4 class="font-semibold mb-4 text-[#B6FF00]">Legal</h4>
-                    <ul class="space-y-2 text-sm text-slate-400">
-                        <li><a href="#" class="hover:text-white transition">Privacy Policy</a></li>
-                        <li><a href="#" class="hover:text-white transition">Terms of Service</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="pt-8 border-t border-white/5 text-center text-sm text-slate-500">
-                &copy; 2024 Next Cuan. All rights reserved.
-            </div>
-        </div>
-    </footer>
+
 
     <!-- Floating Compact Cart Bar (The Trigger) -->
     <div id="cart-bar" class="fixed bottom-6 right-6 z-[90] transform translate-y-32 opacity-0 transition-all duration-500 pointer-events-none scale-90 sm:scale-100">
@@ -785,7 +759,7 @@
     </div>
 
     <!-- FOOTER -->
-    <footer class="py-12 border-t mt-12" style="border-color: rgba(182, 255, 0, 0.15);">
+    <footer class="py-12 border-t" style="border-color: var(--color-border);">
         <div class="max-w-7xl mx-auto px-6">
             <div class="grid md:grid-cols-4 gap-8 mb-12">
                 <!-- Brand -->
@@ -797,17 +771,48 @@
                     <p class="text-sm mb-4" style="color: var(--color-text-muted);">
                         Platform ekosistem digital untuk membangun income online di era AI.
                     </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);"><i data-lucide="instagram" class="w-5 h-5"></i></a>
+                        <a href="#" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);"><i data-lucide="youtube" class="w-5 h-5"></i></a>
+                        <a href="#" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);"><i data-lucide="twitter" class="w-5 h-5"></i></a>
+                    </div>
                 </div>
+
+                <!-- Products -->
                 <div>
-                    <h4 class="font-semibold mb-4 text-[#B6FF00]">Legal</h4>
-                    <ul class="space-y-2 text-sm text-slate-400">
-                        <li><a href="#" class="hover:text-white transition">Privacy Policy</a></li>
-                        <li><a href="#" class="hover:text-white transition">Terms of Service</a></li>
+                    <h4 class="font-semibold mb-4">Products</h4>
+                    <ul class="space-y-2 text-sm" style="color: var(--color-text-muted);">
+                        <li><a href="products.html" class="hover:text-[#B6FF00] transition">Semua Produk</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">AI Content Generator</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Template Canva</a></li>
+                    </ul>
+                </div>
+
+                <!-- Resources -->
+                <div>
+                    <h4 class="font-semibold mb-4">Resources</h4>
+                    <ul class="space-y-2 text-sm" style="color: var(--color-text-muted);">
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Documentation</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Tutorials</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Blog</a></li>
+                    </ul>
+                </div>
+
+                <!-- Company -->
+                <div>
+                    <h4 class="font-semibold mb-4">Company</h4>
+                    <ul class="space-y-2 text-sm" style="color: var(--color-text-muted);">
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">About Us</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-[#B6FF00] transition">Terms of Service</a></li>
                     </ul>
                 </div>
             </div>
-            <div class="pt-8 border-t border-white/5 text-center text-sm text-slate-500">
-                &copy; 2024 Next Cuan. All rights reserved.
+
+            <div class="pt-8 border-t flex flex-col md:flex-row items-center justify-between text-sm"
+                style="border-color: var(--color-border); color: var(--color-text-muted);">
+                <p>&copy; 2024 Next Cuan. All rights reserved.</p>
+                <p class="mt-2 md:mt-0">Made with ❤️ in Indonesia</p>
             </div>
         </div>
     </footer>
