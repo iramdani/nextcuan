@@ -5,301 +5,238 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Keranjang Belanja - Next Cuan</title>
     <link rel="icon" type="image/webp" href="https://ik.imagekit.io/iramdani/logo/NextCuan_Fav.webp">
+    
+    <!-- Scripts -->
+    <script src="site.config.js"></script>
+    <script src="config.js?v=2026_1"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <script src="config.js" defer></script>
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <style>
         :root {
             --color-bg: #000018;
-            --color-surface: rgba(255, 255, 255, 0.03);
-            --color-border: rgba(255, 255, 255, 0.08);
+            --color-surface: rgba(255, 255, 255, 0.02);
+            --color-border: rgba(255, 255, 255, 0.06);
             --color-primary: #B6FF00;
-            --color-secondary: #017A6B;
-            --color-text: #f1f5f9;
+            --color-text: #f8fafc;
             --color-text-muted: #94a3b8;
         }
-        * { box-sizing: border-box; }
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--color-bg);
             color: var(--color-text);
             min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
         }
         .glass-card {
             background: var(--color-surface);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
             border: 1px solid var(--color-border);
         }
         .glass-nav {
             background: rgba(0, 0, 24, 0.85);
             backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(182, 255, 0, 0.08);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
         .btn-primary {
             background: var(--color-primary);
             color: #000018;
-            font-weight: 700;
-            border-radius: 0.75rem;
-            transition: all 0.2s;
+            font-weight: 800;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .btn-primary:hover:not(:disabled) {
-            background: #c8ff33;
-            box-shadow: 0 0 30px rgba(182, 255, 0, 0.4);
             transform: translateY(-1px);
+            box-shadow: 0 8px 25px rgba(182, 255, 0, 0.15);
         }
         .btn-secondary {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.03);
             color: var(--color-text);
             border: 1px solid var(--color-border);
-            font-weight: 600;
-            border-radius: 0.75rem;
             transition: all 0.2s;
         }
         .btn-secondary:hover {
             border-color: var(--color-primary);
-            color: var(--color-primary);
+            background: rgba(182, 255, 0, 0.02);
         }
         .glass-input {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 0.875rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 0.65rem;
             color: white;
-            outline: none;
-            transition: border-color 0.2s;
+            transition: all 0.2s;
         }
         .glass-input:focus {
             border-color: var(--color-primary);
+            background: rgba(255, 255, 255, 0.05);
         }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(12px); }
+            from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
         }
         .fade-in { animation: fadeIn 0.4s ease forwards; }
-        
+
         #mobile-menu {
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.3s ease;
         }
-        #mobile-menu.open {
-            max-height: 500px;
+        #mobile-menu.open { max-height: 500px; }
+        .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+        
+        /* Letter Placeholder Style */
+        .letter-placeholder {
+            width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(182, 255, 0, 0.08);
+            color: var(--color-primary);
+            font-weight: 900;
+            font-size: 2rem;
+            text-transform: uppercase;
+            border-radius: inherit;
         }
     </style>
 </head>
 <body>
 
-    <!-- Navigation (Synced with products.html) -->
+    <!-- Navigation -->
     <nav class="glass-nav fixed top-0 left-0 right-0 z-50">
-        <div class="max-w-7xl mx-auto px-6 py-4">
+        <div class="max-w-7xl mx-auto px-6 py-3.5">
             <div class="flex items-center justify-between">
-                <!-- Logo -->
-                <a href="index.html" class="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-                    <img src="https://ik.imagekit.io/iramdani/NextCuan_Logo_Transparent_Horizontal-3__1__n8uCKrYMC.png"
-                        alt="Next Cuan Logo" class="h-10 w-auto object-contain">
+                <a href="index.html" class="flex items-center space-x-2">
+                    <img src="https://ik.imagekit.io/iramdani/NextCuan_Logo_Transparent_Horizontal-3__1__n8uCKrYMC.png" alt="Logo" class="h-8 md:h-9 w-auto">
                 </a>
 
-                <!-- Desktop Menu -->
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="index.html" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);">Beranda</a>
-                    <a href="products.html" class="text-[#B6FF00] font-semibold">Products</a>
-                    <a href="index.html#solution" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);">Platform</a>
-                    <a href="index.html#how-it-works" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);">Cara Kerja</a>
-                    <a href="index.html#faq" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);">FAQ</a>
+                    <a href="index.html" class="text-[9px] font-bold uppercase tracking-widest text-[#94a3b8] hover:text-[#B6FF00] transition-colors">Beranda</a>
+                    <a href="products.html" class="text-[9px] font-bold uppercase tracking-widest text-[#B6FF00]">Products</a>
+                    <a href="index.html#solution" class="text-[9px] font-bold uppercase tracking-widest text-[#94a3b8] hover:text-[#B6FF00] transition-colors">Platform</a>
+                    <a href="index.html#how-it-works" class="text-[9px] font-bold uppercase tracking-widest text-[#94a3b8] hover:text-[#B6FF00] transition-colors">Cara Kerja</a>
                 </div>
 
-                <!-- Right Side -->
                 <div class="flex items-center space-x-3" id="nav-right-side">
-                    <a href="login.html" class="hidden sm:block btn-secondary px-5 py-2.5 rounded-lg text-sm font-bold" id="nav-login">Masuk</a>
-                    <a href="signup.html" class="btn-primary px-5 py-2.5 rounded-lg text-sm font-bold" id="nav-signup">Daftar</a>
-                    <button id="hamburger-btn" class="md:hidden flex items-center justify-center w-10 h-10 rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.04)] text-white transition hover:border-[#B6FF00] hover:text-[#B6FF00]" aria-label="Menu" onclick="toggleMobileMenu()">
-                        <i data-lucide="menu" class="w-5 h-5" id="hamburger-icon"></i>
+                    <a href="login.html" class="hidden sm:block btn-secondary px-4 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest">Masuk</a>
+                    <a href="signup.html" class="btn-primary px-4 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest">Daftar</a>
+                    <button id="hamburger-btn" class="md:hidden flex items-center justify-center w-9 h-9 rounded-xl border border-white/10 bg-white/5 text-white" onclick="toggleMobileMenu()">
+                        <i data-lucide="menu" class="w-4 h-4" id="hamburger-icon"></i>
                     </button>
                 </div>
             </div>
 
-            <!-- Mobile Dropdown Menu -->
+            <!-- Mobile Dropdown -->
             <div id="mobile-menu" class="md:hidden">
-                <div class="py-4 border-t border-[rgba(255,255,255,0.07)] mt-3 flex flex-col space-y-1">
-                    <a href="index.html" onclick="closeMobileMenu()" class="px-4 py-3 rounded-xl text-sm font-medium transition hover:bg-[rgba(182,255,0,0.08)] hover:text-[#B6FF00]" style="color: var(--color-text-muted);">Beranda</a>
-                    <a href="products.html" onclick="closeMobileMenu()" class="px-4 py-3 rounded-xl text-sm font-semibold text-[#B6FF00] bg-[rgba(182,255,0,0.06)] rounded-xl">Products</a>
-                    <a href="index.html#solution" onclick="closeMobileMenu()" class="px-4 py-3 rounded-xl text-sm font-medium transition hover:bg-[rgba(182,255,0,0.08)] hover:text-[#B6FF00]" style="color: var(--color-text-muted);">Platform</a>
-                    <a href="index.html#how-it-works" onclick="closeMobileMenu()" class="px-4 py-3 rounded-xl text-sm font-medium transition hover:bg-[rgba(182,255,0,0.08)] hover:text-[#B6FF00]" style="color: var(--color-text-muted);">Cara Kerja</a>
-                    <a href="index.html#faq" onclick="closeMobileMenu()" class="px-4 py-3 rounded-xl text-sm font-medium transition hover:bg-[rgba(182,255,0,0.08)] hover:text-[#B6FF00]" style="color: var(--color-text-muted);">FAQ</a>
-                    <div class="pt-2 border-t border-[rgba(255,255,255,0.07)]" id="mobile-nav-actions">
-                        <a href="login.html" class="block px-4 py-3 rounded-xl text-sm font-bold btn-secondary text-center mt-1">Masuk</a>
-                        <a href="signup.html" class="block px-4 py-3 rounded-xl text-sm font-bold btn-primary text-center mt-2">Daftar</a>
+                <div class="py-4 border-t border-white/5 mt-3 flex flex-col space-y-1">
+                    <a href="index.html" class="px-4 py-2 rounded-xl text-[9px] font-bold uppercase tracking-widest text-slate-400">Beranda</a>
+                    <a href="products.html" class="px-4 py-2 rounded-xl text-[9px] font-bold uppercase tracking-widest text-[#B6FF00] bg-white/5">Products</a>
+                    <div class="pt-2 border-t border-white/5 mt-2" id="mobile-nav-actions">
+                        <a href="login.html" class="block px-4 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest btn-secondary text-center">Masuk</a>
+                        <a href="signup.html" class="block px-4 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest btn-primary text-center mt-2">Daftar</a>
                     </div>
                 </div>
             </div>
         </div>
     </nav>
 
-    <main class="pt-28 pb-20 px-6">
-        <div class="max-w-7xl mx-auto">
-            <div class="mb-10 fade-in">
-                <p class="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2">Konfirmasi Pesanan</p>
-                <h1 class="text-3xl md:text-4xl font-black text-white tracking-tight">Keranjang Belanja</h1>
+    <main class="pt-24 pb-20 px-6">
+        <div class="max-w-5xl mx-auto">
+            <div class="mb-6 fade-in">
+                <p class="text-[8px] font-black text-[#B6FF00] uppercase tracking-[0.2em] mb-1">Konfirmasi Pesanan</p>
+                <h1 class="text-xl md:text-2xl font-black text-white tracking-tight">Keranjang Belanja</h1>
             </div>
 
-            <div class="flex flex-col lg:flex-row gap-8 items-start">
+            <div class="flex flex-col lg:flex-row gap-5 items-start">
                 <!-- Product List -->
-                <div class="flex-grow w-full space-y-4 fade-in" style="animation-delay: 0.1s;">
-                    <div id="cart-items-container" class="space-y-4">
-                        <!-- Loading -->
-                        <div class="py-12 text-center glass-card rounded-2xl">
-                            <div class="animate-spin w-6 h-6 border-2 border-primary/20 border-t-primary rounded-full mx-auto mb-3"></div>
-                            <p class="text-slate-500 text-sm font-medium">Memuat keranjang...</p>
+                <div class="flex-grow w-full space-y-2.5 fade-in" style="animation-delay: 0.1s;">
+                    <div id="cart-items-container" class="space-y-2.5">
+                        <div class="py-10 text-center glass-card rounded-2xl">
+                            <div class="animate-spin w-4 h-4 border-2 border-[#B6FF00]/20 border-t-[#B6FF00] rounded-full mx-auto mb-2"></div>
+                            <p class="text-slate-500 text-[9px] font-bold uppercase tracking-widest">Memuat...</p>
                         </div>
                     </div>
 
-                    <div id="empty-cart" class="hidden py-20 text-center glass-card rounded-2xl border-dashed">
-                        <div class="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <i data-lucide="shopping-bag" class="w-8 h-8 text-slate-600"></i>
-                        </div>
-                        <h2 class="text-xl font-bold text-white mb-3">Keranjang Belanja Kosong</h2>
-                        <p class="text-slate-500 text-sm mb-8 px-4">Anda belum menambahkan produk apapun ke dalam keranjang.</p>
-                        <a href="products.html" class="btn-primary px-8 py-3.5 inline-flex items-center gap-2 text-sm font-bold">
-                            Mulai Belanja
-                        </a>
+                    <div id="empty-cart" class="hidden py-12 text-center glass-card rounded-2xl border-dashed">
+                        <i data-lucide="shopping-bag" class="w-8 h-8 text-slate-700 mx-auto mb-4"></i>
+                        <h2 class="text-base font-bold text-white mb-2">Keranjang Kosong</h2>
+                        <a href="products.html" class="btn-primary px-6 py-2.5 rounded-lg inline-flex items-center gap-2 text-[8px] font-black uppercase tracking-widest">Mulai Belanja</a>
                     </div>
 
-                    <div id="cart-actions" class="hidden flex items-center justify-between px-2 pt-2">
-                        <a href="products.html" class="text-slate-500 hover:text-white transition-colors text-xs font-bold flex items-center gap-2">
-                            <i data-lucide="arrow-left" class="w-4 h-4"></i> Lanjut Belanja
+                    <div id="cart-actions" class="hidden flex items-center justify-between px-1">
+                        <a href="products.html" class="text-slate-500 hover:text-white transition-colors text-[8px] font-bold uppercase tracking-widest flex items-center gap-1">
+                            <i data-lucide="arrow-left" class="w-3 h-3"></i> Lanjut Belanja
                         </a>
-                        <button onclick="clearCart()" class="text-slate-500 hover:text-red-500 transition-colors text-xs font-bold flex items-center gap-2">
-                             <i data-lucide="trash-2" class="w-4 h-4"></i> Bersihkan Keranjang
+                        <button onclick="clearCart()" class="text-slate-600 hover:text-red-400 transition-colors text-[8px] font-bold uppercase tracking-widest flex items-center gap-1">
+                             <i data-lucide="trash-2" class="w-3 h-3"></i> Bersihkan
                         </button>
                     </div>
                 </div>
 
-                <!-- Right Side: Summary -->
-                <div class="lg:w-[380px] w-full shrink-0 fade-in" id="cart-summary-wrapper" style="animation-delay: 0.2s;">
-                    <div class="glass-card rounded-2xl p-6 md:p-8 sticky top-28 shadow-2xl border-white/5">
-                        <h3 class="text-lg font-black text-white mb-6 uppercase tracking-wider flex items-center justify-between">
-                            Ringkasan
-                            <span class="bg-primary/10 text-primary px-2 py-1 rounded text-[10px] font-bold">CHECKOUT</span>
-                        </h3>
+                <!-- Right Side: Summary (More Compact) -->
+                <div class="lg:w-[320px] w-full shrink-0 fade-in" id="cart-summary-wrapper" style="animation-delay: 0.2s;">
+                    <div class="glass-card rounded-2xl p-5 md:p-6 sticky top-24 shadow-xl border-white/[0.03]">
+                        <h3 class="text-[10px] font-black text-white mb-5 uppercase tracking-widest">Ringkasan</h3>
                         
-                        <div class="space-y-4 mb-6">
-                            <div class="flex justify-between items-center text-sm">
-                                <span class="text-slate-400 font-medium">Subtotal</span>
-                                <span class="text-white font-bold" id="sum-subtotal">Rp 0</span>
+                        <div class="space-y-3 mb-6">
+                            <div class="flex justify-between items-center text-[10px] font-medium">
+                                <span class="text-slate-400">Subtotal</span>
+                                <span class="text-white font-mono" id="sum-subtotal">Rp 0</span>
                             </div>
-                            <div class="flex justify-between items-center text-sm">
-                                <span class="text-slate-400 font-medium">Potongan Harga</span>
-                                <span class="text-emerald-400 font-bold" id="sum-product-discount">- Rp 0</span>
+                            <div class="flex justify-between items-center text-[10px] font-medium">
+                                <span class="text-slate-400">Potongan Harga</span>
+                                <span class="text-emerald-400 font-mono" id="sum-product-discount">- Rp 0</span>
                             </div>
-                            <div id="voucher-row" class="hidden flex justify-between items-center text-sm">
-                                <span class="text-slate-400 font-medium flex items-center gap-1.5"><i data-lucide="tag" class="w-3.5 h-3.5 text-primary"></i> Voucher</span>
-                                <span class="text-primary font-bold" id="sum-voucher-discount">- Rp 0</span>
+                            <div id="voucher-row" class="hidden flex justify-between items-center text-[10px] font-medium">
+                                <span class="text-slate-300">Voucher</span>
+                                <span class="text-[#B6FF00] font-mono" id="sum-voucher-discount">- Rp 0</span>
                             </div>
                             
                             <!-- Promo Input -->
-                            <div class="pt-4 border-t border-white/5">
-                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2.5 ml-1">KODE PROMO</label>
-                                <div class="flex gap-2.5">
+                            <div class="pt-3 border-t border-white/5">
+                                <p class="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-2">Kode Voucher</p>
+                                <div class="flex gap-2">
                                     <div class="relative flex-1">
-                                        <i data-lucide="ticket" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
-                                        <input type="text" id="voucher-input" placeholder="INPUT KODE" class="glass-input w-full pl-10 pr-4 py-3 font-mono font-bold text-sm tracking-widest uppercase focus:bg-white/5" oninput="this.value=this.value.toUpperCase()">
+                                        <i data-lucide="tag" class="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-600 z-10"></i>
+                                        <input type="text" id="voucher-input" placeholder="INPUT" class="glass-input w-full pl-8 pr-3 py-2 font-mono font-bold text-[10px] uppercase focus:bg-white/5" oninput="this.value=this.value.toUpperCase()">
                                     </div>
-                                    <button onclick="applyVoucher()" id="voucher-btn" class="btn-primary px-6 rounded-xl text-xs flex items-center justify-center font-black transition-all">
-                                        CEK
-                                    </button>
+                                    <button onclick="applyVoucher()" id="voucher-btn" class="btn-primary px-4 rounded-lg text-[9px] font-black uppercase">CEK</button>
                                 </div>
-                                <div id="voucher-status" class="hidden mt-3 text-xs font-bold p-3 rounded-xl border"></div>
+                                <div id="voucher-status" class="hidden mt-2 text-[9px] font-bold p-2.5 rounded-xl border border-white/5"></div>
                             </div>
 
-                            <div class="h-px bg-white/5 w-full my-6"></div>
+                            <div class="h-px bg-white/5 w-full my-3"></div>
                             
-                            <div class="flex flex-col gap-1">
-                                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Total Pembayaran</span>
-                                <span id="sum-total" class="text-3xl font-black text-primary font-mono tracking-tighter">Rp 0</span>
+                            <div class="flex items-center justify-between">
+                                <span class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Total</span>
+                                <span id="sum-total" class="text-xl font-black text-[#B6FF00] font-mono tracking-tighter">Rp 0</span>
                             </div>
                         </div>
 
-                        <button onclick="goToCheckout()" class="btn-primary w-full py-4.5 rounded-xl flex items-center justify-center gap-3 active:scale-[0.98] shadow-lg shadow-primary/20">
-                            <span class="text-sm font-black uppercase tracking-wide">Lanjut ke Checkout</span>
-                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        <button onclick="goToCheckout()" class="btn-primary w-full py-3 rounded-xl flex items-center justify-center gap-2 active:scale-[0.98]">
+                            <span class="text-[9px] font-black uppercase tracking-widest">Bayar Sekarang</span>
+                            <i data-lucide="arrow-right" class="w-3 h-3"></i>
                         </button>
-                        
-                        <div class="mt-6 flex flex-col gap-3">
-                            <div class="flex items-center gap-2 text-[10px] text-slate-500 font-medium">
-                                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-primary"></i> 
-                                <span>Aman dengan enkripsi SSL 256-bit</span>
-                            </div>
-                            <div class="flex items-center gap-2 text-[10px] text-slate-500 font-medium">
-                                <i data-lucide="zap" class="w-3.5 h-3.5 text-primary"></i> 
-                                <span>Akses instan setelah konfirmasi pembayaran</span>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- Footer (Synced with products.html) -->
-    <footer class="py-16 border-t" style="border-color: rgba(182, 255, 0, 0.15);">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="grid md:grid-cols-4 gap-12 mb-12">
-                <!-- Brand -->
-                <div class="md:col-span-1">
-                    <a href="index.html" class="flex items-center space-x-2 mb-6 hover:opacity-80 transition-opacity">
-                        <img src="https://ik.imagekit.io/iramdani/NextCuan_Logo_Transparent_Horizontal-3__1__n8uCKrYMC.png"
-                            alt="Next Cuan Logo" class="h-10 w-auto object-contain">
-                    </a>
-                    <p class="text-sm leading-relaxed" style="color: var(--color-text-muted);">
-                        Platform ekosistem digital untuk membangun income online di era AI.
-                    </p>
-                    <div class="flex space-x-4 mt-6">
-                        <a href="#" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);"><i data-lucide="instagram" class="w-5 h-5"></i></a>
-                        <a href="#" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);"><i data-lucide="youtube" class="w-5 h-5"></i></a>
-                        <a href="#" class="transition hover:text-[#B6FF00]" style="color: var(--color-text-muted);"><i data-lucide="twitter" class="w-5 h-5"></i></a>
-                    </div>
-                </div>
-                <!-- Products -->
-                <div>
-                    <h4 class="font-bold text-white mb-6 uppercase tracking-wider text-xs">Products</h4>
-                    <ul class="space-y-3 text-sm" style="color: var(--color-text-muted);">
-                        <li><a href="products.html" class="hover:text-primary transition-colors">Semua Produk</a></li>
-                        <li><a href="products.html" class="hover:text-primary transition-colors">Ebook Digital</a></li>
-                        <li><a href="products.html" class="hover:text-primary transition-colors">Template</a></li>
-                        <li><a href="products.html" class="hover:text-primary transition-colors">GPT Tools</a></li>
-                    </ul>
-                </div>
-                <!-- Resources -->
-                <div>
-                    <h4 class="font-bold text-white mb-6 uppercase tracking-wider text-xs">Resources</h4>
-                    <ul class="space-y-3 text-sm" style="color: var(--color-text-muted);">
-                        <li><a href="#" class="hover:text-primary transition-colors">Documentation</a></li>
-                        <li><a href="#" class="hover:text-primary transition-colors">Tutorials</a></li>
-                        <li><a href="#" class="hover:text-primary transition-colors">Blog</a></li>
-                        <li><a href="#" class="hover:text-primary transition-colors">Community</a></li>
-                    </ul>
-                </div>
-                <!-- Company -->
-                <div>
-                    <h4 class="font-bold text-white mb-6 uppercase tracking-wider text-xs">Company</h4>
-                    <ul class="space-y-3 text-sm" style="color: var(--color-text-muted);">
-                        <li><a href="#" class="hover:text-primary transition-colors">About Us</a></li>
-                        <li><a href="#" class="hover:text-primary transition-colors">Contact</a></li>
-                        <li><a href="#" class="hover:text-primary transition-colors">Privacy Policy</a></li>
-                        <li><a href="#" class="hover:text-primary transition-colors">Terms of Service</a></li>
-                    </ul>
+    <footer class="py-10 border-t mt-16" style="border-color: rgba(255, 255, 255, 0.03);">
+        <div class="max-w-5xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
+                <img src="https://ik.imagekit.io/iramdani/NextCuan_Logo_Transparent_Horizontal-3__1__n8uCKrYMC.png" alt="Logo" class="h-7 opacity-80">
+                <div class="flex gap-6 text-[8px] font-bold uppercase tracking-widest text-slate-500">
+                    <a href="index.html" class="hover:text-[#B6FF00]">Beranda</a>
+                    <a href="products.html" class="hover:text-[#B6FF00]">Products</a>
+                    <a href="index.html#faq" class="hover:text-[#B6FF00]">FAQ</a>
                 </div>
             </div>
-            <div class="pt-8 border-t flex flex-col md:flex-row items-center justify-between text-xs font-medium"
-                style="border-color: rgba(182, 255, 0, 0.1); color: var(--color-text-muted);">
-                <p>&copy; 2024 Next Cuan. All rights reserved.</p>
-                <p class="mt-4 md:mt-0 flex items-center gap-1.5 leading-none">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> System Operational
-                </p>
+            <div class="pt-6 border-t border-white/[0.02] flex justify-between text-[7px] text-slate-600 font-bold uppercase tracking-widest">
+                <p>&copy; 2026 Next Cuan.</p>
+                <p>System Operational</p>
             </div>
         </div>
     </footer>
@@ -309,91 +246,65 @@
         const CART_KEY = 'cepat_cart';
         let appliedVoucher = null;
 
-        function getCart() {
-            try { return JSON.parse(localStorage.getItem(CART_KEY) || '[]'); } catch(e) { return []; }
+        function getScriptUrl() {
+            if (window.SCRIPT_URL) return window.SCRIPT_URL;
+            if (typeof SCRIPT_URL !== 'undefined') return SCRIPT_URL;
+            if (window.API_URL) return window.API_URL;
+            return null;
         }
 
-        function saveCart(cart) {
-            localStorage.setItem(CART_KEY, JSON.stringify(cart));
-            renderCart();
-        }
-
-        function removeFromCart(id) {
-            saveCart(getCart().filter(i => i.id_produk !== id));
-        }
-
-        function clearCart() {
-            if(confirm('Kosongkan semua produk di keranjang?')) { saveCart([]); }
-        }
+        function getCart() { try { return JSON.parse(localStorage.getItem(CART_KEY) || '[]'); } catch(e) { return []; } }
+        function saveCart(cart) { localStorage.setItem(CART_KEY, JSON.stringify(cart)); renderCart(); }
+        function removeFromCart(id) { saveCart(getCart().filter(i => i.id_produk !== id)); }
+        function clearCart() { if(confirm('Kosongkan keranjang?')) saveCart([]); }
 
         function toggleMobileMenu() {
-            const menu = document.getElementById('mobile-menu');
-            const icon = document.getElementById('hamburger-icon');
-            if (menu.classList.contains('open')) {
-                menu.classList.remove('open');
-                if (icon) { icon.setAttribute('data-lucide', 'menu'); lucide.createIcons({ nodes: [icon] }); }
-            } else {
-                menu.classList.add('open');
-                if (icon) { icon.setAttribute('data-lucide', 'x'); lucide.createIcons({ nodes: [icon] }); }
-            }
-        }
-
-        function closeMobileMenu() {
-            const menu = document.getElementById('mobile-menu');
-            const icon = document.getElementById('hamburger-icon');
-            if(menu) menu.classList.remove('open');
-            if (icon) { icon.setAttribute('data-lucide', 'menu'); lucide.createIcons({ nodes: [icon] }); }
+            const m = document.getElementById('mobile-menu');
+            const i = document.getElementById('hamburger-icon');
+            const open = m.classList.toggle('open');
+            i.setAttribute('data-lucide', open ? 'x' : 'menu');
+            lucide.createIcons({ nodes: [i] });
         }
 
         async function applyVoucher() {
             const code = document.getElementById('voucher-input').value.trim();
             const status = document.getElementById('voucher-status');
             const btn = document.getElementById('voucher-btn');
+            const targetUrl = getScriptUrl();
             
-            if (!code) return;
+            if (!code || !targetUrl) return;
             
             btn.disabled = true;
-            const orig = btn.innerText;
-            btn.innerHTML = '<i data-lucide="loader" class="w-3.5 h-3.5 animate-spin"></i>';
+            btn.innerHTML = '<i data-lucide="loader" class="w-3 h-3 animate-spin"></i>';
             lucide.createIcons({ nodes: [btn] });
-            
-            status.innerHTML = '';
-            status.className = 'hidden';
+            status.classList.add('hidden');
 
             const cart = getCart();
-            if(!cart.length) { btn.disabled = false; btn.innerText = orig; return; }
+            if(!cart.length) return;
 
             try {
-                const targetUrl = window.SCRIPT_URL || (typeof SCRIPT_URL !== 'undefined' ? SCRIPT_URL : null);
                 const res = await fetch(targetUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ 
-                        action: 'validate_voucher', 
-                        voucher_code: code,
-                        product_id: cart[0].id_produk,
-                        harga: cart[0].harga
-                    })
+                    body: JSON.stringify({ action: 'validate_voucher', voucher_code: code, product_id: cart[0].id_produk, harga: cart[0].harga })
                 });
                 const r = await res.json();
-
                 if (r.status === 'success') {
-                    appliedVoucher = { code: code, discount: Number(r.discount_amount), type: r.type };
-                    status.innerText = '✓ Kode voucher "' + code + '" berhasil digunakan!';
-                    status.className = 'mt-3 text-xs font-bold text-emerald-400 bg-emerald-400/10 border-emerald-400/20 p-3 rounded-xl block';
+                    appliedVoucher = { code: code, discount: Number(r.discount_amount) };
+                    status.innerText = '✓ ' + code + ' Berhasil!';
+                    status.className = 'mt-2 text-[9px] font-bold text-emerald-400 bg-emerald-400/5 border-emerald-400/10 p-2.5 rounded-xl block';
                     renderCart();
                 } else {
                     appliedVoucher = null;
-                    status.innerText = '✕ ' + (r.message || 'Kode voucher tidak valid.');
-                    status.className = 'mt-3 text-xs font-bold text-red-400 bg-red-400/10 border-red-400/20 p-3 rounded-xl block';
-                    renderCart();
+                    status.innerText = '✕ ' + (r.message || 'Gagal');
+                    status.className = 'mt-2 text-[9px] font-bold text-red-400 bg-red-400/5 border-red-400/10 p-2.5 rounded-xl block';
                 }
             } catch (e) {
-                status.innerText = '✕ Terjadi gangguan sistem.';
-                status.className = 'mt-3 text-xs font-bold text-red-400 bg-red-400/10 border-red-400/20 p-3 rounded-xl block';
+                status.innerText = '✕ Harap refresh & coba lagi.';
+                status.className = 'mt-2 text-[9px] font-bold text-red-400 bg-red-400/5 border-red-400/10 p-2.5 rounded-xl block';
             } finally {
-                btn.disabled = false;
-                btn.innerText = orig;
+                btn.disabled = false; btn.innerText = 'CEK';
+                status.classList.remove('hidden');
             }
         }
 
@@ -402,114 +313,82 @@
             const container = document.getElementById('cart-items-container');
             const summary = document.getElementById('cart-summary-wrapper');
             const emptyEl = document.getElementById('empty-cart');
-            const actionEl = document.getElementById('cart-actions');
             const nf = new Intl.NumberFormat('id-ID');
 
-            if (cart.length === 0) {
+            if (!cart.length) {
                 container.innerHTML = '';
                 emptyEl.classList.remove('hidden');
                 summary.classList.add('hidden');
-                actionEl.classList.add('hidden');
+                document.getElementById('cart-actions').classList.add('hidden');
                 return;
             }
 
             emptyEl.classList.add('hidden');
             summary.classList.remove('hidden');
-            actionEl.classList.remove('hidden');
+            document.getElementById('cart-actions').classList.remove('hidden');
 
-            let subtotal = 0;
-            let productDiscounts = 0;
-
-            container.innerHTML = cart.map((item, idx) => {
-                const price = Number(item.harga || 0);
-                const original = Number(item.harga_coret || 0);
-                const basePrice = (original > price) ? original : price;
-                subtotal += basePrice;
-                productDiscounts += (basePrice - price);
-
-                // Use the correct product image
-                const img = item.image_url || 'https://ik.imagekit.io/iramdani/logo/NextCuan_Fav.webp';
+            let subtotal = 0, productDiscounts = 0;
+            container.innerHTML = cart.map(item => {
+                const price = Number(item.harga || 0), original = Number(item.harga_coret || 0);
+                const base = (original > price) ? original : price;
+                subtotal += base; productDiscounts += (base - price);
+                
+                // Consistency in thumbnail: if missing, use Letter like Catalog
+                const letter = item.nama_produk.charAt(0).toUpperCase();
+                const thumbContent = item.image_url 
+                    ? `<img src="${item.image_url}" class="w-full h-full object-cover" onerror="this.outerHTML='<div class=\\'letter-placeholder\\'>${letter}</div>'">`
+                    : `<div class="letter-placeholder">${letter}</div>`;
 
                 return `
-                    <div class="glass-card rounded-2xl p-4 md:p-5 flex items-center gap-5 group transition-all hover:border-primary/20">
-                        <div class="w-16 h-16 md:w-20 md:h-20 bg-white/5 rounded-xl border border-white/5 overflow-hidden flex-shrink-0 shadow-inner">
-                            <img src="${img}" class="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500" 
-                                 onerror="this.src='https://ik.imagekit.io/iramdani/logo/NextCuan_Fav.webp'">
+                    <div class="glass-card rounded-xl p-3 flex items-center gap-3.5 group transition-all border-white/5 hover:border-[#B6FF00]/10">
+                        <div class="w-14 h-14 bg-white/5 rounded-lg border border-white/5 overflow-hidden flex-shrink-0">
+                            ${thumbContent}
                         </div>
                         <div class="flex-1 min-w-0">
-                            <h3 class="font-bold text-white text-sm md:text-base mb-2 truncate pr-4">${item.nama_produk}</h3>
-                            <div class="flex flex-wrap items-center gap-3">
-                                <span class="text-sm md:text-lg font-black text-primary font-mono leading-none tracking-tight">Rp ${nf.format(price)}</span>
-                                ${original > price ? `
-                                    <span class="text-xs text-slate-500 line-through font-medium">Rp ${nf.format(original)}</span>
-                                    <span class="bg-primary/10 text-primary text-[9px] font-black px-1.5 py-0.5 rounded tracking-tighter uppercase">Diskon Otomatis</span>
-                                ` : ''}
+                            <h3 class="font-bold text-white text-[11px] md:text-xs mb-1 truncate">${item.nama_produk}</h3>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-black text-[#B6FF00] font-mono tracking-tight">Rp ${nf.format(price)}</span>
+                                ${original > price ? `<span class="text-[9px] text-slate-500 line-through">Rp ${nf.format(original)}</span>` : ''}
                             </div>
                         </div>
-                        <button onclick="removeFromCart('${item.id_produk}')" 
-                                class="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 text-slate-600 hover:text-red-500 hover:bg-red-500/10 transition-all opacity-50 hover:opacity-100">
-                            <i data-lucide="x" class="w-5 h-5"></i>
-                        </button>
+                        <button onclick="removeFromCart('${item.id_produk}')" class="text-slate-600 hover:text-red-400 transition-colors p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
                     </div>
                 `;
             }).join('');
 
-            // SEPARATE DISPLAY logic
             document.getElementById('sum-subtotal').innerText = 'Rp ' + nf.format(subtotal);
             document.getElementById('sum-product-discount').innerText = '- Rp ' + nf.format(productDiscounts);
-            
-            const voucherRow = document.getElementById('voucher-row');
+            const vRow = document.getElementById('voucher-row');
             if (appliedVoucher) {
-                voucherRow.classList.remove('hidden');
+                vRow.classList.remove('hidden');
                 document.getElementById('sum-voucher-discount').innerText = '- Rp ' + nf.format(appliedVoucher.discount);
-            } else {
-                voucherRow.classList.add('hidden');
-            }
-
-            const totalPay = Math.max(0, subtotal - productDiscounts - (appliedVoucher ? appliedVoucher.discount : 0));
-            document.getElementById('sum-total').innerText = 'Rp ' + nf.format(totalPay);
-
+            } else { vRow.classList.add('hidden'); }
+            const total = Math.max(0, subtotal - productDiscounts - (appliedVoucher ? appliedVoucher.discount : 0));
+            document.getElementById('sum-total').innerText = 'Rp ' + nf.format(total);
             lucide.createIcons();
         }
 
         function goToCheckout() {
-            const cart = getCart();
-            if (!cart.length) return;
+            const cart = getCart(); if (!cart.length) return;
             let url = cart.length === 1 ? 'checkout.html?id=' + cart[0].id_produk : 'checkout.html?cart=1';
-            
-            if (appliedVoucher) {
-                url += '&voucher=' + encodeURIComponent(appliedVoucher.code);
-            }
+            if (appliedVoucher) url += '&voucher=' + encodeURIComponent(appliedVoucher.code);
             window.location.href = url;
         }
 
-        window.addEventListener('load', () => {
-            // Update Navigation logic
+        window.onload = () => {
             const isLogged = !!sessionStorage.getItem('user_email');
             if(isLogged) {
-                const userNama = sessionStorage.getItem('user_nama') || 'User';
-                const words = userNama.trim().split(/\s+/);
-                const initials = words.length >= 2 
-                    ? (words[0][0] + words[1][0]).toUpperCase() 
-                    : userNama.substring(0, 2).toUpperCase();
-
+                const name = sessionStorage.getItem('user_nama') || 'User';
+                const initials = name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
                 const drs = document.getElementById('nav-right-side');
                 if(drs) {
-                    const hamburger = document.getElementById('hamburger-btn');
-                    drs.innerHTML = `<a href="dashboard.html" title="Member Area" class="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-[#B6FF00] text-[#000018] font-black text-sm tracking-tighter hover:scale-105">${initials}</a>`;
-                    if(hamburger) drs.appendChild(hamburger);
-                }
-
-                const mobileNavActions = document.getElementById('mobile-nav-actions');
-                if(mobileNavActions) {
-                    mobileNavActions.innerHTML = `<a href="dashboard.html" class="block px-4 py-3 rounded-xl text-sm font-bold btn-primary text-center mt-1 flex items-center justify-center gap-2"><div class="w-6 h-6 rounded-full bg-dark-900 text-primary flex items-center justify-center text-[10px] font-black">${initials}</div><span>Ke Member Area</span></a>`;
+                    const h = document.getElementById('hamburger-btn');
+                    drs.innerHTML = `<a href="dashboard.html" class="w-8 h-8 rounded-full flex items-center justify-center bg-[#B6FF00] text-black font-black text-[9px] tracking-tighter hover:scale-105 transition-transform">${initials}</a>`;
+                    if(h) drs.appendChild(h);
                 }
             }
-            
             renderCart();
-            // Create icons for the hardcoded HTML
-            lucide.createIcons();
-        });
+        };
     </script>
 </body>
 </html>
