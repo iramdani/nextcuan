@@ -1870,6 +1870,7 @@ function updateOrderStatus(d, cfg) {
     const traceId = "UOS-" + Date.now();
     Logger.log(traceId + " updateOrderStatus called with id=" + d.id + " status=" + newStatus + " isLunas=" + isLunas);
     let firstRowIndex = -1;
+    let productsFound = [];
 
     for (let i = 1; i < r.length; i++) {
       if (String(r[i][0]) === String(d.id)) {
@@ -2157,7 +2158,7 @@ function getProductDetail(d, cfg) {
       return { status: "error", message: "Produk tidak ditemukan atau tidak aktif." };
     }
 
-    // 3. Identify Affiliate Name & Pixel override
+    // 3. Identification pass
     let affName = "";
     const affRef = d.ref || d.aff_id;
     if (affRef && affRef !== "GUEST" && affRef !== "-") {
@@ -2192,7 +2193,8 @@ function getProductDetail(d, cfg) {
       status: "success", 
       data: productData, 
       payment: paymentInfo, 
-      aff_name: affName 
+      aff_name: affName,
+      _debug: { reqSlug: d.slug, reqId: d.id, foundRow: foundRow }
     }, "catalog");
   } catch (e) {
     return { status: "error", message: e.toString() };

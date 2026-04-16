@@ -349,17 +349,24 @@
                 const cachedCatString = localStorage.getItem('cepat_cache_catalog');
                 if (cachedCatString) {
                     const cachedCat = JSON.parse(cachedCatString);
-                    const catalogData = Array.isArray(cachedCat) ? cachedCat : (cachedCat.data || []);
+                    // Support various cache formats (available, data, or raw array)
+                    const catalogData = Array.isArray(cachedCat) ? cachedCat : (cachedCat.available || cachedCat.data || []);
                     let cartUpdated = false;
+                    
                     cart = cart.map(item => {
+                        // Find by ID match
                         const catalogItem = catalogData.find(p => String(p.id) === String(item.id_produk));
-                        // Healing: If cart image is missing/broken but catalog has one
-                        const currentImg = (item.image_url || '').trim();
-                        const hasBrokenImg = !currentImg || currentImg === 'undefined';
                         
+                        const currentImg = (item.image_url || '').trim();
+                        const hasBrokenImg = !currentImg || currentImg === 'undefined' || currentImg.includes('undefined');
+                        
+                        // If record found in catalog and has an image, heal the cart item
                         if (catalogItem && catalogItem.image_url && (hasBrokenImg || catalogItem.image_url !== currentImg)) {
+                            console.log('[Cart] Recovering thumbnail for:', item.nama_produk, '->', catalogItem.image_url);
                             item.image_url = catalogItem.image_url;
                             cartUpdated = true;
+                        } else if (!catalogItem) {
+                            console.warn('[Cart] Healing failed: Item ID', item.id_produk, '(' + item.nama_produk + ') not found in cached catalog.');
                         }
                         return item;
                     });
@@ -367,8 +374,10 @@
                     if (cartUpdated) {
                         try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch(e){}
                     }
+                } else {
+                    console.warn('[Cart] Healing skipped: cepat_cache_catalog is empty.');
                 }
-            } catch(e) {}
+            } catch(e) { console.error('[Cart] Healing error:', e); }
 
             if (!cart.length) {
                 container.innerHTML = '';
