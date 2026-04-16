@@ -1410,69 +1410,71 @@
 
     <!-- Initialize Lucide Icons & Catalog Logic -->
     <script>
-        // ==============================
-        // SHOPPING CART SYSTEM
-        // ==============================
+        // ─── Shopping Cart System (Drawer Model) ──────────────────────────────────
         const CART_KEY = 'cepat_cart';
-
-        function getCart() {
-            try { return JSON.parse(localStorage.getItem(CART_KEY) || '[]'); } catch(e) { return []; }
-        }
-
-        function saveCart(cart) {
-            localStorage.setItem(CART_KEY, JSON.stringify(cart));
-            renderCartBar();
-        }
-
-        function addToCart(e, id, name, price, hargaCoret) {
-            e.preventDefault();
-            e.stopPropagation();
+        function getCart() { try { return JSON.parse(localStorage.getItem(CART_KEY) || '[]'); } catch(e) { return []; } }
+        function saveCart(cart) { localStorage.setItem(CART_KEY, JSON.stringify(cart)); renderCartBar(); renderDrawerItems(); }
+        
+        function addToCart(e, id, name, price, hargaCoret, imageUrl) {
+            if(e) { e.preventDefault(); e.stopPropagation(); }
             const cart = getCart();
-            const existing = cart.find(i => i.id_produk === id);
-            if (existing) {
-                showCartToast('Produk sudah ada di keranjang!', 'warning');
-                return;
-            }
-            cart.push({ id_produk: id, nama_produk: name, harga: price, harga_coret: hargaCoret });
+            if (cart.some(i => i.id_produk === id)) { showCartToast('Produk sudah ada di keranjang!', 'warning'); return; }
+            cart.push({ id_produk: id, nama_produk: name, harga: price, harga_coret: hargaCoret, image_url: imageUrl });
             saveCart(cart);
-
-            // CTA button feedback
-            const btn = document.getElementById('cart-btn-' + id);
-            if (btn) {
-                const orig = btn.innerHTML;
-                btn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5 mr-1.5"></i>Ditambahkan!';
-                btn.classList.add('opacity-80');
-                btn.disabled = true;
-                if (window.lucide) lucide.createIcons({ nodes: [btn] });
-                setTimeout(() => {
-                    btn.innerHTML = orig;
-                    btn.classList.remove('opacity-80');
-                    btn.disabled = false;
-                    if (window.lucide) lucide.createIcons({ nodes: [btn] });
-                }, 1800);
-            }
-
             showCartToast('✅ ' + name.substring(0, 24) + ' ditambahkan!', 'success');
         }
 
-        function removeFromCart(id) {
-            saveCart(getCart().filter(i => i.id_produk !== id));
+        function removeFromCart(id) { saveCart(getCart().filter(i => i.id_produk !== id)); }
+        function clearCart() { if(confirm('Kosongkan semua item di keranjang?')) { saveCart([]); toggleCartDrawer(false); } }
+
+        function toggleCartDrawer(force) {
+            const drawer = document.getElementById('cart-drawer');
+            if(!drawer) return;
+            const isShow = (force !== undefined) ? force : drawer.classList.contains('hidden');
+            if(isShow) {
+                drawer.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+                renderDrawerItems();
+            } else {
+                drawer.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
         }
 
-        function clearCart() {
-            saveCart([]);
+        function renderDrawerItems() {
+            const container = document.getElementById('drawer-items');
+            if(!container) return;
+            const cart = getCart();
+            const nf = new Intl.NumberFormat('id-ID');
+
+            if(!cart.length) {
+                container.innerHTML = `<div class="py-10 text-center"><div class="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/5"><i data-lucide="shopping-cart" class="w-8 h-8 text-slate-600"></i></div><p class="text-slate-500 font-medium text-xs">Keranjang kamu kosong</p></div>`;
+                if(window.lucide) lucide.createIcons({ root: container });
+                return;
+            }
+
+            container.innerHTML = cart.map(item => `
+                <div class="flex items-center gap-4 group p-1 transition-all">
+                    <div class="w-14 h-14 bg-white/5 rounded-xl border border-white/5 overflow-hidden flex-shrink-0">
+                        ${item.image_url ? `<img src="${item.image_url}" class="w-full h-full object-cover" onerror="this.outerHTML='<div class=\\'flex h-full w-full items-center justify-center text-[#B6FF00]/30 font-black text-xl\\'>${item.nama_produk.charAt(0)}</div>'">` : `<div class="w-full h-full flex items-center justify-center text-[#B6FF00]/30 font-black text-xl">${item.nama_produk.charAt(0)}</div>`}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h4 class="text-xs font-bold text-white truncate group-hover:text-[#B6FF00] transition-colors leading-tight">${item.nama_produk}</h4>
+                        <p class="text-xs font-black text-[#B6FF00] font-mono tracking-tight mt-0.5">Rp ${nf.format(item.harga)}</p>
+                    </div>
+                    <button onclick="removeFromCart('${item.id_produk}')" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-500/10 text-slate-600 hover:text-red-500 transition-all">
+                        <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                    </button>
+                </div>
+            `).join('');
+            if(window.lucide) lucide.createIcons({ root: container });
         }
 
         function goToCartCheckout() {
             const cart = getCart();
-            if (!cart.length) { showCartToast('Keranjang masih kosong!', 'warning'); return; }
-            // If only one item, go directly to checkout with id
-            if (cart.length === 1) {
-                window.location.href = 'checkout.html?id=' + cart[0].id_produk;
-                return;
-            }
-            // Multi-item: go to checkout with cart flag
-            window.location.href = 'checkout.html?cart=1';
+            if (!cart.length) return;
+            if (cart.length === 1) window.location.href = 'checkout.html?id=' + cart[0].id_produk;
+            else window.location.href = 'checkout.html?cart=1';
         }
 
         function renderCartBar() {
@@ -1482,42 +1484,23 @@
 
             const nf = new Intl.NumberFormat('id-ID');
             const total = cart.reduce((s, i) => s + Number(i.harga || 0), 0);
-
-            // Update main elements
+            
+            // Sync with elements
             const countEl = document.getElementById('cart-item-count');
             const totalEl = document.getElementById('cart-total');
-            const checkoutCountEl = document.getElementById('cart-checkout-count');
-            
-            if (countEl) countEl.innerText = `${cart.length} produk`;
-            if (totalEl) totalEl.innerText = 'Rp ' + nf.format(total);
-            if (checkoutCountEl) checkoutCountEl.innerText = `${cart.length} item`;
+            const drTotalEl = document.getElementById('drawer-total');
+            const drBtnCountEl = document.getElementById('drawer-btn-count');
 
-            // Render mini item list
-            const itemListEl = document.getElementById('cart-items-list');
-            if (itemListEl) {
-                if (cart.length === 0) {
-                    itemListEl.innerHTML = '';
-                } else {
-                    itemListEl.innerHTML = cart.map(item => `
-                        <div class="flex items-center justify-between px-5 py-3 border-b border-[rgba(255,255,255,0.04)] last:border-0 group/item hover:bg-white/[0.02] transition-colors">
-                            <div class="flex-1 min-w-0 pr-4">
-                                <h4 class="text-white text-[11px] font-bold truncate group-hover/item:text-[#B6FF00] transition-colors leading-tight mb-0.5">${item.nama_produk}</h4>
-                                <p class="text-[#B6FF00] text-[10px] font-black font-mono tracking-tight opacity-80">Rp ${nf.format(item.harga)}</p>
-                            </div>
-                            <button onclick="removeFromCart('${item.id_produk}')" class="p-1.5 text-slate-500 hover:text-red-400 transition-all rounded-lg hover:bg-red-400/10 opacity-40 group-hover/item:opacity-100">
-                                <i data-lucide="x" class="w-3.5 h-3.5"></i>
-                            </button>
-                        </div>
-                    `).join('');
-                }
-                if (window.lucide) lucide.createIcons({ root: itemListEl });
-            }
+            if(countEl) countEl.innerText = cart.length;
+            if(totalEl) totalEl.innerText = 'Rp ' + nf.format(total);
+            if(drTotalEl) drTotalEl.innerText = 'Rp ' + nf.format(total);
+            if(drBtnCountEl) drBtnCountEl.innerText = `${cart.length} ITEM`;
 
-            // Show/Hide bar with animation
             if (!cart.length) {
                 bar.classList.add('translate-y-32', 'opacity-0');
                 bar.classList.remove('translate-y-0', 'opacity-100');
                 setTimeout(() => bar.classList.add('hidden'), 300);
+                toggleCartDrawer(false);
             } else {
                 bar.classList.remove('hidden');
                 setTimeout(() => {
@@ -1525,28 +1508,27 @@
                     bar.classList.add('translate-y-0', 'opacity-100');
                 }, 10);
             }
-
-            if (window.lucide) lucide.createIcons({ root: bar });
+            if(window.lucide) lucide.createIcons({ root: bar });
         }
 
         function showCartToast(msg, type) {
             let container = document.getElementById('toast-container');
             if (!container) return;
             const toast = document.createElement('div');
-            const color = type === 'success' ? 'rgba(16,185,129,0.9)' : type === 'warning' ? 'rgba(245,158,11,0.9)' : 'rgba(239,68,68,0.9)';
-            toast.style.cssText = `background:${color};color:#fff;font-size:12px;font-weight:700;padding:10px 16px;border-radius:12px;pointer-events:auto;opacity:0;transform:translateY(12px);transition:all 0.3s;max-width:280px;line-height:1.4;border:1px solid rgba(255,255,255,0.15);`;
-            toast.innerText = msg;
+            const color = type === 'success' ? '#B6FF00' : type === 'warning' ? '#F59E0B' : '#EF4444';
+            toast.className = 'glass-card border-white/10 px-4 py-3 rounded-2xl flex items-center gap-3 text-xs shadow-2xl transition-all duration-300 transform translate-y-4 opacity-0 scale-95';
+            toast.style.borderColor = `${color}40`;
+            toast.innerHTML = `<div class="w-6 h-6 rounded-lg flex items-center justify-center" style="background:${color}20;color:${color}"><i data-lucide="${type==='success'?'check':'alert-circle'}" class="w-3.5 h-3.5"></i></div><span class="font-bold text-white">${msg}</span>`;
             container.appendChild(toast);
-            setTimeout(() => { toast.style.opacity = '1'; toast.style.transform = 'translateY(0)'; }, 10);
+            if(window.lucide) lucide.createIcons({ root: toast });
+            setTimeout(() => { toast.classList.remove('translate-y-4', 'opacity-0', 'scale-95'); }, 10);
             setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateY(12px)';
+                toast.classList.add('translate-y-4', 'opacity-0', 'scale-95');
                 setTimeout(() => toast.remove(), 400);
-            }, 2800);
+            }, 3000);
         }
 
-        // Init cart on page load
-        document.addEventListener('DOMContentLoaded', () => renderCartBar());
+        document.addEventListener('DOMContentLoaded', () => { renderCartBar(); renderDrawerItems(); });
 
     </script>
     <script>
@@ -1679,7 +1661,7 @@
                                         ? `<a href="${checkoutUrl}" class="flex-1 btn-primary flex items-center justify-center py-2.5 text-xs font-bold rounded-xl shadow-lg group-hover:shadow-[#B6FF00]/20 transition-all">
                                             <i data-lucide="zap" class="w-3.5 h-3.5 mr-1.5 fill-current"></i>Beli
                                           </a>
-                                          <button onclick="addToCart(event, '${p.id}', '${safeTitle.replace(/'/g,"\\'").replace(/"/g,'&quot;')}', ${price}, ${hargaCoret})" 
+                                          <button onclick="addToCart(event, '${p.id}', '${safeTitle.replace(/'/g,"\\'").replace(/"/g,'&quot;')}', ${price}, ${hargaCoret}, '${p.image_url || ''}')" 
                                             class="w-12 btn-secondary flex items-center justify-center py-2.5 rounded-xl border border-[rgba(255,255,255,0.1)] hover:border-[#B6FF00]/50 hover:text-[#B6FF00] transition-all" 
                                             title="Tambah ke Keranjang" id="cart-btn-${p.id}">
                                             <i data-lucide="shopping-cart" class="w-4 h-4"></i>
@@ -1930,41 +1912,66 @@
         }
     </script>
 
-    <!-- FLOATING CART BAR -->
-    <div id="cart-bar" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9990] hidden w-[calc(100%-3rem)] max-w-sm">
-        <div class="glass-card rounded-2xl border border-[rgba(182,255,0,0.2)] shadow-[0_0_40px_rgba(182,255,0,0.15)] backdrop-blur-xl overflow-hidden">
-            <!-- Header -->
-            <div class="px-5 py-3 flex items-center justify-between bg-[rgba(182,255,0,0.05)] border-b border-[rgba(182,255,0,0.1)]">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-[rgba(182,255,0,0.15)] text-[#B6FF00] flex items-center justify-center">
-                        <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+    <!-- Floating Compact Cart Bar (The Trigger) -->
+    <div id="cart-bar" class="fixed bottom-6 right-6 z-[90] transform translate-y-32 opacity-0 transition-all duration-500 pointer-events-none scale-90 sm:scale-100">
+        <button onclick="toggleCartDrawer()" class="glass-card bg-black/95 border-[#B6FF00]/40 pl-2 pr-5 py-2 rounded-2xl flex items-center gap-3 shadow-[0_10px_40px_rgba(0,0,0,0.6)] pointer-events-auto hover:border-[#B6FF00] transition-all group active:scale-95">
+            <div class="relative">
+                <div class="w-10 h-10 md:w-11 md:h-11 bg-[#B6FF00] rounded-xl flex items-center justify-center text-[#000018] group-hover:scale-110 transition-transform">
+                    <i data-lucide="shopping-cart" class="w-4 h-4 md:w-5 md:h-5"></i>
+                </div>
+                <span id="cart-item-count" class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full border-2 border-[#000018] shadow-xl">0</span>
+            </div>
+            <div class="text-right">
+                <p class="text-[8px] md:text-[9px] text-slate-500 font-bold uppercase tracking-widest leading-none mb-1">Total</p>
+                <div class="flex items-center gap-1.5">
+                    <p id="cart-total" class="text-base md:text-lg font-black text-[#B6FF00] font-mono leading-none tracking-tight">Rp 0</p>
+                    <i data-lucide="chevron-up" class="w-3 h-3 text-[#B6FF00] animate-bounce"></i>
+                </div>
+            </div>
+        </button>
+    </div>
+
+    <!-- Shopping Cart Overlay/Drawer -->
+    <div id="cart-drawer" class="fixed inset-0 z-[100] hidden">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="toggleCartDrawer()"></div>
+        <div class="absolute right-4 bottom-24 md:bottom-28 w-[calc(100%-2rem)] md:w-[420px] glass-card rounded-[2rem] p-6 shadow-2xl border-[#B6FF00]/20 flex flex-col max-h-[70vh] md:max-h-[500px]">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 md:w-12 md:h-12 bg-[#B6FF00]/10 rounded-xl flex items-center justify-center text-[#B6FF00] border border-[#B6FF00]/20">
+                        <i data-lucide="shopping-basket" class="w-5 h-5 md:w-6 md:h-6"></i>
                     </div>
                     <div>
-                        <p class="text-white font-bold text-sm leading-none">Keranjang</p>
-                        <p id="cart-item-count" class="text-[10px] text-slate-400 mt-0.5">0 produk</p>
+                        <h3 class="font-black text-lg md:text-xl text-white leading-tight">Keranjang</h3>
+                        <a href="cart.html" class="text-[10px] text-[#B6FF00] font-bold uppercase tracking-widest hover:underline flex items-center gap-1">
+                            Lihat Detail <i data-lucide="external-link" class="w-2.5 h-2.5"></i>
+                        </a>
                     </div>
                 </div>
                 <div class="flex items-center gap-3">
-                    <p id="cart-total" class="text-[#B6FF00] font-black text-sm">Rp 0</p>
-                    <button onclick="clearCart()" class="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-400/10 transition-all" title="Kosongkan Keranjang">
-                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                    <button onclick="clearCart()" class="p-2 text-slate-500 hover:text-red-400 transition-colors" title="Kosongkan Keranjang">
+                        <i data-lucide="trash-2" class="w-5 h-5"></i>
+                    </button>
+                    <button onclick="toggleCartDrawer()" class="p-2 text-slate-500 hover:text-white transition-colors">
+                        <i data-lucide="x" class="w-6 h-6"></i>
                     </button>
                 </div>
             </div>
-            <!-- Items list -->
-            <div id="cart-items-list" class="max-h-36 overflow-y-auto"></div>
-            <!-- Checkout button -->
-            <div class="p-3">
-                <button onclick="goToCartCheckout()" class="w-full btn-primary py-3 rounded-xl text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2">
-                    <i data-lucide="zap" class="w-4 h-4"></i>
-                    Lanjut Checkout
-                    <span id="cart-checkout-count" class="bg-black/30 px-2 py-0.5 rounded-full text-[10px]">0 item</span>
+            <div id="drawer-items" class="flex-1 overflow-y-auto drawer-scrollbar space-y-4 mb-6 pr-2"></div>
+            <div class="pt-6 border-t border-white/5 mt-auto">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Total Bayar</span>
+                    <span id="drawer-total" class="text-xl font-black text-[#B6FF00] font-mono tracking-tighter">Rp 0</span>
+                </div>
+                <button onclick="goToCartCheckout()" class="btn-primary w-full py-4 md:py-5 rounded-2xl flex items-center justify-center gap-3 group relative overflow-hidden">
+                    <i data-lucide="zap" class="w-4 h-4 md:w-5 md:h-5 fill-[#000018]"></i>
+                    <span class="text-sm md:text-base font-black uppercase">Lanjut Checkout</span>
+                    <span id="drawer-btn-count" class="bg-black/20 px-2.5 py-0.5 rounded-full text-[9px] font-black ml-1">0 ITEM</span>
                 </button>
             </div>
         </div>
     </div>
 
-    <div id="toast-container" class="fixed bottom-28 right-4 z-[9999] flex flex-col gap-2"></div>
+    <div id="toast-container" class="fixed top-24 right-6 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
 
 </body>
 </html>
