@@ -338,11 +338,35 @@
         }
 
         function renderCart() {
-            const cart = getCart();
+            let cart = getCart();
             const container = document.getElementById('cart-items-container');
             const summary = document.getElementById('cart-summary-wrapper');
             const emptyEl = document.getElementById('empty-cart');
             const nf = new Intl.NumberFormat('id-ID');
+
+            // Auto-recover missing or broken thumbnails from the cached catalog
+            try {
+                const cachedCatString = localStorage.getItem('cepat_cache_catalog');
+                if (cachedCatString) {
+                    const cachedCat = JSON.parse(cachedCatString);
+                    const catalogData = Array.isArray(cachedCat) ? cachedCat : (cachedCat.data || []);
+                    let cartUpdated = false;
+                    
+                    cart = cart.map(item => {
+                        const catalogItem = catalogData.find(p => String(p.id) === String(item.id_produk));
+                        // Allow catalogItem to enforce empty image string or update the old missing URL
+                        if (catalogItem && typeof catalogItem.image_url !== 'undefined' && catalogItem.image_url !== item.image_url) {
+                            item.image_url = catalogItem.image_url;
+                            cartUpdated = true;
+                        }
+                        return item;
+                    });
+                    
+                    if (cartUpdated) {
+                        try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch(e){}
+                    }
+                }
+            } catch(e) {}
 
             if (!cart.length) {
                 container.innerHTML = '';
@@ -363,7 +387,7 @@
                 subtotal += base; productDiscounts += (base - price);
                 
                 const letter = item.nama_produk.charAt(0).toUpperCase();
-                const rawUrl = (item.image_url || '').trim();
+                const rawUrl = (item.image_url && item.image_url !== 'undefined') ? item.image_url.trim() : '';
 
                 // FIX: If image fails to load, it will show the Letter Placeholder
                 const thumbContent = rawUrl
