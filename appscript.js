@@ -2111,34 +2111,46 @@ function getProductDetail(d, cfg) {
     let productData = null;
 
     // 2. Lookup logic
-    for (let i = 1; i < rules.length; i++) {
-      const rowId = String(rules[i][idxId] || "").trim();
-      const rowSlug = String(rules[i][idxSlug] || "").trim().toLowerCase();
-      const rowStatus = String(rules[i][idxStatus] || "").trim().toLowerCase();
-
-      const matchId = reqId && rowId.toLowerCase() === reqId.toLowerCase();
-      const matchSlug = reqSlug && rowSlug === reqSlug;
-
-      if (rowStatus === "active" && (matchId || matchSlug)) {
-        productData = {
-          id: rowId,
-          title: normalizePlainText_(rules[i][1]),
-          desc: normalizeProductDescription_(rules[i][2]),
-          harga: rules[i][4],
-          lp_url: rules[i][6] || "",
-          image_url: rules[i][7] || "",
-          pixel_id: rules[i][8] || "",
-          pixel_token: rules[i][9] || "",
-          pixel_test_code: rules[i][10] || "",
-          commission: rules[i][11] || 0,
-          category: rules[i][12] || "",
-          rekomendasi: rules[i][13] === true || String(rules[i][13]).toUpperCase() === "TRUE",
-          harga_coret: Number(rules[i][14] || 0) || 0,
-          slug: rowSlug,
-          long_desc: rules[i][17] || ""
-        };
-        break;
+    // We do two passes: 1st pass for exact slug match (priority), 2nd for ID match
+    let foundRow = -1;
+    if (reqSlug) {
+      for (let i = 1; i < rules.length; i++) {
+        const rSlug = String(rules[i][idxSlug]).trim().toLowerCase();
+        const rStatus = String(rules[i][idxStatus]).trim().toLowerCase();
+        if (rSlug === reqSlug && rStatus === "active") {
+          foundRow = i; break;
+        }
       }
+    }
+    if (foundRow === -1 && reqId) {
+      for (let i = 1; i < rules.length; i++) {
+        const rId = String(rules[i][idxId]).trim().toLowerCase();
+        const rStatus = String(rules[i][idxStatus]).trim().toLowerCase();
+        if (rId === reqId.toLowerCase() && rStatus === "active") {
+          foundRow = i; break;
+        }
+      }
+    }
+
+    if (foundRow !== -1) {
+      const i = foundRow;
+      productData = {
+        id: String(rules[i][idxId] || "").trim(),
+        title: normalizePlainText_(rules[i][1]),
+        desc: normalizeProductDescription_(rules[i][2]),
+        harga: rules[i][4],
+        lp_url: rules[i][6] || "",
+        image_url: rules[i][7] || "",
+        pixel_id: rules[i][8] || "",
+        pixel_token: rules[i][9] || "",
+        pixel_test_code: rules[i][10] || "",
+        commission: rules[i][11] || 0,
+        category: rules[i][12] || "",
+        rekomendasi: rules[i][13] === true || String(rules[i][13]).toUpperCase() === "TRUE",
+        harga_coret: Number(rules[i][14] || 0) || 0,
+        slug: String(rules[i][idxSlug] || "").trim().toLowerCase(),
+        long_desc: rules[i][17] || ""
+      };
     }
 
     if (!productData) {

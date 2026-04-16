@@ -351,11 +351,13 @@
                     const cachedCat = JSON.parse(cachedCatString);
                     const catalogData = Array.isArray(cachedCat) ? cachedCat : (cachedCat.data || []);
                     let cartUpdated = false;
-                    
                     cart = cart.map(item => {
                         const catalogItem = catalogData.find(p => String(p.id) === String(item.id_produk));
-                        // Allow catalogItem to enforce empty image string or update the old missing URL
-                        if (catalogItem && typeof catalogItem.image_url !== 'undefined' && catalogItem.image_url !== item.image_url) {
+                        // Healing: If cart image is missing/broken but catalog has one
+                        const currentImg = (item.image_url || '').trim();
+                        const hasBrokenImg = !currentImg || currentImg === 'undefined';
+                        
+                        if (catalogItem && catalogItem.image_url && (hasBrokenImg || catalogItem.image_url !== currentImg)) {
                             item.image_url = catalogItem.image_url;
                             cartUpdated = true;
                         }

@@ -289,6 +289,22 @@
             setItem: () => false
         };
 
+        // --- CART HELPERS ---
+        const CART_KEY = 'cepat_cart';
+        function getCart() {
+            try { return JSON.parse(localStorage.getItem(CART_KEY) || '[]'); } catch(e) { return []; }
+        }
+        function addToCart(e, id, name, price, hargaCoret, imageUrl) {
+            if (e) { e.preventDefault(); e.stopPropagation(); }
+            let cart = getCart();
+            const existing = cart.find(item => item.id_produk === id);
+            if (!existing) {
+                cart.push({ id_produk: id, nama_produk: name, harga: price, harga_coret: hargaCoret, image_url: imageUrl, qty: 1 });
+                localStorage.setItem(CART_KEY, JSON.stringify(cart));
+            }
+            alert('Produk ditambahkan ke keranjang!');
+        }
+
         // Capture Affiliate Ref
         const ref = urlParams.get('ref') || urlParams.get('aff_id');
         if(ref) {

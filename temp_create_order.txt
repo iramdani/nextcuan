@@ -1,0 +1,1872 @@
+function createOrder(d, cfg) {
+  try {
+    if (getAdminSessionToken_(d)) {
+      requireAdminSession_(d, { actionName: "create_order" });
+    }
+    cfg = cfg || getSettingsMap_();
+
+    const oS = mustSheet_("Orders");
+    const uS = mustSheet_("Users");
+    const uData = uS.getDataRange().getValues();
+
+    const inv = "INV-" + Math.floor(10000 + Math.random() * 90000);
+    const email = String(d.email || "").trim().toLowerCase();
+    if (!email) return { status: "error", message: "Email wajib diisi" };
+
+    // Normalize WhatsApp number at storage time
+    const waRaw = String(d.whatsapp || "").trim();
+    const waNormalized = normalizePhone_(waRaw);
+    if (waRaw && !waNormalized) {
+      Logger.log("WARNING: WA number normalization failed for: " + waRaw);
+    }
+
+    const siteName = getCfgFrom_(cfg, "site_name") || "Sistem Premium";
+    const siteUrl = String(getCfgFrom_(cfg, "site_url") || "").trim();
+    const loginUrl = siteUrl ? (siteUrl + "/login.html") : "Link Login Belum Disetting";
+
+    const bankName = getCfgFrom_(cfg, "bank_name") || "-";
+    const bankNorek = getCfgFrom_(cfg, "bank_norek") || "-";
+    const bankOwner = getCfgFrom_(cfg, "bank_owner") || "-";
+
+    let aff = (d.affiliate && String(d.affiliate).trim() !== "") ? String(d.affiliate).trim() : "-";
+
+    const hargaDasar = toNumberSafe_(d.harga);
+
+    // MODIFIED: Allow 0 price (Free Product)
+    const isZeroPrice = hargaDasar === 0;
+    if (!isZeroPrice && hargaDasar <= 0) return { status: "error", message: "Harga tidak valid" };
+
+    // --- VOUCHER DISCOUNT ---
+    let voucherCode = String(d.voucher_code || "").trim().toUpperCase();
+    let hargaSetelahVoucher = hargaDasar;
+    let discountFactor = 1; // 1 = no discount; 0.9 = 10% discount etc.
+    if (voucherCode) {
+      const vRes = validateVoucher({ voucher_code: voucherCode, product_id: String(d.id_produk || ""), harga: hargaDasar }, cfg);
+      if (vRes.status === "success") {
+        hargaSetelahVoucher = vRes.discounted_price;
+        discountFactor = vRes.discount_factor;
+      } else {
+        // Voucher failed server-side check â€” ignore (frontend already validated, but be safe)
+        voucherCode = "";
+      }
+    }
+    const hargaFinal = hargaSetelahVoucher;
+    const isZeroPriceFinal = hargaFinal === 0;
+
+    let komisiNominal = 0;
+
+    // Validate product status + lookup commission
+    const pId = String(d.id_produk || "").trim();
+    if (pId) {
+      const rules = mustSheet_("Access_Rules").getDataRange().getValues();
+      for (let i = 1; i < rules.length; i++) {
+        if (String(rules[i][0]) === pId) {
+          // Guard: always reject order if product is not Active
+          if (String(rules[i][5]).trim() !== "Active") {
+            return { status: "error", message: "Produk ini tidak aktif dan tidak bisa di-order." };
+          }
+          // Commission only relevant when there's an affiliate
+          if (aff !== "-") {
+            komisiNominal = Number(rules[i][11] || 0);
+
+            // --- ANTI SELF-AFFILIATE CHECK ---
+            let affEmail = "";
+            let affWA = "";
+            for (let j = 1; j < uData.length; j++) {
+              if (String(uData[j][0]) === aff) {
+                affEmail = String(uData[j][1]).toLowerCase().trim();
+                affWA = normalizePhone_(String(uData[j][7]));
+                break;
+              }
+            }
+            if (email === affEmail || (waNormalized && affWA && waNormalized === affWA)) {
+              Logger.log("Self-affiliate detected for " + email + " against affiliate " + aff + ". Commission set to 0.");
+              komisiNominal = 0;
+            } else {
+              // Scale commission by voucher discount factor (proportional)
+              komisiNominal = Math.floor(komisiNominal * discountFactor);
+            }
+          }
+          break;
+        }
+      }
+    }
+
+    const kodeUnik = (isZeroPrice || isZeroPriceFinal) ? 0 : (Math.floor(Math.random() * 299) + 1);
+    const hargaTotalUnik = hargaFinal + kodeUnik;
+
+    // Cek atau Buat User Baru
+    let isNew = true;
+    let pass = Math.random().toString(36).slice(-6);
+
+    // uData already fetched above
+    let existingUserRow = -1;
+    for (let j = 1; j < uData.length; j++) {
+      if (String(uData[j][1]).toLowerCase() === email) {
+        isNew = false;
+        existingUserRow = j;
+        break;
+      }
+    }
+    if (isNew) {
+      // Generate Friendly Unique ID (u-XXXXXX)
+      let newUserId = "u-" + Math.floor(100000 + Math.random() * 900000);
+      let unique = false;
+      while (!unique) {
+        unique = true;
+        for (let k = 1; k < uData.length; k++) {
+          if (String(uData[k][0]) === newUserId) {
+            unique = false;
+            newUserId = "u-" + Math.floor(100000 + Math.random() * 900000);
+            break;
+          }
+        }
+      }
+      // Column 9: Referrer ID (Permanent Affiliate)
+      uS.appendRow([newUserId, email, hashPassword_(pass), d.nama, "member", "Active", toISODate_(), "'" + (waNormalized || waRaw), aff]);
+    } else {
+      // PERMANENT AFFILIATE LOGIC: If existing user, check if they already have a referrer
+      // Columns: 0:ID, 1:Email, 2:Pass, 3:Nama, 4:Role, 5:Status, 6:Date, 7:WA, 8:Referrer
+      let permanentAff = String(uData[existingUserRow][8] || "").trim();
+      if (permanentAff && permanentAff !== "-" && permanentAff !== "") {
+        // If they already have a permanent affiliate, use it instead of the one passed from frontend
+        aff = permanentAff;
+      } else if (aff !== "-" && aff !== "") {
+        // If they don't have one yet, assign this one as their permanent affiliate
+        uS.getRange(existingUserRow + 1, 9).setValue(aff);
+      }
+    }
+
+    const orderStatus = (isZeroPrice || isZeroPriceFinal) ? "Lunas" : "Pending";
+
+    // Simpan order
+    const waForSheet = waNormalized || waRaw;
+    const isExcluded = d.exclude_statistic === true ? "TRUE" : "FALSE";
+    oS.appendRow([
+      inv,
+      email,
+      d.nama,
+      "'" + waForSheet,
+      d.id_produk,
+      d.nama_produk,
+      hargaTotalUnik,
+      orderStatus,
+      toISODate_(),
+      aff,
+      komisiNominal,
+      isExcluded
+    ]);
+
+    // Increment voucher usage if a valid voucher was applied
+    if (voucherCode) { incrementVoucherUsage_(voucherCode); }
+
+    // ==========================================
+    // NOTIFIKASI (LOGIC CABANG: GRATIS vs BAYAR)
+    // ==========================================
+
+    const adminWA = getCfgFrom_(cfg, "wa_admin");
+
+    if (isZeroPrice) {
+      // --- SKENARIO PRODUK GRATIS (AUTO LUNAS) ---
+
+      // 1. Ambil Link Akses
+      let accessUrl = "";
+      const pS = mustSheet_("Access_Rules");
+      const pData = pS.getDataRange().getValues();
+      for (let k = 1; k < pData.length; k++) {
+        if (String(pData[k][0]) === String(d.id_produk)) { accessUrl = pData[k][3]; break; }
+      }
+
+      const waPassText = isNew ? pass : "_(gunakan password saat anda pertama kali daftar / yang sudah anda ubah)_";
+      const emailPassHtml = isNew ? `<code style="background-color: #e2e8f0; padding: 2px 6px; border-radius: 4px; color: #000018;">${pass}</code>` : `<i style="color: #64748b; font-size: 13px;">(gunakan password saat anda pertama kali daftar / yang sudah anda ubah)</i>`;
+
+      // 2. WA ke User (use normalized number)
+      const waText = `Halo ${d.nama}, selamat datang di ${siteName}! ðŸŽ‰\n\nSukses! Akses Anda untuk produk *${d.nama_produk}* telah aktif (GRATIS).\n\nðŸš€ *Klik link berikut untuk akses produk:*\n${accessUrl}\n\nðŸ” *AKUN MEMBER AREA*\nðŸŒ Link: ${loginUrl}\nâœ‰ï¸ Email: ${email}\nðŸ”‘ Password: ${waPassText}\n\nAnda juga bisa mengakses seluruh produk Anda melalui Member Area kami.\n\nTerima kasih atas kepercayaannya!\n*Tim ${siteName}*`;
+      sendWA(waForSheet, waText, cfg);
+
+      // 3. Email ke User
+      const emailHtml = `
+       <div style="font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; color: #334155; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+          <h2 style="color: #017A6B; margin-top: 0;">Akses Produk Gratis Dibuka! ðŸŽ</h2>
+          <p>Halo <b style="color: #000018;">${d.nama}</b>,</p>
+          <p>Selamat! Anda telah berhasil mendapatkan akses ke produk <b style="color: #000018;">${d.nama_produk}</b> secara GRATIS.</p>
+          
+          <div style="text-align: center; margin: 35px 0;">
+              <a href="${accessUrl}" style="background-color: #B6FF00; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">Akses Produk Sekarang</a>
+          </div>
+
+          <div style="background-color: #f8fafc; border-left: 4px solid #017A6B; padding: 15px 20px; border-radius: 8px; margin: 25px 0;">
+              <h3 style="color: #000018; margin: 0 0 10px 0; font-size: 16px;">ðŸ” Akun Member Area</h3>
+              <p style="margin: 0; font-size: 14px;"><b>Link:</b> <a href="${loginUrl}" style="color: #017A6B; text-decoration: none;">${loginUrl}</a><br>
+              <b>Email:</b> ${email}<br>
+              <b>Password:</b> ${emailPassHtml}</p>
+          </div>
+          
+          <p style="margin-bottom: 0;">Salam hangat,<br><b style="color: #000018;">Tim ${siteName}</b></p>
+       </div>`;
+      sendEmail(email, `Akses Gratis! Produk ${d.nama_produk}`, emailHtml, cfg);
+
+      // 4. Notif Admin
+      sendWA(adminWA, `ðŸŽ *ORDER GRATIS BARU!* ðŸŽ\n\nðŸ“Œ *Invoice:* #${inv}\nðŸ“¦ *Produk:* ${d.nama_produk}\nðŸ‘¤ *User:* ${d.nama}\n\nStatus: Lunas (Auto)`, cfg);
+
+    } else {
+      // --- SKENARIO BERBAYAR (PENDING) ---
+
+      const waPassTextPaid = isNew ? pass : "_(gunakan password saat anda pertama kali daftar / yang sudah anda ubah)_";
+
+      // --> NOTIFIKASI PEMBELI (WHATSAPP)
+      const waBuyerText =
+        `Halo *${d.nama}*, salam hangat dari ${siteName}! ðŸ‘‹
+
+Terima kasih telah melakukan pemesanan. Berikut rincian pesanan Anda:
+
+ðŸ“¦ *Produk:* ${d.nama_produk}
+ðŸ”– *Invoice:* #${inv}
+ðŸ’° *Total Tagihan:* Rp ${Number(hargaTotalUnik).toLocaleString('id-ID')}
+
+âš ï¸ _(Penting: Transfer *TEPAT* hingga 3 digit terakhir agar sistem dapat memvalidasi otomatis)_
+
+Silakan selesaikan pembayaran ke rekening berikut:
+
+ðŸ¦ *Bank:* ${bankName}
+ðŸ’³ *No. Rek:* ${bankNorek}
+ðŸ‘¤ *A.n:* ${bankOwner}
+
+*(Mohon kirimkan bukti transfer ke sini agar pesanan segera diproses)*
+
+---
+
+ðŸ” *INFORMASI AKUN MEMBER*
+ðŸŒ *Link Login:* ${loginUrl}
+âœ‰ï¸ *Email:* ${email}
+ðŸ”‘ *Password:* ${waPassTextPaid}
+
+*(Akses materi otomatis terbuka di akun ini setelah pembayaran divalidasi)*.
+
+*Harap tunggu 2-15 menit agar pesanan otomatis divalidasi.*
+
+Jika ada pertanyaan, silakan balas pesan ini. Terima kasih! ðŸ™`;
+      sendWA(waForSheet, waBuyerText, cfg);
+
+      // --> NOTIFIKASI PEMBELI (EMAIL) (template asli lu)
+      const emailBuyerHtml = `
+    <div style="font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; color: #334155; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+        <h2 style="color: #017A6B; margin-top: 0; margin-bottom: 5px;">Menunggu Pembayaran Anda â³</h2>
+        <p style="font-size: 16px; margin-top: 0;">Halo <b style="color: #000018;">${d.nama}</b>,</p>
+        <p>Terima kasih atas pesanan Anda di <b style="color: #000018;">${siteName}</b>. Berikut adalah detail tagihan yang harus dibayarkan:</p>
+
+        <div style="background-color: #f8fafc; padding: 15px 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #017A6B;">
+            <p style="margin: 0 0 5px 0;"><b>Produk:</b> <span style="color: #000018;">${d.nama_produk}</span></p>
+            <p style="margin: 0 0 5px 0;"><b>Invoice:</b> <span style="color: #000018;">#${inv}</span></p>
+            <p style="margin: 0; font-size: 20px; color: #000018;"><b>Total Tagihan: Rp ${Number(hargaTotalUnik).toLocaleString('id-ID')}</b></p>
+            <p style="margin: 5px 0 0 0; font-size: 12px; color: #ef4444; font-weight: bold;">*Wajib transfer TEPAT hingga 3 digit angka terakhir.</p>
+        </div>
+
+        <p>Silakan selesaikan pembayaran ke rekening berikut:</p>
+
+        <div style="background-color: #f1f5f9; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; border: 1px solid #e2e8f0;">
+            <p style="margin: 0 0 5px 0; color: #64748b; text-transform: uppercase; font-size: 12px; font-weight: bold;">Transfer Ke Bank ${bankName}</p>
+            <p style="margin: 0 0 5px 0; font-size: 24px; color: #017A6B; font-family: monospace; font-weight: bold; letter-spacing: 2px;">${bankNorek}</p>
+            <p style="margin: 0; font-size: 14px; color: #000018;"><b>A.n:</b> ${bankOwner}</p>
+        </div>
+
+        <p style="text-align: center;">Setelah transfer, konfirmasi melalui WhatsApp Admin agar produk segera kami aktifkan.</p>
+
+        <hr style="border: none; border-top: 1px dashed #cbd5e1; margin: 30px 0;">
+
+        <h3 style="color: #000018; margin-bottom: 15px; font-size: 16px;">ðŸ” Detail Akun Member Anda</h3>
+
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px;">
+            <tr>
+                <td style="padding: 12px 10px; border-bottom: 1px solid #e2e8f0; width: 100px; color: #64748b;"><b>Link Login</b></td>
+                <td style="padding: 12px 10px; border-bottom: 1px solid #e2e8f0;"><a href="${loginUrl}" style="color: #017A6B; text-decoration: none; font-weight: bold;">${loginUrl}</a></td>
+            </tr>
+            <tr>
+                <td style="padding: 12px 10px; border-bottom: 1px solid #e2e8f0; color: #64748b;"><b>Email</b></td>
+                <td style="padding: 12px 10px; border-bottom: 1px solid #e2e8f0; color: #000018;">${email}</td>
+            </tr>
+            <tr>
+                <td style="padding: 12px 10px; border-bottom: 1px solid #e2e8f0; color: #64748b;"><b>Password</b></td>
+                <td style="padding: 12px 10px; border-bottom: 1px solid #e2e8f0;">${isNew ? `<code style="background: #f1f5f9; padding: 4px 8px; border-radius: 4px; color: #000018; font-weight: bold;">${pass}</code>` : `<i style="color: #64748b; font-size: 13px;">(gunakan password saat anda pertama kali daftar / yang sudah anda ubah)</i>`}</td>
+            </tr>
+        </table>
+
+        <br>
+        <p style="margin-bottom: 0;">Salam hangat,<br><b style="color: #000018;">Tim ${siteName}</b></p>
+    </div>
+    `;
+      sendEmail(email, `Menunggu Pembayaran: Pesanan #${inv} - ${siteName}`, emailBuyerHtml, cfg);
+
+      // --> NOTIFIKASI ADMIN
+      const affMsg = aff !== "-" ? `\nðŸ¤ *Affiliate:* ${aff}\nðŸ’¸ *Potensi Komisi:* Rp ${Number(komisiNominal).toLocaleString('id-ID')}` : "";
+      sendWA(adminWA, `ðŸš¨ *PESANAN BARU MASUK!* ðŸš¨\n\nðŸ“Œ *Invoice:* #${inv}\nðŸ“¦ *Produk:* ${d.nama_produk}\nðŸ‘¤ *Customer:* ${d.nama}\nðŸ’³ *Nilai Unik:* Rp ${Number(hargaTotalUnik).toLocaleString('id-ID')}${affMsg}\n\nSilakan pantau pembayaran dari customer ini.`, cfg);
+    } // End of Else (Paid)
+
+    return { status: "success", invoice: inv, tagihan: hargaTotalUnik, is_new_user: isNew };
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
+/* =========================
+   REGISTER FREE MEMBER
+========================= */
+function registerFreeMember(d, cfg) {
+  try {
+    cfg = cfg || getSettingsMap_();
+    
+    // Require admin session ONLY if explicitly passed or needed by your security model. 
+    // Usually signup is public, so no admin check here.
+
+    const uS = mustSheet_("Users");
+    const uData = uS.getDataRange().getValues();
+
+    const email = String(d.email || "").trim().toLowerCase();
+    if (!email) return { status: "error", message: "Email wajib diisi" };
+    
+    const nama = String(d.nama || "").trim();
+    if (!nama) return { status: "error", message: "Nama lengkap wajib diisi" };
+
+    const waRaw = String(d.whatsapp || "").trim();
+    const waNormalized = normalizePhone_(waRaw);
+
+    const siteName = getCfgFrom_(cfg, "site_name") || "Sistem Premium";
+    const siteUrl = String(getCfgFrom_(cfg, "site_url") || "").trim();
+    const loginUrl = siteUrl ? (siteUrl + "/login.html") : "Link Login Belum Disetting";
+
+    let isNew = true;
+    let pass = Math.random().toString(36).slice(-6);
+
+    for (let j = 1; j < uData.length; j++) {
+      if (String(uData[j][1]).toLowerCase() === email) {
+        isNew = false;
+        break;
+      }
+    }
+
+    if (!isNew) {
+      return { status: "error", message: "Email ini sudah terdaftar. Silakan login ke akun Anda." };
+    }
+
+    let newUserId = "u-" + Math.floor(100000 + Math.random() * 900000);
+    let unique = false;
+    while (!unique) {
+      unique = true;
+      for (let k = 1; k < uData.length; k++) {
+        if (String(uData[k][0]) === newUserId) {
+          unique = false;
+          newUserId = "u-" + Math.floor(100000 + Math.random() * 900000);
+          break;
+        }
+      }
+    }
+
+    const waForSheet = waNormalized || waRaw;
+    const aff = (d.affiliate && String(d.affiliate).trim() !== "") ? String(d.affiliate).trim() : "-";
+    
+    // Save New User (Column 9: Referrer ID)
+    uS.appendRow([newUserId, email, hashPassword_(pass), nama, "member", "Active", toISODate_(), "'" + waForSheet, aff]);
+
+    // Send notifications
+    const waText = `Halo ${nama}, selamat datang di ${siteName}! ðŸŽ‰\n\nPendaftaran akun Anda berhasil. Sekarang Anda telah bergabung dan bisa mulai menggunakan fasilitas platform kami.\n\nðŸ” *INFORMASI AKUN ANDA*\nðŸŒ Link Login: ${loginUrl}\nâœ‰ï¸ Email: ${email}\nðŸ”‘ Password: ${pass}\n\nSilakan login ke Member Area untuk menjelajahi fitur dan program affiliate kami.\n\nTerima kasih atas kepercayaannya!\n*Tim ${siteName}*`;
+    sendWA(waForSheet, waText, cfg);
+
+    const emailHtml = `
+      <div style="font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; color: #334155; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+          <h2 style="color: #017A6B; margin-top: 0;">Selamat Datang! ðŸŽ‰</h2>
+          <p>Halo <b style="color: #000018;">${nama}</b>,</p>
+          <p>Selamat! Pendaftaran akun Anda di <b style="color: #000018;">${siteName}</b> telah berhasil. Silakan login ke Member Area untuk menjelajahi fitur dan program affiliate kami.</p>
+          
+          <div style="text-align: center; margin: 35px 0;">
+              <a href="${loginUrl}" style="background-color: #B6FF00; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">Masuk ke Member Area</a>
+          </div>
+
+          <div style="background-color: #f8fafc; border-left: 4px solid #017A6B; padding: 15px 20px; border-radius: 8px; margin: 25px 0;">
+              <h3 style="color: #000018; margin: 0 0 10px 0; font-size: 16px;">ðŸ” Informasi Akun Anda</h3>
+              <p style="margin: 0; font-size: 14px;"><b>Link Login:</b> <a href="${loginUrl}" style="color: #017A6B; text-decoration: none;">${loginUrl}</a><br>
+              <b>Email:</b> ${email}<br>
+              <b>Password:</b> <code style="background-color: #e2e8f0; padding: 2px 6px; border-radius: 4px; color: #000018;">${pass}</code></p>
+          </div>
+          
+          <p style="margin-bottom: 0;">Salam hangat,<br><b style="color: #000018;">Tim ${siteName}</b></p>
+      </div>`;
+    sendEmail(email, "Pendaftaran Berhasil! Selamat Datang di " + siteName, emailHtml, cfg);
+
+    // Notify Admin optionally
+    const adminWA = getCfgFrom_(cfg, "wa_admin");
+    if(adminWA) {
+      sendWA(adminWA, "ðŸš€ *MEMBER GRATIS BARU!* ðŸš€\n\nðŸ‘¤ *Nama:* " + nama + "\nâœ‰ï¸ *Email:* " + email + "\nðŸ“± *WA:* " + waForSheet + "\n\nTelah mendaftar affiliate/member gratis.", cfg);
+    }
+
+    return { status: "success", message: "Pendaftaran berhasil! Silakan cek WhatsApp / Email Anda untuk detail akun." };
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
+/* =========================
+   UPDATE ORDER STATUS (MANUAL)
+========================= */
+function updateOrderStatus(d, cfg) {
+  try {
+    requireAdminSession_(d, { actionName: "update_order_status" });
+    cfg = cfg || getSettingsMap_();
+    const s = mustSheet_("Orders");
+    const uS = mustSheet_("Users"); // kept for compatibility (even if not used)
+    const pS = mustSheet_("Access_Rules");
+    const r = s.getDataRange().getValues();
+    const siteName = getCfgFrom_(cfg, "site_name") || "Sistem Premium";
+
+    let orderFound = false, uEmail = "", uName = "", pId = "", pName = "", uWA = "";
+    const newStatus = d.status || "Lunas";
+    const isLunas = String(newStatus).trim().toLowerCase() === "lunas";
+
+    // Trace ID for debugging this specific request
+    const traceId = "UOS-" + Date.now();
+    Logger.log(traceId + " updateOrderStatus called with id=" + d.id + " status=" + newStatus + " isLunas=" + isLunas);
+
+    for (let i = 1; i < r.length; i++) {
+      if (String(r[i][0]) === String(d.id)) {
+        s.getRange(i + 1, 8).setValue(isLunas ? "Lunas" : newStatus);
+        uEmail = r[i][1];
+        uName = r[i][2];
+        uWA = r[i][3];
+        pId = r[i][4];
+        pName = r[i][5];
+        orderFound = true;
+        Logger.log(traceId + " Order FOUND: row=" + (i + 1) + " uWA=" + JSON.stringify(uWA) + " type=" + typeof uWA + " uEmail=" + uEmail);
+        break;
+      }
+    }
+
+    if (orderFound) {
+      const cacheState = bumpPublicCacheState_(["dashboard"]);
+      if (!isLunas) {
+        Logger.log(traceId + " Not Lunas, returning early. newStatus=" + newStatus);
+        return withPublicCacheState_({ status: "success", message: "Status berhasil diubah menjadi " + newStatus }, cacheState);
+      }
+
+      Logger.log(traceId + " Status=Lunas, proceeding with notifications...");
+
+      let accessUrl = "";
+      let capiPixelId = "";
+      let capiPixelToken = "";
+      let capiPixelTestCode = "";
+      const pData = pS.getDataRange().getValues();
+      for (let k = 1; k < pData.length; k++) {
+        if (String(pData[k][0]) === String(pId)) {
+          accessUrl = pData[k][3];
+          capiPixelId = String(pData[k][8] || "").trim();
+          capiPixelToken = String(pData[k][9] || "").trim();
+          capiPixelTestCode = String(pData[k][10] || "").trim();
+          break;
+        }
+      }
+      Logger.log(traceId + " accessUrl=" + accessUrl);
+
+      // LOG: Debug notification target data before sending
+      const waDebug = "uWA raw=" + JSON.stringify(uWA) + " type=" + typeof uWA + " normalized=" + normalizePhone_(uWA);
+      logWA_("DEBUG_LUNAS", String(uWA), traceId + " | " + waDebug + " | Inv=" + d.id + " uEmail=" + uEmail);
+
+      // STEP 1: Send WA to customer
+      Logger.log(traceId + " Sending WA to: " + uWA);
+      const waResult = sendWA(uWA, `ðŸŽ‰ *PEMBAYARAN TERVERIFIKASI!* ðŸŽ‰\n\nHalo *${uName}*, kabar baik!\n\nPembayaran Anda untuk produk *${pName}* (Invoice: #${d.id}) telah kami terima dan akses Anda kini *Telah Aktif*.\n\nðŸš€ *Klik link berikut untuk mengakses produk Anda:*\n${accessUrl}\n\nAnda juga bisa mengakses seluruh produk Anda melalui Member Area kami.\n\nTerima kasih atas kepercayaannya!\n*Tim ${siteName}*`, cfg);
+      Logger.log(traceId + " WA Result: " + JSON.stringify(waResult));
+
+      // STEP 2: Send Email to customer
+      const emailActivationHtml = `
+      <div style="font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; color: #334155; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+          <div style="text-align: center; margin-bottom: 25px;">
+              <h1 style="color: #017A6B; margin-top: 0; margin-bottom: 5px;">Akses Telah Dibuka! ðŸŽ‰</h1>
+          </div>
+          <p style="font-size: 16px;">Halo <b style="color: #000018;">${uName}</b>,</p>
+          <p>Terima kasih! Pembayaran Anda telah berhasil kami verifikasi. Akses penuh untuk produk <b style="color: #000018;">${pName}</b> sekarang sudah aktif dan dapat Anda gunakan.</p>
+
+          <div style="text-align: center; margin: 35px 0;">
+              <a href="${accessUrl}" style="background-color: #B6FF00; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; display: inline-block;">Akses Produk Sekarang</a>
+          </div>
+
+          <p>Sebagai alternatif, Anda selalu bisa menemukan semua produk yang Anda miliki dengan masuk ke Member Area menggunakan akun yang telah kami kirimkan sebelumnya.</p>
+
+          <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 30px 0;">
+          <p style="font-size: 14px; color: #64748b; margin-bottom: 0;">Salam Sukses,<br><b style="color: #000018;">Tim ${siteName}</b></p>
+      </div>
+      `;
+      Logger.log(traceId + " Sending Email to: " + uEmail);
+      const emailResult = sendEmail(uEmail, `Akses Terbuka! Produk ${pName} - ${siteName}`, emailActivationHtml, cfg);
+      Logger.log(traceId + " Email Result: " + JSON.stringify(emailResult));
+
+      // STEP 3: META CONVERSIONS API - Server-side Purchase event (konfirmasi manual admin)
+      const capiResult = sendMetaCAPIEvent_({
+        pixelId: capiPixelId,
+        accessToken: capiPixelToken,
+        testEventCode: capiPixelTestCode,
+        invoice: String(d.id || ""),
+        productId: pId,
+        productName: pName,
+        value: Number(r.find ? (r.find(row => String(row[0]) === String(d.id)) || [])[6] : 0) || 0,
+        email: uEmail,
+        phone: uWA,
+        sourceUrl: "https://nextcuan.my.id/checkout.html"
+      });
+      Logger.log(traceId + " CAPI Result: " + JSON.stringify(capiResult));
+
+      return withPublicCacheState_({ status: "success", trace: traceId, notifications: { wa: waResult, email: emailResult, capi: capiResult } }, cacheState);
+    }
+
+    return { status: "error", message: "Order tidak ditemukan" };
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
+/* =========================
+   GIVE PRODUCT ACCESS (MANUAL DARI ADMIN)
+========================= */
+function giveProductAccess(d, cfg) {
+  try {
+    requireAdminSession_(d, { actionName: "give_product_access" });
+    cfg = cfg || getSettingsMap_();
+
+    const uS = mustSheet_("Users");
+    const uData = uS.getDataRange().getValues();
+    const email = String(d.email || "").trim().toLowerCase();
+    
+    if (!email) return { status: "error", message: "Email wajib diisi" };
+    
+    let uName = "";
+    let uWA = "";
+    let userFound = false;
+    
+    for (let j = 1; j < uData.length; j++) {
+      if (String(uData[j][1]).toLowerCase() === email) {
+        uName = uData[j][3];
+        uWA = String(uData[j][7] || "").trim(); // WhatsApp column
+        userFound = true;
+        break;
+      }
+    }
+    
+    if (!userFound) {
+      return { status: "error", message: "Member dengan email tersebut tidak ditemukan di sistem." };
+    }
+
+    const pId = String(d.id_produk || "").trim();
+    if (!pId) return { status: "error", message: "Produk belum diisi" };
+    
+    const rules = mustSheet_("Access_Rules").getDataRange().getValues();
+    let pName = "";
+    let accessUrl = "";
+    let productFound = false;
+    for (let i = 1; i < rules.length; i++) {
+        if (String(rules[i][0]) === pId) {
+            pName = normalizePlainText_(rules[i][1]);
+            accessUrl = rules[i][3];
+            productFound = true;
+            break;
+        }
+    }
+    
+    if (!productFound) return { status: "error", message: "Produk tidak ditemukan." };
+
+    const inv = "ACC-" + Math.floor(10000 + Math.random() * 90000); // Use ACC- to indicate direct access
+    const oS = mustSheet_("Orders");
+    
+    // Check if user already has access to this product
+    const ordersData = oS.getDataRange().getValues();
+    for (let i = 1; i < ordersData.length; i++) {
+        if (String(ordersData[i][1]).trim().toLowerCase() === email && String(ordersData[i][4]) === pId && String(ordersData[i][7]).toLowerCase() === "lunas") {
+            return { status: "error", message: "Member ini sudah memiliki akses Lunas untuk produk tersebut." };
+        }
+    }
+
+    // append to Orders
+    oS.appendRow([
+      inv,
+      email,
+      uName,
+      "'" + uWA,
+      pId,
+      pName,
+      0, // Harga 0 karena diberikan akses khusus
+      "Lunas",
+      toISODate_(),
+      "-", // affiliate
+      0, // komisi
+      "TRUE" // exclude_statistic, agar tidak masuk omset
+    ]);
+
+    const siteName = getCfgFrom_(cfg, "site_name") || "Sistem Premium";
+    const siteUrl = String(getCfgFrom_(cfg, "site_url") || "").trim();
+    const loginUrl = siteUrl ? (siteUrl + "/login.html") : "Link Login Belum Disetting";
+    
+    // WA ke User
+    const waText = `Halo ${uName}, selamat datang kembali di ${siteName}! ðŸŽ‰\n\nAkses Anda untuk produk *${pName}* telah kami berikan secara langsung.\n\nðŸš€ *Klik link berikut untuk akses produk:*\n${accessUrl}\n\nðŸ” *AKUN MEMBER AREA*\nðŸŒ Link: ${loginUrl}\nâœ‰ï¸ Email: ${email}\nðŸ”‘ Password: _(gunakan password yang sudah anda miliki)_\n\nAnda juga bisa mengakses seluruh produk Anda melalui Member Area kami.\n\nTerima kasih!\n*Tim ${siteName}*`;
+    if (uWA) sendWA(uWA, waText, cfg);
+    
+    // 3. Email ke User
+    const emailHtml = `
+     <div style="font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; color: #334155; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+        <h2 style="color: #017A6B; margin-top: 0;">Akses Produk Tambahan Dibuka! ðŸŽ</h2>
+        <p>Halo <b style="color: #000018;">${uName}</b>,</p>
+        <p>Selamat! Anda telah mendapatkan akses tambahan ke produk <b style="color: #000018;">${pName}</b> tanpa biaya tambahan.</p>
+        
+        <div style="text-align: center; margin: 35px 0;">
+            <a href="${accessUrl}" style="background-color: #B6FF00; color: #000000; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">Akses Produk Sekarang</a>
+        </div>
+
+        <div style="background-color: #f8fafc; border-left: 4px solid #017A6B; padding: 15px 20px; border-radius: 8px; margin: 25px 0;">
+            <p style="margin: 0; font-size: 14px;">Gunakan <b>Email</b> dan <b>Password</b> Anda yang lama untuk login ke Member Area: <a href="${loginUrl}" style="color: #017A6B; text-decoration: none;">${loginUrl}</a>.</p>
+        </div>
+        
+        <p style="margin-bottom: 0;">Salam hangat,<br><b style="color: #000018;">Tim ${siteName}</b></p>
+     </div>`;
+    sendEmail(email, `Akses Tambahan! Produk ${pName}`, emailHtml, cfg);
+
+    // BUMP CACHE & REPORT
+    const cacheState = bumpPublicCacheState_(["dashboard"]);
+    return withPublicCacheState_({ status: "success", message: "Akses produk berhasil diberikan ke member." }, cacheState);
+    
+  } catch(e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
+/* =========================
+   HELPER: GET AFFILIATE PIXEL
+========================= */
+function getAffiliatePixel_(userId, productId) {
+  const s = ss.getSheetByName("Affiliate_Pixels");
+  if (!s) return null;
+
+  const d = s.getDataRange().getValues();
+  for (let i = 1; i < d.length; i++) {
+    if (String(d[i][0]) === String(userId) && String(d[i][1]) === String(productId)) {
+      return {
+        pixel_id: String(d[i][2]),
+        pixel_token: String(d[i][3]),
+        pixel_test_code: String(d[i][4])
+      };
+    }
+  }
+  return null;
+}
+
+/* =========================
+   PRODUCT DETAIL
+========================= */
+function getProductDetail(d, cfg) {
+  try {
+    cfg = cfg || getSettingsMap_();
+    const rules = mustSheet_("Access_Rules").getDataRange().getValues();
+    const pId = String(d.id).trim();
+    let productData = null;
+
+    for (let i = 1; i < rules.length; i++) {
+      if (String(rules[i][0]) === pId && String(rules[i][5]).trim() === "Active") {
+        productData = {
+          id: pId,
+          title: normalizePlainText_(rules[i][1]),
+          desc: normalizeProductDescription_(rules[i][2]),
+          harga: rules[i][4],
+          pixel_id: rules[i][8] || "",
+          pixel_token: rules[i][9] || "",
+          pixel_test_code: rules[i][10] || "",
+          commission: rules[i][11] || 0
+        };
+        break;
+      }
+    }
+    if (!productData) return { status: "error", message: "Produk tidak ditemukan" };
+
+    // --> CHECK AFFILIATE PIXEL OVERRIDE
+    const affRef = d.ref || d.aff_id;
+    if (affRef) {
+      const affPixel = getAffiliatePixel_(affRef, pId);
+      if (affPixel && affPixel.pixel_id) {
+        productData.pixel_id = affPixel.pixel_id;
+        productData.pixel_token = affPixel.pixel_token;
+        productData.pixel_test_code = affPixel.pixel_test_code;
+        productData.is_affiliate_pixel = true;
+      }
+    }
+
+    const paymentInfo = {
+      bank_name: getCfgFrom_(cfg, "bank_name"),
+      bank_norek: getCfgFrom_(cfg, "bank_norek"),
+      bank_owner: getCfgFrom_(cfg, "bank_owner"),
+      wa_admin: getCfgFrom_(cfg, "wa_admin"),
+
+      pixel_id: productData.pixel_id, // Pass pixel_id (possibly overridden)
+      pixel_token: productData.pixel_token,
+      pixel_test_code: productData.pixel_test_code
+    };
+
+    let affName = "";
+    if (d.aff_id && d.aff_id !== "GUEST" && d.aff_id !== "-") {
+      const users = mustSheet_("Users").getDataRange().getValues();
+      for (let j = 1; j < users.length; j++) {
+        if (String(users[j][0]) === String(d.aff_id)) { affName = String(users[j][3]); break; }
+      }
+    }
+
+    return withPublicCacheVersion_({ status: "success", data: productData, payment: paymentInfo, aff_name: affName }, "catalog");
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
+/* =========================
+   GET PRODUCTS + KOMISI AFFILIATE
+========================= */
+function getProducts(d, cfg, cachedOrders) {
+  cfg = cfg || getSettingsMap_();
+
+  // OPTIMIZATION: Only fetch sheets if needed, reuse cached if passed
+  const rules = getCachedData_("access_rules", () => {
+    return mustSheet_("Access_Rules").getDataRange().getValues();
+  }, 3600); // 1 hour cache for rules
+
+  const orders = cachedOrders || mustSheet_("Orders").getDataRange().getValues();
+  const users = mustSheet_("Users").getDataRange().getValues(); // Often changes, might need real-time
+
+  let email = String(d.email || "").trim().toLowerCase();
+  let targetMode = false;
+
+  // Support fetching products for a specific user (Bio Page)
+  if (d.target_user_id) {
+    targetMode = true;
+    const tUid = String(d.target_user_id).trim();
+    for (let j = 1; j < users.length; j++) {
+      if (String(users[j][0]) === tUid) {
+        email = String(users[j][1]).trim().toLowerCase();
+        break;
+      }
+    }
+  }
+
+  let lunasIds = [], totalKomisi = 0, totalDitarik = 0, uId = "";
+  let partners = [];
+
+  if (email) {
+    for (let j = 1; j < users.length; j++) {
+      if (String(users[j][1]).toLowerCase() === email) { uId = String(users[j][0]); break; }
+    }
+    
+    // 1. Calculate Lifetime Commission from Orders
+    for (let x = 1; x < orders.length; x++) {
+      const r = orders[x];
+      if (String(r[1]).toLowerCase() === email && String(r[7]) === "Lunas") lunasIds.push(String(r[4]));
+
+      // Check for Partners (Referrals) - Only calculate if not in target mode (optional, but keeps it clean)
+      if (!targetMode && String(r[9]) === uId) {
+        if (String(r[7]) === "Lunas") totalKomisi += Number(r[10] || 0);
+
+        let dtStr = "-";
+        if (r[8]) {
+          try {
+            dtStr = Utilities.formatDate(new Date(r[8]), Session.getScriptTimeZone(), "dd/MM/yyyy HH:mm");
+          } catch(e) {
+            dtStr = String(r[8]).substring(0, 10);
+          }
+        }
+
+        partners.push({
+          invoice: r[0],
+          name: r[2],
+          product: r[5],
+          status: r[7],
+          date: dtStr,
+          commission: r[10] || 0
+        });
+      }
+    }
+
+    // 2. Calculate Withdrawn Commission from Withdrawals sheet
+    const wdSheet = ss.getSheetByName("Withdrawals");
+    if (wdSheet && uId) {
+      const wdData = wdSheet.getDataRange().getValues();
+      for (let i = 1; i < wdData.length; i++) {
+        const rowUserId = String(wdData[i][1]);
+        const rowStatus = String(wdData[i][4]).trim().toLowerCase();
+        const rowAmount = Number(wdData[i][3] || 0);
+        
+        // Sum successful and pending withdrawals as they reduce available balance
+        if (rowUserId === uId && (rowStatus === 'success' || rowStatus === 'pending' || rowStatus === 'berhasil')) {
+          totalDitarik += rowAmount;
+        }
+      }
+    }
+  }
+
+  let owned = [], available = [];
+  const isPublicRequest = !email; // No email = public catalog request
+
+  for (let i = 1; i < rules.length; i++) {
+    const pId = String(rules[i][0]);
+    const hasAccess = lunasIds.includes(pId);
+    const isActive = String(rules[i][5]).trim() === "Active";
+    const isHidden = rules[i][15] === true || String(rules[i][15]).toUpperCase() === "TRUE";
+
+    // Members who already own a product can ALWAYS access it,
+    // even if admin later deactivated or hid the product.
+    if (hasAccess && email) {
+      owned.push({
+        id: pId,
+        title: normalizePlainText_(rules[i][1]),
+        desc: normalizeProductDescription_(rules[i][2]),
+        url: rules[i][3],           // full access URL for owners
+        harga: rules[i][4],
+        access: true,
+        lp_url: rules[i][6] || "",
+        image_url: rules[i][7] || "",
+        commission: rules[i][11] || 0,
+        category: rules[i][12] || "",
+        rekomendasi: rules[i][13] === true || String(rules[i][13]).toUpperCase() === "TRUE",
+        harga_coret: Number(rules[i][14] || 0) || 0,
+        hidden: isHidden,
+        active: isActive
+      });
+      continue; // don't add to available if already owned
+    }
+
+    // Only Active products appear in the public/affiliate catalog
+    if (!isActive) continue;
+
+    const pObj = {
+      id: pId,
+      title: normalizePlainText_(rules[i][1]),
+      desc: normalizeProductDescription_(rules[i][2]),
+      url: "#",
+      harga: rules[i][4],
+      access: false,
+      lp_url: rules[i][6] || "",
+      image_url: rules[i][7] || "",
+      commission: rules[i][11] || 0,
+      category: rules[i][12] || "",
+      rekomendasi: rules[i][13] === true || String(rules[i][13]).toUpperCase() === "TRUE",
+      harga_coret: Number(rules[i][14] || 0) || 0,
+      hidden: isHidden,
+      active: isActive
+    };
+
+    if (targetMode) {
+      // Bio Page mode: show nothing for non-owners here (owners already handled above)
+    } else {
+      // Public/affiliate catalog: exclude hidden products for public requests
+      if (!isPublicRequest || !isHidden) available.push(pObj);
+    }
+  }
+
+  const saldoBisaDicairkan = Math.max(0, totalKomisi - totalDitarik);
+
+  return withPublicCacheVersion_({ 
+    status: "success", 
+    owned, 
+    available, 
+    total_komisi: totalKomisi, 
+    total_ditarik: totalDitarik,
+    saldo_bisa_dicairkan: saldoBisaDicairkan,
+    partners: partners.reverse() 
+  }, "catalog");
+}
+
+function getDashboardData(d) {
+  try {
+    const dashboardCacheVersion = publicCacheVersionToken_("dashboard");
+    const cfg = getSettingsMap_();
+
+    // 1. Get User ID & Admin ID from Users Sheet
+    const email = String(d.email || "").trim().toLowerCase();
+    const users = mustSheet_("Users").getDataRange().getValues();
+    let userId = "";
+    let userNama = "";
+    let adminId = "";
+
+    for (let i = 1; i < users.length; i++) {
+      // Check for Admin (fallback upline)
+      if (String(users[i][4]).toLowerCase() === "admin" && !adminId) {
+        adminId = String(users[i][0]);
+      }
+      // Check for Current User
+      if (String(users[i][1]).toLowerCase() === email) {
+        userId = String(users[i][0]);
+        userNama = String(users[i][3]);
+      }
+    }
+
+    // 1b. Find Upline (Sponsor) from Orders History
+    let uplineId = "";
+    const orders = mustSheet_("Orders").getDataRange().getValues();
+
+    if (userId) {
+      // Search from oldest order (top) to find the first referrer
+      for (let k = 1; k < orders.length; k++) {
+        if (String(orders[k][1]).toLowerCase() === email) {
+          const aff = String(orders[k][9] || "").trim();
+          if (aff && aff !== "-" && aff !== "" && aff !== "GUEST") {
+            uplineId = aff;
+            break; // Found the first sponsor
+          }
+        }
+      }
+    }
+    // Default to Admin if no upline found
+    if (!uplineId) uplineId = adminId;
+
+    // 1c. Get Upline Name
+    let uplineName = "Admin";
+    if (uplineId) {
+      for (let m = 1; m < users.length; m++) {
+        if (String(users[m][0]) === uplineId) {
+          uplineName = String(users[m][3]);
+          break;
+        }
+      }
+    }
+
+    // 2. Get Products (reuse existing logic + pass cached orders)
+    const productsData = getProducts(d, cfg, orders);
+    const dashboardProducts = productsData && typeof productsData === "object" ? Object.assign({}, productsData) : {};
+    delete dashboardProducts.cache_version;
+
+    // 3. Get Global Pages (Affiliate Tools - ADMIN owned)
+    const globalPages = getAllPages({ ...d, owner_id: "" });
+
+    // 4. Get My Pages (User owned)
+    let myPages = { data: [] };
+    if (userId) {
+      myPages = getAllPages({ ...d, owner_id: userId, only_mine: true });
+    }
+
+    // 5. Get Affiliate Pixels (User specific)
+    let myPixels = [];
+    if (userId) {
+      const s = ss.getSheetByName("Affiliate_Pixels");
+      if (s) {
+        const data = s.getDataRange().getValues();
+        for (let i = 1; i < data.length; i++) {
+          if (String(data[i][0]) === userId) {
+            myPixels.push({
+              product_id: data[i][1],
+              pixel_id: data[i][2],
+              pixel_token: data[i][3],
+              pixel_test_code: data[i][4]
+            });
+          }
+        }
+      }
+    }
+
+    return {
+      status: "success",
+      cache_version: dashboardCacheVersion,
+      data: {
+        user: { id: userId, nama: userNama, upline_id: uplineId, upline_name: uplineName },
+        settings: {
+          site_name: getCfgFrom_(cfg, "site_name"),
+          site_logo: sanitizeAssetUrl_(getCfgFrom_(cfg, "site_logo")),
+          site_favicon: sanitizeAssetUrl_(getCfgFrom_(cfg, "site_favicon")),
+          wa_admin: getCfgFrom_(cfg, "wa_admin")
+        },
+        products: dashboardProducts,
+        pages: globalPages.data || [],
+        my_pages: myPages.data || [],
+        affiliate_pixels: myPixels
+      }
+    };
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
+/* =========================
+   LOGIN + PAGE + ADMIN
+========================= */
+function loginUser(d) {
+  const u = mustSheet_("Users").getDataRange().getValues();
+  const e = String(d.email || "").trim().toLowerCase();
+  const inputPass = String(d.password || "").trim();
+
+  if (!e || !inputPass) {
+    return { status: "error", message: "Email dan password wajib diisi." };
+  }
+
+  for (let i = 1; i < u.length; i++) {
+    if (String(u[i][1]).trim().toLowerCase() === e) {
+      const storedPass = String(u[i][2]).trim();
+      if (verifyPassword_(inputPass, storedPass)) {
+        return { status: "success", data: { id: u[i][0], nama: u[i][3], email: u[i][1], role: String(u[i][4] || "member") } };
+      }
+      return { status: "error", message: "Password salah. Silakan cek kembali." };
+    }
+  }
+  return { status: "error", message: "Gagal Login: Email tidak ditemukan." };
+}
+
+function loginAndDashboard(d) {
+  const loginResult = loginUser(d);
+  if (loginResult.status !== "success") return loginResult;
+
+  const email = String((loginResult.data && loginResult.data.email) || d.email || "").trim().toLowerCase();
+  const dashboardResult = getDashboardData({ email: email });
+
+  if (dashboardResult.status !== "success") {
+    return {
+      status: "success",
+      data: loginResult.data,
+      dashboard: null,
+      warning: dashboardResult.message || "Dashboard bootstrap gagal dimuat."
+    };
+  }
+
+  return {
+    status: "success",
+    data: loginResult.data,
+    dashboard: dashboardResult.data
+  };
+}
+
+function getPageContent(d) {
+  try {
+    const r = mustSheet_("Pages").getDataRange().getValues();
+    for (let i = 1; i < r.length; i++) {
+      if (String(r[i][1]) === String(d.slug)) {
+        const protectedProductId = String(r[i][11] || "").trim();
+        return withPublicCacheVersion_({
+          status: "success",
+          title: r[i][2],
+          content: r[i][3],
+          pixel_id: r[i][7] || "",
+          pixel_token: r[i][8] || "",
+          pixel_test_code: r[i][9] || "",
+          theme_mode: r[i][10] || "light",
+          protected_product_id: protectedProductId
+        }, "pages");
+      }
+    }
+    return { status: "error" };
+  } catch (e) {
+    return { status: "error" };
+  }
+}
+
+/* =========================
+   PAGE ACCESS GATE
+   Cek apakah user punya akses ke halaman protected
+========================= */
+function checkPageAccess(d) {
+  try {
+    const slug = String(d.slug || "").trim();
+    const email = String(d.email || "").trim().toLowerCase();
+
+    if (!slug) return { status: "error", message: "Slug wajib diisi." };
+    if (!email) return { status: "error", code: "NOT_LOGGED_IN", message: "Silakan login untuk mengakses halaman ini." };
+
+    // 1. Cari page
+    const pages = mustSheet_("Pages").getDataRange().getValues();
+    let pageRow = null;
+    for (let i = 1; i < pages.length; i++) {
+      if (String(pages[i][1]).trim() === slug) {
+        pageRow = pages[i];
+        break;
+      }
+    }
+    if (!pageRow) return { status: "error", code: "PAGE_NOT_FOUND", message: "Halaman tidak ditemukan." };
+
+    const protectedProductId = String(pageRow[11] || "").trim();
+
+    // Tidak ada proteksi, akses bebas
+    if (!protectedProductId) return { status: "success", code: "OPEN", message: "OK" };
+
+    // 2. Cek apakah user ada di database
+    const users = mustSheet_("Users").getDataRange().getValues();
+    let userRow = null;
+    for (let i = 1; i < users.length; i++) {
+      if (String(users[i][1]).trim().toLowerCase() === email) {
+        userRow = users[i];
+        break;
+      }
+    }
+    if (!userRow) return { status: "error", code: "NOT_LOGGED_IN", message: "Akun tidak ditemukan. Silakan login ulang." };
+
+    // Admin selalu punya akses
+    const userRole = String(userRow[4] || "").trim().toLowerCase();
+    if (userRole === "admin") return { status: "success", code: "ADMIN", message: "Akses admin diberikan." };
+
+    const userId = String(userRow[0] || "").trim();
+
+    // 3. Cek order yang sudah lunas untuk produk ini
+    const orders = mustSheet_("Orders").getDataRange().getValues();
+    for (let i = 1; i < orders.length; i++) {
+      const orderProductId = String(orders[i][4] || "").trim(); // Index 4 is id_produk
+      const orderStatus = String(orders[i][7] || "").trim();
+      const orderEmail = String(orders[i][1] || "").trim().toLowerCase(); // Index 1 is email
+
+      if (
+        orderEmail === email &&
+        orderProductId === protectedProductId &&
+        orderStatus === "Lunas"
+      ) {
+        return { status: "success", code: "PURCHASED", message: "Akses diberikan." };
+      }
+    }
+
+    // Cek Access_Rules apakah produk itu valid
+    const products = mustSheet_("Access_Rules").getDataRange().getValues();
+    let productRow = null;
+    for (let i = 1; i < products.length; i++) {
+      if (String(products[i][0]).trim() === protectedProductId) {
+        productRow = products[i];
+        break;
+      }
+    }
+
+    const productTitle = productRow ? String(productRow[1] || "").trim() : "";
+    const productLpUrl = productRow ? String(productRow[6] || "").trim() : "";
+    const productPrice = productRow ? Number(productRow[4] || 0) : 0;
+
+    return {
+      status: "error",
+      code: "NOT_PURCHASED",
+      message: "Anda belum memiliki akses ke halaman ini.",
+      required_product: {
+        id: protectedProductId,
+        title: productTitle,
+        lp_url: productLpUrl,
+        price: productPrice
+      }
+    };
+  } catch (e) {
+    return { status: "error", code: "SERVER_ERROR", message: e.toString() };
+  }
+}
+
+function getAllPages(d) {
+  try {
+    const r = mustSheet_("Pages").getDataRange().getValues();
+    const data = [];
+    const filterOwner = String(d.owner_id || "").trim();
+    const onlyMine = d.only_mine === true;
+
+    for (let i = 1; i < r.length; i++) {
+      if (String(r[i][4]) === "Active") {
+        // Kolom 7 (index 6) adalah Owner ID. Jika kosong, anggap milik ADMIN (Global)
+        const pageOwner = String(r[i][6] || "ADMIN").trim();
+
+        if (onlyMine) {
+          // Mode "Halaman Saya": Hanya tampilkan milik user ini
+          if (pageOwner === filterOwner) data.push(r[i]);
+        } else {
+          // Mode Default (Global): Tampilkan halaman ADMIN (untuk affiliate link)
+          if (pageOwner === "ADMIN") data.push(r[i]);
+        }
+      }
+    }
+    return withPublicCacheVersion_({ status: "success", data: data }, "pages");
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
+function adminLogin(d) {
+  const e = String(d.email || "").trim().toLowerCase();
+  const inputPass = String(d.password || "").trim();
+
+  if (!e || !inputPass) {
+    return { status: "error", message: "Email dan password wajib diisi." };
+  }
+
+  const u = mustSheet_("Users").getDataRange().getValues();
+
+  for (let i = 1; i < u.length; i++) {
+    if (String(u[i][1]).trim().toLowerCase() === e) {
+      const storedPass = String(u[i][2]).trim();
+      const role = String(u[i][4]).trim().toLowerCase();
+
+      if (verifyPassword_(inputPass, storedPass) && role === "admin") {
+        const session = createAdminSession_({
+          id: String(u[i][0] || ""),
+          email: e,
+          name: String(u[i][3] || "Admin"),
+          role: "admin"
+        });
+        return {
+          status: "success",
+          data: {
+            id: String(u[i][0] || ""),
+            nama: String(u[i][3] || "Admin"),
+            email: e,
+            role: "admin",
+            session_token: session.token,
+            expires_at: session.expires_at
+          }
+        };
+      }
+
+      if (verifyPassword_(inputPass, storedPass) && role !== "admin") {
+        return { status: "error", message: "Akun ditemukan tapi bukan admin. Role: " + u[i][4] };
+      }
+
+      return { status: "error", message: "Password salah. Silakan cek kembali." };
+    }
+  }
+
+  return { status: "error", message: "Email " + e + " tidak ditemukan di database." };
+}
+
+/* =========================
+   DIAGNOSTIC: Debug Login Data
+========================= */
+function debugLogin(d) {
+  try {
+    const u = mustSheet_("Users").getDataRange().getValues();
+    const targetEmail = String(d.email || "").trim().toLowerCase();
+    const inputPass = String(d.password || "");
+    const results = [];
+
+    for (let i = 1; i < u.length; i++) {
+      const rawEmail = u[i][1];
+      const rawPass = u[i][2];
+      const rawRole = u[i][4];
+      const emailStr = String(rawEmail);
+      const passStr = String(rawPass);
+      const roleStr = String(rawRole);
+
+      if (emailStr.trim().toLowerCase() === targetEmail || !targetEmail) {
+        // Get charCodes of password to detect hidden characters
+        const passChars = [];
+        for (let c = 0; c < passStr.length; c++) {
+          passChars.push({ char: passStr[c], code: passStr.charCodeAt(c) });
+        }
+
+        const inputChars = [];
+        for (let c = 0; c < inputPass.length; c++) {
+          inputChars.push({ char: inputPass[c], code: inputPass.charCodeAt(c) });
+        }
+
+        results.push({
+          row: i + 1,
+          email: { raw: emailStr, trimmed: emailStr.trim(), type: typeof rawEmail, length: emailStr.length, trimmed_length: emailStr.trim().length },
+          password: { raw_length: passStr.length, trimmed: passStr.trim(), trimmed_length: passStr.trim().length, type: typeof rawPass, charCodes: passChars },
+          input_password: { raw: inputPass, trimmed: inputPass.trim(), length: inputPass.length, charCodes: inputChars },
+          password_match: { raw: passStr === inputPass, trimmed: passStr.trim() === inputPass.trim() },
+          role: { raw: roleStr, trimmed: roleStr.trim(), lowercase: roleStr.trim().toLowerCase(), type: typeof rawRole, is_admin: roleStr.trim().toLowerCase() === "admin" }
+        });
+      }
+    }
+
+    return { status: "success", data: results, total_users: u.length - 1 };
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
+/* =========================
+   UNIT TESTS: Authentication
+========================= */
+function runAuthTests() {
+  const results = [];
+  const u = mustSheet_("Users").getDataRange().getValues();
+
+  // Test 1: Users sheet has data
+  results.push({ test: "Users sheet exists and has data", pass: u.length > 1, detail: "Rows: " + u.length });
+
+  // Test 2: Header structure
+  const expectedHeaders = ["user_id", "email", "password", "nama_lengkap", "role"];
+  const headers = u[0].map(h => String(h).trim().toLowerCase());
+  const headerMatch = expectedHeaders.every(h => headers.includes(h));
+  results.push({ test: "Headers match expected structure", pass: headerMatch, detail: "Found: " + headers.slice(0, 5).join(", ") });
+
+  // Test 3: Find admin user
+  let adminRow = null;
+  for (let i = 1; i < u.length; i++) {
+    if (String(u[i][4]).trim().toLowerCase() === "admin") {
+      adminRow = { index: i, email: String(u[i][1]), pass: String(u[i][2]), name: String(u[i][3]), role: String(u[i][4]) };
+      break;
+    }
+  }
+  results.push({ test: "Admin user exists in Users sheet", pass: !!adminRow, detail: adminRow ? "Email: " + adminRow.email : "No admin found" });
+
+  if (adminRow) {
+    // Test 4: Admin password has no hidden characters
+    const passStr = adminRow.pass;
+    const hasHidden = passStr.length !== passStr.trim().length;
+    results.push({
+      test: "Admin password has no trailing/leading spaces", pass: !hasHidden,
+      detail: "Raw length: " + passStr.length + ", Trimmed: " + passStr.trim().length
+    });
+
+    // Test 5: Admin email has no hidden characters
+    const emailStr = adminRow.email;
+    const emailHasHidden = emailStr.length !== emailStr.trim().length;
+    results.push({
+      test: "Admin email has no trailing/leading spaces", pass: !emailHasHidden,
+      detail: "Raw length: " + emailStr.length + ", Trimmed: " + emailStr.trim().length
+    });
+
+    // Test 6: loginUser works for admin (should succeed â€” tests email+pass)
+    const loginResult = loginUser({ email: adminRow.email.trim(), password: adminRow.pass.trim() });
+    results.push({
+      test: "loginUser() succeeds for admin credentials", pass: loginResult.status === "success",
+      detail: JSON.stringify(loginResult)
+    });
+
+    // Test 7: adminLogin works for admin (should succeed â€” tests email+pass+role)
+    const adminResult = adminLogin({ email: adminRow.email.trim(), password: adminRow.pass.trim() });
+    results.push({
+      test: "adminLogin() succeeds for admin credentials", pass: adminResult.status === "success",
+      detail: JSON.stringify(adminResult)
+    });
+
+    const adminSessionToken = adminResult && adminResult.data ? String(adminResult.data.session_token || "") : "";
+    const adminSession = adminSessionToken ? getAdminSession_(adminSessionToken) : null;
+    results.push({
+      test: "Admin session disimpan persisten tanpa expiry otomatis",
+      pass: !!adminSessionToken && !!adminSession && Number(adminResult && adminResult.data ? adminResult.data.expires_at : 0) === 0,
+      detail: JSON.stringify({
+        token_exists: !!adminSessionToken,
+        session_exists: !!adminSession,
+        expires_at: adminResult && adminResult.data ? Number(adminResult.data.expires_at || 0) : null
+      })
+    });
+
+    if (adminSessionToken) {
+      const logoutResult = adminLogout({ auth_session_token: adminSessionToken });
+      const revokedSession = getAdminSession_(adminSessionToken);
+      results.push({
+        test: "adminLogout() mencabut session admin secara manual",
+        pass: logoutResult.status === "success" && !revokedSession,
+        detail: JSON.stringify({
+          logout: logoutResult,
+          session_exists_after_logout: !!revokedSession
+        })
+      });
+    }
+  }
+
+  // Test 8: Find member user
+  let memberRow = null;
+  for (let i = 1; i < u.length; i++) {
+    if (String(u[i][4]).trim().toLowerCase() === "member") {
+      memberRow = { index: i, email: String(u[i][1]), pass: String(u[i][2]), name: String(u[i][3]), role: String(u[i][4]) };
+      break;
+    }
+  }
+
+  if (memberRow) {
+    // Test 9: loginUser works for member
+    const memberResult = loginUser({ email: memberRow.email.trim(), password: memberRow.pass.trim() });
+    results.push({
+      test: "loginUser() succeeds for member credentials", pass: memberResult.status === "success",
+      detail: JSON.stringify(memberResult)
+    });
+
+    // Test 10: adminLogin rejects member (should fail â€” not admin role)
+    const memberAdminResult = adminLogin({ email: memberRow.email.trim(), password: memberRow.pass.trim() });
+    results.push({
+      test: "adminLogin() correctly rejects member user", pass: memberAdminResult.status === "error",
+      detail: JSON.stringify(memberAdminResult)
+    });
+  }
+
+  // Test 11: Empty credentials rejected
+  const emptyResult = adminLogin({ email: "", password: "" });
+  results.push({
+    test: "adminLogin() rejects empty credentials", pass: emptyResult.status === "error",
+    detail: emptyResult.message
+  });
+
+  // Test 12: Wrong password rejected
+  if (adminRow) {
+    const wrongPassResult = adminLogin({ email: adminRow.email, password: "wrongpass123" });
+    results.push({
+      test: "adminLogin() rejects wrong password", pass: wrongPassResult.status === "error",
+      detail: wrongPassResult.message
+    });
+  }
+
+  const passed = results.filter(r => r.pass).length;
+  const failed = results.filter(r => !r.pass).length;
+
+  return { status: "success", summary: passed + " passed, " + failed + " failed, " + results.length + " total", tests: results };
+}
+
+function runMootaValidationTests() {
+  const cases = [
+    {
+      test: "Menerima URL HTTPS dan Secret Token alphanumeric valid",
+      input: { gasUrl: "https://example.com/webhook/moota", token: "Secret123" },
+      expectedErrors: []
+    },
+    {
+      test: "Menolak link webhook kosong",
+      input: { gasUrl: "", token: "Secret123" },
+      expectedErrors: ["Link webhook Moota wajib diisi."]
+    },
+    {
+      test: "Menolak link webhook non-HTTPS",
+      input: { gasUrl: "http://example.com/webhook/moota", token: "Secret123" },
+      expectedErrors: ["Format link webhook Moota tidak valid. Gunakan URL HTTPS tanpa query string."]
+    },
+    {
+      test: "Menolak link webhook Google Apps Script langsung",
+      input: { gasUrl: "https://script.google.com/macros/s/abc/exec", token: "Secret123" },
+      expectedErrors: ["Link webhook Moota tidak boleh langsung ke Google Apps Script. Gunakan endpoint Cloudflare Worker atau proxy publik agar header Signature bisa diteruskan."]
+    },
+    {
+      test: "Menolak Secret Token kosong",
+      input: { gasUrl: "https://example.com/webhook/moota", token: "" },
+      expectedErrors: ["Secret Token Moota wajib diisi."]
+    },
+    {
+      test: "Menolak Secret Token kurang dari 8 karakter",
+      input: { gasUrl: "https://example.com/webhook/moota", token: "Abc1234" },
+      expectedErrors: ["Format Secret Token Moota tidak valid. Gunakan minimal 8 karakter alphanumeric tanpa spasi."]
+    },
+    {
+      test: "Menolak Secret Token dengan karakter non-alphanumeric",
+      input: { gasUrl: "https://example.com/webhook/moota", token: "Secret-123" },
+      expectedErrors: ["Format Secret Token Moota tidak valid. Gunakan minimal 8 karakter alphanumeric tanpa spasi."]
+    }
+  ];
+
+  const results = cases.map(function (item) {
+    const errors = validateMootaConfigFormat_(item.input);
+    const pass = JSON.stringify(errors) === JSON.stringify(item.expectedErrors);
+    return {
+      test: item.test,
+      pass: pass,
+      input: item.input,
+      expected: item.expectedErrors,
+      actual: errors
+    };
+  });
+
+  const passed = results.filter(function (result) { return result.pass; }).length;
+  const failed = results.length - passed;
+
+  return {
+    status: "success",
+    summary: passed + " passed, " + failed + " failed, " + results.length + " total",
+    tests: results
+  };
+}
+
+function runMootaSignatureTests() {
+  const payload = JSON.stringify([{
+    amount: 50000,
+    type: "CR",
+    description: "Testing webhook moota",
+    created_at: "2019-11-10 14:33:01"
+  }]);
+  const secret = "Secret123";
+  const expectedSignature = computeMootaSignatureHex_(payload, secret);
+  const prefixedSignature = "sha256=" + expectedSignature.toUpperCase();
+  const cases = [
+    {
+      test: "Normalisasi signature menerima prefix sha256 dan huruf besar",
+      actual: normalizeMootaSignature_(prefixedSignature),
+      expected: expectedSignature
+    },
+    {
+      test: "Verifikasi signature valid",
+      actual: verifyMootaSignature_(payload, secret, expectedSignature).code,
+      expected: "ok"
+    },
+    {
+      test: "Verifikasi signature valid dengan prefix sha256",
+      actual: verifyMootaSignature_(payload, secret, prefixedSignature).code,
+      expected: "ok"
+    },
+    {
+      test: "Verifikasi signature gagal saat signature kosong",
+      actual: verifyMootaSignature_(payload, secret, "").code,
+      expected: "missing_signature"
+    },
+    {
+      test: "Verifikasi signature gagal saat secret kosong",
+      actual: verifyMootaSignature_(payload, "", expectedSignature).code,
+      expected: "missing_secret"
+    },
+    {
+      test: "Verifikasi signature gagal saat signature tidak cocok",
+      actual: verifyMootaSignature_(payload, secret, "deadbeef").code,
+      expected: "invalid_signature"
+    },
+    {
+      test: "Meta membaca flag verifikasi Worker",
+      actual: extractMootaSignatureMeta_({
+        parameter: {
+          moota_signature: expectedSignature,
+          moota_sig_verified: "1",
+          moota_sig_verified_by: "worker"
+        }
+      }).workerVerifiedSignature,
+      expected: true
+    },
+    {
+      test: "Meta membaca sumber verifikasi Worker",
+      actual: extractMootaSignatureMeta_({
+        parameter: {
+          moota_signature: expectedSignature,
+          moota_sig_verified: "1",
+          moota_sig_verified_by: "worker"
+        }
+      }).workerVerificationSource,
+      expected: "worker"
+    },
+    {
+      test: "Helper mendeteksi URL Google Apps Script langsung",
+      actual: isDirectAppsScriptUrl_("https://script.google.com/macros/s/abc/exec"),
+      expected: true
+    },
+    {
+      test: "Klasifikasi missing signature untuk URL Google Apps Script langsung",
+      actual: classifyMootaSignatureMissing_(
+        { gasUrl: "https://script.google.com/macros/s/abc/exec" },
+        { forwardedByWorker: false, workerSawSignature: false }
+      ).code,
+      expected: "direct_apps_script_url"
+    },
+    {
+      test: "Klasifikasi missing signature saat Worker tidak terdeteksi",
+      actual: classifyMootaSignatureMissing_(
+        { gasUrl: "https://example.com/webhook/moota" },
+        { forwardedByWorker: false, workerSawSignature: false }
+      ).code,
+      expected: "worker_not_detected"
+    },
+    {
+      test: "Klasifikasi missing signature saat Worker hidup tapi header tidak ada",
+      actual: classifyMootaSignatureMissing_(
+        { gasUrl: "https://example.com/webhook/moota" },
+        { forwardedByWorker: true, workerSawSignature: false }
+      ).code,
+      expected: "worker_missing_signature_header"
+    }
+  ];
+
+  const results = cases.map(function (item) {
+    const pass = JSON.stringify(item.actual) === JSON.stringify(item.expected);
+    return {
+      test: item.test,
+      pass: pass,
+      expected: item.expected,
+      actual: item.actual
+    };
+  });
+
+  const passed = results.filter(function (result) { return result.pass; }).length;
+  const failed = results.length - passed;
+
+  return {
+    status: "success",
+    summary: passed + " passed, " + failed + " failed, " + results.length + " total",
+    tests: results,
+    sample_signature: maskMootaSignatureForLog_(expectedSignature)
+  };
+}
+
+function getAdminData(d, cfg) {
+  try {
+    const session = requireAdminSession_(d, { actionName: "get_admin_data" });
+    cfg = cfg || getSettingsMap_();
+    const o = mustSheet_("Orders").getDataRange().getValues();
+    const u = mustSheet_("Users").getDataRange().getValues();
+    const s = mustSheet_("Settings").getDataRange().getValues();
+    const p = mustSheet_("Access_Rules").getDataRange().getValues();
+    const pg = mustSheet_("Pages").getDataRange().getValues();
+
+    let rev = 0;
+    let paidOrderCount = 0;
+    let freeOrderCount = 0;
+    for (let i = 1; i < o.length; i++) {
+      // Index 11 is exclude_statistic, Index 6 is price, Index 7 is status
+      const isExcluded = String(o[i][11]) === "TRUE";
+      const price = Number(o[i][6] || 0);
+      const isLunas = String(o[i][7]) === "Lunas";
+
+      if (isExcluded) continue;
+
+      if (price > 0) {
+        paidOrderCount++;
+        if (isLunas) rev += price;
+      } else {
+        freeOrderCount++;
+      }
+    }
+
+    let t = {};
+    for (let i = 1; i < s.length; i++) {
+      if (s[i][0]) t[s[i][0]] = s[i][1];
+    }
+    const resolvedMootaCfg = resolveMootaConfig_({}, cfg);
+    t.moota_gas_url = normalizeMootaUrl_(resolvedMootaCfg.gasUrl || t.moota_gas_url || getCurrentWebAppUrl_());
+    t.moota_token = "";
+    t.moota_token_configured = !!resolvedMootaCfg.token;
+    t.ik_private_key = "";
+    t.ik_private_key_configured = !!getSecret_("ik_private_key", cfg);
+
+    const result = {
+      status: "success",
+      role: session.role,
+      session_expires_at: session.expires_at,
+      stats: { users: u.length - 1, orders: paidOrderCount, free_orders: freeOrderCount, rev: rev },
+      orders: o.slice(1).reverse().slice(0, 20),
+      products: p.slice(1).map(normalizeProductRow_),
+      pages: pg.slice(1),
+      settings: t,
+      users: u.slice(1).reverse().slice(0, 20),
+      has_more_orders: (o.length - 1) > 20,
+      has_more_users: (u.length - 1) > 20
+    };
+    return result;
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
+/* =========================
+   SAVE PRODUCT / PAGE / SETTINGS
+========================= */
+function saveProduct(d) {
+  try {
+    requireAdminSession_(d, { actionName: "save_product" });
+    const s = mustSheet_("Access_Rules");
+    const descValidation = validateProductDescription_(d.desc);
+    if (descValidation.errors.length) {
+      return { status: "error", message: descValidation.errors[0], errors: descValidation.errors };
+    }
+    const productId = normalizePlainText_(d.id);
+    const productTitle = normalizePlainText_(d.title);
+    const productDesc = descValidation.value;
+    const productUrl = String(d.url || "").trim();
+    const productStatus = normalizePlainText_(d.status || "Active") || "Active";
+    const landingPageUrl = String(d.lp_url || "").trim();
+    const imageUrl = String(d.image_url || "").trim();
+    const pixelId = normalizePlainText_(d.pixel_id);
+    const pixelToken = String(d.pixel_token || "").trim();
+    const pixelTestCode = normalizePlainText_(d.pixel_test_code);
+    const commission = String(d.commission || "").trim();
+    const category = String(d.category || "").trim();
+    const rekomendasi = String(d.rekomendasi || "false") === "true";
+    const hargaCoret = String(d.harga_coret || "").trim();
+    const hidden = String(d.hidden || "false") === "true";
+
+    // Ensure we have enough columns (16 columns needed)
+    if (s.getMaxColumns() < 16) s.insertColumnsAfter(s.getMaxColumns(), 16 - s.getMaxColumns());
+
+    const dataRow = [productId, productTitle, productDesc, productUrl, d.harga, productStatus, landingPageUrl, imageUrl, pixelId, pixelToken, pixelTestCode, commission, category, rekomendasi, hargaCoret, hidden];
+    const isEdit = String(d.is_edit) === "true";
+
+    if (isEdit) {
+      const r = s.getDataRange().getValues();
+      for (let i = 1; i < r.length; i++) {
+        if (String(r[i][0]).trim() === productId) {
+          s.getRange(i + 1, 1, 1, 16).setValues([dataRow]);
+          invalidateCaches_(["access_rules"]);
+          return withPublicCacheState_({ status: "success" }, bumpPublicCacheState_(["catalog", "dashboard"]));
+        }
+      }
+      return { status: "error", message: "ID Produk tidak ditemukan untuk diedit" };
+    } else {
+      // Check for duplicate ID before appending
+      const r = s.getDataRange().getValues();
+      for (let i = 1; i < r.length; i++) {
+        if (String(r[i][0]).trim() === productId) {
+          return { status: "error", message: "ID Produk sudah digunakan. Mohon refresh halaman." };
+        }
+      }
+      s.appendRow(dataRow);
+      invalidateCaches_(["access_rules"]);
+      return withPublicCacheState_({ status: "success" }, bumpPublicCacheState_(["catalog", "dashboard"]));
+    }
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
+function deleteProduct(d) {
+  try {
+    requireAdminSession_(d, { actionName: "delete_product" });
+    const s = mustSheet_("Access_Rules");
+    const r = s.getDataRange().getValues();
+    const id = String(d.id).trim();
+
+    for (let i = 1; i < r.length; i++) {
+      if (String(r[i][0]).trim() === id) {
+        s.deleteRow(i + 1);
+        invalidateCaches_(["access_rules"]);
+        return withPublicCacheState_({ status: "success", message: "Produk berhasil dihapus" }, bumpPublicCacheState_(["catalog", "dashboard"]));
+      }
+    }
+    return { status: "error", message: "ID Produk tidak ditemukan" };
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
+function savePage(d) {
+  try {
+    requireAdminSession_(d, { actionName: "save_page" });
+    const s = mustSheet_("Pages");
+    const isEdit = String(d.is_edit) === "true";
+    const ownerId = String(d.owner_id || "ADMIN").trim(); // Default ke ADMIN
+    const slug = String(d.slug).trim();
+    const id = String(d.id).trim();
+
+    const r = s.getDataRange().getValues();
+
+    // 1. Cek Unik Slug (Global Check)
+    for (let i = 1; i < r.length; i++) {
+      const rowSlug = String(r[i][1]).trim();
+      const rowId = String(r[i][0]).trim();
+
+      if (rowSlug === slug) {
+        // Jika slug sama, pastikan ini adalah halaman yang sama (sedang diedit)
+        // Jika ID beda, berarti slug sudah dipakai orang lain
+        if (isEdit && rowId === id) {
+          // Ini halaman kita sendiri, lanjut
+        } else {
+          return { status: "error", message: "Slug URL sudah digunakan. Pilih slug lain." };
+        }
+      }
+    }
+
+    // Check if columns exist (now need 12: id, slug, title, content, status, date, owner, pixel_id, pixel_token, pixel_test, theme_mode, protected_product_id)
+    const maxCols = s.getMaxColumns();
+    if (maxCols < 12) s.insertColumnsAfter(maxCols, 12 - maxCols);
+
+    if (isEdit) {
+      for (let i = 1; i < r.length; i++) {
+        if (String(r[i][0]).trim() === id) {
+          // Hanya izinkan edit jika owner cocok (atau admin bisa edit semua)
+          const existingOwner = String(r[i][6] || "ADMIN").trim();
+
+          if (existingOwner !== ownerId && ownerId !== "ADMIN") {
+            return { status: "error", message: "Anda tidak memiliki izin mengedit halaman ini." };
+          }
+
+          s.getRange(i + 1, 1, 1, 4).setValues([[d.id, slug, d.title, d.content]]);
+          // Update Meta Pixel Columns (Col 8, 9, 10) + Theme Mode (Col 11) + Protected Product ID (Col 12)
+          s.getRange(i + 1, 8, 1, 5).setValues([[d.meta_pixel_id || "", d.meta_pixel_token || "", d.meta_pixel_test_event || "", d.theme_mode || "light", String(d.protected_product_id || "").trim()]]);
+          return withPublicCacheState_({ status: "success" }, bumpPublicCacheState_(["pages", "dashboard"]));
+        }
+      }
+      return { status: "error", message: "ID Halaman tidak ditemukan" };
+    } else {
+      const newId = "PG-" + Date.now();
+      // Tambahkan Owner ID di kolom ke-7 (index 6) + Meta Pixel (7,8,9) + Theme Mode (10) + Protected Product ID (11)
+      s.appendRow([newId, slug, d.title, d.content, "Active", toISODate_(), ownerId, d.meta_pixel_id || "", d.meta_pixel_token || "", d.meta_pixel_test_event || "", d.theme_mode || "light", String(d.protected_product_id || "").trim()]);
+      return withPublicCacheState_({ status: "success" }, bumpPublicCacheState_(["pages", "dashboard"]));
+    }
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
+function deletePage(d) {
+  try {
+    requireAdminSession_(d, { actionName: "delete_page" });
+    const s = mustSheet_("Pages");
+    const id = String(d.id).trim();
+    const ownerId = String(d.owner_id || "ADMIN").trim();
+
+    const r = s.getDataRange().getValues();
+    for (let i = 1; i < r.length; i++) {
+      if (String(r[i][0]).trim() === id) {
+        // Security Check: Only Owner or Admin can delete
+        const pageOwner = String(r[i][6] || "ADMIN").trim();
+        if (pageOwner !== ownerId && ownerId !== "ADMIN") {
+          return { status: "error", message: "Anda tidak memiliki izin menghapus halaman ini." };
+        }
+
+        s.deleteRow(i + 1);
+        return withPublicCacheState_({ status: "success", message: "Halaman berhasil dihapus" }, bumpPublicCacheState_(["pages", "dashboard"]));
+      }
+    }
+    return { status: "error", message: "ID Halaman tidak ditemukan" };
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
+function checkSlug(d) {
+  try {
+    const s = mustSheet_("Pages");
+    const slug = String(d.slug).trim();
+    const excludeId = String(d.exclude_id || "").trim(); // For edit mode
+
+    const r = s.getDataRange().getValues();
+    for (let i = 1; i < r.length; i++) {
+      const rowSlug = String(r[i][1]).trim();
+      const rowId = String(r[i][0]).trim();
+
+      if (rowSlug === slug) {
+        if (excludeId && rowId === excludeId) {
+          // Same page, it's fine
+        } else {
+          return { status: "success", available: false, message: "Slug URL sudah digunakan" };
+        }
+      }
+    }
+    return { status: "success", available: true, message: "Slug URL tersedia" };
+  } catch (e) {
+    return { status: "error", message: e.toString() };
+  }
+}
+
+function updateSettings(d) {
+  requireAdminSession_(d, { actionName: "update_settings" });
+  const cfg = getSettingsMap_();
+  const payload = Object.assign({}, (d && d.payload && typeof d.payload === "object") ? d.payload : {});
+  if (Object.prototype.hasOwnProperty.call(payload, "moota_secret") && !Object.prototype.hasOwnProperty.call(payload, "moota_token")) {
+    payload.moota_token = payload.moota_secret;
+  }
+  if (Object.prototype.hasOwnProperty.call(payload, "moota_secret")) {
+    delete payload.moota_secret;
+  }
+  const hasMootaPayload = Object.prototype.hasOwnProperty.call(payload, "moota_gas_url")
+    || Object.prototype.hasOwnProperty.call(payload, "moota_token");
+  if (hasMootaPayload) {
+    const mootaCfg = resolveMootaConfig_(payload, cfg);
+    const shouldValidateMoota = !!(mootaCfg.gasUrl || mootaCfg.token);
+    if (shouldValidateMoota) {
+      const mootaErrors = validateMootaConfigFormat_(mootaCfg);
+      if (mootaErrors.length) {
+        return { status: "error", message: mootaErrors[0], errors: mootaErrors };
+      }
+    }
+  }
+
+  const s = mustSheet_("Settings");
+  const r = s.getDataRange().getValues();
+  const propertyOnlyKeys = {
+    ik_private_key: true,
+    moota_token: true
+  };
+  for (let k in payload) {
+    let nextValue = payload[k];
+    if (k === "site_logo" || k === "site_favicon") {
+      nextValue = sanitizeAssetUrl_(nextValue);
+    }
+    if (k === "moota_gas_url") {
+      nextValue = normalizeMootaUrl_(nextValue);
+    }
+    const storeInPropertiesOnly = !!propertyOnlyKeys[k];
+    if (storeInPropertiesOnly) {
+      const props = PropertiesService.getScriptProperties();
+      nextValue = String(nextValue || "").trim();
+      if (nextValue) {
+        props.setProperty(k, nextValue);
+        if (k === "moota_token") props.deleteProperty("moota_secret");
+      } else {
+        props.deleteProperty(k);
+      }
+    }
+    let f = false;
+    for (let i = 1; i < r.length; i++) {
+      if (r[i][0] === k) {
+        s.getRange(i + 1, 2).setValue(storeInPropertiesOnly ? "" : nextValue);
+        f = true;
