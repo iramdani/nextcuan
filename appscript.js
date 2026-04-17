@@ -2090,7 +2090,7 @@ function getAffiliatePixel_(userId, productId) {
 
 /* =========================
    GET PRODUCT DETAIL (BY ID OR SLUG)
-   Digunakan oleh halaman product.html (Default Product Page)
+   Digunakan oleh halaman prod.html (Default Product Page)
 ========================= */
 function getProductDetail(d, cfg) {
   try {

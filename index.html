@@ -1601,7 +1601,7 @@
                 const discountPct = hasDiscount ? Math.round((1 - price / hargaCoret) * 100) : 0;
                 const isReko = p.rekomendasi === true || String(p.rekomendasi).toUpperCase() === 'TRUE';
                 
-                let detailUrl = (p.lp_url && p.lp_url !== "") ? p.lp_url : (p.slug ? `product.html?slug=${p.slug}` : `product.html?id=${p.id}`);
+                let detailUrl = (p.lp_url && p.lp_url !== "") ? p.lp_url : (p.slug ? `prod.html?slug=${p.slug}` : `prod.html?id=${p.id}`);
                 if (affRef) {
                     detailUrl += (detailUrl.includes('?') ? '&' : '?') + `ref=${affRef}`;
                 }

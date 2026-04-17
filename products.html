@@ -460,7 +460,7 @@
                 const hasDiscount = hargaCoret > 0 && hargaCoret > price;
                 const discountPct = hasDiscount ? Math.round((1 - price / hargaCoret) * 100) : 0;
 
-                let detailUrl = (p.lp_url && p.lp_url !== '') ? p.lp_url : `product.html?id=${p.id}`;
+                let detailUrl = (p.lp_url && p.lp_url !== '') ? p.lp_url : `prod.html?id=${p.id}`;
                 if (affRef) detailUrl += (detailUrl.includes('?') ? '&' : '?') + `ref=${affRef}`;
                 const checkoutUrl = `checkout.html?id=${p.id}${affParam}`;
 
