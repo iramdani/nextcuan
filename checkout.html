@@ -620,8 +620,8 @@
                     const totalEl = document.getElementById('display-total-top');
                     if (totalEl) {
                         totalEl.innerHTML = `
-                            <span class="block text-sm font-normal text-slate-500 line-through tracking-normal mb-0.5">${nf(r.original_price)}</span>
-                            <span class="block text-3xl lg:text-4xl font-extrabold text-[#B6FF00] drop-shadow-[0_0_12px_rgba(182,255,0,0.35)] tracking-tighter">${nf(r.discounted_price)}</span>
+                            <span style="display:block; font-size:0.8rem; font-weight:400; color:#94a3b8; text-decoration:line-through; letter-spacing:normal; margin-bottom:4px;">${nf(r.original_price)}</span>
+                            <span style="display:block; font-size:2.25rem; font-weight:800; color:#B6FF00; letter-spacing:-0.025em; text-shadow:0 0 14px rgba(182,255,0,0.4);">${nf(r.discounted_price)}</span>
                         `;
                     }
 
