@@ -8,9 +8,6 @@
  *
  * Format domain: tanpa protokol (https://), tanpa trailing slash (/)
  * Contoh: 'mydomain.com', bukan 'https://mydomain.com/'
- *
- * Jalankan "node setup.js" untuk generate file ini secara otomatis,
- * atau edit manual sesuai kebutuhan Anda.
  */
 var SITE_CONFIG = {
     // ── Domain Utama (Production) ──────────────────────────
@@ -26,6 +23,7 @@ var SITE_CONFIG = {
 
     // ── Pattern Subdomain yang Diizinkan ───────────────────
     ALLOWED_SUBDOMAIN_SUFFIXES: [
+        '.nextcuan.my.id',
         '.akses.nextcuan.my.id'
     ],
 

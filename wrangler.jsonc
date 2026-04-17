@@ -15,7 +15,7 @@
     "nodejs_compat"
   ],
   "vars": {
-    "ALLOWED_ORIGINS": "https://akses.nextcuan.my.id,https://www.akses.nextcuan.my.id",
+    "ALLOWED_ORIGINS": "https://nextcuan.my.id,https://www.nextcuan.my.id,https://akses.nextcuan.my.id,https://www.akses.nextcuan.my.id",
     "APP_GAS_URL": "https://script.google.com/macros/s/AKfycbxdTGt1RZMlgE6IKsjzba-iuox_dfr-PMsac1fclag2IWfnV058RKVAMdNlC3ymMGZh/exec",
     "MOOTA_GAS_URL": "https://script.google.com/macros/s/AKfycbxdTGt1RZMlgE6IKsjzba-iuox_dfr-PMsac1fclag2IWfnV058RKVAMdNlC3ymMGZh/exec",
     "MOOTA_TOKEN": "G9AEfCWN"
