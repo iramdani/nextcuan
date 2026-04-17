@@ -590,13 +590,34 @@
                 const targetUrl = window.SCRIPT_URL || (typeof SCRIPT_URL !== 'undefined' ? SCRIPT_URL : null);
                 if (!targetUrl) throw new Error('API tidak tersedia');
 
-                const rawPrice = Number(document.getElementById('prod-price').value || 0);
-                const productId = document.getElementById('prod-id').value;
+                const cartItems = (function() {
+                    try {
+                        const cartRaw = localStorage.getItem('cepat_cart');
+                        if (cartRaw) {
+                            const cart = JSON.parse(cartRaw);
+                            if (Array.isArray(cart) && cart.length > 0) return cart;
+                        }
+                    } catch(e) {}
+                    return [{
+                        id_produk: document.getElementById('prod-id').value,
+                        nama_produk: document.getElementById('prod-title').value,
+                        harga: document.getElementById('prod-price').value
+                    }];
+                })();
+
+                const productIds = cartItems.map(i => i.id_produk).join(',');
+                const totalPrice = cartItems.reduce((s, i) => s + Number(i.harga || 0), 0);
 
                 const res = await fetch(targetUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: 'validate_voucher', voucher_code: code, product_id: productId, harga: rawPrice })
+                    body: JSON.stringify({ 
+                        action: 'validate_voucher', 
+                        voucher_code: code, 
+                        product_id: productIds, 
+                        harga: totalPrice,
+                        items: cartItems 
+                    })
                 });
                 const r = await res.json();
 

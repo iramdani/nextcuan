@@ -4501,7 +4501,7 @@ function getGAStats(data, cfg) {
     var trafficSources = (srcData.rows || []).map(function (r) { return { source: r.dimensionValues[0].value, sessions: parseFloat(r.metricValues[0].value) || 0 }; });
 
     var ctrData = gaPost(":runReport", { dateRanges: [{ startDate: startDate, endDate: endDate }], dimensions: [{ name: "country" }], metrics: [{ name: "totalUsers" }], orderBys: [{ metric: { metricName: "totalUsers" }, desc: true }], limit: 8 });
-    var flagMap = { "Indonesia": "????", "Malaysia": "????", "Singapore": "????", "United States": "????", "India": "????", "Philippines": "????", "Thailand": "????", "Vietnam": "????", "Australia": "????", "Japan": "????", "United Kingdom": "????" };
+    var flagMap = { "Indonesia": "🇮🇩", "Malaysia": "🇲🇾", "Singapore": "🇸🇬", "United States": "🇺🇸", "India": "🇮🇳", "Philippines": "🇵🇭", "Thailand": "🇹🇭", "Vietnam": "🇻🇳", "Australia": "🇦🇺", "Japan": "🇯🇵", "United Kingdom": "🇬🇧" };
     var topCountries = (ctrData.rows || []).map(function (r) { var c = r.dimensionValues[0].value; return { country: c, users: parseFloat(r.metricValues[0].value) || 0, flag: flagMap[c] || "??" }; });
 
     var cityData = gaPost(":runReport", { dateRanges: [{ startDate: startDate, endDate: endDate }], dimensions: [{ name: "city" }], metrics: [{ name: "totalUsers" }], orderBys: [{ metric: { metricName: "totalUsers" }, desc: true }], limit: 8 });
@@ -4727,18 +4727,44 @@ function validateVoucher(d, cfg) {
       }
     }
 
-    // Check product applicability
-    if (voucher.apply_to === "specific" && productId) {
-      if (!voucher.product_ids.includes(productId)) {
-        return { status: "error", message: "Voucher ini tidak berlaku untuk produk ini." };
-      }
-    } else if (voucher.apply_to === "exclude" && productId) {
-      if (voucher.product_ids.includes(productId)) {
-        return { status: "error", message: "Voucher ini tidak dapat digunakan untuk produk ini." };
+    // Check product applicability & calculate eligible base price
+    const inputIds = productId.split(",").map(x => x.trim()).filter(Boolean);
+    let eligibleItems = [];
+    let nonEligibleItems = [];
+    let eligibleBasePrice = 0;
+
+    if (voucher.apply_to === "all") {
+      eligibleBasePrice = harga;
+    } else {
+      const items = Array.isArray(d.items) ? d.items : (productId ? [{ id_produk: productId, harga: harga }] : []);
+      items.forEach(item => {
+        const id = String(item.id_produk || "").trim();
+        const price = Number(item.harga || 0);
+        let isEligible = true;
+        
+        if (voucher.apply_to === "specific") {
+          isEligible = voucher.product_ids.includes(id);
+        } else if (voucher.apply_to === "exclude") {
+          isEligible = !voucher.product_ids.includes(id);
+        }
+
+        if (isEligible) {
+          eligibleBasePrice += price;
+          eligibleItems.push(id);
+        } else {
+          nonEligibleItems.push(id);
+        }
+      });
+
+      if (eligibleItems.length === 0) {
+        return { status: "error", message: "Voucher ini tidak berlaku untuk produk di keranjang Anda." };
       }
     }
 
-    // Check min purchase
+    // Check min purchase against eligible items (usually) or total?
+    // User said "vouchers remain valid as long as at least one eligible product is present"
+    // So we check against eligibleBasePrice or total harga? 
+    // Usually min purchase is on total, but let's stick to total for now unless it's a "voucher for specific item" case.
     if (voucher.min_purchase > 0 && harga < voucher.min_purchase) {
       return { status: "error", message: "Voucher ini memerlukan pembelian minimal Rp " + Number(voucher.min_purchase).toLocaleString("id-ID") + "." };
     }
@@ -4746,14 +4772,15 @@ function validateVoucher(d, cfg) {
     // Calculate discount
     let discountAmount = 0;
     if (voucher.discount_type === "percent") {
-      discountAmount = Math.floor(harga * (voucher.discount_value / 100));
-      if (voucher.max_discount_amount > 0) {
-        discountAmount = Math.min(discountAmount, voucher.max_discount_amount);
+      discountAmount = Math.floor(eligibleBasePrice * (voucher.discount_value / 100));
+      if (voucher.max_discount_amount > 0 && discountAmount > voucher.max_discount_amount) {
+        discountAmount = voucher.max_discount_amount;
       }
     } else {
-      discountAmount = Math.min(voucher.discount_value, harga);
+      // Flat discount - usually applies once to the whole order if at least one item is eligible
+      discountAmount = voucher.discount_value;
+      if (discountAmount > eligibleBasePrice) discountAmount = eligibleBasePrice;
     }
-
     const discountedPrice = Math.max(0, harga - discountAmount);
     // Discount rate as factor (e.g. 0.9 = 10% discount) — used to scale affiliate commission
     const discountFactor = harga > 0 ? discountedPrice / harga : 1;
