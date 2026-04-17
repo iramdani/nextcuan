@@ -249,6 +249,20 @@
         function removeFromCart(id) { saveCart(getCart().filter(i => i.id_produk !== id)); }
         function clearCart() { if(confirm('Kosongkan keranjang?')) saveCart([]); }
 
+        function goToCheckout() {
+            const cart = getCart();
+            if (!cart.length) {
+                showToast('Keranjang Anda kosong!', 'warning');
+                return;
+            }
+            // Pass applied voucher if any
+            let url = cart.length === 1 ? 'checkout.html?id=' + cart[0].id_produk : 'checkout.html?cart=1';
+            if (appliedVoucher) {
+                sessionStorage.setItem('cepat_pending_voucher', appliedVoucher.code);
+            }
+            window.location.href = url;
+        }
+
         function toggleMobileMenu() {
             const m = document.getElementById('mobile-menu');
             const i = document.getElementById('hamburger-icon');

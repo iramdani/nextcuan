@@ -923,8 +923,65 @@
         }
 
         async function loadProduct() {
-            if(!productId) { window.location.href = 'index.html'; return; }
+            const isCart = urlParams.get('cart') === '1';
+            if(!productId && !isCart) { window.location.href = 'index.html'; return; }
             
+            // Validate cart structure directly
+            if (isCart) {
+                let cartItems = [];
+                try {
+                    const cartRaw = localStorage.getItem('cepat_cart');
+                    if (cartRaw) cartItems = JSON.parse(cartRaw);
+                } catch(e) {}
+                
+                if (!Array.isArray(cartItems) || cartItems.length === 0) {
+                    showToast('Keranjang kosong. Mengalihkan...', 'warning');
+                    setTimeout(() => { window.location.href = 'products.html'; }, 1500);
+                    return;
+                }
+
+                // If pending voucher is stored, populate it
+                const pendingVoucher = sessionStorage.getItem('cepat_pending_voucher');
+                if (pendingVoucher) {
+                    const vInput = document.getElementById('voucher-code-input');
+                    if (vInput) {
+                        vInput.value = pendingVoucher;
+                        setTimeout(() => applyVoucher(), 500); // Trigger after form renders
+                    }
+                    sessionStorage.removeItem('cepat_pending_voucher');
+                }
+
+                // Temporary UI rendering until batch finishes
+                const total = cartItems.reduce((s, i) => s + Number(i.harga || 0), 0);
+                document.getElementById('display-title').innerText = 'Keranjang Belanja (' + cartItems.length + ' item)';
+                document.getElementById('display-total-top').innerText = 'Rp ' + total.toLocaleString('id-ID');
+                
+                // Initialize sysPayment so the form validation allows submission
+                sysPayment = { method: 'bank' };
+                
+                // Show affiliate badge if needed (can't fetch name easily, but affiliate ID is used)
+                const affId = localStorage.getItem('cepat_affiliate');
+                if (affId && affId !== '-') {
+                    const badge = document.getElementById('affiliate-badge');
+                    if (badge) {
+                        badge.classList.remove('hidden');
+                        badge.classList.add('flex');
+                        document.getElementById('affiliate-id-display').innerText = affId;
+                    }
+                }
+                
+                const loader = document.getElementById('loading-state');
+                loader.classList.add('opacity-0');
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                    document.getElementById('main-content').classList.remove('hidden');
+                    document.getElementById('main-content').classList.add('flex');
+                }, 200);
+
+                // Hide voucher section in checkout if we want, OR keep it so users can still apply.
+                // We keep it, because applyVoucher natively supports cartItems now based on our previous edits.
+            }
+
             const affId = localStorage.getItem('cepat_affiliate');
             const cachedDataRaw = localStorage.getItem(PRODUCT_CACHE_KEY);
             const globalCache = window.__CEPAT_GLOBAL_SETTINGS__ || {};
@@ -943,10 +1000,10 @@
             } catch (e) { cachedData = null; }
             let prefilled = false;
 
-            if (cachedData) {
+            if (cachedData && !isCart) {
                 renderCheckoutUI(cachedData);
                 prefilled = true;
-            } else {
+            } else if (!isCart) {
                 try {
                     const pubCat = JSON.parse(localStorage.getItem('cepat_public_catalog') || '[]');
                     const p = pubCat.find(x => x.id === productId);
@@ -982,14 +1039,15 @@
                 const isProductVersionStale = !!currentProductVersion && cachedProductVersion !== currentProductVersion;
                 const isSettingsVersionStale = !!currentSettingsVersion && cachedSettingsVersion !== currentSettingsVersion;
                 const isSettingsStale = !globalCache.isFresh || isSettingsVersionStale;
-                if (cachedData && !isProductStale && !isSettingsStale && !isProductVersionStale) return;
+                if (cachedData && !isCart && !isProductStale && !isSettingsStale && !isProductVersionStale) return;
 
                 const requests = [];
                 const requestMap = {};
-                if (isSettingsStale) {
+                if (isSettingsStale || isCart) {
+                    // For cart, we ALWAYS fetch global settings because we need sysPayment which is usually bundled in it or we can fallback to bank config
                     requestMap.settings = requests.push({ action: 'get_global_settings', cache_version: currentSettingsVersion }) - 1;
                 }
-                if (!cachedData || isProductStale || isProductVersionStale) {
+                if (!isCart && (!cachedData || isProductStale || isProductVersionStale)) {
                     requestMap.product = requests.push({ action: 'get_product', id: productId, aff_id: affId, cache_version: currentProductVersion }) - 1;
                 }
                 if (!requests.length) return;
@@ -1062,21 +1120,32 @@
 
             // Build items array - supports single item (current) and future cart (multiple items)
             const cartItems = (function() {
-                // Check if a cart exists in localStorage (future multi-item support)
+                let items = null;
+                // Check if a cart exists in localStorage
                 try {
                     const cartRaw = localStorage.getItem('cepat_cart');
                     if (cartRaw) {
                         const cart = JSON.parse(cartRaw);
-                        if (Array.isArray(cart) && cart.length > 0) return cart;
+                        if (Array.isArray(cart) && cart.length > 0) items = cart;
                     }
                 } catch(e) {}
+                
                 // Fall back to single item from current page
-                return [{
-                    id_produk: document.getElementById('prod-id').value,
-                    nama_produk: document.getElementById('prod-title').value,
-                    harga: appliedVoucher ? appliedVoucher.original_price : document.getElementById('prod-price').value,
-                    voucher_code: appliedVoucher ? appliedVoucher.code : ''
-                }];
+                if (!items) {
+                    items = [{
+                        id_produk: document.getElementById('prod-id').value,
+                        nama_produk: document.getElementById('prod-title').value,
+                        harga: document.getElementById('prod-price').value
+                    }];
+                }
+                
+                // Inject the applied voucher code into every item to ensure the backend validates it correctly
+                return items.map(item => {
+                    return {
+                        ...item,
+                        voucher_code: appliedVoucher ? appliedVoucher.code : ''
+                    };
+                });
             })();
 
             const pData = {
@@ -1107,6 +1176,9 @@
                 if(r.status === 'success') {
                     // Advance to step 3
                     setStep(3);
+                    
+                    // Clear cart upon successful order
+                    try { localStorage.removeItem('cepat_cart'); } catch(e) {}
 
                     try {
                         if(typeof window.fbq === 'function') {
