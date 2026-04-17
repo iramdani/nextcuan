@@ -390,7 +390,7 @@
                                         </div>
                                         <div>
                                             <p id="voucher-code-badge" class="font-mono font-black text-[#B6FF00] tracking-widest text-sm"></p>
-                                            <p id="voucher-discount-label" class="text-xs text-slate-400 mt-0.5"></p>
+                                            <p id="voucher-discount-label" class="text-xs font-bold mt-0.5" style="color:#B6FF00;"></p>
                                         </div>
                                     </div>
                                     <button type="button" onclick="removeVoucher()" class="text-slate-500 hover:text-red-400 transition-colors ml-3 flex-shrink-0">
@@ -657,10 +657,10 @@
             if (resultEl) resultEl.classList.add('hidden');
             btn.disabled = false;
             btn.classList.remove('opacity-50', 'cursor-not-allowed');
-            // Restore original price display
+            // Restore original price display (green)
             const rawPrice = Number(document.getElementById('prod-price').value || 0);
             const totalEl = document.getElementById('display-total-top');
-            if (totalEl) totalEl.innerText = 'Rp ' + rawPrice.toLocaleString('id-ID');
+            if (totalEl) totalEl.innerHTML = `<span style="color:#B6FF00; text-shadow:0 0 14px rgba(182,255,0,0.35);">Rp ${rawPrice.toLocaleString('id-ID')}</span>`;
             showToast('Voucher dihapus.', 'warning');
         }
 
@@ -832,7 +832,6 @@
             }
             
             document.getElementById('display-title').innerText = p.title;
-            document.getElementById('display-total-top').innerText = 'Rp ' + Number(p.harga).toLocaleString('id-ID');
             document.getElementById('prod-id').value = p.id;
             document.getElementById('prod-title').value = p.title;
             document.getElementById('prod-price').value = p.harga;
@@ -861,10 +860,9 @@
             const isFree = (Number(p.harga) === 0);
             if (isFree) {
                 document.getElementById('btn-submit').innerHTML = 'Dapatkan Akses Gratis <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-0.5 transition-transform"></i>';
-                document.getElementById('display-total-top').innerText = 'GRATIS';
-                document.getElementById('display-total-top').classList.add('text-[#B6FF00]', 'drop-shadow-[0_0_10px_rgba(182,255,0,0.3)]');
+                document.getElementById('display-total-top').innerHTML = '<span style="color:#B6FF00; text-shadow:0 0 14px rgba(182,255,0,0.35);">GRATIS</span>';
             } else {
-                document.getElementById('display-total-top').classList.remove('text-[#B6FF00]', 'drop-shadow-[0_0_10px_rgba(182,255,0,0.3)]');
+                document.getElementById('display-total-top').innerHTML = `<span style="color:#B6FF00; text-shadow:0 0 14px rgba(182,255,0,0.35);">Rp ${Number(p.harga).toLocaleString('id-ID')}</span>`;
             }
             
             const loader = document.getElementById('loading-state');
@@ -1354,7 +1352,7 @@
 
             // Populate left panel
             document.getElementById('display-title').innerHTML = `<span class="text-[#B6FF00]">${cart.length} Produk</span> Dipilih`;
-            document.getElementById('display-total-top').innerText = 'Rp ' + nf.format(total);
+            document.getElementById('display-total-top').innerHTML = `<span style="color:#B6FF00; text-shadow:0 0 14px rgba(182,255,0,0.35);">Rp ${nf.format(total)}</span>`;
 
             // Render item list below display-title
             const titleEl = document.getElementById('display-title');
