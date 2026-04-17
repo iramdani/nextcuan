@@ -255,10 +255,11 @@
                 showToast('Keranjang Anda kosong!', 'warning');
                 return;
             }
-            // Pass applied voucher if any
-            let url = cart.length === 1 ? 'checkout.html?id=' + cart[0].id_produk : 'checkout.html?cart=1';
-            if (appliedVoucher) {
-                sessionStorage.setItem('cepat_pending_voucher', appliedVoucher.code);
+            // Always use cart mode so initCartMode handles the full UI consistently
+            let url = 'checkout.html?cart=1';
+            // Pass voucher via URL param so checkout.html can pick it up reliably
+            if (appliedVoucher && appliedVoucher.code) {
+                url += '&voucher=' + encodeURIComponent(appliedVoucher.code);
             }
             window.location.href = url;
         }

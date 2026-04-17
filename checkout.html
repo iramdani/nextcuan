@@ -404,30 +404,7 @@
                             </div>
                         </div>
 
-                        <!-- PAYMENT METHOD SECTION -->
-                        <div id="payment-method-section" class="hidden animate-fade-in-up pt-2">
-                            <div class="h-px bg-[rgba(255,255,255,0.05)] mb-6"></div>
-
-
-                            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3 ml-0.5">Metode Pembayaran</label>
-                            <div class="grid grid-cols-1 gap-3">
-                                <label class="group relative flex items-start p-4 border border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.02)] rounded-xl cursor-pointer transition-all duration-150 hover:border-[rgba(182,255,0,0.5)] hover:bg-[rgba(182,255,0,0.05)] has-[:checked]:border-[#B6FF00] has-[:checked]:bg-[rgba(182,255,0,0.1)] has-[:checked]:shadow-[0_0_15px_rgba(182,255,0,0.2)]" id="opt-bank">
-                                    <input type="radio" name="payment_method" value="bank" class="peer sr-only" checked onchange="selectPayment('bank')">
-                                    <div class="flex-shrink-0 mt-0.5 mr-3">
-                                        <div class="w-5 h-5 rounded-full border border-[rgba(255,255,255,0.2)] bg-[rgba(255,255,255,0.05)] flex items-center justify-center peer-checked:border-[#B6FF00] peer-checked:bg-[#B6FF00] transition-all duration-150">
-                                            <div class="w-2 h-2 rounded-full bg-transparent peer-checked:bg-black transition-colors"></div>
-                                        </div>
-                                    </div>
-                                    <div class="flex-1">
-                                        <div class="flex justify-between items-center mb-0.5">
-                                            <span class="block text-sm font-bold text-white">Transfer Bank (Manual)</span>
-                                            <i data-lucide="landmark" class="w-4 h-4 text-[#B6FF00]"></i>
-                                        </div>
-                                        <span class="block text-[11px] text-slate-400 font-medium leading-relaxed">Verifikasi manual via WhatsApp Admin.</span>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
+                        <!-- PAYMENT METHOD SECTION (removed per user request - payment shown after order submitted) -->
 
                         <!-- SUBMIT BUTTON -->
                         <div class="pt-2">
@@ -880,7 +857,6 @@
             
             const isFree = (Number(p.harga) === 0);
             if (isFree) {
-                document.getElementById('payment-method-section').classList.add('hidden');
                 document.getElementById('btn-submit').innerHTML = 'Dapatkan Akses Gratis <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-0.5 transition-transform"></i>';
                 document.getElementById('display-total-top').innerText = 'GRATIS';
                 document.getElementById('display-total-top').classList.add('text-[#B6FF00]', 'drop-shadow-[0_0_10px_rgba(182,255,0,0.3)]');
@@ -1105,7 +1081,8 @@
             const btn = document.getElementById('btn-submit'); 
             const originalHTML = btn.innerHTML;
 
-            if (Object.keys(sysPayment).length === 0) {
+            // sysPayment may be empty for cart mode - that's OK, we default to bank transfer
+            if (!isCartMode && Object.keys(sysPayment).length === 0) {
                 btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> SINKRONISASI...';
                 showToast('Menyiapkan pembayaran. Klik ulang dalam 2 detik.', 'warning');
                 setTimeout(() => { btn.innerHTML = originalHTML; lucide.createIcons(); }, 2000);
@@ -1299,7 +1276,7 @@
                 inp.value = code;
                 applyVoucher();
                 // Smooth scroll to the voucher section
-                document.getElementById('payment-method-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                document.getElementById('voucher-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         }
 
@@ -1388,21 +1365,16 @@
             `).join('')}</div>`;
             titleEl.insertAdjacentHTML('afterend', cartListHtml);
 
-            // Handle voucher if passed from cart
-            const voucherFromUrl = urlParams.get('voucher');
+            // Handle voucher if passed from cart (via URL param or sessionStorage)
+            const voucherFromUrl = urlParams.get('voucher') || sessionStorage.getItem('cepat_pending_voucher');
+            sessionStorage.removeItem('cepat_pending_voucher'); // always clean up
             if (voucherFromUrl) {
                 const vinp = document.getElementById('voucher-code-input');
                 if (vinp) {
                     vinp.value = voucherFromUrl.toUpperCase();
-                    applyVoucher();
-                    // Hide voucher input group if from cart as requested, but keep the badge
-                    const vgroup = document.getElementById('voucher-input-group');
-                    if (vgroup) vgroup.classList.add('hidden');
+                    // Delay slightly to let the page settle before calling applyVoucher
+                    setTimeout(() => applyVoucher(), 400);
                 }
-            } else if (cart.length > 1) {
-                // Hide voucher for multi-item if no voucher passed (one voucher per cart not yet supported)
-                const vgroup = document.getElementById('voucher-input-group');
-                if (vgroup) vgroup.classList.add('hidden');
             }
 
             // Set hidden prod-id to first item (for legacy compatibility; actual items sent via cartItems in payload)
@@ -1418,13 +1390,9 @@
                 document.getElementById('main-content').classList.remove('hidden');
                 document.getElementById('main-content').classList.add('flex');
             }, 200);
+            sysPayment = { method: 'bank' }; // default for cart mode
             setStep(1);
             if (window.lucide) lucide.createIcons();
-
-            // Show payment section for paid cart
-            if (total > 0) {
-                document.getElementById('payment-method-section').classList.remove('hidden');
-            }
         }
 
         // === INIT ===
