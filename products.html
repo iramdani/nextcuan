@@ -330,7 +330,7 @@
     </section>
 
     <!-- Toast Container -->
-    <div id="toast-container" class="fixed bottom-6 right-6 z-[999] flex flex-col gap-3" style="pointer-events:none;"></div>
+    <div id="toast-container" class="fixed top-24 right-6 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
 
     <script>
         const CACHE_KEY_CATALOG = 'cepat_public_catalog';
@@ -354,14 +354,20 @@
                 .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
         }
         function showToast(msg, type = 'success') {
-            const c = document.getElementById('toast-container');
-            const t = document.createElement('div');
-            t.className = `toast ${type}`;
-            t.innerHTML = `<i data-lucide="check-circle" class="w-5 h-5 flex-shrink-0"></i><span>${msg}</span>`;
-            c.appendChild(t);
-            if (window.lucide) lucide.createIcons({ root: t });
-            setTimeout(() => t.classList.add('show'), 10);
-            setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, 3000);
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            const color = type === 'success' ? '#B6FF00' : type === 'warning' ? '#F59E0B' : '#EF4444';
+            toast.className = 'glass-card border-white/10 px-4 py-3 rounded-2xl flex items-center gap-3 text-xs shadow-2xl transition-all duration-300 transform translate-y-4 opacity-0 scale-95';
+            toast.style.borderColor = `${color}40`;
+            toast.innerHTML = `<div class="w-6 h-6 rounded-lg flex items-center justify-center" style="background:${color}20;color:${color}"><i data-lucide="${type==='success'?'check':'alert-circle'}" class="w-3.5 h-3.5"></i></div><span class="font-bold text-white">${msg}</span>`;
+            container.appendChild(toast);
+            if(window.lucide) lucide.createIcons({ root: toast });
+            setTimeout(() => { toast.classList.remove('translate-y-4', 'opacity-0', 'scale-95'); }, 10);
+            setTimeout(() => {
+                toast.classList.add('translate-y-4', 'opacity-0', 'scale-95');
+                setTimeout(() => toast.remove(), 400);
+            }, 3000);
         }
         function copyProductLink(url) {
             const full = new URL(url, window.location.origin).href;
@@ -586,7 +592,7 @@
             if (cart.some(i => i.id_produk === id)) { showToast('Produk sudah ada di keranjang!', 'warning'); return; }
             cart.push({ id_produk: id, nama_produk: name, harga: price, harga_coret: hargaCoret, image_url: imageUrl });
             saveCart(cart);
-            showToast('✅ ' + name.substring(0, 24) + ' ditambahkan!', 'success');
+            showToast(name.substring(0, 24) + ' ditambahkan!', 'success');
         }
 
         function removeFromCart(id) { saveCart(getCart().filter(i => i.id_produk !== id)); }

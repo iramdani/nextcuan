@@ -152,20 +152,7 @@
         }
         .fade-in { animation: fadeIn 0.8s ease-out forwards; }
 
-        /* Toast Styling */
-        .toast {
-            display: flex; align-items: center; gap: 0.75rem;
-            background: rgba(10,10,30,0.98); border: 1px solid rgba(255,255,255,0.1);
-            color: white; padding: 0.9rem 1.25rem; border-radius: 1rem;
-            font-size: 0.875rem; font-weight: 600; pointer-events: all;
-            min-width: 220px; max-width: 300px;
-            transform: translateY(120%); opacity: 0;
-            transition: all 0.35s cubic-bezier(0.22,1,0.36,1);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
-        }
-        .toast.success { border-color: rgba(182,255,0,0.3); color: #B6FF00; }
-        .toast.warning { border-color: rgba(245,158,11,0.3); color: #f59e0b; }
-        .toast.show { transform: translateY(0); opacity: 1; }
+
 
         /* Scrollbar Styling for Drawer */
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -379,7 +366,7 @@
     </div>
 
     <!-- Toast Container -->
-    <div id="toast-container" class="fixed top-24 right-6 z-[999] flex flex-col gap-3" style="pointer-events:none;"></div>
+    <div id="toast-container" class="fixed top-24 right-6 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
 
     <!-- Scripts -->
     <script>
@@ -433,7 +420,7 @@
                 }, 1800);
             }
 
-            showToast('✅ Berhasil ditambahkan!', 'success');
+            showToast('Berhasil ditambahkan!', 'success');
         }
 
         function removeFromCart(id) {
@@ -547,16 +534,20 @@
         }
 
         function showToast(msg, type = 'success') {
-            const c = document.getElementById('toast-container');
-            if (!c) return;
-            const t = document.createElement('div');
-            t.className = `toast ${type}`;
-            const icon = type === 'success' ? 'check-circle' : 'alert-triangle';
-            t.innerHTML = `<i data-lucide="${icon}" class="w-5 h-5 flex-shrink-0"></i><span>${msg}</span>`;
-            c.appendChild(t);
-            if (window.lucide) lucide.createIcons({ nodes: [t] });
-            setTimeout(() => t.classList.add('show'), 10);
-            setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, 3000);
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            const color = type === 'success' ? '#B6FF00' : type === 'warning' ? '#F59E0B' : '#EF4444';
+            toast.className = 'glass-card border-white/10 px-4 py-3 rounded-2xl flex items-center gap-3 text-xs shadow-2xl transition-all duration-300 transform translate-y-4 opacity-0 scale-95';
+            toast.style.borderColor = `${color}40`;
+            toast.innerHTML = `<div class="w-6 h-6 rounded-lg flex items-center justify-center" style="background:${color}20;color:${color}"><i data-lucide="${type==='success'?'check':'alert-circle'}" class="w-3.5 h-3.5"></i></div><span class="font-bold text-white">${msg}</span>`;
+            container.appendChild(toast);
+            if(window.lucide) lucide.createIcons({ root: toast });
+            setTimeout(() => { toast.classList.remove('translate-y-4', 'opacity-0', 'scale-95'); }, 10);
+            setTimeout(() => {
+                toast.classList.add('translate-y-4', 'opacity-0', 'scale-95');
+                setTimeout(() => toast.remove(), 400);
+            }, 3000);
         }
 
         async function fetchProduct() {

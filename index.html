@@ -1421,7 +1421,7 @@
             if (cart.some(i => i.id_produk === id)) { showCartToast('Produk sudah ada di keranjang!', 'warning'); return; }
             cart.push({ id_produk: id, nama_produk: name, harga: price, harga_coret: hargaCoret, image_url: imageUrl });
             saveCart(cart);
-            showCartToast('✅ ' + name.substring(0, 24) + ' ditambahkan!', 'success');
+            showCartToast(name.substring(0, 24) + ' ditambahkan!', 'success');
         }
 
         function removeFromCart(id) { saveCart(getCart().filter(i => i.id_produk !== id)); }
@@ -1548,21 +1548,7 @@
             document.execCommand('copy');
             document.body.removeChild(tempInput);
             
-            let container = document.getElementById('toast-container');
-            if (container) {
-                const toast = document.createElement('div');
-                toast.className = 'toast success';
-                toast.innerHTML = '<i data-lucide="check-circle" class="w-5 h-5 flex-shrink-0"></i> <span>Link berhasil disalin!</span>';
-                container.appendChild(toast);
-                if (window.lucide) { lucide.createIcons({ root: toast }); }
-                setTimeout(() => toast.classList.add('show'), 10);
-                setTimeout(() => {
-                    toast.classList.remove('show');
-                    setTimeout(() => toast.remove(), 400);
-                }, 3000);
-            } else {
-                alert('Link disalin: ' + fullUrl);
-            }
+            showCartToast('Link berhasil disalin!', 'success');
         }
 
         function changeCategory(cat) {
