@@ -14,10 +14,12 @@
  */
 var SITE_CONFIG = {
     // ── Domain Utama (Production) ──────────────────────────
-    PRIMARY_DOMAIN: 'akses.nextcuan.my.id',
+    PRIMARY_DOMAIN: 'nextcuan.my.id',
 
     // ── Daftar Domain yang Diizinkan ───────────────────────
     ALLOWED_DOMAINS: [
+        'nextcuan.my.id',
+        'www.nextcuan.my.id',
         'akses.nextcuan.my.id',
         'www.akses.nextcuan.my.id'
     ],
