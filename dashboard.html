@@ -976,10 +976,14 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
             }
 
             if (r.my_pages) renderMyPages(r.my_pages);
-            if (r.partners) {
-                renderPartners(r.partners);
-                renderSalesChart(r.partners);
-               if (r.total_komisi !== undefined) {
+
+            // Render Partners & Sales Chart
+            const partnersData = r.partners || [];
+            renderPartners(partnersData);
+            renderSalesChart(partnersData);
+
+            // Render Financial Summary
+            if (r.total_komisi !== undefined) {
                 const lifetimeEl = document.getElementById('display-komisi-lifetime');
                 if (lifetimeEl) lifetimeEl.innerText = 'Rp ' + Number(r.total_komisi).toLocaleString('id-ID');
             }
@@ -991,7 +995,7 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
                 // Fallback for old cache/compatibility
                 const saldoEl = document.getElementById('display-saldo-komisi');
                 if (saldoEl) saldoEl.innerText = 'Rp ' + Number(r.total_komisi).toLocaleString('id-ID');
-            }           }
+            }
 
             const ownedContainer = document.getElementById('list-owned');
             if (r.owned && r.owned.length > 0) {
@@ -1419,13 +1423,10 @@ src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"
 
         let salesChartInstance = null;
         function renderSalesChart(partners, range = '7') {
+            partners = Array.isArray(partners) ? partners : [];
             globalPartnersData = partners;
             const ctx = document.getElementById('salesOverviewChart');
             if(!ctx) return;
-
-            if(!partners || partners.length === 0) {
-                return;
-            }
 
             const today = new Date();
             today.setHours(0,0,0,0);
