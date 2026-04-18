@@ -432,31 +432,30 @@
             const loginUrl = 'https://nextcuan.my.id/login.html';
 
             if (level === 1) {
-                return Halo Kak ** \ud83d\udc4b\n\nKami dari ** ingin mengingatkan bahwa pesanan Anda masih menunggu pembayaran:\n\n\ud83e\uddfe *Invoice:* #\n\ud83d\udce6 *Produk:* \n\ud83d\udcb0 *Total:* Rp \n\n\u26a0\ufe0f *Cara Pembayaran:*\n1\ufe0f\u20e3 Transfer ke rekening yang tertera saat checkout\n2\ufe0f\u20e3 Pastikan nominal *TEPAT SAMA* (termasuk 3 digit unik)\n3\ufe0f\u20e3 Akses otomatis aktif dalam 2-15 menit setelah transfer\n\n\ud83d\udd17 Login Member Area: \n\nAda pertanyaan? Balas pesan ini ya Kak \ud83d\ude0a\n\n*Tim *;
+                return `Halo Kak *${name}* ðŸ‘‹\n\nKami dari *${siteName}* ingin mengingatkan bahwa pesanan Anda masih menunggu pembayaran:\n\nðŸ§¾ *Invoice:* #${inv}\nðŸ“¦ *Produk:* ${product}\nðŸ’° *Total:* Rp ${total}\n\nâš ï¸ *Cara Pembayaran:*\n1ï¸âƒ£ Transfer ke rekening yang tertera saat checkout\n2ï¸âƒ£ Pastikan nominal *TEPAT SAMA* (termasuk 3 digit unik)\n3ï¸âƒ£ Akses otomatis aktif dalam 2-15 menit setelah transfer\n\nðŸ”— Login Member Area: ${loginUrl}\n\nAda pertanyaan? Balas pesan ini ya Kak ðŸ˜Š\n\n*Tim ${siteName}*`;
             } else if (level === 2) {
-                return Halo Kak ** \ud83d\udd14\n\nKami ingatkan kembali \u2014 pesanan *#* Anda belum dibayar.\n\n\ud83d\udce6 *Produk:* \n\ud83d\udcb0 *Total:* Rp \n\n\ud83c\udfe6 *Cara Transfer:*\n\u2022 Cek nomor rekening di halaman checkout (ada 3 angka unik di akhir)\n\u2022 Transfer *TEPAT SAMA* dengan nominal yang tertera\n\u2022 Konfirmasi otomatis dalam 2\u201315 menit\n\n\u23f3 Stok & harga bisa berubah sewaktu-waktu. Segera selesaikan ya Kak!\n\n\ud83d\udc49 Butuh bantuan? Chat kami: https://wa.me/\n\n*Tim *;
+                return `Halo Kak *${name}* ðŸ””\n\nKami ingatkan kembali â€” pesanan *#${inv}* Anda belum dibayar.\n\nðŸ“¦ *Produk:* ${product}\nðŸ’° *Total:* Rp ${total}\n\nðŸ¦ *Cara Transfer:*\nâ€¢ Cek nomor rekening di halaman checkout (ada 3 angka unik di akhir)\nâ€¢ Transfer *TEPAT SAMA* dengan nominal yang tertera\nâ€¢ Konfirmasi otomatis dalam 2â€“15 menit\n\nâ³ Stok & harga bisa berubah sewaktu-waktu. Segera selesaikan ya Kak!\n\nðŸ‘‰ Butuh bantuan? Chat kami: https://wa.me/${supportWa}\n\n*Tim ${siteName}*`;
             } else {
-                return Halo Kak ** \u26a0\ufe0f\n\nIni pesan terakhir kami mengenai pesanan *#*.\n\n\ud83d\udce6 *Produk:* \n\ud83d\udcb0 *Total:* Rp \n\nPesanan Anda akan segera *KADALUARSA* jika belum dibayar.\n\n\u2705 *Cara Bayar Mudah:*\n1. Login: \n2. Buka Pesanan Saya \u2192 lihat invoice #\n3. Transfer nominal TEPAT ke rekening yang tertera\n4. Akses aktif otomatis!\n\n\ud83d\udcac Kendala? Hubungi: https://wa.me/\n\nKami siap bantu Kak! Jangan lewatkan kesempatan ini \ud83d\ude4f\n\n*Tim *;
+                return `Halo Kak *${name}* âš ï¸\n\nIni pesan terakhir kami mengenai pesanan *#${inv}*.\n\nðŸ“¦ *Produk:* ${product}\nðŸ’° *Total:* Rp ${total}\n\nPesanan Anda akan segera *KADALUARSA* jika belum dibayar.\n\nâœ… *Cara Bayar Mudah:*\n1. Login: ${loginUrl}\n2. Buka Pesanan Saya â†’ lihat invoice #${inv}\n3. Transfer nominal TEPAT ke rekening yang tertera\n4. Akses aktif otomatis!\n\nðŸ’¬ Kendala? Hubungi: https://wa.me/${supportWa}\n\nKami siap bantu Kak! Jangan lewatkan kesempatan ini ðŸ™\n\n*Tim ${siteName}*`;
             }
         }
 
         function buildFollowUpButtons(inv, rawWa, name, product, total) {
             const waNum = normalizeWaForLink(rawWa);
-            if (!waNum) return <div class="text-center text-slate-600 text-xs italic">-</div>;
+            if (!waNum) return `<div class="text-center text-slate-600 text-xs italic">-</div>`;
             const m1 = encodeURIComponent(buildFollowUpMessage(1, { inv, name, product, total }));
             const m2 = encodeURIComponent(buildFollowUpMessage(2, { inv, name, product, total }));
             const m3 = encodeURIComponent(buildFollowUpMessage(3, { inv, name, product, total }));
             const base = 'https://wa.me/' + waNum + '?text=';
-            return <div class="flex flex-col items-center gap-1">
+            return `<div class="flex flex-col items-center gap-1">
                 <span class="followup-label">Follow Up</span>
                 <div class="followup-group">
-                    <a href="" target="_blank" title="Follow Up 1 - Pengingat Ramah" class="followup-btn followup-btn-1">1</a>
-                    <a href="" target="_blank" title="Follow Up 2 - Urgensi Sedang" class="followup-btn followup-btn-2">2</a>
-                    <a href="" target="_blank" title="Follow Up 3 - Urgensi Tinggi (Final)" class="followup-btn followup-btn-3">3</a>
+                    <a href="${base}${m1}" target="_blank" title="Follow Up 1 - Pengingat Ramah" class="followup-btn followup-btn-1">1</a>
+                    <a href="${base}${m2}" target="_blank" title="Follow Up 2 - Urgensi Sedang" class="followup-btn followup-btn-2">2</a>
+                    <a href="${base}${m3}" target="_blank" title="Follow Up 3 - Urgensi Tinggi (Final)" class="followup-btn followup-btn-3">3</a>
                 </div>
-            </div>;
+            </div>`;
         }
-
         function ensureAdminSessionActive() {
             const token = String(sessionStorage.getItem('auth_session_token') || '');
             const role = String(sessionStorage.getItem('auth_role') || '').toLowerCase();
