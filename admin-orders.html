@@ -256,7 +256,7 @@
                             <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-[rgba(255,255,255,0.05)]">Produk</th>
                             <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-[rgba(255,255,255,0.05)]">Total</th>
                             <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-[rgba(255,255,255,0.05)]">Status</th>
-                            <th class="px-6 py-4 text-center text-xs font-bold text-[#25D366] uppercase tracking-widest border-b border-[rgba(255,255,255,0.05)]">Follow Up WA</th>
+                            <th class="px-6 py-4 text-center text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-[rgba(255,255,255,0.05)]">Follow Up</th>
                             <th class="px-6 py-4 text-right text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-[rgba(255,255,255,0.05)]">Aksi</th>
                         </tr>
                     </thead>
@@ -432,11 +432,11 @@
             const loginUrl = 'https://nextcuan.my.id/login.html';
 
             if (level === 1) {
-                return `Halo Kak *${name}* ðŸ‘‹\n\nKami dari *${siteName}* ingin mengingatkan bahwa pesanan Anda masih menunggu pembayaran:\n\nðŸ§¾ *Invoice:* #${inv}\nðŸ“¦ *Produk:* ${product}\nðŸ’° *Total:* Rp ${total}\n\nâš ï¸ *Cara Pembayaran:*\n1ï¸âƒ£ Transfer ke rekening yang tertera saat checkout\n2ï¸âƒ£ Pastikan nominal *TEPAT SAMA* (termasuk 3 digit unik)\n3ï¸âƒ£ Akses otomatis aktif dalam 2-15 menit setelah transfer\n\nðŸ”— Login Member Area: ${loginUrl}\n\nAda pertanyaan? Balas pesan ini ya Kak ðŸ˜Š\n\n*Tim ${siteName}*`;
+                return `Halo Kak *${name}* 👋\n\nKami dari *${siteName}* mau mengingatkan kalau pesanan Kakak masih menunggu pembayaran nih:\n\n🧾 *Invoice:* #${inv}\n📦 *Produk:* ${product}\n💰 *Total:* Rp ${total}\n\n⚠️ *Penting untuk Pembayaran:*\n1️⃣ Mohon transfer ke rekening yang tertera saat checkout ya Kak\n2️⃣ Pastikan nominalnya *TEPAT SAMA* (termasuk 3 digit unik di akhir)\n3️⃣ Akses pesanan Kakak akan aktif otomatis dalam 2-15 menit setelah transfer masuk\n\n🔗 Login Member Area: ${loginUrl}\n\nKalau ada kendala atau pertanyaan, balas aja pesan ini ya Kak 😊\n\n*Tim ${siteName}*`;
             } else if (level === 2) {
-                return `Halo Kak *${name}* ðŸ””\n\nKami ingatkan kembali â€” pesanan *#${inv}* Anda belum dibayar.\n\nðŸ“¦ *Produk:* ${product}\nðŸ’° *Total:* Rp ${total}\n\nðŸ¦ *Cara Transfer:*\nâ€¢ Cek nomor rekening di halaman checkout (ada 3 angka unik di akhir)\nâ€¢ Transfer *TEPAT SAMA* dengan nominal yang tertera\nâ€¢ Konfirmasi otomatis dalam 2â€“15 menit\n\nâ³ Stok & harga bisa berubah sewaktu-waktu. Segera selesaikan ya Kak!\n\nðŸ‘‰ Butuh bantuan? Chat kami: https://wa.me/${supportWa}\n\n*Tim ${siteName}*`;
+                return `Halo Kak *${name}* 🔔\n\nIzin mengingatkan kembali ya Kak — pesanan *#${inv}* Kakak belum kami terima pembayarannya.\n\n📦 *Produk:* ${product}\n💰 *Total:* Rp ${total}\n\n🏦 *Cara Transfer:*\n• Cek nomor rekening di halaman checkout (ada 3 angka unik di akhir)\n• Transfer nominal yang *TEPAT SAMA* supaya bisa dicek otomatis oleh sistem\n• Konfirmasi berjalan otomatis dalam 2–15 menit\n\n⏳ Stok dan promo bisa berubah sewaktu-waktu. Yuk diselesaikan sekarang Kak! 🎉\n\n👉 Kalau kebingungan, langsung chat aja Kak: https://wa.me/${supportWa}\n\n*Tim ${siteName}*`;
             } else {
-                return `Halo Kak *${name}* âš ï¸\n\nIni pesan terakhir kami mengenai pesanan *#${inv}*.\n\nðŸ“¦ *Produk:* ${product}\nðŸ’° *Total:* Rp ${total}\n\nPesanan Anda akan segera *KADALUARSA* jika belum dibayar.\n\nâœ… *Cara Bayar Mudah:*\n1. Login: ${loginUrl}\n2. Buka Pesanan Saya â†’ lihat invoice #${inv}\n3. Transfer nominal TEPAT ke rekening yang tertera\n4. Akses aktif otomatis!\n\nðŸ’¬ Kendala? Hubungi: https://wa.me/${supportWa}\n\nKami siap bantu Kak! Jangan lewatkan kesempatan ini ðŸ™\n\n*Tim ${siteName}*`;
+                return `Halo Kak *${name}* ⚠️\n\nIni pesan informasi terakhir dari kami untuk pesanan *#${inv}* nya ya Kak.\n\n📦 *Produk:* ${product}\n💰 *Total:* Rp ${total}\n\nPesanan Kakak akan segera *KADALUARSA* dan batal otomatis jika belum dibayar.\n\n✅ *Cara Bayarnya Mudah Kok:*\n1. Login: ${loginUrl}\n2. Buka Pesanan Saya → lihat invoice #${inv}\n3. Transfer nominal TEPAT ke rekening yang tertera\n4. Selesai! Akses langsung aktif otomatis.\n\n💬 Butuh bantuan transfer? Kabari kami di sini Kak: https://wa.me/${supportWa}\n\nJangan sampai ketinggalan promonya ya Kak 🙏\n\n*Tim ${siteName}*`;
             }
         }
 
@@ -448,7 +448,7 @@
             const m3 = encodeURIComponent(buildFollowUpMessage(3, { inv, name, product, total }));
             const base = 'https://wa.me/' + waNum + '?text=';
             return `<div class="flex flex-col items-center gap-1">
-                <span class="followup-label">Follow Up</span>
+                
                 <div class="followup-group">
                     <a href="${base}${m1}" target="_blank" title="Follow Up 1 - Pengingat Ramah" class="followup-btn followup-btn-1">1</a>
                     <a href="${base}${m2}" target="_blank" title="Follow Up 2 - Urgensi Sedang" class="followup-btn followup-btn-2">2</a>
