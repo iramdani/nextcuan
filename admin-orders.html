@@ -71,6 +71,33 @@
             background-color: transparent !important;
         }
 
+
+        /* Follow Up Button Styles */
+        .followup-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            font-size: 11px;
+            font-weight: 800;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            line-height: 1;
+        }
+        .followup-btn:hover { transform: scale(1.15); box-shadow: 0 0 12px rgba(37,211,102,0.4); }
+        .followup-btn-1 { background: rgba(182,255,0,0.15); color: #B6FF00; border: 1px solid rgba(182,255,0,0.3); }
+        .followup-btn-1:hover { background: rgba(182,255,0,0.3); }
+        .followup-btn-2 { background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
+        .followup-btn-2:hover { background: rgba(251,191,36,0.3); }
+        .followup-btn-3 { background: rgba(251,113,133,0.15); color: #fb7185; border: 1px solid rgba(251,113,133,0.3); }
+        .followup-btn-3:hover { background: rgba(251,113,133,0.3); }
+        .followup-label { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #64748b; margin-bottom: 3px; display: block; }
+        .followup-group { display: flex; align-items: center; gap: 5px; }
+
         /* Responsive Table Optimization */
         @media (max-width: 1024px) {
             .responsive-table thead { display: none; }
@@ -229,6 +256,7 @@
                             <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-[rgba(255,255,255,0.05)]">Produk</th>
                             <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-[rgba(255,255,255,0.05)]">Total</th>
                             <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-[rgba(255,255,255,0.05)]">Status</th>
+                            <th class="px-6 py-4 text-center text-xs font-bold text-[#25D366] uppercase tracking-widest border-b border-[rgba(255,255,255,0.05)]">Follow Up WA</th>
                             <th class="px-6 py-4 text-right text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-[rgba(255,255,255,0.05)]">Aksi</th>
                         </tr>
                     </thead>
@@ -385,6 +413,49 @@
         let currentData = [];
         let activeProductsList = [];
         let isEditing = false;
+        /* ============================================================
+           FOLLOW UP WHATSAPP - Template Builder
+        ============================================================ */
+        function normalizeWaForLink(raw) {
+            if (!raw) return '';
+            let num = String(raw).replace(/\D/g, '');
+            if (num.startsWith('620')) num = num.substring(3);
+            else if (num.startsWith('62')) num = num.substring(2);
+            if (num.startsWith('0')) num = num.substring(1);
+            return '62' + num;
+        }
+
+        function buildFollowUpMessage(level, data) {
+            const { inv, name, product, total } = data;
+            const siteName = 'Next Cuan';
+            const supportWa = '6282220004022';
+            const loginUrl = 'https://nextcuan.my.id/login.html';
+
+            if (level === 1) {
+                return Halo Kak ** \ud83d\udc4b\n\nKami dari ** ingin mengingatkan bahwa pesanan Anda masih menunggu pembayaran:\n\n\ud83e\uddfe *Invoice:* #\n\ud83d\udce6 *Produk:* \n\ud83d\udcb0 *Total:* Rp \n\n\u26a0\ufe0f *Cara Pembayaran:*\n1\ufe0f\u20e3 Transfer ke rekening yang tertera saat checkout\n2\ufe0f\u20e3 Pastikan nominal *TEPAT SAMA* (termasuk 3 digit unik)\n3\ufe0f\u20e3 Akses otomatis aktif dalam 2-15 menit setelah transfer\n\n\ud83d\udd17 Login Member Area: \n\nAda pertanyaan? Balas pesan ini ya Kak \ud83d\ude0a\n\n*Tim *;
+            } else if (level === 2) {
+                return Halo Kak ** \ud83d\udd14\n\nKami ingatkan kembali \u2014 pesanan *#* Anda belum dibayar.\n\n\ud83d\udce6 *Produk:* \n\ud83d\udcb0 *Total:* Rp \n\n\ud83c\udfe6 *Cara Transfer:*\n\u2022 Cek nomor rekening di halaman checkout (ada 3 angka unik di akhir)\n\u2022 Transfer *TEPAT SAMA* dengan nominal yang tertera\n\u2022 Konfirmasi otomatis dalam 2\u201315 menit\n\n\u23f3 Stok & harga bisa berubah sewaktu-waktu. Segera selesaikan ya Kak!\n\n\ud83d\udc49 Butuh bantuan? Chat kami: https://wa.me/\n\n*Tim *;
+            } else {
+                return Halo Kak ** \u26a0\ufe0f\n\nIni pesan terakhir kami mengenai pesanan *#*.\n\n\ud83d\udce6 *Produk:* \n\ud83d\udcb0 *Total:* Rp \n\nPesanan Anda akan segera *KADALUARSA* jika belum dibayar.\n\n\u2705 *Cara Bayar Mudah:*\n1. Login: \n2. Buka Pesanan Saya \u2192 lihat invoice #\n3. Transfer nominal TEPAT ke rekening yang tertera\n4. Akses aktif otomatis!\n\n\ud83d\udcac Kendala? Hubungi: https://wa.me/\n\nKami siap bantu Kak! Jangan lewatkan kesempatan ini \ud83d\ude4f\n\n*Tim *;
+            }
+        }
+
+        function buildFollowUpButtons(inv, rawWa, name, product, total) {
+            const waNum = normalizeWaForLink(rawWa);
+            if (!waNum) return <div class="text-center text-slate-600 text-xs italic">-</div>;
+            const m1 = encodeURIComponent(buildFollowUpMessage(1, { inv, name, product, total }));
+            const m2 = encodeURIComponent(buildFollowUpMessage(2, { inv, name, product, total }));
+            const m3 = encodeURIComponent(buildFollowUpMessage(3, { inv, name, product, total }));
+            const base = 'https://wa.me/' + waNum + '?text=';
+            return <div class="flex flex-col items-center gap-1">
+                <span class="followup-label">Follow Up</span>
+                <div class="followup-group">
+                    <a href="" target="_blank" title="Follow Up 1 - Pengingat Ramah" class="followup-btn followup-btn-1">1</a>
+                    <a href="" target="_blank" title="Follow Up 2 - Urgensi Sedang" class="followup-btn followup-btn-2">2</a>
+                    <a href="" target="_blank" title="Follow Up 3 - Urgensi Tinggi (Final)" class="followup-btn followup-btn-3">3</a>
+                </div>
+            </div>;
+        }
 
         function ensureAdminSessionActive() {
             const token = String(sessionStorage.getItem('auth_session_token') || '');
@@ -557,6 +628,13 @@
                 
                 let statusBadge = `<span class="inline-block px-3 py-1.5 text-[10px] font-bold rounded-full border" style="background-color: ${bgColor}; color: ${textColor}; border-color: ${borderColor};">${status}</span>`;
 
+                // Build Follow Up WA buttons (only for Pending orders)
+                const rawWaNum = String(item[3] || '');
+                let followUpHtml = '<div class=\'text-center text-slate-700 text-xs\'>&mdash;</div>';
+                if (statusLower === 'pending' && rawWaNum) {
+                    followUpHtml = buildFollowUpButtons(inv, rawWaNum, name, pname, price);
+                }
+
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-[rgba(255,255,255,0.02)] transition-colors group';
                 tr.innerHTML = `
@@ -573,6 +651,7 @@
                     <td class="px-6 py-4 whitespace-nowrap" data-label="Status">
                         <div>${statusBadge}</div>
                     </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center" data-label="Follow Up WA">${followUpHtml}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium" data-label="Aksi">
                         <div class="flex items-center justify-end gap-2">
                             <button onclick="editOrder('${inv}')" class="text-slate-400 hover:text-[#B6FF00] transition-colors bg-[rgba(255,255,255,0.05)] p-2 rounded-lg" title="Edit"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
