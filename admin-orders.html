@@ -442,12 +442,13 @@
                 smile: String.fromCodePoint(128522),    // 😊
                 bell: String.fromCodePoint(128276),     // 🔔
                 bank: String.fromCodePoint(127974),     // 🏦
-                timer: String.fromCodePoint(8947),      // ⏳
+                timer: String.fromCodePoint(9203),      // ⏳
                 party: String.fromCodePoint(127881),    // 🎉
                 point: String.fromCodePoint(128073),    // 👉
                 check: String.fromCodePoint(9989),      // ✅
                 chat: String.fromCodePoint(128172),     // 💬
-                pray: String.fromCodePoint(128591),    // 🙏
+                pray: String.fromCodePoint(128591),     // 🙏
+                bullet: String.fromCodePoint(128313),   // 🔹
                 k1: "1" + String.fromCodePoint(65039, 8419),
                 k2: "2" + String.fromCodePoint(65039, 8419),
                 k3: "3" + String.fromCodePoint(65039, 8419)
@@ -459,9 +460,9 @@
             if (level === 1) {
                 return `${header}Kami dari *${siteName}* mau mengingatkan kalau pesanan Kakak masih menunggu pembayaran nih:\n\n${e.receipt} *Invoice:* #${inv}\n${e.box} *Produk:* ${product}\n${e.money} *Total:* Rp ${total}\n\n${e.warn} *Penting untuk Pembayaran:*\n${e.k1} Mohon transfer ke rekening yang tertera saat checkout ya Kak\n${e.k2} Pastikan nominalnya *TEPAT SAMA* (termasuk 3 digit unik di akhir)\n${e.k3} Akses pesanan Kakak akan aktif otomatis dalam 2-15 menit setelah transfer masuk\n\n${e.link} Login Member Area: ${loginUrl}\n\nKalau ada kendala atau pertanyaan, balas aja pesan ini ya Kak ${e.smile}${footer}`;
             } else if (level === 2) {
-                return `Halo Kak *${name}* ${e.bell}\n\nIzin mengingatkan kembali ya Kak — pesanan *#${inv}* Kakak belum kami terima pembayarannya.\n\n${e.box} *Produk:* ${product}\n${e.money} *Total:* Rp ${total}\n\n${e.bank} *Cara Transfer:*\n• Cek nomor rekening di halaman checkout (ada 3 angka unik di akhir)\n• Transfer nominal yang *TEPAT SAMA* supaya bisa dicek otomatis oleh sistem\n• Konfirmasi berjalan otomatis dalam 2–15 menit\n\n${e.timer} Stok dan promo bisa berubah sewaktu-waktu. Yuk diselesaikan sekarang Kak! ${e.party}\n\n${e.point} Kalau kebingungan, langsung chat aja Kak: https://wa.me/${supportWa}${footer}`;
+                return `Halo Kak *${name}* ${e.bell}\n\nIzin mengingatkan kembali ya Kak - pesanan *#${inv}* Kakak belum kami terima pembayarannya.\n\n${e.box} *Produk:* ${product}\n${e.money} *Total:* Rp ${total}\n\n${e.bank} *Cara Transfer:*\n${e.bullet} Cek nomor rekening di halaman checkout (ada 3 angka unik di akhir)\n${e.bullet} Transfer nominal yang *TEPAT SAMA* supaya bisa dicek otomatis oleh sistem\n${e.bullet} Konfirmasi berjalan otomatis dalam 2-15 menit\n\n${e.timer} Stok dan promo bisa berubah sewaktu-waktu. Yuk diselesaikan sekarang Kak! ${e.party}\n\n${e.point} Kalau kebingungan, langsung chat aja Kak: https://wa.me/${supportWa}${footer}`;
             } else {
-                return `Halo Kak *${name}* ${e.warn}\n\nIni pesan informasi terakhir dari kami untuk pesanan *#${inv}* nya ya Kak.\n\n${e.box} *Produk:* ${product}\n${e.money} *Total:* Rp ${total}\n\nPesanan Kakak akan segera *KADALUARSA* dan batal otomatis jika belum dibayar.\n\n${e.check} *Cara Bayarnya Mudah Kok:*\n1. Login: ${loginUrl}\n2. Buka Pesanan Saya → lihat invoice #${inv}\n3. Transfer nominal TEPAT ke rekening yang tertera\n4. Selesai! Akses langsung aktif otomatis.\n\n${e.chat} Butuh bantuan transfer? Kabari kami di sini Kak: https://wa.me/${supportWa}\n\nJangan sampai ketinggalan promonya ya Kak ${e.pray}${footer}`;
+                return `Halo Kak *${name}* ${e.warn}\n\nIni pesan informasi terakhir dari kami untuk pesanan *#${inv}* nya ya Kak.\n\n${e.box} *Produk:* ${product}\n${e.money} *Total:* Rp ${total}\n\nPesanan Kakak akan segera *KADALUARSA* dan batal otomatis jika belum dibayar.\n\n${e.check} *Cara Bayarnya Mudah Kok:*\n1. Login: ${loginUrl}\n2. Buka Pesanan Saya -> lihat invoice #${inv}\n3. Transfer nominal TEPAT ke rekening yang tertera\n4. Selesai! Akses langsung aktif otomatis.\n\n${e.chat} Butuh bantuan transfer? Kabari kami di sini Kak: https://wa.me/${supportWa}\n\nJangan sampai ketinggalan promonya ya Kak ${e.pray}${footer}`;
             }
         }
 
