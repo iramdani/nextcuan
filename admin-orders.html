@@ -71,7 +71,6 @@
             background-color: transparent !important;
         }
 
-
         /* Follow Up Button Styles */
         .followup-btn {
             display: inline-flex;
@@ -144,14 +143,13 @@
     </style>
 
     <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-GZM06L9YDH"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-GZM06L9YDH');
-</script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GZM06L9YDH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-GZM06L9YDH');
+    </script>
 </head>
 <body class="bg-[#000018] text-white font-sans">
     <script>
@@ -208,14 +206,6 @@
             </div>
         </div>
     </header>
-
-    <script>
-        // Hide header if inside iframe (integrated mode)
-        if (window.self !== window.top) {
-            document.getElementById('main-header').style.display = 'none';
-            document.body.classList.add('iframe-mode');
-        }
-    </script>
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -292,7 +282,6 @@
                 </div>
             </div>
         </div>
-
     </main>
 
     <!-- Modal Form -->
@@ -306,22 +295,18 @@
                 </div>
                 <div class="px-6 py-5 space-y-4">
                     <input type="hidden" id="orderId">
-                    
                     <div>
                         <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-0.5">Nama Pelanggan</label>
                         <input type="text" id="inputNama" class="glass-input w-full rounded-xl py-3 px-4 text-sm text-white focus:outline-none transition-all" placeholder="Jhon Doe">
                     </div>
-                    
                     <div>
                         <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-0.5">Email</label>
                         <input type="email" id="inputEmail" class="glass-input w-full rounded-xl py-3 px-4 text-sm text-white focus:outline-none transition-all" placeholder="jhondoe@gmail.com">
                     </div>
-
                     <div>
                         <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-0.5">WhatsApp</label>
                         <input type="text" id="inputWa" class="glass-input w-full rounded-xl py-3 px-4 text-sm text-white focus:outline-none transition-all" placeholder="628xxx">
                     </div>
-
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-0.5">Nama Produk</label>
@@ -334,12 +319,10 @@
                             <input type="text" id="inputIdProduk" readonly class="glass-input w-full rounded-xl py-3 px-4 text-sm text-slate-400 focus:outline-none transition-all bg-[rgba(0,0,0,0.3)] cursor-not-allowed">
                         </div>
                     </div>
-
                     <div>
                         <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-0.5">Harga Total</label>
                         <input type="number" id="inputHarga" class="glass-input w-full rounded-xl py-3 px-4 text-sm text-white focus:outline-none transition-all">
                     </div>
-
                     <div>
                         <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-0.5">Status</label>
                         <select id="inputStatus" class="glass-input w-full rounded-xl py-3 px-4 text-sm text-white focus:outline-none transition-all [&>option]:bg-[#000018]">
@@ -348,7 +331,6 @@
                             <option value="Batal">Batal</option>
                         </select>
                     </div>
-
                     <div class="flex items-center gap-2 mt-2 ml-1">
                         <input type="checkbox" id="inputExcludeStats" class="w-4 h-4 text-[#B6FF00] bg-[rgba(255,255,255,0.05)] border-slate-500 rounded focus:ring-[#B6FF00] focus:ring-2 accent-[#B6FF00] cursor-pointer">
                         <label for="inputExcludeStats" class="text-xs font-medium text-slate-300 cursor-pointer">Exclude from statistic</label>
@@ -383,7 +365,6 @@
                         <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-0.5">Email Member</label>
                         <input type="email" id="accessEmail" class="glass-input w-full rounded-xl py-3 px-4 text-sm text-white focus:outline-none transition-all placeholder-slate-500" placeholder="email@member.com">
                     </div>
-
                     <div>
                         <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-0.5">Pilih Produk</label>
                         <select id="accessProductName" onchange="onAccessProductSelect(this)" class="glass-input w-full rounded-xl py-3 px-4 text-sm text-white focus:outline-none transition-all [&>option]:bg-[#000018]">
@@ -405,17 +386,35 @@
     </div>
 
     <script>
-        // CONFIGURATION — Dynamic lookup from encrypted config.js
+        // CONFIGURATION
+        function formatAdminDate(val) {
+            if (!val) return '-';
+            try {
+                const d = new Date(val);
+                if (isNaN(d.getTime())) return String(val);
+                return d.toLocaleDateString('id-ID', { year: 'numeric', month: '2-digit', day: '2-digit' }).split('/').reverse().join('-');
+            } catch (e) {
+                return String(val);
+            }
+        }
+
         function getApiUrl() {
             return window.SCRIPT_URL || (typeof SCRIPT_URL !== 'undefined' ? SCRIPT_URL : null);
         }
+        
         let currentPage = 1;
         let currentData = [];
         let activeProductsList = [];
         let isEditing = false;
-        /* ============================================================
-           FOLLOW UP WHATSAPP - Template Builder
-        ============================================================ */
+
+        // Hide header if inside iframe
+        if (window.self !== window.top) {
+            const h = document.getElementById('main-header');
+            if(h) h.style.display = 'none';
+            document.body.classList.add('iframe-mode');
+        }
+
+        /* FOLLOW UP WHATSAPP */
         function normalizeWaForLink(raw) {
             if (!raw) return '';
             let num = String(raw).replace(/\D/g, '');
@@ -431,24 +430,23 @@
             const supportWa = '6282220004022';
             const loginUrl = 'https://nextcuan.my.id/login.html';
             
-            // Decimal-based CodePoints (most stable across all JS engines)
             const e = {
-                wave: String.fromCodePoint(128075),     // 👋
-                receipt: String.fromCodePoint(129534),  // 🧾
-                box: String.fromCodePoint(128230),      // 📦
-                money: String.fromCodePoint(128176),    // 💰
-                warn: String.fromCodePoint(9888, 65039), // ⚠️
-                link: String.fromCodePoint(128279),     // 🔗
-                smile: String.fromCodePoint(128522),    // 😊
-                bell: String.fromCodePoint(128276),     // 🔔
-                bank: String.fromCodePoint(127974),     // 🏦
-                timer: String.fromCodePoint(9203),      // ⏳
-                party: String.fromCodePoint(127881),    // 🎉
-                point: String.fromCodePoint(128073),    // 👉
-                check: String.fromCodePoint(9989),      // ✅
-                chat: String.fromCodePoint(128172),     // 💬
-                pray: String.fromCodePoint(128591),     // 🙏
-                bullet: String.fromCodePoint(128313),   // 🔹
+                wave: String.fromCodePoint(128075),
+                receipt: String.fromCodePoint(129534),
+                box: String.fromCodePoint(128230),
+                money: String.fromCodePoint(128176),
+                warn: String.fromCodePoint(9888, 65039),
+                link: String.fromCodePoint(128279),
+                smile: String.fromCodePoint(128522),
+                bell: String.fromCodePoint(128276),
+                bank: String.fromCodePoint(127974),
+                timer: String.fromCodePoint(9203),
+                party: String.fromCodePoint(127881),
+                point: String.fromCodePoint(128073),
+                check: String.fromCodePoint(9989),
+                chat: String.fromCodePoint(128172),
+                pray: String.fromCodePoint(128591),
+                bullet: String.fromCodePoint(128313),
                 k1: "1" + String.fromCodePoint(65039, 8419),
                 k2: "2" + String.fromCodePoint(65039, 8419),
                 k3: "3" + String.fromCodePoint(65039, 8419)
@@ -474,20 +472,21 @@
             const m3 = encodeURIComponent(buildFollowUpMessage(3, { inv, name, product, total }));
             const base = 'https://api.whatsapp.com/send?phone=' + waNum + '&text=';
             return `<div class="flex flex-col items-center gap-1">
-                
                 <div class="followup-group">
-                    <a href="${base}${m1}" target="_blank" title="Follow Up 1 - Pengingat Ramah" class="followup-btn followup-btn-1">1</a>
-                    <a href="${base}${m2}" target="_blank" title="Follow Up 2 - Urgensi Sedang" class="followup-btn followup-btn-2">2</a>
-                    <a href="${base}${m3}" target="_blank" title="Follow Up 3 - Urgensi Tinggi (Final)" class="followup-btn followup-btn-3">3</a>
+                    <a href="${base}${m1}" target="_blank" title="Follow Up 1" class="followup-btn followup-btn-1">1</a>
+                    <a href="${base}${m2}" target="_blank" title="Follow Up 2" class="followup-btn followup-btn-2">2</a>
+                    <a href="${base}${m3}" target="_blank" title="Follow Up 3" class="followup-btn followup-btn-3">3</a>
                 </div>
             </div>`;
         }
+
+        /* SESSION & AUTH */
         function ensureAdminSessionActive() {
-            const token = String(sessionStorage.getItem('auth_session_token') || '');
+            const token = sessionStorage.getItem('auth_session_token');
             const role = String(sessionStorage.getItem('auth_role') || '').toLowerCase();
-            const hasUnifiedSession = sessionStorage.getItem('auth_v1') === 'true' && role === 'admin' && !!token;
-            if (!hasUnifiedSession) {
-                Swal.fire('Sesi Tidak Valid', 'Sesi admin tidak valid. Silakan login ulang.', 'warning')
+            const valid = sessionStorage.getItem('auth_v1') === 'true' && role === 'admin' && !!token;
+            if (!valid) {
+                Swal.fire('Sesi Habis', 'Sesi admin tidak valid. Silakan login ulang.', 'warning')
                     .then(() => window.top.location.replace('admin-area.html'));
                 return false;
             }
@@ -495,98 +494,72 @@
         }
 
         function buildAdminAuthPayload(payload) {
-            if (!ensureAdminSessionActive()) throw new Error('Sesi admin tidak valid.');
+            if (!ensureAdminSessionActive()) throw new Error('Unauthorized');
             return Object.assign({}, payload || {}, {
-                auth_session_token: sessionStorage.getItem('auth_session_token') || '',
-                auth_role: sessionStorage.getItem('auth_role') || ''
+                auth_session_token: sessionStorage.getItem('auth_session_token'),
+                auth_role: sessionStorage.getItem('auth_role')
             });
         }
 
-        // ON LOAD
+        /* CORE LOGIC */
         document.addEventListener('DOMContentLoaded', () => {
-            lucide.createIcons();
+            if(typeof lucide !== 'undefined') lucide.createIcons();
             fetchOrders(1);
             loadActiveProducts();
             
-            // Search debounce
             let timeout = null;
-            document.getElementById('searchInput').addEventListener('keyup', function(e) {
+            document.getElementById('searchInput').addEventListener('keyup', (e) => {
                 clearTimeout(timeout);
-                timeout = setTimeout(() => {
-                    fetchOrders(1, e.target.value);
-                }, 500);
+                timeout = setTimeout(() => fetchOrders(1, e.target.value), 500);
             });
         });
 
-        // LOADING STATE
         function setLoading(active) {
             const el = document.getElementById('loading');
-            if (active) el.classList.add('active');
-            else el.classList.remove('active');
+            if (active) el.classList.remove('hidden');
+            else el.classList.add('hidden');
         }
 
-        // FETCH ACTIVE PRODUCTS
         async function loadActiveProducts() {
             try {
-                const API_URL = getApiUrl();
-                if (!API_URL) return;
-                const res = await fetch(API_URL, {
+                const res = await fetch(getApiUrl(), {
                     method: 'POST',
                     body: JSON.stringify(buildAdminAuthPayload({ action: 'get_admin_data' }))
                 });
                 const json = await res.json();
                 if (json.status === 'success') {
-                    // product is at index 0..n where 0 is id, 1 is name, 4 is price, 5 is status (Active), 15 is hidden
                     activeProductsList = json.products.filter(p => String(p[5] || '').trim() === 'Active');
-                    populateProductDropdown();
+                    const select = document.getElementById('inputNamaProduk');
+                    if(select) {
+                        select.innerHTML = '<option value="">Pilih Produk Aktif...</option>';
+                        activeProductsList.forEach(p => {
+                            const opt = document.createElement('option');
+                            opt.value = p[1]; opt.text = p[1];
+                            opt.dataset.id = p[0]; opt.dataset.price = p[4];
+                            select.appendChild(opt);
+                        });
+                    }
                 }
-            } catch (e) {
-                console.error('Gagal memuat produk', e);
-            }
-        }
-
-        function populateProductDropdown() {
-            const select = document.getElementById('inputNamaProduk');
-            if(!select) return;
-            select.innerHTML = '<option value="">Pilih Produk Aktif...</option>';
-            activeProductsList.forEach(p => {
-                const opt = document.createElement('option');
-                opt.value = p[1]; 
-                opt.text = p[1];
-                opt.dataset.id = p[0];
-                opt.dataset.price = p[4];
-                select.appendChild(opt);
-            });
+            } catch (e) {}
         }
 
         function onProductSelect(selectEl) {
-            const selectedOpt = selectEl.options[selectEl.selectedIndex];
-            document.getElementById('inputIdProduk').value = selectedOpt.dataset.id || '';
-            document.getElementById('inputHarga').value = selectedOpt.dataset.price || '';
+            const opt = selectEl.options[selectEl.selectedIndex];
+            document.getElementById('inputIdProduk').value = opt.dataset.id || '';
+            document.getElementById('inputHarga').value = opt.dataset.price || '';
         }
 
-        // FETCH ORDERS (READ)
         async function fetchOrders(page, search = "") {
-            const API_URL = getApiUrl();
-            if (!API_URL) {
-                console.error('[Config] SCRIPT_URL tidak tersedia');
-                Swal.fire('Error', 'Konfigurasi API belum siap. Pastikan config.js termuat. Coba refresh.', 'error');
-                return;
-            }
             setLoading(true);
             try {
-                const res = await fetch(API_URL, {
+                const res = await fetch(getApiUrl(), {
                     method: 'POST',
                     body: JSON.stringify(buildAdminAuthPayload({
                         action: 'get_admin_orders',
-                        page: page,
-                        limit: 20,
-                        search: search
+                        page: page, limit: 20, search: search
                     }))
                 });
-                
                 const json = await res.json();
-                
                 if (json.status === 'success') {
                     currentData = json.data;
                     renderTable(json.data);
@@ -595,27 +568,21 @@
                 } else {
                     Swal.fire('Error', json.message, 'error');
                 }
-            } catch (error) {
-                console.error(error);
-                Swal.fire('Error', 'Gagal memuat data. ' + (error.message || 'Cek koneksi.'), 'error');
+            } catch (e) {
+                Swal.fire('Error', 'Gagal memuat data.', 'error');
             } finally {
                 setLoading(false);
             }
         }
 
-        // RENDER TABLE
         function renderTable(data) {
             const tbody = document.getElementById('ordersTableBody');
             tbody.innerHTML = '';
-
             if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-8 text-center text-slate-400 italic text-sm">Tidak ada data ditemukan</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="px-6 py-8 text-center text-slate-400 italic text-sm">Tidak ada data ditemukan</td></tr>`;
                 return;
             }
-
             data.forEach(item => {
-                if (!item || !Array.isArray(item)) return;
-                // Mapping columns based on typical structure: [Inv, Email, Name, WA, Pid, Pname, Price, Status, Date, Aff, Comm, isExcluded]
                 const inv = item[0] || '-';
                 const email = item[1] || '-';
                 const name = item[2] || '-';
@@ -623,108 +590,62 @@
                 const price = Number(item[6] || 0).toLocaleString('id-ID');
                 let status = String(item[7] || '').trim();
                 const isExcluded = String(item[11] || '') === 'TRUE';
+                const date = formatAdminDate(item[8]);
                 
-                const statusLower = status.toLowerCase();
-                
-                let date = '-';
-                if (item[8]) {
-                    try {
-                        const d = new Date(item[8]);
-                        if (!isNaN(d.getTime())) date = d.toLocaleDateString('id-ID');
-                        else date = String(item[8]);
-                    } catch (e) {
-                        date = String(item[8]);
-                    }
-                }
-                let bgColor, textColor, borderColor;
-                if (statusLower === 'lunas') {
-                    bgColor = 'rgba(16,185,129,0.15)'; textColor = '#34d399'; borderColor = 'rgba(16,185,129,0.3)';
-                } else if (statusLower === 'pending') {
-                    bgColor = 'rgba(245,158,11,0.15)'; textColor = '#fbbf24'; borderColor = 'rgba(245,158,11,0.3)';
-                } else if (statusLower === 'batal' || statusLower === 'failed') {
-                    bgColor = 'rgba(244,63,94,0.15)'; textColor = '#fb7185'; borderColor = 'rgba(244,63,94,0.3)';
-                } else {
-                    bgColor = 'rgba(100,116,139,0.1)'; textColor = '#94a3b8'; borderColor = 'rgba(100,116,139,0.2)';
-                }
-                
-                if (isExcluded) {
-                   status += " (Manual)";
-                }
-                
-                let statusBadge = `<span class="inline-block px-3 py-1.5 text-[10px] font-bold rounded-full border" style="background-color: ${bgColor}; color: ${textColor}; border-color: ${borderColor};">${status}</span>`;
+                const sL = status.toLowerCase();
+                let bg, text, border;
+                if (sL === 'lunas') { bg = 'rgba(16,185,129,0.15)'; text = '#34d399'; border = 'rgba(16,185,129,0.3)'; }
+                else if (sL === 'pending') { bg = 'rgba(245,158,11,0.15)'; text = '#fbbf24'; border = 'rgba(245,158,11,0.3)'; }
+                else if (sL === 'batal' || sL === 'failed') { bg = 'rgba(244,63,94,0.15)'; text = '#fb7185'; border = 'rgba(244,63,94,0.3)'; }
+                else { bg = 'rgba(100,116,139,0.1)'; text = '#94a3b8'; border = 'rgba(100,116,139,0.2)'; }
 
-                // Build Follow Up WA buttons (only for Pending orders)
-                const rawWaNum = String(item[3] || '');
-                let followUpHtml = '<div class=\'text-center text-slate-700 text-xs\'>&mdash;</div>';
-                if (statusLower === 'pending' && rawWaNum) {
-                    followUpHtml = buildFollowUpButtons(inv, rawWaNum, name, pname, price);
-                }
+                if (isExcluded) status += " (Manual)";
+                const badge = `<span class="inline-block px-3 py-1.5 text-[10px] font-bold rounded-full border" style="background:${bg};color:${text};border-color:${border}">${status}</span>`;
+                
+                const followUp = (sL === 'pending' && item[3]) ? buildFollowUpButtons(inv, item[3], name, pname, price) : '<div class="text-center text-slate-700">&mdash;</div>';
 
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-[rgba(255,255,255,0.02)] transition-colors group';
                 tr.innerHTML = `
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-mono font-bold text-[#B6FF00]" data-label="Invoice">${inv}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-400" data-label="Tanggal"><div>${date}</div></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-400" data-label="Tanggal">${date}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-white" data-label="Pelanggan">
-                        <div class="flex flex-col">
-                            <div class="font-bold">${name}</div>
-                            <div class="text-[11px] text-slate-400 mt-1">${email}</div>
-                        </div>
+                        <div class="font-bold">${name}</div><div class="text-[11px] text-slate-400">${email}</div>
                     </td>
-                    <td class="px-6 py-4 text-sm text-slate-300 md:whitespace-nowrap" data-label="Produk"><div class="whitespace-normal break-words leading-relaxed">${pname}</div></td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white font-mono font-bold" data-label="Total"><div>Rp ${price}</div></td>
-                    <td class="px-6 py-4 whitespace-nowrap" data-label="Status">
-                        <div>${statusBadge}</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-center" data-label="Follow Up WA">${followUpHtml}</td>
+                    <td class="px-6 py-4 text-sm text-slate-300 md:whitespace-nowrap" data-label="Produk">${pname}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white font-mono font-bold" data-label="Total">Rp ${price}</td>
+                    <td class="px-6 py-4 whitespace-nowrap" data-label="Status">${badge}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center" data-label="Follow Up">${followUp}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium" data-label="Aksi">
                         <div class="flex items-center justify-end gap-2">
-                            <button onclick="editOrder('${inv}')" class="text-slate-400 hover:text-[#B6FF00] transition-colors bg-[rgba(255,255,255,0.05)] p-2 rounded-lg" title="Edit"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
-                            <button onclick="deleteOrder('${inv}')" class="text-slate-400 hover:text-[#ef4444] transition-colors bg-[rgba(255,255,255,0.05)] p-2 rounded-lg" title="Hapus"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            <button onclick="editOrder('${inv}')" class="text-slate-400 hover:text-[#B6FF00] p-2 bg-[rgba(255,255,255,0.05)] rounded-lg"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                            <button onclick="deleteOrder('${inv}')" class="text-slate-400 hover:text-[#ef4444] p-2 bg-[rgba(255,255,255,0.05)] rounded-lg"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                         </div>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
-            lucide.createIcons();
+            if(typeof lucide !== 'undefined') lucide.createIcons();
         }
 
-        // PAGINATION
-        function updatePagination(page, hasMore, count = 0) {
-            // Update Text X sampai Y
+        function updatePagination(page, hasMore, count) {
             const limit = 20;
             const start = count > 0 ? (page - 1) * limit + 1 : 0;
             const end = count > 0 ? (page - 1) * limit + count : 0;
-            
-            const pStart = document.getElementById('pageStart');
-            const pEnd = document.getElementById('pageEnd');
-            if(pStart) pStart.innerText = start;
-            if(pEnd) pEnd.innerText = end;
-
+            document.getElementById('pageStart').innerText = start;
+            document.getElementById('pageEnd').innerText = end;
             document.getElementById('pageInfo').innerText = `Halaman ${page}`;
             document.getElementById('prevBtn').disabled = page === 1;
             document.getElementById('nextBtn').disabled = !hasMore;
-            
-            // Simple visual feedback
-            if (page === 1) document.getElementById('prevBtn').classList.add('opacity-50', 'cursor-not-allowed');
-            else document.getElementById('prevBtn').classList.remove('opacity-50', 'cursor-not-allowed');
-            
-            if (!hasMore) document.getElementById('nextBtn').classList.add('opacity-50', 'cursor-not-allowed');
-            else document.getElementById('nextBtn').classList.remove('opacity-50', 'cursor-not-allowed');
         }
 
         function changePage(delta) {
-            const newPage = currentPage + delta;
-            if (newPage < 1) return;
-            fetchOrders(newPage);
+            const n = currentPage + delta;
+            if (n >= 1) fetchOrders(n);
         }
 
-        // MODAL FUNCTIONS
         function openModal(mode, data = null) {
-            const modal = document.getElementById('orderModal');
-            const title = document.getElementById('modalTitle');
-            
-            // Reset Form
+            const m = document.getElementById('orderModal');
             document.getElementById('orderId').value = '';
             document.getElementById('inputNama').value = '';
             document.getElementById('inputEmail').value = '';
@@ -737,8 +658,8 @@
 
             if (mode === 'edit' && data) {
                 isEditing = true;
-                title.innerText = 'Edit Order ' + data[0];
-                document.getElementById('orderId').value = data[0]; // Inv as ID
+                document.getElementById('modalTitle').innerText = 'Edit Order ' + data[0];
+                document.getElementById('orderId').value = data[0];
                 document.getElementById('inputEmail').value = data[1];
                 document.getElementById('inputNama').value = data[2];
                 document.getElementById('inputWa').value = data[3];
@@ -746,89 +667,60 @@
                 document.getElementById('inputNamaProduk').value = data[5];
                 document.getElementById('inputHarga').value = data[6];
                 document.getElementById('inputStatus').value = data[7];
-                if(data[11] === 'TRUE') document.getElementById('inputExcludeStats').checked = true;
-                
-                // Disable ID fields in edit mode
+                document.getElementById('inputExcludeStats').checked = data[11] === 'TRUE';
                 document.getElementById('inputEmail').readOnly = true;
             } else {
                 isEditing = false;
-                title.innerText = 'Tambah Order Baru';
+                document.getElementById('modalTitle').innerText = 'Tambah Order Baru';
                 document.getElementById('inputEmail').readOnly = false;
             }
-            
-            modal.classList.remove('hidden');
+            m.classList.remove('hidden');
         }
 
-        function closeModal() {
-            document.getElementById('orderModal').classList.add('hidden');
-        }
+        function closeModal() { document.getElementById('orderModal').classList.add('hidden'); }
 
-        // ACCESS MODAL
         function openAccessModal() {
             document.getElementById('accessEmail').value = '';
             document.getElementById('accessProductId').value = '';
-            
-            const select = document.getElementById('accessProductName');
-            if (select) {
-                select.innerHTML = '<option value="">Pilih Produk Aktif...</option>';
+            const s = document.getElementById('accessProductName');
+            if(s) {
+                s.innerHTML = '<option value="">Pilih Produk Aktif...</option>';
                 activeProductsList.forEach(p => {
-                    const opt = document.createElement('option');
-                    opt.value = p[1]; 
-                    opt.text = p[1];
-                    opt.dataset.id = p[0];
-                    select.appendChild(opt);
+                    const o = document.createElement('option');
+                    o.value = p[1]; o.text = p[1]; o.dataset.id = p[0];
+                    s.appendChild(o);
                 });
             }
-            
             document.getElementById('accessModal').classList.remove('hidden');
-            if (typeof lucide !== 'undefined') lucide.createIcons();
+            if(typeof lucide !== 'undefined') lucide.createIcons();
         }
 
-        function closeAccessModal() {
-            document.getElementById('accessModal').classList.add('hidden');
-        }
+        function closeAccessModal() { document.getElementById('accessModal').classList.add('hidden'); }
 
-        function onAccessProductSelect(selectEl) {
-            const selectedOpt = selectEl.options[selectEl.selectedIndex];
-            document.getElementById('accessProductId').value = selectedOpt.dataset.id || '';
+        function onAccessProductSelect(s) {
+            document.getElementById('accessProductId').value = s.options[s.selectedIndex].dataset.id || '';
         }
 
         async function processGiveAccess() {
             const email = document.getElementById('accessEmail').value;
-            const id_produk = document.getElementById('accessProductId').value;
-            
-            if (!email || !id_produk) {
-                Swal.fire('Validasi', 'Email dan Produk wajib diisi!', 'warning');
-                return;
-            }
-
+            const id = document.getElementById('accessProductId').value;
+            if(!email || !id) return Swal.fire('Error', 'Lengkapi data', 'warning');
             setLoading(true);
             try {
                 const res = await fetch(getApiUrl(), {
                     method: 'POST',
-                    body: JSON.stringify(buildAdminAuthPayload({
-                        action: 'give_product_access',
-                        email: email,
-                        id_produk: id_produk
-                    }))
+                    body: JSON.stringify(buildAdminAuthPayload({ action: 'give_product_access', email, id_produk: id }))
                 });
                 const json = await res.json();
-                
                 if (json.status === 'success') {
-                    Swal.fire('Sukses', json.message || 'Akses berhasil diberikan!', 'success');
+                    Swal.fire('Sukses', 'Akses diberikan', 'success');
                     closeAccessModal();
-                    fetchOrders(1); // Refresh tabel utk info invoice akses baru
-                } else {
-                    Swal.fire('Gagal', json.message, 'error');
-                }
-            } catch (e) {
-                Swal.fire('Error', e.toString(), 'error');
-            } finally {
-                setLoading(false);
-            }
+                    fetchOrders(1);
+                } else Swal.fire('Gagal', json.message, 'error');
+            } catch (e) { Swal.fire('Error', 'Gagal memproses', 'error'); }
+            finally { setLoading(false); }
         }
 
-        // CRUD ACTIONS
         function editOrder(inv) {
             const item = currentData.find(d => d[0] === inv);
             if (item) openModal('edit', item);
@@ -837,7 +729,7 @@
         async function saveOrder() {
             const payload = {
                 action: isEditing ? 'update_order_status' : 'create_order',
-                id: document.getElementById('orderId').value, // Only for update
+                id: document.getElementById('orderId').value,
                 nama: document.getElementById('inputNama').value,
                 email: document.getElementById('inputEmail').value,
                 whatsapp: document.getElementById('inputWa').value,
@@ -847,13 +739,7 @@
                 status: document.getElementById('inputStatus').value,
                 exclude_statistic: document.getElementById('inputExcludeStats').checked
             };
-
-            // Basic Validation
-            if (!payload.nama || !payload.email || !payload.harga) {
-                Swal.fire('Validasi', 'Mohon lengkapi data wajib (Nama, Email, Harga)', 'warning');
-                return;
-            }
-
+            if(!payload.nama || !payload.email || !payload.harga) return Swal.fire('Error', 'Lengkapi data', 'warning');
             setLoading(true);
             try {
                 const res = await fetch(getApiUrl(), {
@@ -861,55 +747,34 @@
                     body: JSON.stringify(buildAdminAuthPayload(payload))
                 });
                 const json = await res.json();
-                
                 if (json.status === 'success') {
-                    Swal.fire('Sukses', isEditing ? 'Order diperbarui' : 'Order berhasil dibuat', 'success');
+                    Swal.fire('Sukses', 'Berhasil', 'success');
                     closeModal();
                     fetchOrders(currentPage);
-                } else {
-                    Swal.fire('Gagal', json.message, 'error');
-                }
-            } catch (e) {
-                Swal.fire('Error', e.toString(), 'error');
-            } finally {
-                setLoading(false);
-            }
+                } else Swal.fire('Gagal', json.message, 'error');
+            } catch (e) { Swal.fire('Error', 'Terjadi kesalahan', 'error'); }
+            finally { setLoading(false); }
         }
 
-        function deleteOrder(inv) {
-            Swal.fire({
-                title: 'Hapus Order?',
-                text: `Anda yakin ingin menghapus invoice ${inv}? Tindakan ini tidak bisa dibatalkan.`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Ya, Hapus!'
-            }).then(async (result) => {
-                if (result.isConfirmed) {
-                    setLoading(true);
-                    try {
-                        const res = await fetch(getApiUrl(), {
-                            method: 'POST',
-                            body: JSON.stringify(buildAdminAuthPayload({
-                                action: 'delete_order',
-                                id: inv
-                            }))
-                        });
-                        const json = await res.json();
-                        if (json.status === 'success') {
-                            Swal.fire('Terhapus!', 'Data order telah dihapus.', 'success');
-                            fetchOrders(currentPage);
-                        } else {
-                            Swal.fire('Gagal', json.message, 'error');
-                        }
-                    } catch (e) {
-                        Swal.fire('Error', e.toString(), 'error');
-                    } finally {
-                        setLoading(false);
-                    }
-                }
+        async function deleteOrder(inv) {
+            const r = await Swal.fire({
+                title: 'Hapus?', text: inv, icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33'
             });
+            if(r.isConfirmed) {
+                setLoading(true);
+                try {
+                    const res = await fetch(getApiUrl(), {
+                        method: 'POST',
+                        body: JSON.stringify(buildAdminAuthPayload({ action: 'delete_order', id: inv }))
+                    });
+                    const json = await res.json();
+                    if (json.status === 'success') {
+                        Swal.fire('Sukses', 'Terhapus', 'success');
+                        fetchOrders(currentPage);
+                    } else Swal.fire('Gagal', json.message, 'error');
+                } catch (e) { Swal.fire('Error', 'Gagal menghapus', 'error'); }
+                finally { setLoading(false); }
+            }
         }
     </script>
 </body>
